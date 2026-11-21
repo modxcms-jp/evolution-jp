@@ -17,12 +17,16 @@
  *                     foldersOnly=1はツリー展開用(filesは空。ファイルの走査を省く)
  *                     守る場所(PathGuard)は、どちらの範囲でも一覧に出さない
  * GET  action=thumb  (type, folder, file)                     -> 画像バイナリ(縮小したもの)
- * POST action=upload (type, folder, files[], overwrite?)       -> {uploaded:[{index,name,size,url}], errors:[{index,name,message,code?,targetName?}]}
+ * POST action=upload (type, folder, files[], overwrite?)       -> {uploaded:[{index,name,size,path?,url?}], errors:[{index,name,message,code?,targetName?}]}
  *                     index は files[] の順番(0 から)。画面はこれで、送ったファイルと結果を対応づける
  *                     ピッカーは同名があれば 名前(1).拡張子 で別の名前にし、OnFileBrowserUpload を発火する。
  *                     管理モードは overwrite=1 のときだけ同名のファイルを上書きし(ファイルだけ。フォルダ・リンクは断る)、
  *                     OnFileManagerUpload を発火する。overwrite が無いときは、保存せずに errors へ code: exists と、
  *                     保存する名前(無害化した後)の targetName を入れて返す。画面は確かめた上で、該当のファイルだけ overwrite=1 で送り直す
+ *                     path・url はピッカーの応答だけに付く(一覧の files と同じ作り方)
+ * POST action=uploadPasted (type=images, files[])               -> {uploaded:[{index,name,size,path,url}], errors:[{index,name,message}]}(ピッカーだけ)
+ *                     エディタに貼り付けた・ドロップした画像の保存。置き場所は images/年/月/(サイトの時刻。無ければ作る)に決まっていて、folder は受けない。
+ *                     名前が image.拡張子 なら pasted-年月日-時分秒.拡張子 にし、ほかの名前は元のまま。拡張子・大きさ・同名の連番・OnFileBrowserUpload は upload と同じ
  * POST action=mkdir  (type, folder, name)                      -> {name}
  * POST action=rename (type, folder, target, newName)           -> {name}
  * POST action=delete (type, folder, files[], folders[])        -> {deleted:[...], errors:[{name,message}]}
@@ -66,6 +70,7 @@ require_once __DIR__ . '/lib/BrowserConfig.php';
 require_once __DIR__ . '/lib/ThumbnailService.php';
 require_once __DIR__ . '/lib/ZipService.php';
 require_once __DIR__ . '/lib/ChangeLog.php';
+require_once __DIR__ . '/lib/FileStore.php';
 require_once __DIR__ . '/lib/ManageActions.php';
 
 $modx = new DocumentParser();
@@ -223,25 +228,14 @@ function fbPickerList(PathResolver $resolver, PickerScope $scope, DocumentParser
     // ツリー展開用: ツリーにはフォルダだけを出すので、ファイルは集めない
     $list = fbReadDir($resolver, $scope, $folder, anyv('foldersOnly') === '1');
 
-    $config = $scope->config();
-    $baseUrl = $config->baseUrl();
-    $urlPrefix = $config->urlPrefix();
-
     $files = [];
     foreach ($list['files'] as $file) {
-        // 種類のフォルダ(images など)を頭に付けたパスが、rb_base_url の下の URL になる
-        $relPath = $scope->type() . '/' . $file['relPath'];
-
-        // path: SetUrl(TV値等)へ渡す相対パス(旧mcpuk同等)。読める形のまま渡し、
-        // FTP などで置かれた名前の % # ? だけは URL が切れないようエンコードする(% を最初に置き換える)
-        $filePath = ($urlPrefix !== '' ? $urlPrefix . '/' : '')
-            . str_replace(['%', '#', '?'], ['%25', '%23', '%3F'], $relPath);
+        // path: SetUrl(TV値等)へ渡す相対パス(旧mcpuk同等)。url: ブラウザ内表示用の絶対URL
+        $urls = $scope->fileUrls($file['relPath']);
+        $fileUrl = $urls['url'];
 
         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         $isRaster = ThumbnailService::isRasterImageExtension($ext);
-
-        // url: ブラウザ内表示用の絶対URL。パスの要素ごとにエンコードする
-        $fileUrl = $baseUrl . implode('/', array_map('rawurlencode', explode('/', $relPath)));
 
         $width = null;
         $height = null;
@@ -259,7 +253,7 @@ function fbPickerList(PathResolver $resolver, PickerScope $scope, DocumentParser
             'size' => $file['size'],
             'mtime' => $file['mtime'],
             'url' => $fileUrl,
-            'path' => $filePath,
+            'path' => $urls['path'],
             'thumb' => fbThumbSource($ext, $fileUrl),
             'width' => $width,
             'height' => $height,
@@ -395,104 +389,102 @@ function fbUploadedFiles()
     return $files;
 }
 
-/**
- * アップロードされたファイルを保存先へ置く。ピッカーと管理モードで共通なのは、この呼び出しだけ
- * (拡張子・大きさ・同名のときの扱いの確認とイベントは、範囲ごとの関数が行う)。
- * 縮小(image_limit_width)とパーミッションの設定は $modx->move_uploaded_file() が行う。失敗したらシステムログに残して false を返す
- */
-function fbStoreUpload(DocumentParser $modx, $originalName, $tmpPath, $targetPath)
-{
-    $saved = Filesystem::attempt(function () use ($modx, $tmpPath, $targetPath) {
-        return $modx->move_uploaded_file($tmpPath, $targetPath);
-    }, $reason);
-    if (!$saved) {
-        evo()->logEvent(0, 3, 'Failed to save an uploaded file in the file browser', 'File browser', [
-            'name' => $originalName,
-            'to' => $targetPath,
-            'reason' => $reason,
-        ]);
-    }
-
-    return $saved;
-}
-
 /** アップロードの errors の 1 件。画面は name でなく index で、送ったファイルと対応づける(名前に " や \ があると一致しない) */
 function fbUploadError(array $file, $message, array $extra = [])
 {
     return ['index' => $file['index'], 'name' => $file['name'], 'message' => $message] + $extra;
 }
 
-/** パスの最後の要素。basename() は PHP 7.4 ではロケールによって先頭のマルチバイト文字を落とすため使わない */
-function fbBaseName($path)
+/**
+ * ピッカーの保存先のフォルダーへ、受け取ったファイルを順に保存して応答を返す(upload と uploadPasted で共通)。
+ * 応答は {uploaded:[{index,name,size,path,url}], errors:[{index,name,message}]}。path・url は一覧と同じ作り方
+ *
+ * @param callable $nameOf function (string $sentName): string。保存する名前のもと(送られた名前から決める)
+ */
+function fbPickerSaveFiles(PathResolver $resolver, PickerScope $scope, DocumentParser $modx, array $dir, array $files, callable $nameOf)
 {
-    return substr($path, strrpos($path, '/') + 1);
-}
-
-function fbPickerUpload(PathResolver $resolver, PickerScope $scope, DocumentParser $modx)
-{
-    $folder = anyv('folder', '');
-    $dir = $resolver->resolveDir($folder);
-    if ($dir === null) {
-        fbError('not_found', lang('fb_err_folder_not_found'), 404);
-    }
-
-    $uploadedFiles = fbUploadedFiles();
-    $maxSize = $scope->maxUploadSize();
-
     $uploaded = [];
     $errors = [];
     $changed = [];
 
-    foreach ($uploadedFiles as $file) {
-        $originalName = $file['name'];
-
+    foreach ($files as $file) {
         if ($file['error'] !== UPLOAD_ERR_OK) {
             $errors[] = fbUploadError($file, sprintf(lang('fb_err_upload_failed'), $file['error']));
             continue;
         }
 
-        // 拡張子は、実際に保存する名前（無害化した後）で確かめる
-        $safeName = $modx->sanitizeFilename($originalName);
-        if (!$scope->isAllowedNewName($safeName)) {
-            $errors[] = fbUploadError($file, lang('fb_err_extension_not_allowed'));
+        $saved = FileStore::saveNewFile(
+            $resolver,
+            $scope,
+            $modx,
+            $dir,
+            $nameOf($file['name']),
+            $file['size'],
+            FileStore::uploadedWriter($modx, $file['name'], $file['tmp'])
+        );
+        if (isset($saved['error'])) {
+            $errors[] = fbUploadError($file, $saved['error']);
             continue;
         }
 
-        if ($file['size'] > $maxSize) {
-            $errors[] = fbUploadError($file, lang('fb_err_too_large'));
-            continue;
-        }
-
-        $targetPath = fbFindFreePath($resolver, $modx, $dir['real'], $safeName);
-        if ($targetPath === null) {
-            $errors[] = fbUploadError($file, lang('fb_err_too_many_same_name'));
-            continue;
-        }
-        $targetName = fbBaseName($targetPath);
-
-        if (!fbStoreUpload($modx, $originalName, $file['tmp'], $targetPath)) {
-            $errors[] = fbUploadError($file, lang('fb_err_save_failed'));
-            continue;
-        }
-
-        // プラグインがファイルを移動・削除してもよいよう、サイズはイベントの前に取る
-        $uploaded[] = [
-            'index' => $file['index'],
-            'name' => $targetName,
-            'size' => filesize($targetPath),
-        ];
-        $changed[] = ChangeLog::relPath($dir, $targetName);
-
-        // invokeEvent() の第2引数は参照渡しなので、変数に入れてから渡す
-        $eventParams = [
-            'filepath' => $dir['real'],
-            'filename' => $targetName,
-        ];
-        $modx->invokeEvent($scope->uploadEvent(), $eventParams);
+        $relPath = ChangeLog::relPath($dir, $saved['name']);
+        $uploaded[] = ['index' => $file['index'], 'name' => $saved['name'], 'size' => $saved['size']]
+            + $scope->fileUrls($relPath);
+        $changed[] = $relPath;
     }
 
     ChangeLog::record($scope, 'Uploaded File', $changed);
     fbSendJson(['uploaded' => $uploaded, 'errors' => $errors]);
+}
+
+function fbPickerUpload(PathResolver $resolver, PickerScope $scope, DocumentParser $modx)
+{
+    $dir = $resolver->resolveDir(anyv('folder', ''));
+    if ($dir === null) {
+        fbError('not_found', lang('fb_err_folder_not_found'), 404);
+    }
+
+    fbPickerSaveFiles($resolver, $scope, $modx, $dir, fbUploadedFiles(), fn($name) => $name);
+}
+
+/**
+ * エディタに貼り付けた・ドロップした画像の保存。置き場所は images/年/月/(サイトの時刻。無ければ作る)に決まっている。
+ * 名前の置き換えの決まりは FileStore::pastedPlaceholderExtension()。拡張子・大きさ・同名の連番は upload と同じ。
+ * 月のフォルダーを作れないときは、ほかの失敗と同じ形の HTTP エラー(mkdir_failed は 500)で返す
+ */
+function fbPickerUploadPasted(PathResolver $resolver, PickerScope $scope, DocumentParser $modx)
+{
+    if ($scope->type() !== 'images') {
+        fbError('invalid_type', lang('fb_err_invalid_type'), 400);
+    }
+
+    $files = fbUploadedFiles();
+    $now = request_time() + (int) $modx->config('server_offset_time', 0);
+    $nameOf = function ($name) use ($now) {
+        $extension = FileStore::pastedPlaceholderExtension($name);
+        return $extension === null ? $name : FileStore::pastedName($now, $extension);
+    };
+
+    // 保存できるファイルが 1 つ以上あるときだけ、年/月のフォルダーを作る。1 つも無いときは、ルートに対して同じ確かめを通して、
+    // 各ファイルの errors を返す(どれも保存されないので、置き場所は使われない)
+    $saveable = false;
+    foreach ($files as $file) {
+        if ($file['error'] === UPLOAD_ERR_OK && !isset(FileStore::checkNewFile($scope, $modx, $nameOf($file['name']), $file['size'])['error'])) {
+            $saveable = true;
+            break;
+        }
+    }
+    $folder = $saveable
+        ? FileStore::ensureFolderPath($resolver, $scope, $modx, FileStore::pastedFolder($now))
+        : ['dir' => $resolver->resolveDir('')];
+    if (isset($folder['error'])) {
+        fbFolderError($folder['error']);
+    }
+    if ($folder['dir'] === null) {
+        fbError('not_found', lang('fb_err_folder_not_found'), 404);
+    }
+
+    fbPickerSaveFiles($resolver, $scope, $modx, $folder['dir'], $files, $nameOf);
 }
 
 function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)
@@ -529,7 +521,7 @@ function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentPars
 
         // $modx->move_uploaded_file() は保存先の名前をもう一度無害化するので、確かめるパスもそれに合わせる
         $targetPath = $modx->sanitizeUploadedFilename($dir['real'] . $safeName);
-        $targetName = fbBaseName($targetPath);
+        $targetName = FileStore::baseName($targetPath);
         if ($resolver->resolveNewChild($dir['real'], $targetName) === null) {
             $errors[] = fbUploadError($file, lang('fb_err_protected'));
             continue;
@@ -551,7 +543,7 @@ function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentPars
             }
         }
 
-        if (!fbStoreUpload($modx, $originalName, $file['tmp'], $targetPath)) {
+        if (!FileStore::storeUploaded($modx, $originalName, $file['tmp'], $targetPath)) {
             $errors[] = fbUploadError($file, lang('fb_err_save_failed'));
             continue;
         }
@@ -582,56 +574,17 @@ function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentPars
     fbSendJson(['uploaded' => $uploaded, 'errors' => $errors]);
 }
 
-/**
- * 保存先のフォルダで空いているファイルのフルパスを探す。同名があれば 名前(1).拡張子 のように連番を付ける。
- * 見つからなければ null。
- *
- * $modx->move_uploaded_file() は保存先の名前をもう一度無害化する（設定によっては括弧などが _ になる）。
- * 空きを確かめた名前と実際に保存される名前がずれて上書きしないよう、候補ごとに同じ無害化をかける。
- * 守る場所に当たる候補は使えないものとして次の番号へ進む
- */
-function fbFindFreePath(PathResolver $resolver, DocumentParser $modx, $dirReal, $safeName)
+/** FileStore::createFolder() などが返すエラーの code を、API のエラーにして返す */
+function fbFolderError($code)
 {
-    $dotPos = strrpos($safeName, '.');
-    $baseName = $dotPos === false ? $safeName : substr($safeName, 0, $dotPos);
-    $extension = $dotPos === false ? '' : substr($safeName, $dotPos);
-    for ($suffix = 0; $suffix <= 200; $suffix++) {
-        $candidate = $suffix === 0 ? $safeName : $baseName . '(' . $suffix . ')' . $extension;
-        $candidatePath = $modx->sanitizeUploadedFilename($dirReal . $candidate);
-        if ($resolver->resolveNewChild($dirReal, fbBaseName($candidatePath)) === null) {
-            continue;
-        }
-        // 壊れたシンボリックリンクや同名のフォルダも「使用中」として次の番号へ進む
-        if (!file_exists($candidatePath) && !is_link($candidatePath)) {
-            return $candidatePath;
-        }
-    }
-    return null;
-}
-
-/**
- * fbFindFreePath() で見つけた空きの名前を、排他的に作成(x)して確保する。
- * 空きを確かめてから作るまでの間に同名ができても上書きしないよう、使われていたら次の候補を探す。
- *
- * @return array{path:string,handle:resource|false,reason:string}|null 空きが見つからなければ null。
- *         handle は作成したファイルのハンドル(作れなかった場合は false で、path は最後に試した候補、reason は警告の文)
- */
-function fbCreateFreeFile(PathResolver $resolver, DocumentParser $modx, $dirReal, $safeName)
-{
-    for ($attempt = 0; $attempt < 5; $attempt++) {
-        $targetPath = fbFindFreePath($resolver, $modx, $dirReal, $safeName);
-        if ($targetPath === null) {
-            return null;
-        }
-        $handle = Filesystem::attempt(function () use ($targetPath) {
-            return fopen($targetPath, 'xb');
-        }, $reason);
-        if ($handle !== false || (!file_exists($targetPath) && !is_link($targetPath))) {
-            // 'reason' は handle が false(権限など)のときの失敗の理由。名前が既にあった場合はループで次を探す
-            return ['path' => $targetPath, 'handle' => $handle, 'reason' => $reason];
-        }
-    }
-    return null;
+    $errors = [
+        'protected' => ['fb_err_protected', 403],
+        'already_exists' => ['fb_err_already_exists', 409],
+        'not_found' => ['fb_err_folder_not_found', 404],
+        'mkdir_failed' => ['fb_err_mkdir_failed', 500],
+    ];
+    [$key, $status] = $errors[$code] ?? $errors['mkdir_failed'];
+    fbError($code, lang($key), $status);
 }
 
 function fbActionMkdir(PathResolver $resolver, BrowserScope $scope, DocumentParser $modx)
@@ -647,28 +600,11 @@ function fbActionMkdir(PathResolver $resolver, BrowserScope $scope, DocumentPars
         fbError('invalid_name', lang('fb_err_invalid_folder_name'), 400);
     }
 
-    $target = $resolver->resolveNewChild($dir['real'], $name);
-    if ($target === null) {
-        fbError('protected', lang('fb_err_protected'), 403);
-    }
-    if (file_exists($target)) {
-        fbError('already_exists', lang('fb_err_already_exists'), 409);
+    $error = FileStore::createFolder($resolver, $scope, $modx, $dir, $name);
+    if ($error !== null) {
+        fbFolderError($error);
     }
 
-    $folderPermissions = $modx->newFolderPermissions();
-    $created = Filesystem::attempt(function () use ($target, $folderPermissions) {
-        return mkdir($target, $folderPermissions);
-    }, $reason);
-    if (!$created) {
-        evo()->logEvent(0, 3, 'Failed to create a folder in the file browser', 'File browser', [
-            'to' => $target,
-            'reason' => $reason,
-        ]);
-        fbError('mkdir_failed', lang('fb_err_mkdir_failed'), 500);
-    }
-    @chmod($target, $folderPermissions);
-
-    ChangeLog::record($scope, 'Created Folder', [ChangeLog::relPath($dir, $name)]);
     fbSendJson(['name' => $name]);
 }
 
@@ -901,7 +837,7 @@ function fbActionCopy(PathResolver $resolver, BrowserScope $scope, DocumentParse
         }
 
         // 空きを確かめてから作るまでの間に同名ができても上書きしないよう、排他的に作成して確保する
-        $free = fbCreateFreeFile($resolver, $modx, $destDir['real'], $safeName);
+        $free = FileStore::createFreeFile($resolver, $modx, $destDir['real'], $safeName);
         if ($free === null) {
             $errors[] = ['name' => $name, 'message' => lang('fb_err_too_many_same_name')];
             continue;
@@ -941,8 +877,8 @@ function fbActionCopy(PathResolver $resolver, BrowserScope $scope, DocumentParse
         // パーミッションを変えられない環境でも、複製できていれば成功として扱う
         @chmod($targetPath, $modx->newFilePermissions());
 
-        $copied[] = ['from' => $name, 'name' => fbBaseName($targetPath)];
-        $copiedPaths[] = [ChangeLog::relPath($dir, $name), ChangeLog::relPath($destDir, fbBaseName($targetPath))];
+        $copied[] = ['from' => $name, 'name' => FileStore::baseName($targetPath)];
+        $copiedPaths[] = [ChangeLog::relPath($dir, $name), ChangeLog::relPath($destDir, FileStore::baseName($targetPath))];
     }
 
     ChangeLog::record($scope, 'Copied', $copiedPaths);
@@ -1030,7 +966,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
         }
 
         // 空きを確かめてから作るまでの間に同名ができても上書きしないよう、排他的に作成して確保する
-        $free = fbCreateFreeFile($resolver, $modx, $dir['real'], $safeName);
+        $free = FileStore::createFreeFile($resolver, $modx, $dir['real'], $safeName);
         if ($free === null) {
             fbError('too_many_same_name', lang('fb_err_too_many_same_name'), 409);
         }
@@ -1038,7 +974,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
         if ($free['handle'] !== false) {
             fclose($free['handle']);
         }
-        $savedName = fbBaseName($targetPath);
+        $savedName = FileStore::baseName($targetPath);
 
         // 確保した(空の)ファイルへ保存する。第 3 引数 false で image_limit_width による縮小をしない
         $reason = $free['reason'];

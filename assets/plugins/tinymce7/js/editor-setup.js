@@ -167,5 +167,8 @@
     if (typeof global.mceModxImageEdit === 'function') {
       global.mceModxImageEdit(editor);
     }
+    if (typeof global.mceModxPastedUpload === 'function') {
+      global.mceModxPastedUpload(editor);
+    }
   };
 })(window);

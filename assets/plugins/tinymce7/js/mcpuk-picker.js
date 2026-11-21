@@ -343,6 +343,10 @@
   }
 
   global.mceModxImageEdit = function (editor) {
+    // ピッカーを使えない利用者には、画像編集を付けない（PHP の EditorInitializer が決める）
+    if (settings().imageEdit !== true) {
+      return;
+    }
     editor.options.register('modx_image_edit_label', {processor: 'string', default: 'Edit image'});
 
     editor.on('DblClick', function (event) {
@@ -381,6 +385,206 @@
       position: 'node',
       scope: 'node'
     });
+  };
+
+  const IMAGE_EXTENSIONS_BY_TYPE = Object.freeze({
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/gif': 'gif',
+    'image/webp': 'webp',
+    'image/bmp': 'bmp'
+  });
+
+  // 名前を持つファイルはその名前、無ければ image.拡張子 を送る。保存先の名前（pasted-年月日-時分秒 への置き換え）は、サーバー（FileStore）が決める
+  function uploadName(blobInfo) {
+    const blob = blobInfo.blob();
+    if (blob && typeof blob.name === 'string' && blob.name !== '') {
+      return blob.name;
+    }
+
+    let extension = IMAGE_EXTENSIONS_BY_TYPE[blob && blob.type];
+    if (!extension) {
+      const match = /\.([A-Za-z0-9]+)$/.exec(blobInfo.filename());
+      extension = match ? match[1].toLowerCase() : 'png';
+    }
+    return 'image.' + extension;
+  }
+
+  function uploadFailure(message) {
+    return {message: message, remove: true};
+  }
+
+  // 貼り付け・ドロップした画像を、ファイルピッカーの API（action=uploadPasted）で保存し、本文に入れる URL で resolve する。
+  // TinyMCE の images_upload_handler。失敗は {message, remove: true} で reject し、本文からその画像を外す
+  global.mceModxImageUpload = function (blobInfo, progress) {
+    return new Promise(function (resolve, reject) {
+      const upload = settings().upload;
+      if (!upload || !upload.url) {
+        reject(uploadFailure('MODX_FILE_PICKER.upload is not defined.'));
+        return;
+      }
+
+      const form = new global.FormData();
+      form.append('action', 'uploadPasted');
+      form.append('type', 'images');
+      form.append('csrf_token', upload.csrfToken);
+      form.append('files[]', blobInfo.blob(), uploadName(blobInfo));
+
+      const xhr = new global.XMLHttpRequest();
+      xhr.open('POST', upload.url);
+      xhr.upload.onprogress = function (event) {
+        if (event.lengthComputable) {
+          progress(event.loaded / event.total * 100);
+        }
+      };
+      xhr.onerror = function () {
+        reject(uploadFailure('HTTP Error: Could not reach the server'));
+      };
+      xhr.onload = function () {
+        let data = null;
+        try {
+          data = JSON.parse(xhr.responseText);
+        } catch (e) {
+          // JSON でない応答（CSRF の 403 は text/plain）は、HTTP の状態で知らせる
+        }
+
+        if (data && data.uploaded && data.uploaded.length > 0 && !(data.errors && data.errors.length > 0)) {
+          resolve(normalizeUrl(data.uploaded[0].path));
+          return;
+        }
+
+        const reason = data && data.errors && data.errors[0] && data.errors[0].message
+          || data && data.error && data.error.message
+          || 'HTTP Error: ' + xhr.status;
+        reject(uploadFailure(reason));
+      };
+      xhr.send(form);
+    });
+  };
+
+  // 開いたときから本文にある data: 画像（保存時の変換の対象）の src。アップロードの対象から外して、開くたびに保存されないようにする。
+  // TinyMCE は本文を読み込むときに base64 の data: 画像を blob: の URL に置き換える（保存するときは data: に戻す）ので、
+  // 初期化が終わるまでの SetContent のたびに、本文の blob:・data: の画像の src（置き換え後）を覚える。
+  // TinyMCE がアップロードの対象を探す処理より前に呼ばれるよう、setup の時点で付ける
+  function rememberExistingImages(editor) {
+    const sources = new Set();
+
+    function collect() {
+      editor.getBody().querySelectorAll('img[src^="blob:"], img[src^="data:"]').forEach(function (img) {
+        sources.add(img.src);
+      });
+    }
+
+    editor.on('SetContent', collect);
+    editor.once('init', function () {
+      editor.off('SetContent', collect);
+    });
+    return sources;
+  }
+
+  const existingImagesByEditor = new global.WeakMap();
+
+  // 本文に、アップロード前・中の画像（blob: の URL で、開いたときからある画像でないもの）が残っているか。保存前に待つかどうかの判定
+  function hasPendingUploads(editor) {
+    const existing = existingImagesByEditor.get(editor);
+    if (editor.removed || !editor.getBody() || !existing) {
+      return false;
+    }
+    return Array.prototype.some.call(editor.getBody().querySelectorAll('img[src^="blob:"]'), function (img) {
+      return !existing.has(img.src);
+    });
+  }
+
+  const submitGuardedForms = new global.WeakSet();
+  const submittingForms = new global.WeakSet();
+
+  // 元の欄(textarea)のフォームの送信の前に、アップロード中の画像を待つ。
+  // フォームごとに 1 つだけ受け手を付ける（capture）。manager/media/script/shell.js の submit の受け手（document の bubble。
+  // defaultPrevented なら何もしない）と TinyMCE の submit の受け手（フォームの bubble）より前に呼ばれる。
+  // 待っているあいだは preventDefault() で止め、終わったら requestSubmit() で送り直す（送り直した送信は、待つものが無いのでそのまま通る）
+  function bindSubmitWait(editor) {
+    const textarea = editor.getElement();
+    const form = textarea && textarea.form;
+    if (!form || submitGuardedForms.has(form)) {
+      return;
+    }
+    submitGuardedForms.add(form);
+
+    form.addEventListener('submit', function (event) {
+      if (submittingForms.has(form)) {
+        event.preventDefault();
+        return;
+      }
+      const pending = global.tinymce.get().filter(function (candidate) {
+        return candidate.getElement() && candidate.getElement().form === form && hasPendingUploads(candidate);
+      });
+      if (pending.length === 0) {
+        return;
+      }
+
+      event.preventDefault();
+      const submitter = event.submitter;
+      submittingForms.add(form);
+
+      // 送らずに終える道では、黙らずに通知を出し、未保存の印を戻す（保存の操作は、documentDirty を false にしてから呼ばれる）
+      function cancelSubmit() {
+        submittingForms.delete(form);
+        if ('documentDirty' in global) {
+          global.documentDirty = true;
+        }
+        editor.notificationManager.open({
+          type: 'error',
+          text: editor.options.get('modx_upload_not_saved_message')
+        });
+      }
+
+      global.Promise.all(pending.map(function (candidate) {
+        return candidate.uploadImages();
+      })).then(function (results) {
+        // 失敗した画像は、TinyMCE が本文から外して理由を通知する。画像が欠けたまま保存しないよう、送らずに知らせる。
+        // 失敗の印が無くても blob: が残っていれば、その URL を保存しないよう送らない
+        const failed = !Array.isArray(results) || results.some(function (items) {
+          return !Array.isArray(items) || items.some(function (item) {
+            return item && item.status === false;
+          });
+        });
+        if (failed || pending.some(hasPendingUploads)) {
+          cancelSubmit();
+          return;
+        }
+        submittingForms.delete(form);
+        try {
+          if (submitter && submitter.form === form) {
+            form.requestSubmit(submitter);
+          } else {
+            form.requestSubmit();
+          }
+        } catch (error) {
+          cancelSubmit();
+        }
+      }).catch(cancelSubmit);
+    }, true);
+  }
+
+  // setup（editor-setup.js）から呼ぶ。アップロードを使うとき（PHP が MODX_FILE_PICKER.upload を渡したとき）だけ働く
+  global.mceModxPastedUpload = function (editor) {
+    if (!settings().upload) {
+      return;
+    }
+
+    editor.options.register('modx_upload_not_saved_message', {
+      processor: 'string',
+      default: 'Saving was cancelled because an image upload did not finish. Please save again.'
+    });
+    const existingImages = rememberExistingImages(editor);
+    existingImagesByEditor.set(editor, existingImages);
+    // editorUpload は、エディターの初期化の途中（PreInit の時点）で作られる
+    editor.on('PreInit', function () {
+      editor.editorUpload.addFilter(function (img) {
+        return !existingImages.has(img.src);
+      });
+    });
+    bindSubmitWait(editor);
   };
 
   global.mceModxFilePicker = function (callback, value, meta) {

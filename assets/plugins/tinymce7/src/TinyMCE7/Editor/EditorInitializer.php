@@ -119,9 +119,15 @@ final class EditorInitializer
         }
 
         [$config, $fileBrowser] = $this->fileBrowserResolver->resolve($config, $params);
-        if ($fileBrowser === 'mcpuk') {
+        // 画像編集もピッカーの API を使うので、ピッカーを使えない利用者には付けない
+        // 管理画面ではセッションで決める。フロントのページはキャッシュに入りセッションごとに変えられないので、mcpuk なら出し、使えない人が開いたときはピッカーが断る
+        $isManager = empty($params['forfrontend']);
+        $canEditImage = $fileBrowser === 'mcpuk' && (!$isManager || $this->fileBrowserResolver->canUsePicker());
+        if ($canEditImage) {
             $config['modx_image_edit_label'] = $this->language->translate('tinymce7_image_edit', 'Edit image');
         }
+        $canUploadPasted = $this->canUploadPasted($fileBrowser, $isManager);
+        $config = $this->applyPastedUpload($config, $canUploadPasted);
 
         $configJson = $this->configRepository->encode($config);
 
@@ -130,7 +136,10 @@ final class EditorInitializer
         ];
 
         if ($fileBrowser === 'mcpuk') {
-            $scripts[] = $this->scriptFactory->inlineScript($this->fileBrowserResolver->mcpukBootstrapScript());
+            $scripts[] = $this->scriptFactory->inlineScript($this->fileBrowserResolver->mcpukBootstrapScript(
+                $canEditImage,
+                $canUploadPasted ? $this->pastedUploadSettings() : null
+            ));
             $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/mcpuk-picker.js'));
         }
 
@@ -156,6 +165,9 @@ final class EditorInitializer
         $output[] = '    switch (' . json_encode($fileBrowser) . ') {';
         $output[] = '        case "mcpuk":';
         $output[] = '            config.file_picker_callback = window.mceModxFilePicker || undefined;';
+        if ($canUploadPasted) {
+            $output[] = '            config.images_upload_handler = window.mceModxImageUpload || undefined;';
+        }
         $output[] = '            break;';
         $output[] = '        default:';
         $output[] = '            if (!config.file_picker_callback) {';
@@ -175,6 +187,53 @@ final class EditorInitializer
         $output[] = '</script>';
 
         $event->output(implode("\n", $output));
+    }
+
+    /**
+     * 貼り付け・ドロップした画像を、ファイルピッカーの API でアップロードして本文に URL を入れるか。
+     * 使えるのは、管理画面のエディターで、ファイルブラウザが mcpuk で、このセッションがピッカーの images を使え（api.php と同じ PickerScope::authorize()）、
+     * アップロードできる画像の拡張子が 1 つ以上あるとき。
+     * フロントのエディターでは使わない。フロントのページはキャッシュに入り、セッションごとの CSRF トークンを埋め込めないため。
+     * 使えないときは、本文に data: 画像が入らないよう、貼り付けの画像を受けない（applyPastedUpload()）
+     */
+    private function canUploadPasted(string $fileBrowser, bool $isManager): bool
+    {
+        return $isManager
+            && $fileBrowser === 'mcpuk'
+            && function_exists('getCurrentCsrfToken')
+            && $this->fileBrowserResolver->canUsePicker('images')
+            && $this->fileBrowserResolver->imagesFileTypes() !== [];
+    }
+
+    /**
+     * 貼り付けのアップロードの設定。どちらのときも、画像のダイアログのアップロードタブは出さない
+     * （画像の入口はファイルピッカーの参照ボタンと、貼り付け・ドロップ）
+     */
+    private function applyPastedUpload(array $config, bool $canUploadPasted): array
+    {
+        $config['image_uploadtab'] = false;
+        if ($canUploadPasted) {
+            $config['images_file_types'] = implode(',', $this->fileBrowserResolver->imagesFileTypes());
+            $config['modx_upload_not_saved_message'] = $this->language->translate(
+                'tinymce7_upload_not_saved',
+                'Saving was cancelled because an image upload did not finish. Please save again.'
+            );
+        } else {
+            $config['paste_data_images'] = false;
+        }
+
+        return $config;
+    }
+
+    /**
+     * @return array{url: string, csrfToken: string}
+     */
+    private function pastedUploadSettings(): array
+    {
+        return [
+            'url' => $this->fileBrowserResolver->mcpukApiUrl(),
+            'csrfToken' => (string) getCurrentCsrfToken(),
+        ];
     }
 
     /**

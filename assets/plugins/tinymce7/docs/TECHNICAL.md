@@ -15,7 +15,7 @@
 - MCPuk 連携スクリプト（ファイルの選択と画像の編集）: `js/mcpuk-picker.js`
 - ひな形挿入プラグイン: `js/modx-template.js`
 - リンクのダイアログの文書の一覧（JSON を返す入口）: `link-list.php`
-- エディター共通の setup（未保存の印・input の通知・リンクのダイアログの選択肢・画像編集の呼び出し）: `js/editor-setup.js`（`window.tinymce7EditorSetup(editor)`。ファイルピッカーの画像編集 `window.mceModxImageEdit(editor)` もここから呼ぶ）。`EditorInitializer` は config の JSON を出し、設定ファイルやサイトの `setup` を先に呼んだあとでこれを呼ぶ
+- エディター共通の setup（未保存の印・input の通知・リンクのダイアログの選択肢・画像編集と貼り付けのアップロードの呼び出し）: `js/editor-setup.js`（`window.tinymce7EditorSetup(editor)`。ファイルピッカーの画像編集 `window.mceModxImageEdit(editor)` もここから呼ぶ）。`EditorInitializer` は config の JSON を出し、設定ファイルやサイトの `setup` を先に呼んだあとでこれを呼ぶ
 - TinyMCE ローカル配置先 (任意): `tinymce/js/tinymce/` に公式 TinyMCE7 パッケージを展開
 - オートローダー: `src/bootstrap.php`
 
@@ -84,8 +84,28 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 - 編集を取り消すと、ダイアログが閉じて本文は変わりません。
 - `tinymce7_file_browser` を `none` にすると `js/mcpuk-picker.js` を読まないので、この機能は働きません。
 - 大きさを読めなかったときは、`width`・`height` は元のままにします。
-- ピッカーへの設定は `window.MODX_FILE_PICKER`（`FileBrowserResolver::mcpukBootstrapScript()` が出力）で渡します。キーは `browserUrl`（ピッカーの URL）、`rbBaseUrl`（`rb_base_url` の絶対 URL）、`baseUrl`（サイトの設置パス `MODX_BASE_URL`）、`siteUrl`（`MODX_SITE_URL`）、`stripImagePaths`（グローバル設定「相対パスを渡す」）、`types`（`BrowserConfig::TYPES`）、`editableExtensions`（`BrowserConfig::EDITABLE_EXTENSIONS`）です。
+- ピッカーへの設定は `window.MODX_FILE_PICKER`（`FileBrowserResolver::mcpukBootstrapScript()` が出力）で渡します。キーは `browserUrl`（ピッカーの URL）、`rbBaseUrl`（`rb_base_url` の絶対 URL）、`baseUrl`（サイトの設置パス `MODX_BASE_URL`）、`siteUrl`（`MODX_SITE_URL`）、`stripImagePaths`（グローバル設定「相対パスを渡す」）、`types`（`BrowserConfig::TYPES`）、`editableExtensions`（`BrowserConfig::EDITABLE_EXTENSIONS`）、`imageEdit`（画像編集を付けるか。ピッカーを使えない利用者では `false`）、`upload`（貼り付けのアップロードを使うときだけ。`{url, csrfToken}`）です。
 - ボタンの文言は言語ファイルの `tinymce7_image_edit` で、エディターのオプション `modx_image_edit_label` として渡します。
+
+### 貼り付け・ドロップした画像のアップロード
+
+画像の入口はファイルピッカーに一本化しています。エディターに貼り付けた・ドロップした画像は、TinyMCE の `images_upload_handler`（`js/mcpuk-picker.js` の `window.mceModxImageUpload`）でファイルピッカーの API（`manager/media/browser/evo/api.php` の `action=uploadPasted`）に送り、返った URL を本文の `src` に入れます。置き場所は `{rb_base_dir}/images/年/月/`、名前は `pasted-年月日-時分秒.拡張子` です（`assets/docs/file-storage.md`）。画像のダイアログの「アップロード」タブは、どの設定でも出しません（`image_uploadtab: false`）。
+
+使うかどうかは `EditorInitializer::canUploadPasted()`（1 か所）が決めます。次のすべてを満たすときだけ使えます。
+
+- `tinymce7_file_browser` が `mcpuk`
+- 管理画面のエディター（`forfrontend` でない）。フロントのエディターでは使いません。フロントのページはキャッシュに入り、セッションごとの CSRF トークンを埋め込めないためです
+- このセッションがファイルピッカーの `images` を使える（`PickerScope::authorize()`。`api.php` が要求のたびに行う確かめと同じ。`use_browser` が有効なとき）
+- CSRF トークンを出せる（`getCurrentCsrfToken()` がある）
+- `upload_images` に、TinyMCE の画像の拡張子（`jpeg,jpg,jpe,jfi,jif,jfif,png,gif,bmp,webp`）と重なるものがある
+
+使えるときは、`images_upload_handler` を付け、`images_file_types` を TinyMCE の既定と `upload_images` の重なりにし、`window.MODX_FILE_PICKER.upload`（`{url, csrfToken}`）を渡します。使えないときは `paste_data_images: false` にして、貼り付けた画像を受けません（本文に `data:` 画像が入らない）。フロントのエディターでは貼り付けた画像を受けません（`paste_data_images: false`）。画像編集（`mceModxImageEdit` の登録と帯のボタン）は、管理画面ではピッカーを使えないとき付けません（`MODX_FILE_PICKER.imageEdit`）。フロントでは `file_browser` が `mcpuk` なら付け、使えない人が開いたときはピッカーが断ります（参照ボタンと同じ）。
+
+- 名前は、サーバーが決めます。JS は、名前を持つ File ならその名前、無ければ `image.拡張子` を送るだけです。サーバー（`FileStore::pastedPlaceholderExtension()`）が、名前が `image.拡張子` のものを `pasted-…` に置き換え、ほかの名前は元のまま保存します（同名があれば `名前(1).拡張子`）。拡張子は `blob.type` から決めます（`image/jpeg` は `jpg`）。
+- 失敗（サーバーが返したエラー・JSON でない応答・HTTP のエラー）は `{message, remove: true}` で reject し、TinyMCE がその画像を本文から外して通知を出します。月のフォルダーを作れないときも HTTP エラー（`mkdir_failed` は 500）で返り、同じ扱いです。
+- 開いたときから本文にある `data:` 画像は、アップロードの対象にしません（`editorUpload.addFilter()`）。TinyMCE は読み込み時に base64 の `data:` 画像を `blob:` の URL に置き換え、保存時に `data:` に戻すため、初期化までの `SetContent` で本文の `blob:`・`data:` の画像の `src` を覚えて外します。開くたびに、既存の画像がファイルに保存されることはありません（保存すると、コアの保存時の変換が行います。`assets/docs/datauri-conversion.md`）。
+- 保存の前に、アップロード中の画像を待ちます。エディターの元の欄（textarea）のフォームに、`submit` の受け手を capture で付け、未アップロードの画像があれば `preventDefault()` して `editor.uploadImages()` を待ち、終わったら `form.requestSubmit(submitter)` で送り直します。アップロードが 1 つでも失敗したとき、`blob:` が残ったとき、送り直しに失敗したときは、送らずにエディターの通知（`tinymce7_upload_not_saved`）を出し、`documentDirty` を `true` に戻します（`manager/media/script/shell.js` の `submit` の受け手は `defaultPrevented` なら送らず、TinyMCE の受け手よりもこの受け手が先に呼ばれます。`document.mutate.save.click()` の合成クリックでも同じに動きます）。`form.submit()` を直接呼ぶ画面は `submit` イベントが出ないため、待ちません。
+- 呼び出しは `js/editor-setup.js` の `window.mceModxPastedUpload(editor)` で、`MODX_FILE_PICKER.upload` があるときだけ働きます。
 
 ## 画像のキャプション (`image_caption`)
 `config/manager.json`・`config/frontend.json` で `image_caption: true` を指定しており、どのツールバー構成でも画像のダイアログに「キャプションの表示」が出ます（構成の定義 `toolbar-presets.json` は同じキーを持たないので、設定ファイルの値がそのまま効きます）。オンにすると、画像が次の形で保存されます。

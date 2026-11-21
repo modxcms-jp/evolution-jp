@@ -45,6 +45,9 @@ interface BrowserScope
     /** 管理操作ログの message の先頭に付ける印（ピッカーは "[picker] "、管理モードは空） */
     public function logLabel();
 
-    /** この範囲にだけある操作の表（action => ['handler' => 関数名, 'csrf' => bool, 'post' => bool]）。共通の操作は api.php が持つ */
+    /**
+     * この範囲にだけある操作の表（action => ['handler' => 関数名, 'csrf' => bool, 'post' => bool]）。共通の操作は api.php が持つ。
+     * 行の条件(post・csrf)は、api.php の振り分けの 1 か所だけが見る。操作ごとの条件を足すときも、各ハンドラーの中ではなくその振り分けで見る
+     */
     public function actions();
 }

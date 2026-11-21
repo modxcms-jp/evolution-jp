@@ -63,6 +63,8 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <!-- jQuery 置き換え用の共通部品（Evo.ready / Evo.fetch / Evo.post） -->
     <script type="text/javascript" src="<?= manager_asset('media/script/evo.js') ?>"></script>
     <script type="text/javascript" src="<?= manager_asset('media/script/shell.js') ?>"></script>
+    <!-- 削除の入口（ツリーの右クリックメニュー・投稿画面・リソースの画面・一覧）が共通で使う -->
+    <script type="text/javascript" src="<?= manager_asset('media/script/document-actions.js') ?>"></script>
     <script type="text/javascript" src="<?= manager_asset('media/browser/evo-file-picker.js') ?>"></script>
     <script type="text/javascript">
         // 旧フレーム参照(top.main / parent.main)互換: シェルではmainは自ウィンドウ
@@ -73,6 +75,8 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
             EvoShell.closeLabel = <?= js_literal(lang('close')) ?>;
         }
         EvoDialog.cancelLabel = <?= js_literal(lang('cancel')) ?>;
+        <?php evo()->loadExtension('DocAPI'); ?>
+        EvoDocumentActions.config = <?= evo()->doc->actionConfig() ?>;
 
         var treeopen = <?= $modx->config('tree_pane_open_default', 1) ?>;
 

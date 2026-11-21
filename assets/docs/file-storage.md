@@ -11,7 +11,21 @@
 3. **消すときは、リンクそのものを消し、リンク先の中身を消しに行かない。** フォルダの削除は `Filesystem::deleteTree()`（`manager/includes/filesystem.class.inc.php`）で、ファイルブラウザのほか、キャッシュの削除・静的エクスポートの出力先の掃除・インストーラーの後始末もこれを使う。中へ入ってよい範囲は渡されたフォルダの実体の中だけ。`$keepRoot = true`（中身だけ消す）のときに限り、ルート自体がリンクなら決まり 1 と同じく運用者が選んだ置き場所としてたどる。
 4. **書くときは、リンクを通して外へ書かない。** 書く先と親がリンクでないことを確かめる（zip の展開のぶら下がったリンクなど）。
 
-`temp/` は外から読ませない前提の置き場所。`temp/thumbs/` には、ファイルブラウザが見せる範囲（管理モードではファイル管理のルート）の画像の縮小版が入る。nginx では `temp/` への外からの要求を止める。サムネイルの名前は `<元ファイルのパスの md5>_<更新時刻>_v<版>` で、作り方を変えたら `ThumbnailService::CACHE_VERSION` を上げる（JPEG は EXIF の Orientation を反映して作る）。版はサムネイルの URL（`v`）にも入るので、ブラウザーのキャッシュも切り替わる。向きの読み取りは exif 拡張が前提で、無い環境では反映しない（README の動作要件）。
+`temp/` は外から読ませない前提の置き場所。`temp/thumbs/` には、ファイルブラウザが見せる範囲（管理モードではファイル管理のルート）の画像の縮小版が入る。nginx では `temp/` への外からの要求を止める。サムネイルの名前は `<元ファイルのパスの md5>_<更新時刻>_v<版>` で、作り方を変えたら `ThumbnailService::CACHE_VERSION` を上げる（JPEG は EXIF の Orientation を反映して作る）。版はサムネイルの URL（`v`）にも入るので、ブラウザーのキャッシュも切り替わる。アップロードを `image_limit_width` に縮小して保存するときも、同じく向きを反映する（上限は向き反映後の幅で判定。縮小しない画像は元のファイルのまま置く）。向きの読み取りは exif 拡張が前提で、無い環境では反映しない（README の動作要件）。
+
+## エディターに貼り付けた画像の置き場所
+
+エディター（TinyMCE 7）に貼り付けた・ドロップした画像は、ファイルピッカーの操作 `uploadPasted`（`api.php`）で `{rb_base_dir}/images/年/月/` に保存し、本文にはその URL を入れる。年・月と時刻は、サイトの時刻（`server_offset_time` を足した今の時刻）。
+
+- フォルダーは、無ければ 1 階層ずつ作る（`FileStore::ensureFolderPath()`）。ピッカーの「フォルダーを作る」と同じ決まりで、守る場所には作らず、同名のファイルがあれば作らない。パーミッションは `new_folder_permissions`、管理操作ログには `[picker] Created Folder` を 1 階層ずつ残す
+- 名前は、貼り付けた画像（名前が `image.拡張子`）なら `pasted-年月日-時分秒.拡張子`（例 `pasted-20261121-182249.png`）。ファイルをドロップしたときなど、名前のあるファイルは元の名前のまま。同名があれば `名前(1).拡張子`（ピッカーのアップロードと同じ）
+- 拡張子（`upload_images`）・大きさ（`upload_maxsize`）・名前の無害化・`image_limit_width` による縮小・ファイルのパーミッション（`new_file_permissions`）・`OnFileBrowserUpload` の発火は、ピッカーのアップロード（`upload`）と同じ
+- 画像の置き場所はこの 1 か所に決まっていて、リクエストでは変えられない。種類が `images` 以外の要求は断る
+- 月のフォルダーは、保存できるファイルが 1 つ以上あるときだけ作る（拡張子・大きさの確かめ `FileStore::checkNewFile()` が通ってから）。確かめで全部はねられた要求では、空のフォルダーを作らない
+- 管理画面のエディターで、ピッカーを使えない利用者（`use_browser` が無効など）には貼り付けのアップロードを出さず、貼り付けた画像は受けない（本文に `data:` の画像が入らない）。フロントのエディターでは、貼り付けた画像を受けない
+- 保存する名前は、空きを `fopen('xb')` で排他的に確保（`FileStore::createFreeFile()`）してから、その空のファイルへ書く。ファイルブラウザの copy・saveImage（別名）も同じ関数を使う
+
+保存の処理は `manager/media/browser/evo/lib/FileStore.php` にあり、`api.php` を読み込まなくても（CLI などから）使える。範囲は `PickerScope::forType()`（セッションを見ない）で作り、`PathResolver` と合わせて渡す。アップロードの経路は `FileStore::uploadedWriter()`（`image_limit_width` による縮小を含む）、バイト列の経路は `FileStore::bytesWriter()` で書く。バイト列の経路は縮小しない（足すなら、DocumentParser の縮小（今は private の `resizeImage()`）を公開する入口を設けてから、`bytesWriter()` で書いた後に通す）。管理操作ログの `Uploaded File` は 1 回の操作でまとめて書くため、呼ぶ側が `ChangeLog::record()` で記録する（`OnFileBrowserUpload` は `saveNewFile()` が発火する）。
 
 ## 外の置き場所（EFS・NFS など）の使い方
 
