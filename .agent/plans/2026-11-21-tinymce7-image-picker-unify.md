@@ -10,7 +10,7 @@ TinyMCE 7 の本文に、画像が `data:image/png;base64,...`（画像の中身
 
 - [x] (2026-11-21) 現状を調べ、ExecPlan を作った
 - [x] (2026-11-21) 計画者が挙げた 9 つの論点を本人が決め、Decision Log に移した（計画の手順と検証も合わせて直した）
-- [ ] M1: ファイルピッカーを、指定したファイルの画像編集を開いた状態で起動できるようにする（PR 1、Refs #1666）
+- [x] (2026-11-21) M1: ファイルピッカーを、指定したファイルの画像編集を開いた状態で起動できるようにする（PR 1、Refs #1666）
 - [ ] M2: TinyMCE で画像をダブルクリックすると、ファイルピッカーの画像編集が開き、保存後に src を差し替える（PR 2、M3 と一緒）
 - [ ] M3: `tinymce-cropper.js`・`image_cropper` の設定・Cropper.js の読み込みを消す（PR 2、Closes #1666）
 - [ ] M4: 貼り付け・ドロップした画像を、ファイルピッカーの API でアップロードして URL を入れる（PR 3、Closes #1652）
@@ -26,10 +26,16 @@ TinyMCE 7 の本文に、画像が `data:image/png;base64,...`（画像の中身
 - 2026-11-21: `api.php` の頭の説明では upload の応答を `{uploaded:[{index,name,size,url}]}` としているが、実装（`fbPickerUpload()`）は `url` を返していない。本文に入れる URL を返すには、一覧（`fbPickerList()`）の `path`・`url` の作り方を共通の関数にして使う。
 - 2026-11-21: CSRF のトークンの確かめに失敗すると、`checkCsrfToken()` は JSON ではなく `text/plain` の 403 を返す。アップロードの受け手は JSON でない応答も失敗として扱う。
 - 2026-11-21: 保存時に data: 画像をファイルにする仕組みが別にある。設定 `convert_datauri_to_file`（既定 1）で、`save_resource.processor.php` の `getInputValues()` が要約（`introtext`）だけを `convertDataUriToFiles()`（`manager/actions/document/mutate_content/functions.php`）に通し、`content/images/datauri/{文書ID}/日時_乱数.拡張子` に書く。本文（`content`）は 2025-11-30 のコミット ebfcf837b で対象から外された（理由はコミットに無い）。保存先は `rb_base_dir` ではなく決め打ちで、ファイルピッカーの拡張子・大きさ・同名の決まりもイベントも通らない。`assets/docs/datauri-conversion.md` は今も「対象: content、introtext」と書いていて、実装と食い違う（このドキュメントは `AGENTS.md` のドキュメントマップにも無い）。
+  - 2026-11-21 追記: この段落は古くなった。#1700（PR #1701・#1704）で、変換の対象は本文（`content`）の `<img>` の `src` 属性の data: 画像だけになり、要約（`introtext`）とウェブリンクの本文は対象から外れた。`assets/docs/datauri-conversion.md` も実装に合わせて直っている。保存先が `content/images/datauri/{文書ID}/` の決め打ちで、ファイルピッカーの決まりを通らない点は変わらない。M4 の検証表の最後の行も、これに合わせて直した。
 - 2026-11-21: 今の画像編集（`assets/plugins/tinymce7/js/tinymce-cropper.js`）は、ダブルクリックのほかに、画像を選んだときの小さな帯（TinyMCE の context toolbar）に「画像を編集」のボタンを出している。適用すると src を data: 画像（既定は PNG）にし、width・height 属性を書き出した画像の画素数にする（#1666 で幅 2400 などになったのはこのため）。
 - 2026-11-21: ファイルピッカーの画像編集（`manager/media/browser/evo/js/imageEditor.js`）は、開くたびに保存のしかたを「別名で保存」（`mode=copy`）に戻す（`open()` の中）。編集できるのは jpg・jpeg・png で、同じオリジンの画像だけ（`canEdit()`）。保存は `api.php` の `saveImage`（CSRF・POST だけ）で、別名なら `名前(1).拡張子` で新しいファイルにして `OnFileBrowserUpload` を発火し、上書きならリンクを断り、元のパーミッションを引き継いで置き換える。
 - 2026-11-21: ファイルピッカーの開き方は 3 通りある。(1) 管理画面のシェルのモーダル（`window.evoOpenFilePicker()`（`manager/media/browser/evo-file-picker.js`）→ `EvoShell.openFilePicker()`、選んだら `window.EvoFileBrowserPick(path)`）、(2) シェルの無い画面のポップアップ（`window.opener.SetUrl(path)`）、(3) TinyMCE のダイアログの中の iframe（`assets/plugins/tinymce7/js/mcpuk-picker.js` の `editor.windowManager.openUrl()`、選んだら `postMessage({mceAction: 'evoFbPick', url})`）。返し方の分かれ目は `manager/media/browser/evo/js/picker.js` の `pickFile()` の 1 か所。(3) は、シェルのモーダルを TinyMCE のダイアログの上に開くとエディタごと壊れたため選んだ形（`mcpuk-picker.js` のコメント）。
 - 2026-11-21: 配布 zip（`git archive --format=zip HEAD`）は、この時点の main（be35be6db）で 1,621,293 バイト。`tinymce-cropper.js` は zip の中で 4,393 バイト（元 15,746）。Cropper.js は CDN から読むので zip に入っていない。
+- 2026-11-21（M1）: ファイルピッカーの画像編集が開けるかの判定（`imageEditor.canEdit()`）は、拡張子と画素数（`editMaxPixels` = 50,000,000）だけを見る。4096 は `editMaxDimension` で、保存するときに縮める上限であって、開けるかどうかには関わらない（4200×50 の jpg は開ける）。M1 の検証表の「4096px を超える画像」を「画素数が上限を超える画像」に直した。
+- 2026-11-21（M1）: ファイルピッカーの知らせは、どれも `window.alert`・`confirm`・`prompt` で出している（ポップアップのピッカーでは EvoDialog があるとは限らない）。M1 の「開けない理由」もこれに合わせて alert にし、項目は `fb_edit_open_not_found`（見つからない）と `fb_edit_open_not_editable`（形式・大きさ）の 2 つにした（計画の手順 2 の「一覧の上にメッセージ・`fb_edit_unavailable`」から変えた）。
+- 2026-11-21（M1）: `folder` のフォルダーが無いときは、今どおり根の一覧へ戻ったうえで `fb_edit_open_not_found` を出す。根に同じ名前のファイルがあっても、別のファイルを編集させないので編集は開かない。
+- 2026-11-21（M1）: 5,000 万画素を超える画像は、一覧のサムネイル（`api.php?action=thumb`）が 404 になり、コンソールにエラーが出る。M1 の変更とは関係の無い今の動き。
+- 2026-11-21（M1）: M1 の時点では、`mcpuk-picker.js` は `evoFbClose` をまだ受けない（M2 で足す）。M1 の iframe の検証は、テスト用の親のページで postMessage を記録して行った。本物の TinyMCE のダイアログでの確認は M2 で行う。
 
 ## Decision Log
 
@@ -159,7 +165,7 @@ M1:
 | --- | --- |
 | `browser.php?type=images&select=<jpg>&edit=1`（単独・ポップアップ） | 画像編集が開いた状態で出る。保存（別名）で `<名前>(1).jpg` ができ、`window.opener.SetUrl` にその `path` が渡り、窓が閉じる。取り消しで窓が閉じ、ファイルは増えない |
 | シェルのモーダル（`evoOpenFilePicker(url + '&edit=1')` を画面から呼ぶ） | 同じ。保存で `SetUrl` に渡ってモーダルが閉じる。取り消しでモーダルが閉じる |
-| `select` が gif・無いファイル・4096px を超える画像 | 一覧が出て、編集できない理由が出る（無いファイルは今どおり根のフォルダへ戻る） |
+| `select` が gif・無いファイル・画素数が上限（`editMaxPixels`）を超える画像、`folder` が無い | 一覧が出て、編集できない理由が出る（無いフォルダーは今どおり根のフォルダへ戻ってから理由を出す） |
 | `edit` なし（今の 3 つの開き方、管理モード a=31） | main と同じ（選択・プレビュー・右クリックの「編集」と保存後の一覧） |
 
 M2・M3:
@@ -192,7 +198,7 @@ M4:
 | CSRF のトークンが古い（セッションのトークンを消してから貼り付け） | ― | 画像が消え、失敗が出る（エディタは壊れない） |
 | data: 画像の入った既存の文書を開いて、何もせず閉じる・保存する | 本文に data: | ファイルは増えず、本文もそのまま（data: のまま） |
 | 画像のダイアログ | アップロードのタブが無い | 無い（main と同じ） |
-| 要約（introtext）に data: 画像を入れて保存 | `content/images/datauri/<ID>/` に変換される | 同じ |
+| 本文の HTML ソースに data: 画像の `<img>` を直に書いて保存（エディタを通らない経路の代わり） | `content/images/datauri/<ID>/` に変換される（#1700） | 同じ |
 
 PHP 7.4 で、`api.php`・`browser.php`・`BrowserView.php`・`EditorInitializer.php`・`FileBrowserResolver.php` の `php -l` が通る。`uploadPasted` を `php:7.4-cli` ではなく検証用のイメージで動かし、`curl` で CSRF なし（403）・GET（405）・拡張子違い・大きすぎ・正常の 5 通りの応答を確かめる（管理画面の curl には `Accept-Language` を付ける）。
 
@@ -217,6 +223,7 @@ PHP 7.4 で、`api.php`・`browser.php`・`BrowserView.php`・`EditorInitializer
   - M4（tinymce7）: `feat(tinymce7): 貼り付け・ドロップした画像をファイルピッカーの API でアップロードする`
   - 文書: `docs: 貼り付けた画像の置き場所と保存時の変換の対象を実装に合わせる`
 - ExecPlan のブランチ: `plan/1652-1666-image-upload`
+- M1 のブランチ: `feat/1666-picker-open-editor`（origin/main 8df4c2987 から。Issue に紐づけない）。配布 zip は 1,639,964 → 1,641,042 バイト（+1,078）
 - 別に起票する（起票はまとめ役が行う。この計画では扱わない）:
   - ファイルのアップロードのロールの権限: 本体に「ファイルのアップロード」に当たるロールの権限が無く、ファイルピッカー（`PickerScope`）は管理画面にログインしている人なら誰でもアップロードできる。貼り付けのアップロードも同じ判定を使うので、権限を足すとそのまま効く
   - 既に本文に入っている data: 画像をまとめてファイルへ移す CLI: #1652・#1666 の不具合で入った data: 画像を、文書をまたいで `images/年/月/` などへ移し、本文の src を書き換える（この計画では開いたときにアップロードの対象から外すだけ）
