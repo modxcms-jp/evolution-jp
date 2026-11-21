@@ -922,8 +922,8 @@ function convertDataUriToFiles($content, $docid)
 function isImgSrcValue($content, $dataUriPos)
 {
     $before = substr($content, 0, $dataUriPos);
-    $tagStart = strrpos($before, '<');
-    if ($tagStart === false || isInRawTextOrComment($before)) {
+    $tagStart = openTagStartAtEnd($before);
+    if ($tagStart === null) {
         return false;
     }
 
@@ -935,33 +935,78 @@ function isImgSrcValue($content, $dataUriPos)
 }
 
 /**
- * 末尾が script・style・textarea 要素かコメントの中か
+ * HTML を頭からたどり、末尾が開始タグの途中なら、そのタグの < の位置を返す
  *
- * これらの中身はタグとして読まれないので、中に書いた img は画像ではない
+ * 末尾がタグの外、script・style・textarea の中身（タグとして読まれない）、コメントの中なら null
  *
  * @param string $html 判定する位置より前の HTML
- * @return bool
+ * @return int|null
  */
-function isInRawTextOrComment($html)
+function openTagStartAtEnd($html)
 {
-    preg_match_all('/<(\/?)(script|style|textarea)\b|<!--|-->/i', $html, $matches, PREG_SET_ORDER);
-    $inside = null;
-    foreach ($matches as $m) {
-        $token = strtolower($m[0]);
-        if ($inside === null) {
-            if ($token === '<!--') {
-                $inside = '-->';
-            } elseif (isset($m[2]) && $m[1] === '') {
-                $inside = '</' . strtolower($m[2]);
+    $pos = 0;
+    while (($lt = strpos($html, '<', $pos)) !== false) {
+        if (substr($html, $lt, 4) === '<!--') {
+            $end = strpos($html, '-->', $lt + 4);
+            if ($end === false) {
+                return null;
             }
+            $pos = $end + 3;
             continue;
         }
-        if ($token === $inside) {
-            $inside = null;
+        if (!preg_match('/\G<\/?[a-z]/i', $html, $m, 0, $lt)) {
+            $pos = $lt + 1;
+            continue;
+        }
+        $gt = tagEndPos($html, $lt);
+        if ($gt === null) {
+            return $lt;
+        }
+        $pos = $gt + 1;
+        if (preg_match('/\G<(script|style|textarea)\b/i', $html, $m, 0, $lt)) {
+            $close = stripos($html, '</' . $m[1], $pos);
+            if ($close === false) {
+                return null;
+            }
+            $pos = $close;
         }
     }
 
-    return $inside !== null;
+    return null;
+}
+
+/**
+ * タグを閉じる > の位置。= のあとの引用符で囲んだ値の中の > は飛ばす
+ *
+ * @param string $html HTML
+ * @param int $lt タグの < の位置
+ * @return int|null 閉じていなければ null
+ */
+function tagEndPos($html, $lt)
+{
+    $len = strlen($html);
+    $afterEquals = false;
+    for ($i = $lt + 1; $i < $len; $i++) {
+        $c = $html[$i];
+        if ($c === '>') {
+            return $i;
+        }
+        if ($afterEquals && ($c === '"' || $c === "'")) {
+            $i = strpos($html, $c, $i + 1);
+            if ($i === false) {
+                return null;
+            }
+            $afterEquals = false;
+            continue;
+        }
+        if ($c === '=') {
+            $afterEquals = true;
+        } elseif (!ctype_space($c)) {
+            $afterEquals = false;
+        }
+    }
+
+    return null;
 }
 
 /**
