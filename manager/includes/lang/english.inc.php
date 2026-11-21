@@ -1403,6 +1403,7 @@ return [
     "fb_err_unauthorized" => 'Your login session could not be verified.',
     "fb_err_forbidden" => 'You are not allowed to use the File Picker.',
     "fb_err_invalid_type" => 'Invalid file type.',
+    "fb_err_invalid_target" => 'The document or chunk for the pasted image is not valid.',
     "fb_err_invalid_root" => 'This folder points outside the file base directory (rb_base_dir), so it cannot be used.',
     "fb_err_invalid_action" => 'Unknown action.',
     "fb_err_folder_not_found" => 'The specified folder was not found.',

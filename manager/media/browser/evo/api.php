@@ -24,9 +24,10 @@
  *                     OnFileManagerUpload を発火する。overwrite が無いときは、保存せずに errors へ code: exists と、
  *                     保存する名前(無害化した後)の targetName を入れて返す。画面は確かめた上で、該当のファイルだけ overwrite=1 で送り直す
  *                     path・url はピッカーの応答だけに付く(一覧の files と同じ作り方)
- * POST action=uploadPasted (type=images, files[])               -> {uploaded:[{index,name,size,path,url}], errors:[{index,name,message}]}(ピッカーだけ)
+ * POST action=uploadPasted (type=images, kind, id, files[])     -> {uploaded:[{index,name,size,path,url}], errors:[{index,name,message}]}(ピッカーだけ)
  *                     エディタに貼り付けた・ドロップした画像の保存。置き場所は images/年/月/(サイトの時刻。無ければ作る)に決まっていて、folder は受けない。
- *                     名前が image.拡張子 なら pasted-年月日-時分秒.拡張子 にし、ほかの名前は元のまま。拡張子・大きさ・同名の連番・OnFileBrowserUpload は upload と同じ
+ *                     kind は doc か chunk、id は貼り付けた画面のリソース・チャンクの ID(1 以上の整数。名前に使うだけで実在は確かめない。それ以外は 400 invalid_target)。
+ *                     名前が image.拡張子 なら pasted-doc-12-3.png(kind-id-連番。連番はそのフォルダーの同じ kind-id の連番の最大 + 1、無ければ 1)にし、ほかの名前は元のまま(同名は 名前(1).拡張子)。拡張子・大きさ・OnFileBrowserUpload は upload と同じ
  * POST action=mkdir  (type, folder, name)                      -> {name}
  * POST action=rename (type, folder, target, newName)           -> {name}
  * POST action=delete (type, folder, files[], folders[])        -> {deleted:[...], errors:[{name,message}]}
@@ -411,9 +412,9 @@ function fbUploadError(array $file, $message, array $extra = [])
  * ピッカーの保存先のフォルダーへ、受け取ったファイルを順に保存して応答を返す(upload と uploadPasted で共通)。
  * 応答は {uploaded:[{index,name,size,path,url}], errors:[{index,name,message}]}。path・url は一覧と同じ作り方
  *
- * @param callable $nameOf function (string $sentName): string。保存する名前のもと(送られた名前から決める)
+ * @param callable $save function (array $file, callable $write): array。1 ファイルの保存。FileStore の保存の戻り値(name,size または error)を返す
  */
-function fbPickerSaveFiles(PathResolver $resolver, PickerScope $scope, DocumentParser $modx, array $dir, array $files, callable $nameOf)
+function fbPickerSaveFiles(PathResolver $resolver, PickerScope $scope, DocumentParser $modx, array $dir, array $files, callable $save)
 {
     $uploaded = [];
     $errors = [];
@@ -425,15 +426,7 @@ function fbPickerSaveFiles(PathResolver $resolver, PickerScope $scope, DocumentP
             continue;
         }
 
-        $saved = FileStore::saveNewFile(
-            $resolver,
-            $scope,
-            $modx,
-            $dir,
-            $nameOf($file['name']),
-            $file['size'],
-            FileStore::uploadedWriter($modx, $file['name'], $file['tmp'])
-        );
+        $saved = $save($file, FileStore::uploadedWriter($modx, $file['name'], $file['tmp']));
         if (isset($saved['error'])) {
             $errors[] = fbUploadError($file, $saved['error']);
             continue;
@@ -456,13 +449,16 @@ function fbPickerUpload(PathResolver $resolver, PickerScope $scope, DocumentPars
         fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
 
-    fbPickerSaveFiles($resolver, $scope, $modx, $dir, fbUploadedFiles(), fn($name) => $name);
+    fbPickerSaveFiles($resolver, $scope, $modx, $dir, fbUploadedFiles(), function ($file, $write) use ($resolver, $scope, $modx, $dir) {
+        return FileStore::saveNewFile($resolver, $scope, $modx, $dir, $file['name'], $file['size'], $write);
+    });
 }
 
 /**
  * エディタに貼り付けた・ドロップした画像の保存。置き場所は images/年/月/(サイトの時刻。無ければ作る)に決まっている。
- * 名前の置き換えの決まりは FileStore::pastedPlaceholderExtension()。拡張子・大きさ・同名の連番は upload と同じ。
- * 月のフォルダーを作れないときは、ほかの失敗と同じ形の HTTP エラー(mkdir_failed は 500)で返す
+ * kind(doc・chunk)と id は、貼り付けた画面のリソース・チャンクで、名前の無い画像(image.拡張子)の名前に使う
+ * (pasted-doc-12-1.png。FileStore::savePastedFile())。名前のあるファイルは元の名前のまま(同名は連番)。
+ * 拡張子・大きさは upload と同じ。月のフォルダーを作れないときは、ほかの失敗と同じ形の HTTP エラー(mkdir_failed は 500)で返す
  */
 function fbPickerUploadPasted(PathResolver $resolver, PickerScope $scope, DocumentParser $modx)
 {
@@ -470,18 +466,27 @@ function fbPickerUploadPasted(PathResolver $resolver, PickerScope $scope, Docume
         fbError('invalid_type', lang('fb_err_invalid_type'), 400);
     }
 
+    $kind = post_strvar('kind');
+    $id = post_intvar('id');
+    // ID は名前に使うだけなので、実在は確かめない(確かめると、見えない文書の ID があるかを調べる口になる)
+    if (!in_array($kind, FileStore::PASTED_KINDS, true) || $id < 1) {
+        fbError('invalid_target', lang('fb_err_invalid_target'), 400);
+    }
+
     $files = fbUploadedFiles();
     $now = request_time() + (int) $modx->config('server_offset_time', 0);
-    $nameOf = function ($name) use ($now) {
-        $extension = FileStore::pastedPlaceholderExtension($name);
-        return $extension === null ? $name : FileStore::pastedName($now, $extension);
+    // 名前の無い画像は拡張子(ドットなし)、名前のあるファイルは null
+    $placeholderOf = fn($file) => FileStore::pastedPlaceholderExtension($file['name']);
+    $firstName = function ($file) use ($kind, $id, $placeholderOf) {
+        $extension = $placeholderOf($file);
+        return $extension === null ? $file['name'] : FileStore::pastedBaseName($kind, $id) . '-1.' . $extension;
     };
 
     // 保存できるファイルが 1 つ以上あるときだけ、年/月のフォルダーを作る。1 つも無いときは、ルートに対して同じ確かめを通して、
     // 各ファイルの errors を返す(どれも保存されないので、置き場所は使われない)
     $saveable = false;
     foreach ($files as $file) {
-        if ($file['error'] === UPLOAD_ERR_OK && !isset(FileStore::checkNewFile($scope, $modx, $nameOf($file['name']), $file['size'])['error'])) {
+        if ($file['error'] === UPLOAD_ERR_OK && !isset(FileStore::checkNewFile($scope, $modx, $firstName($file), $file['size'])['error'])) {
             $saveable = true;
             break;
         }
@@ -495,8 +500,14 @@ function fbPickerUploadPasted(PathResolver $resolver, PickerScope $scope, Docume
     if ($folder['dir'] === null) {
         fbError('not_found', lang('fb_err_folder_not_found'), 404);
     }
+    $dir = $folder['dir'];
 
-    fbPickerSaveFiles($resolver, $scope, $modx, $folder['dir'], $files, $nameOf);
+    fbPickerSaveFiles($resolver, $scope, $modx, $dir, $files, function ($file, $write) use ($resolver, $scope, $modx, $dir, $kind, $id, $placeholderOf) {
+        $extension = $placeholderOf($file);
+        return $extension === null
+            ? FileStore::saveNewFile($resolver, $scope, $modx, $dir, $file['name'], $file['size'], $write)
+            : FileStore::savePastedFile($resolver, $scope, $modx, $dir, $kind, $id, $extension, $file['size'], $write);
+    });
 }
 
 function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)
