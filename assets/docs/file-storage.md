@@ -27,7 +27,7 @@
 - 管理画面のエディターで、ピッカーを使えない利用者（`use_browser` が無効など）には貼り付けのアップロードを出さず、貼り付けた画像は受けない（本文に `data:` の画像が入らない）。フロントのエディターでは、貼り付けた画像を受けない
 - 保存する名前は、空きを `fopen('xb')` で排他的に確保（`FileStore::createFreeFile()`）してから、その空のファイルへ書く。ファイルブラウザの copy・saveImage（別名）も同じ関数を使う
 
-保存の処理は `manager/media/browser/evo/lib/FileStore.php` にあり、`api.php` を読み込まなくても（CLI などから）使える。範囲は `PickerScope::forType()`（セッションを見ない）で作り、`PathResolver` と合わせて渡す。アップロードの経路は `FileStore::uploadedWriter()`（`image_limit_width` による縮小を含む）、バイト列の経路は `FileStore::bytesWriter()` で書く。バイト列の経路は縮小しない（`data:` 画像の縮小は、呼ぶ側が書く前に `EvoDataUri::resize()` で行う）。管理操作ログの `Uploaded File` は 1 回の操作でまとめて書くため、呼ぶ側が `ChangeLog::record()` で記録する（`OnFileBrowserUpload` は `saveNewFile()` が発火する）。
+保存の処理は `manager/media/browser/evo/lib/FileStore.php` にあり、`api.php` を読み込まなくても（CLI などから）使える。範囲は `PickerScope::forType()`（セッションを見ない。種類のフォルダの実体が `rb_base_dir` の外を指すときは、範囲を作らず `[code, lang, status]` を返す）で作り、`PathResolver` と合わせて渡す。アップロードの経路は `FileStore::uploadedWriter()`（`image_limit_width` による縮小を含む）、バイト列の経路は `FileStore::bytesWriter()` で書く。バイト列の経路は縮小しない（`data:` 画像の縮小は、呼ぶ側が書く前に `EvoDataUri::resize()` で行う）。管理操作ログの `Uploaded File` は 1 回の操作でまとめて書くため、呼ぶ側が `ChangeLog::record()` で記録する（`OnFileBrowserUpload` は `saveNewFile()` が発火する）。
 
 ## data: 画像（保存時の変換・CLI）の置き場所
 
@@ -39,7 +39,7 @@
 - 保存時の変換は、ロールにファイルのアップロードの権限（`file_upload`）が無いと変換せず、`data:` のまま残す。CLI は管理画面のセッションが無く、`PickerScope::allows()` が true を返すので、権限を見ない
 - 以前の版が書いた `content/images/datauri/{リソースID}/` のファイルは動かさず、本文のその URL も書き換えない
 
-CLI で、バイト列を `pasted-doc-{ID}-{次の番号}.拡張子` に保存する呼び方: `$scope = PickerScope::forType($modx, $config, 'images'); $resolver = new PathResolver($scope); $folder = FileStore::ensureFolderPath($resolver, $scope, $modx, FileStore::pastedFolder($timestamp)); if (isset($folder['error'])) { /* フォルダーを作れない */ } $saved = FileStore::savePastedFile($resolver, $scope, $modx, $folder['dir'], 'doc', $id, 'png', strlen($bytes), FileStore::bytesWriter($modx, $bytes)); if (isset($saved['error'])) { /* 保存できない */ }`（`$timestamp` はサイトの時刻）。
+CLI で、バイト列を `pasted-doc-{ID}-{次の番号}.拡張子` に保存する呼び方: `$scope = PickerScope::forType($modx, $config, 'images'); if (!($scope instanceof PickerScope)) { /* 範囲を作れない */ } $resolver = new PathResolver($scope); $folder = FileStore::ensureFolderPath($resolver, $scope, $modx, FileStore::pastedFolder($timestamp)); if (isset($folder['error'])) { /* フォルダーを作れない */ } $saved = FileStore::savePastedFile($resolver, $scope, $modx, $folder['dir'], 'doc', $id, 'png', strlen($bytes), FileStore::bytesWriter($modx, $bytes)); if (isset($saved['error'])) { /* 保存できない */ }`（`$timestamp` はサイトの時刻）。
 
 ## 外の置き場所（EFS・NFS など）の使い方
 

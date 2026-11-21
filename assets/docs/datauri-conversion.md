@@ -17,6 +17,7 @@ TinyMCE 7 では、貼り付け・ドロップした画像はエディター側�
 - ロールにファイルのアップロードの権限（`file_upload`）が無いときは、変換せずに Data URI のまま残し、システムログに残す（ソースコードの画面で `data:` を書いて保存しても、ピッカーの置き場所にファイルができない抜け道を作らないため。CLI は管理者の操作なので見ない）
 - 新規のリソースは、`OnBeforeDocFormSave` の時点ではまだ `data:` のまま（INSERT のあとに変換する）。プラグインがそこで本文を書き換えると、書き換えたあとの本文が変換の対象になる
 - ファイルは DB の更新が済んでから確定する（管理操作ログに書く）。更新に失敗したら、書いたファイルを消す
+- images のフォルダの実体が `rb_base_dir` の外を指すとき（シンボリックリンクなど）は、ピッカーと同じく範囲を作らず、変換せずに Data URI のまま残して、システムログに理由を残す。CLI は何も変えずに終了コード 1 で終わる
 - 以前の版が `content/images/datauri/{リソースID}/` に書いたファイルと、本文のその URL は動かさず、書き換えない
 - 復号後の大きさの上限: 50MB（`EvoDataUri::MAX_BYTES`）。保存時の変換では、さらにピッカーの `upload_maxsize`（空なら 5000000）が効く。これを超える `data:` は、保存時には変換されずに残る（CLI は 50MB まで移せる）
 - 対応 MIME: `image/png`, `jpeg`, `gif`, `webp`, `svg+xml`, `bmp`, `application/pdf`, `text/plain`, `text/html`, `text/css`, `application/json`, `application/xml`

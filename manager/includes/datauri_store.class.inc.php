@@ -28,16 +28,30 @@ class EvoDataUriStore
     /**
      * @param int|false $sizeLimit 大きさの上限（バイト）。false ならピッカーの設定（upload_maxsize）
      */
-    public function __construct(DocumentParser $modx, $sizeLimit = false)
+    private function __construct(DocumentParser $modx, PickerScope $scope, $sizeLimit = false)
     {
         $this->modx = $modx;
         // 守る場所の判定（PathGuard）が manager() を使う。管理画面の外（CLI）では読み込まれていない
         if (!$modx->manager) {
             $modx->loadExtension('ManagerAPI');
         }
-        $this->scope = PickerScope::forType($modx, new BrowserConfig($modx), 'images');
+        $this->scope = $scope;
         $this->resolver = new PathResolver($this->scope);
         $this->sizeLimit = $sizeLimit;
+    }
+
+    /**
+     * images の範囲を作ってストアを返す。範囲が作れないとき（images のフォルダの実体が rb_base_dir の外にあるなど）は、
+     * ['code', 'lang', 'status'] を返す（PickerScope::forType() と同じ）
+     *
+     * @param int|false $sizeLimit 大きさの上限（バイト）。false ならピッカーの設定（upload_maxsize）
+     * @return self|array{code:string,lang:string,status:int}
+     */
+    public static function create(DocumentParser $modx, $sizeLimit = false)
+    {
+        $scope = PickerScope::forType($modx, new BrowserConfig($modx), 'images');
+
+        return $scope instanceof PickerScope ? new self($modx, $scope, $sizeLimit) : $scope;
     }
 
     /**

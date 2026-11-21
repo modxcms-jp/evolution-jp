@@ -56,7 +56,10 @@ if (!$candidateIds) {
 }
 
 // 大きさの上限は、保存時の変換と同じ 50MB（ピッカーの upload_maxsize とは別）。拡張子は upload_images に従う
-$store = new EvoDataUriStore(evo(), EvoDataUri::MAX_BYTES);
+$store = EvoDataUriStore::create(evo(), EvoDataUri::MAX_BYTES);
+if (!($store instanceof EvoDataUriStore)) {
+    cli_usage(sprintf('Error: the images folder of the file browser cannot be used (%s: %s); nothing was changed. Check rb_base_dir and that images is not a link to outside of it.', $store['code'], lang($store['lang'])));
+}
 
 // 書き換えの前に DB の控えを取る（最初に書く直前に 1 回だけ）。取れなければ何もせずに終了コード 1
 $snapshotTaken = false;

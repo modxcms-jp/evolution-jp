@@ -3,7 +3,7 @@
 /**
  * ファイルブラウザの保存先への書き込み(フォルダーの作成・新しい名前でのファイルの保存・貼り付けた画像の置き場所)。
  * api.php は読み込むと認証と振り分けを実行するため、CLI など api.php の外からも使う処理はここに置く。
- * 範囲は PickerScope::forType()(セッションを見ない)で作り、PathResolver と合わせて渡す。
+ * 範囲は PickerScope::forType()(セッションを見ない。種類のフォルダが rb_base_dir の外を指すときは範囲を作らず、[code, lang, status] を返す)で作り、PathResolver と合わせて渡す。
  * リクエストの値($_FILES・$_POST)と HTTP の応答は扱わない。失敗は戻り値(エラーの code か利用者に見せる文言)で返し、応答にするのは呼ぶ側。
  * 管理操作ログ(Uploaded File)の記録も、1 回の操作でまとめて書けるよう呼ぶ側が ChangeLog::record() で行う(Created Folder だけはここで記録する)。
  */

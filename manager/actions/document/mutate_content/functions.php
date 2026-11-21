@@ -871,17 +871,22 @@ if (!function_exists('collect_tab_settings_ph')) {
 
 /**
  * 保存の処理が書いた data: 画像のファイルを持つストア。DB の更新が済むまで、管理操作ログに書かず、消せるように持っておく
- * （finishDataUriFiles() で確定する。確定しないまま処理が終わったら、書いたファイルを消す）
+ * （finishDataUriFiles() で確定する。確定しないまま処理が終わったら、書いたファイルを消す）。
+ * images の範囲が作れないとき（images のフォルダの実体が rb_base_dir の外にあるなど）は、ストアでなく EvoDataUriStore::create() のエラー（['code', ...]）を返す
+ *
+ * @return EvoDataUriStore|array|null $create が false で、まだ作っていないときは null
  */
 function dataUriSaveStore($create = true)
 {
     static $store = null;
     if ($store === null && $create) {
         require_once MODX_CORE_PATH . 'datauri_store.class.inc.php';
-        $store = new EvoDataUriStore(evo());
-        register_shutdown_function(function () use ($store) {
-            $store->discardAll();
-        });
+        $store = EvoDataUriStore::create(evo());
+        if ($store instanceof EvoDataUriStore) {
+            register_shutdown_function(function () use ($store) {
+                $store->discardAll();
+            });
+        }
     }
 
     return $store;
@@ -894,7 +899,7 @@ function dataUriSaveStore($create = true)
 function finishDataUriFiles($committed)
 {
     $store = dataUriSaveStore(false);
-    if ($store === null) {
+    if (!($store instanceof EvoDataUriStore)) {
         return;
     }
     $committed ? $store->record() : $store->discardAll();
@@ -919,6 +924,10 @@ function convertDataUriToFiles($content, $docid)
     }
 
     $store = dataUriSaveStore();
+    if (!($store instanceof EvoDataUriStore)) {
+        evo()->logEvent(0, 3, sprintf('Data URI not converted: the images folder of the file browser cannot be used (%s) (docid: %s)', $store['code'], $docid), 'convertDataUriToFiles');
+        return $content;
+    }
     $timestamp = request_time() + (int)evo()->config('server_offset_time', 0);
     $deniedLogged = false;
 
