@@ -241,11 +241,16 @@ export function createImageEditor(ctx) {
         errorEl.hidden = !message;
     }
 
+    // アップロードの権限が無いときの別名保存(copy)。通信の前後で disabled を戻しても、無効のままにする
+    function isForbidden(control) {
+        return !ctx.config.canUpload && control.getAttribute('data-role') === 'edit-mode' && control.value === 'copy';
+    }
+
     function setBusy(value) {
         busy = value;
         statusEl.textContent = value ? t('fb_edit_saving') : '';
         panelEl.querySelectorAll('button, input').forEach(function (control) {
-            control.disabled = value;
+            control.disabled = value || isForbidden(control);
         });
         if (!value) {
             updateControls();
@@ -808,7 +813,8 @@ export function createImageEditor(ctx) {
         outKey = 'w';
         keepRatio = true;
         keepRatioEl.checked = true;
-        overlayEl.querySelector('[data-role="edit-mode"][value="copy"]').checked = true;
+        // 別名保存の権限が無いときは、上書きを選ぶ
+        overlayEl.querySelector('[data-role="edit-mode"][value="' + (ctx.config.canUpload ? 'copy' : 'overwrite') + '"]').checked = true;
         nameEl.textContent = file.name;
         showError('');
         statusEl.textContent = '';

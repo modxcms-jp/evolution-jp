@@ -3,7 +3,7 @@
 /**
  * ファイルブラウザの保存先への書き込み(フォルダーの作成・新しい名前でのファイルの保存・貼り付けた画像の置き場所)。
  * api.php は読み込むと認証と振り分けを実行するため、CLI など api.php の外からも使う処理はここに置く。
- * 範囲は PickerScope::forType()(セッションを見ない)で作り、PathResolver と合わせて渡す。
+ * 範囲は PickerScope::forType()(セッションを見ない。種類のフォルダが rb_base_dir の外を指すときは範囲を作らず、[code, lang, status] を返す)で作り、PathResolver と合わせて渡す。
  * リクエストの値($_FILES・$_POST)と HTTP の応答は扱わない。失敗は戻り値(エラーの code か利用者に見せる文言)で返し、応答にするのは呼ぶ側。
  * 管理操作ログ(Uploaded File)の記録も、1 回の操作でまとめて書けるよう呼ぶ側が ChangeLog::record() で行う(Created Folder だけはここで記録する)。
  */
@@ -97,9 +97,10 @@ class FileStore
     /**
      * 新しい名前のファイルとして保存してよいかを確かめる(保存はしない)。拡張子の許可・大きさの上限・名前の無害化を、ここ 1 か所で判定する。
      *
+     * @param int|false $sizeLimit 大きさの上限(バイト)。false なら範囲の設定($scope->maxUploadSize())。CLI など、設定と別の上限で移す処理だけが渡す
      * @return array{safeName:string}|array{error:string} 失敗は error に、利用者に見せる文言
      */
-    public static function checkNewFile(BrowserScope $scope, DocumentParser $modx, $originalName, $size)
+    public static function checkNewFile(BrowserScope $scope, DocumentParser $modx, $originalName, $size, $sizeLimit = false)
     {
         // 拡張子は、実際に保存する名前（無害化した後）で確かめる
         $safeName = $modx->sanitizeFilename($originalName);
@@ -107,7 +108,7 @@ class FileStore
             return ['error' => lang('fb_err_extension_not_allowed')];
         }
 
-        $maxSize = $scope->maxUploadSize();
+        $maxSize = $sizeLimit === false ? $scope->maxUploadSize() : $sizeLimit;
         if ($maxSize !== null && $size > $maxSize) {
             return ['error' => lang('fb_err_too_large')];
         }
@@ -149,6 +150,7 @@ class FileStore
      * @param int $size 保存する中身の大きさ(バイト)
      * @param callable $write function (string $targetPath): bool。確保した(空の)ファイルのフルパスを受けて書き、書けたら true
      * @param callable|null $nameFor findFreePath() の $nameFor。候補の名前の付け方を変えるとき(savePastedFile())
+     * @param int|false $sizeLimit checkNewFile() の $sizeLimit と同じ
      * @return array{name:string,size:int}|array{error:string} 失敗は error に、利用者に見せる文言
      */
     public static function saveNewFile(
@@ -159,9 +161,10 @@ class FileStore
         $originalName,
         $size,
         callable $write,
-        ?callable $nameFor = null
+        ?callable $nameFor = null,
+        $sizeLimit = false
     ) {
-        $checked = self::checkNewFile($scope, $modx, $originalName, $size);
+        $checked = self::checkNewFile($scope, $modx, $originalName, $size, $sizeLimit);
         if (isset($checked['error'])) {
             return $checked;
         }
@@ -314,6 +317,7 @@ class FileStore
      *
      * @param string $kind PASTED_KINDS のどれか
      * @param string $extension 拡張子(ドットなし)
+     * @param int|false $sizeLimit checkNewFile() の $sizeLimit と同じ
      * @return array{name:string,size:int}|array{error:string}
      */
     public static function savePastedFile(
@@ -325,14 +329,15 @@ class FileStore
         $id,
         $extension,
         $size,
-        callable $write
+        callable $write,
+        $sizeLimit = false
     ) {
         $first = self::maxPastedNumber($dir['real'], $kind, $id) + 1;
         $nameFor = function ($n) use ($kind, $id, $extension, $first) {
             return self::pastedBaseName($kind, $id) . '-' . ($first + $n) . '.' . $extension;
         };
 
-        return self::saveNewFile($resolver, $scope, $modx, $dir, $nameFor(0), $size, $write, $nameFor);
+        return self::saveNewFile($resolver, $scope, $modx, $dir, $nameFor(0), $size, $write, $nameFor, $sizeLimit);
     }
 
     /**

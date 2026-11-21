@@ -65,6 +65,16 @@ final class FileBrowserResolver
     }
 
     /**
+     * canUsePicker() に加えて、ファイルを置く権限 file_upload もあるか（api.php の uploadPasted が操作の表の perm で確かめるのと同じ PickerScope::allows()）
+     */
+    public function canUploadToPicker(string $type = 'images'): bool
+    {
+        $scope = \PickerScope::authorize(evo(), new \BrowserConfig(evo()), $type);
+
+        return $scope instanceof \PickerScope && $scope->allows('file_upload');
+    }
+
+    /**
      * 貼り付け・ドロップした画像をアップロードする対象の拡張子。TinyMCE の既定（images_file_types）と、
      * ファイルピッカーの設定 upload_images（種類 images で保存できる拡張子）の重なり
      *

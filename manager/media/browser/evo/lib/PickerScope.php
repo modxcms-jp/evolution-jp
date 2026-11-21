@@ -35,27 +35,27 @@ class PickerScope implements BrowserScope
             return ['code' => 'forbidden', 'lang' => 'fb_err_forbidden', 'status' => 403];
         }
 
-        $type = $type === null ? anyv('type', 'images') : $type;
+        return self::forType($modx, $config, $type === null ? anyv('type', 'images') : $type);
+    }
+
+    /**
+     * セッションも設定の有効・無効も見ずに、種類の範囲を作る(CLI など、ログインしたセッションの無い処理用)。
+     * 種類が images / media / files のどれかであることと、種類のフォルダの実体が rb_base_dir の実体の中にあることは、ここで確かめる
+     * (種類のフォルダは設定で決めたルートではないので、種類のフォルダ自体が外を指すリンクなら、リンク先を範囲のルートにしない。
+     * assets/docs/file-storage.md を参照)。権限の確かめ(セッション・use_browser)は呼ぶ側が済ませていること。
+     * 戻り値は、よければインスタンス、だめなら ['code', 'lang', 'status']
+     */
+    public static function forType(DocumentParser $modx, BrowserConfig $config, $type)
+    {
         if (!$config->isValidType($type)) {
             return ['code' => 'invalid_type', 'lang' => 'fb_err_invalid_type', 'status' => 400];
         }
 
-        // 種類のフォルダは設定で決めたルートではないので、その実体が rb_base_dir の実体の中にあることを確かめる
-        // （種類のフォルダ自体が外を指すリンクなら、リンク先をピッカーのルートにしない）。assets/docs/file-storage.md を参照
         $base = new PathGuard($config->baseDir());
         if (!$base->isWithinBase($config->baseDir() . $type)) {
             return ['code' => 'invalid_root', 'lang' => 'fb_err_invalid_root', 'status' => 403];
         }
 
-        return self::forType($modx, $config, $type);
-    }
-
-    /**
-     * セッションも設定も見ずに、種類の範囲を作る(CLI など、ログインしたセッションの無い処理用)。
-     * 呼ぶ側が、権限と種類の確かめ(authorize() が行う内容)を済ませていること
-     */
-    public static function forType(DocumentParser $modx, BrowserConfig $config, $type)
-    {
         return new self($modx, $config, $type);
     }
 
@@ -130,6 +130,20 @@ class PickerScope implements BrowserScope
         return $this->config->isAllowedFilename($this->type, $newName);
     }
 
+    /**
+     * 管理画面のセッションはロールの権限で決める（要求のたびにロールから読み直し、変更をログインし直さずに反映する）。
+     * ウェブユーザーのセッション（設定 rb_webuser）は、ロールを持たないので今までどおり許す
+     */
+    public function allows($permission)
+    {
+        if (!sessionv('mgrValidated')) {
+            return true;
+        }
+        manager()->refreshMgrPermissions();
+
+        return $this->modx->hasPermission($permission);
+    }
+
     public function maxUploadSize()
     {
         return $this->config->maxUploadSize();
@@ -165,8 +179,8 @@ class PickerScope implements BrowserScope
         return [
             'list' => ['handler' => 'fbPickerList'],
             'thumb' => ['handler' => 'fbActionThumb'],
-            'upload' => ['handler' => 'fbPickerUpload', 'csrf' => true],
-            'uploadPasted' => ['handler' => 'fbPickerUploadPasted', 'csrf' => true, 'post' => true],
+            'upload' => ['handler' => 'fbPickerUpload', 'csrf' => true, 'perm' => 'file_upload'],
+            'uploadPasted' => ['handler' => 'fbPickerUploadPasted', 'csrf' => true, 'post' => true, 'perm' => 'file_upload'],
         ];
     }
 }

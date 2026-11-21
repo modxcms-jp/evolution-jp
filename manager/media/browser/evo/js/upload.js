@@ -46,9 +46,13 @@ export function createUpload(ctx) {
         };
     }
 
+    function canUpload() {
+        return ctx.state.writable && ctx.config.canUpload;
+    }
+
     function uploadFiles(fileList) {
-        // 書き込めないフォルダへは送らない(ドラッグ＆ドロップはここで止める)
-        if (!ctx.state.writable) {
+        // 書き込めないフォルダや、アップロードの権限が無いときは送らない(ドラッグ＆ドロップはここで止める)
+        if (!canUpload()) {
             return;
         }
         var files = Array.prototype.slice.call(fileList);
@@ -151,7 +155,7 @@ export function createUpload(ctx) {
             }
             e.preventDefault();
             dragCounter++;
-            if (ctx.state.writable) {
+            if (canUpload()) {
                 ctx.dropzoneEl.classList.add('is-dragover');
             }
         });
@@ -161,7 +165,7 @@ export function createUpload(ctx) {
             }
             e.preventDefault();
             if (e.dataTransfer) {
-                e.dataTransfer.dropEffect = ctx.state.writable ? 'copy' : 'none';
+                e.dataTransfer.dropEffect = canUpload() ? 'copy' : 'none';
             }
         });
         ctx.dropzoneEl.addEventListener('dragleave', function () {
