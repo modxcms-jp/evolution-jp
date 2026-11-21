@@ -718,6 +718,7 @@ return [
     "role_eventlog_management" => 'System log management',
     "role_export_static" => 'Export Static HTML',
     "role_file_manager" => 'Use the File Manager',
+    "role_file_upload" => 'Upload files',
     "role_frames" => 'Request manager frames',
     "role_help" => 'View help pages',
     "role_home" => 'Request manager intro page',
