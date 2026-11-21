@@ -51,6 +51,9 @@
 - 2026-11-20 外の ManagerManager の部品が `closest('td')` などの構造に頼っている場合は考えない（互換を気にする外部のプラグインは TinyMCE 7 だけ、という本人の方針）。同梱の部品は #1632 で `data-field` に移っている。
 - 2026-11-20 行の見出しと値の間（本人の判断）: 行の部品の共通の CSS で、見出しのセルの右に `--space-3`（12px）の間を取る（`.field-label { padding-inline-end: var(--space-3, 12px) }`、詳細度 0,1,0。行の部品の行は `.grid` の中に出ないので、表の th の規則とは競わない）。文書の編集画面の入力欄も右へずれる。設定の表は `EvoSettingsForm::style()` の `table.settings th`（0,1,2、5px）が勝つので変わらない（設定の表の余白は段階 3 で `style()` を共通の CSS へ移すときに合わせる）。段階 0 の「見た目を変えない」の例外として、この 1 点だけ先に決めた。
 - 2026-11-20 段階 1 の範囲: 手で組んだ一覧表（システム情報の最新の編集・DB の一覧・オンラインの一覧、バックアップの DB の一覧）は #1204（DataTable へ移す）と重なるので触らない。管理者しか値を入れない欄（DB の変数・テーブルのコメントなど）にエスケープを足すことはしない（今壊れていない値に守りを足さない、という本人の方針）。管理ログの検索フォームの値の右揃えと 1 行おきの白い地はやめ、ほかのフォームと同じにする。サイトの書き出しの設定の表は `class="settings"` を持つので、グローバル設定と同じ見出し（`.settings th`）にそろえる。
+- 2026-11-22 見出しの縦の揃え（本人の判断）: 行の部品の見出しのセルは、共通の CSS で上揃えにし、上の余白を `calc((var(--control-height) - var(--line-box)) / 2)` にする（入力欄は中の文字が縦の中央に来るので、見出しの 1 行目が 1 行の入力欄の文字と同じ高さに並ぶ。複数行の欄でも見出しは上に来る）。段階 1 で先送りにした縦の揃えをここで決めた。画面ごとの `padding-top`・`valign` の直書きは消す。`EvoSettingsForm::style()` の `table.settings th` の 5px は段階 3 で合わせる。見出しの列の幅・色は引き続き対象外。
+- 2026-11-22 見出しの無い行（本人の判断）: 「ロックする」「無効にする」など見出しの無いチェックボックスの行は、部品に `label` を空で渡し、値を入力欄の列にそろえる（部品に「見出しの無い行」の形は足さない）。
+- 2026-11-22 段階 2 の細かい決まり: 見出しのコロンは付けない（チャンク・TV・設定の表に合わせる）。モジュールの見出しは `td` から `th` にする。入力欄の下の注意書き（`span.comment` と `<br>`）は `help`（`.form-text`）にする。入力欄の幅の直書き（300px など）は欄ごとの値なので残す。JS が表示を切り替える行（新しいカテゴリ・パラメーターの表・`#inputoption`・`.sharedparams`）は `attr` で今と同じ `id`・`style` を出し、`td` に付いていた `id`（`#displayparams`）は値の中の要素に移す。見出しと値の行ではない表（プラグインのイベントの表、JS が組むパラメーターの表、権限のチェックの一覧、モジュールの依存の DataTable、テンプレートの「名前と親テンプレート」の 1 行）は触らない。段階 2 は差分が大きいので、スニペットとチャンク（2A）、プラグインとテンプレート（2B）、モジュールと TV（2C）の 3 PR に分ける。
 - 2026-11-20 PR の分け方: 1 段階を 1 PR にする。段階ごとのブランチは `origin/main` から `git worktree add -b` で作り、Issue には紐づけない（紐づけると `Refs` でもマージで #1631 が閉じる）。段階 0〜3 の PR は `Refs #1631`、段階 4 の PR だけ `Closes #1631`。
 
 ## Outcomes & Retrospective
@@ -128,7 +131,20 @@
 
 期待される観測: 管理ログの検索・システム情報・サイトの書き出し・バックアップの見出しと値の行が `tr.field-row` で出て、見出しと値の間が 12px。`git grep -n 'display:none' -- manager/actions` に送信用の input が残らない。
 
-### 段階 2〜4
+### 段階 2A（ブランチ `refactor/1631-stage2-element-forms`。スニペットとチャンク）
+
+1. 見出しの縦の揃えの CSS: `theme-base.css` の `.field-label` に `vertical-align: top` と `padding-top: calc((var(--control-height, 32px) - var(--line-box, 18px)) / 2)` を足す（Decision Log 2026-11-22）。今まで部品を使っている画面（文書の編集・下書きの公開・グローバル設定とユーザーの設定・システム情報・管理ログの検索・サイトの書き出し・バックアップ・スタイルガイド）にも効くので、検証に入れる。設定の表は `EvoSettingsForm::style()` の `table.settings th`（5px、上揃え）が勝つので変わらない見込み。`foundation-proposal.css` の見出しの規則（`padding-top`・`vertical-align`）は、同じ決まりが本採用になるので消す。
+2. スニペット（`element/mutate_snippet.dynamic.php`）: 名前・既存のカテゴリ・新しいカテゴリ・説明・エラー報告・インポートのパラメーター（条件付き）・プロパティ・パラメーターの表の行を `EvoFieldRow::render()` へ。新しいカテゴリは `field` を `newcategory`、`attr` に `id="newcategry"` と表示の切り替えの `style`。インポートの説明文の行は、インポートの行の `help` に入れる（閉じていない `span` も直る）。ロックは `label` を空にした行。パラメーターの表の行は `attr` に `id="displayparamrow"` と `style`、`#displayparams` は値の中の `div` に移し、`element-properties.js` が子を置き換えられることを確かめる。消す: `align`・`valign`・`padding-top`・空の見出しの `<td>&nbsp;</td>`・見出しのコロン。残す: 欄の幅・textarea の `padding:0;height:4em`。
+3. チャンク（`element/mutate_htmlsnippet.dynamic.php`）: 名前・公開・公開日・公開終了日・既存のカテゴリ・新しいカテゴリ・説明・リッチテキスト・ロックの行を `EvoFieldRow::render()` へ。日付のアイコンの `a` の `cursor:pointer; cursor:hand` は `.clickable-label` に。空の `span`（Courier の指定だけ）は消す。`.sectionBody` と `</form>` の閉じる順を直す。名前の `{{ }}` の囲みは残す。
+4. 文書: `manager-form-row.md` の「使っている画面」に、段階 1・2 で移した画面を足す。「見出しと値の間」の節に縦の揃えの決まりを足す。「見出しの無い行」は `label` を空にする、と書く。
+
+期待される観測: スニペットとチャンクの編集画面の見出しと値の行が `tr.field-row` で出て、見出しは上揃え・太字・コロン無し、ロックのチェックボックスは入力欄の列にそろう。カテゴリの新規作成・パラメーターの表の表示の切り替え・保存・ロック・RTE の切り替えが main と同じに動く。
+
+### 段階 2B・2C・3・4
+
+段階 2B（プラグインとテンプレート）と 2C（モジュールと TV）は、2A の PR のあとに、調査の結果（2026-11-22）をもとにこの節に手順を書き足す。範囲の外で見つかったもの: テンプレートの画面の `getParentValues()` が、入力エラーで戻したときの `parent` の値を整数にせずに SQL に入れている（ログインが要る経路。別の Issue と PR で直す）。モジュールの「パラメーターを更新」のボタンに onclick が無い（動きが変わるので別の Issue）。
+
+段階 4 の前提（2026-11-21）: PR #1644 で TV の行は既定で TV のタブの中の `div.tmplvars#tv_body > table.mutate-tv-table` に出る（`tvs_below_content=1` なら本文の下の `#tv_body`）。`tv_row.tpl`・`fieldsTV()` の構造は #1644 では変わっていない。ManagerManager の `MM.tidyUp()` は TV のタブに入力欄が無いときだけタブを隠す。
 
 段階 4 の手順に足すこと: `tv_row.tpl` を部品へ移すとき、`custom_tpl_dir` から tpl の場所を決める処理（今は `EvoFieldRow::tpl()` と `mutate_content/functions.php` の `file_get_tpl()` の 2 か所）を 1 つにまとめ、`file_get_tpl()` もそれを使う。
 
