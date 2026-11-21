@@ -18,6 +18,17 @@ final class EvoSpecialPages
     }
 
     /**
+     * 削除も非公開もできないページ（サイトの設定で使っているページ）の設定名。文書がどれに当たるかを調べる順（トップページが先）。
+     * 設定が空（0）のものは止めない。権限外告知のページが空のとき本体は error_page を使うが、それは error_page として止まる。
+     * 言語ファイルに、各設定名で cannot_delete_<設定名>・cannot_delete_child_<設定名>・cannot_unpublish_<設定名>・
+     * cannot_pub_dates_<設定名> が要る（判定は DocAPI::protectedPageSetting()、画面は actionConfig() の ids が引く）
+     */
+    public static function protectedSettings()
+    {
+        return array_merge(['site_start'], array_keys(self::all()));
+    }
+
+    /**
      * 'missing'（無い）/ 'deleted'（削除済み）/ 'unpublished'（非公開）/ ''（問題なし）
      * $doc には文書の行（無いときは空）が入る
      */
