@@ -420,7 +420,8 @@ function fieldPublished()
             'name' => 'publishedcheck',
             'checked' => $published() ? null : '',
             'onclick' => 'changestate(document.mutate.published);resetpubdate();',
-            'disabled' => (!evo()->hasPermission('publish_document') || evo()->doc->protectedPageSetting(request_intvar('id')) !== '') ? null : ''
+            // 設定で使っているページは、今公開中のときだけ公開を外せない（すでに非公開のものは、チェックを入れて公開に戻せる）
+            'disabled' => (!evo()->hasPermission('publish_document') || (doc('published') && evo()->doc->protectedPageSetting(request_intvar('id')) !== '')) ? null : ''
         ]
     );
     $body .= html_tag(

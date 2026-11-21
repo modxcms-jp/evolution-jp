@@ -1,6 +1,7 @@
 <?php
 
 $this->doc = new DocAPI;
+require_once MODX_CORE_PATH . 'special_pages.class.inc.php';
 
 // 文書の作成・更新・削除と、編集画面の値の整形・権限の確認（evo()->doc）。文書を扱うコードはこちらを使う。
 // ex_documentapi.php の Document クラスは本体から使われておらず、非推奨（#1085）
@@ -166,7 +167,7 @@ class DocAPI
     }
 
     /**
-     * 設定で使っているページ（PROTECTED_PAGES）に許さない公開の状態なら、その理由の文を返す（保存と下書きの採用の共通の判定）。
+     * 設定で使っているページ（EvoSpecialPages::protectedSettings()）に許さない公開の状態なら、その理由の文を返す（保存と下書きの採用の共通の判定）。
      * 非公開にする、未来の公開日がある、公開終了日がある、のどれかに当たると返す。当たるページでない・問題が無ければ空文字。
      * 警告と差し戻しは呼び出し側で行う。日付はタイムスタンプ（setPubStatus() を通した値）で渡す
      */
@@ -620,14 +621,7 @@ class DocAPI
     }
 
     /**
-     * 削除も非公開もできないページ（サイトの設定で使っているページ）の設定名。この順に当てる。
-     * 設定が空（0）のものは止めない。権限外告知のページが空のとき本体は error_page を使うが、それは error_page として止まる。
-     * 画面側（document-actions.js）は actionConfig() の ids のキーとして同じ一覧を受ける
-     */
-    const PROTECTED_PAGES = ['site_start', 'error_page', 'site_unavailable_page', 'unauthorized_page'];
-
-    /**
-     * そのリソースが当たる設定名（PROTECTED_PAGES）。当たらなければ空文字
+     * そのリソースが当たる設定名（EvoSpecialPages::protectedSettings()）。当たらなければ空文字
      */
     public function protectedPageSetting($id)
     {
@@ -635,7 +629,7 @@ class DocAPI
         if (!$id) {
             return '';
         }
-        foreach (self::PROTECTED_PAGES as $setting) {
+        foreach (EvoSpecialPages::protectedSettings() as $setting) {
             if ($id === (int)evo()->config($setting)) {
                 return $setting;
             }
@@ -666,7 +660,7 @@ class DocAPI
     }
 
     /**
-     * 文書の操作の確認の文言（document-actions.js の operations の表が言語キーで引く）。警告の文言は PROTECTED_PAGES から組み立てる
+     * 文書の操作の確認の文言（document-actions.js の operations の表が言語キーで引く）。警告の文言は EvoSpecialPages::protectedSettings() から組み立てる
      */
     const ACTION_LANG_KEYS = [
         'confirm_delete_resource', 'confirm_delete_resource_children', 'confirm_batch_delete',
@@ -682,7 +676,7 @@ class DocAPI
     {
         $ids = [];
         $keys = self::ACTION_LANG_KEYS;
-        foreach (self::PROTECTED_PAGES as $setting) {
+        foreach (EvoSpecialPages::protectedSettings() as $setting) {
             $ids[$setting] = (int)evo()->config($setting);
             $keys[] = 'cannot_delete_' . $setting;
             $keys[] = 'cannot_unpublish_' . $setting;
