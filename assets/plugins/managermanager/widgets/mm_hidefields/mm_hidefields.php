@@ -26,9 +26,6 @@ function mm_hideFields($fields, $roles = '', $templates = '')
 
     $output = "//  -------------- mm_hideFields :: Begin ------------- \n";
 
-    // 行（%s は行を返す式）を隠し、次の tr の中に td[colspan="2"] があれば、その td の親の tr（区切りの行）も隠す
-    $hideRows = 'MM.all(%s).forEach(function (tr) { MM.hide(tr); const n = tr.nextElementSibling; if (n && n.matches("tr")) { n.querySelectorAll(\'td[colspan="2"]\').forEach(function (td) { if (td.parentElement.matches("tr")) { MM.hide(td.parentElement); } }); } });';
-
     foreach ($fields as $field) {
         switch ($field) {
             // Exceptions
@@ -53,7 +50,7 @@ function mm_hideFields($fields, $roles = '', $templates = '')
                 break;
 
             case 'weblink':
-                $output .= sprintf($hideRows, 'Evo.fieldRow("weblink")');
+                $output .= 'MM.hideRows(Evo.fieldRow("weblink"));';
                 break;
 
             default:
@@ -62,10 +59,7 @@ function mm_hideFields($fields, $roles = '', $templates = '')
                 }
                 // Check the fields exist,  so we're not writing JS for elements that don't exist
                 // fieldname の \\[\\] は CSS のエスケープなので外し、属性値を引用して組み立てる
-                $output .= sprintf(
-                    $hideRows,
-                    'MM.fieldRows(' . js_literal(mmFieldSelector($field)) . ')'
-                );
+                $output .= 'MM.hideRows(MM.fieldRows(' . js_literal(mmFieldSelector($field)) . '));';
         }
         $output .= "\n";
     }
