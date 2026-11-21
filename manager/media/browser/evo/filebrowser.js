@@ -76,6 +76,9 @@ function init(root, entry, behaviors) {
     setMessages(config.lang || {});
     var initialFolder = typeof config.initialFolder === 'string' ? config.initialFolder : '';
     var initialSelect = typeof config.initialSelect === 'string' ? config.initialSelect : '';
+    // edit=1 で開いたとき、最初の一覧だけで画像編集を開く。editFromPicker は、その編集の終わりを入口へ返すかどうか
+    var initialEdit = config.initialEdit === true && initialSelect !== '';
+    var editFromPicker = false;
     var initialFallbackTried = false;
     var isInitialLoad = true;
     // 一覧を一度でも出したか。開いたとき（最初の一覧）は、選んだファイルへのスクロールをスムーズにしない
@@ -368,7 +371,20 @@ function init(root, entry, behaviors) {
             preview.close();
             dropzoneEl.focus({ preventScroll: true });
             // フォルダは移っていないので、保存した画像の位置はすぐ出す
-            load(name, { instant: true });
+            load(name, {
+                instant: true,
+                onLoaded: editFromPicker && behaviors.editDone ? function () {
+                    var saved = findFile(name);
+                    if (saved) {
+                        behaviors.editDone(saved);
+                    }
+                } : null
+            });
+        },
+        onCancel: function () {
+            if (editFromPicker && behaviors.editCancel) {
+                behaviors.editCancel();
+            }
         }
     });
 
@@ -498,9 +514,22 @@ function init(root, entry, behaviors) {
         });
     }
 
+    // edit=1 のとき、select のファイルの画像編集を開く。開けないときは、一覧のまま理由を出す
+    function openInitialEdit(file) {
+        if (!file) {
+            window.alert(t('fb_edit_open_not_found'));
+        } else if (!imageEditor.canEdit(file)) {
+            window.alert(t('fb_edit_open_not_editable'));
+        } else {
+            editFromPicker = true;
+            imageEditor.open(file);
+        }
+    }
+
     function load(selectName, options) {
         var instant = !!(options && options.instant);
         var allowInitialFallback = isInitialLoad;
+        var openEditAfter = isInitialLoad && initialEdit && selectName === initialSelect;
         isInitialLoad = false;
         // 描き直すとフォーカスが body に落ちるので、ファイルブラウザの中にあったときだけ覚えておき、後で戻す
         var hadFocus = root.contains(document.activeElement);
@@ -526,6 +555,12 @@ function init(root, entry, behaviors) {
                 grid.updateSelectionBar();
                 if (selected) {
                     scrollToSelected(hasShownList && !instant);
+                }
+                if (openEditAfter) {
+                    openInitialEdit(selected ? findFile(selectName) : null);
+                }
+                if (options && options.onLoaded) {
+                    options.onLoaded();
                 }
                 hasShownList = true;
                 emit('evofb:navigate', { folder: state.folder });

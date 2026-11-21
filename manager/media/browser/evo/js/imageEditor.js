@@ -93,6 +93,7 @@ function nextDimension(current, target) {
  * @param {object} ctx.state - folder
  * @param {object} ctx.config - apiUrl / apiParams / csrfToken / editableExtensions / editMaxDimension / editMaxPixels / maxUploadSize
  * @param {(name: string) => void} ctx.onSaved - 保存できたとき。保存した名前を渡す
+ * @param {() => void} [ctx.onCancel] - 保存せずに閉じたとき(取り消し・Esc)。保存の後は呼ばない
  * @returns {{open: (file: object) => void, canEdit: (file: object) => boolean}}
  */
 export function createImageEditor(ctx) {
@@ -787,6 +788,9 @@ export function createImageEditor(ctx) {
             return;
         }
         close(true);
+        if (ctx.onCancel) {
+            ctx.onCancel();
+        }
     }
 
     function open(file) {

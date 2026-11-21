@@ -29,7 +29,7 @@ class BrowserView
         'open', 'move', 'fb_pick_this_file', 'fb_new_folder', 'fb_upload', 'fb_context_menu',
         'fb_copy', 'fb_cut', 'fb_paste', 'fb_duplicate', 'fb_copy_partial_failed', 'fb_copy_failed',
         'fb_download', 'fb_download_preparing', 'fb_download_failed',
-        'fb_edit', 'fb_edit_overwrite_confirm', 'fb_edit_saving', 'fb_edit_save_failed', 'fb_edit_load_failed', 'fb_edit_encode_failed', 'fb_edit_summary', 'fb_edit_resize_hint', 'fb_edit_resize_limit',
+        'fb_edit', 'fb_edit_overwrite_confirm', 'fb_edit_saving', 'fb_edit_save_failed', 'fb_edit_load_failed', 'fb_edit_open_not_found', 'fb_edit_open_not_editable', 'fb_edit_encode_failed', 'fb_edit_summary', 'fb_edit_resize_hint', 'fb_edit_resize_limit',
         'fb_err_too_large', 'fb_confirm_overwrite', 'fb_discard_confirm',
         // 管理モードだけが使う(js/manage.js・js/textEditor.js)
         'fb_text_loading', 'fb_err_text_link', 'fb_text_readonly_write', 'fb_text_readonly_encoding',
@@ -62,6 +62,7 @@ class BrowserView
             'csrfToken' => function_exists('getCurrentCsrfToken') ? getCurrentCsrfToken() : '',
             'initialFolder' => $options['initialFolder'] ?? '',
             'initialSelect' => $options['initialSelect'] ?? '',
+            'initialEdit' => !empty($options['initialEdit']),
             'rootLabel' => $options['rootLabel'],
             // zip を作れない環境では、2 件以上のダウンロードを出さない(1 件はそのまま送れる)
             'zip' => $config->canCreateZip(),
