@@ -1032,7 +1032,7 @@
                 return;
             }
             saveStored(narrow ? TREE_NARROW_WIDTH_KEY : TREE_WIDTH_KEY, width);
-            // 元の幅を、覚えた細い幅以下まで縮めたら、細い幅を忘れる（細くならないまま、ぼけて出るのを避ける）
+            // 元の幅を、覚えた細い幅以下まで縮めたら、細い幅を忘れる（細くしても幅が変わらなくなるのを避ける）
             if (!narrow && narrowBefore && parseFloat(narrowBefore) >= width) {
                 forgetTreeNarrowWidth();
             }
@@ -1209,7 +1209,7 @@
             }
             document.documentElement.style.removeProperty('--shell-tree-width');
             forgetStored(TREE_WIDTH_KEY);
-            // 戻した元の幅以上の細い幅は忘れる（細くならないまま、ぼけて出るのを避ける。ドラッグの終わりと同じ）
+            // 戻した元の幅以上の細い幅は忘れる（細くしても幅が変わらなくなるのを避ける。ドラッグの終わりと同じ）
             const narrowWidth = parseFloat(document.documentElement.style.getPropertyValue('--shell-tree-narrow-width'));
             if (narrowWidth >= fullTreeWidth()) {
                 forgetTreeNarrowWidth();
