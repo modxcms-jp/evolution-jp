@@ -281,8 +281,8 @@ body.evo-shell #treeRoot {
     margin-top: var(--space-1, 4px);
 }
 
-/* サイト名は、ツリーの項目（nodes.php の行の white-space: nowrap）と同じく、ツリーの幅を狭めても折り返さない */
-#treeHolder .rootNode {
+/* サイト名の行（アイコンとサイト名）は、ツリーの項目（nodes.php の行の white-space: nowrap）と同じく、ツリーの幅を狭めても折り返さない */
+#treeHolder .tree-root-row {
     white-space: nowrap;
 }
 
