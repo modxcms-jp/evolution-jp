@@ -491,8 +491,9 @@ if (is_array($evtOut)) {
             echo implode("\n", $evtOut);
         }
         ?>
-        <div><?= style('tree_showtree') ?>&nbsp;<span class="rootNode"
-                                                                onclick="treeAction(0, <?= hsc(js_literal(config('site_name'))) ?>);"><b><?= hsc(config('site_name')) ?></b></span>
+        <div>
+            <div class="tree-root-row"><?= style('tree_showtree') ?>&nbsp;<span class="rootNode"
+                    onclick="treeAction(0, <?= hsc(js_literal(config('site_name'))) ?>);"><b><?= hsc(config('site_name')) ?></b></span></div>
             <div id="treeRoot"></div>
         </div>
         <?php
