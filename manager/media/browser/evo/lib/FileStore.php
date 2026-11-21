@@ -297,7 +297,7 @@ class FileStore
         $max = 0;
         $prefix = preg_quote(self::pastedBaseName($kind, $id), '/');
         foreach (@scandir($dirReal) ?: [] as $entry) {
-            if (preg_match('/^' . $prefix . '-(\d{1,9})\./', $entry, $m)) {
+            if (preg_match('/^' . $prefix . '-(\d+)\./', $entry, $m)) {
                 $max = max($max, (int) $m[1]);
             }
         }
@@ -308,7 +308,7 @@ class FileStore
     /**
      * 貼り付けた画像を保存する(置き場所のフォルダーは、pastedFolder() と ensureFolderPath() で決めて渡す)。
      * 名前は pastedBaseName() に、そのフォルダーにある同じ名前の頭(pasted-doc-12-*)の連番の最大 + 1(無ければ 1)と拡張子を付ける(pasted-doc-12-3.png)。
-     * 途中の番号を消しても、その番号は使い回さない(同じ名前で別の画像になると、ブラウザーや CDN が古い画像を出すため)。いちばん大きい番号を消したときだけ、その番号がまた使われる(番号はフォルダーの中身だけで決め、別に持たない)。連番は 9 桁まで数える
+     * 途中の番号を消しても、その番号は使い回さない(同じ名前で別の画像になると、ブラウザーや CDN が古い画像を出すため)。いちばん大きい番号を消したときだけ、その番号がまた使われる(番号はフォルダーの中身だけで決め、別に持たない)
      * 空きは排他的に確保し、取り合いで負けたら次の番号で取り直すので、同時の貼り付けでも重ならない。確かめ・イベントは saveNewFile() と同じ。
      * CLI から: ensureFolderPath() でフォルダーを作ったあと、bytesWriter($modx, $bytes) を $write にして呼ぶ
      *
