@@ -105,6 +105,7 @@ register_shutdown_function(function () use (&$pending, $store) {
     exit(1);
 });
 $failed = 0;
+$conflicts = 0;
 $changedDocs = [];
 $docsDone = 0;
 
@@ -161,8 +162,9 @@ $convertValue = function ($docId, $label, $value, $timestamp, $whole, &$placed) 
     return EvoDataUri::replaceImgSrc($value, $handle);
 };
 
-// 新しい値を DB に書く。書けなければ、その値のために書いたファイルを消す
-$commit = function (array $placed, $docId, callable $update) use (&$rows, &$pending, &$failed, &$changedDocs, $store) {
+// 新しい値を DB に書く。$update は 1（書けた）・0（読んだあとに別の書き換えがあり、条件に合わなかった＝競合）・false（DB のエラー）を返す。
+// 書けなければ、その値のために書いたファイルを消す
+$commit = function (array $placed, $docId, callable $update) use (&$rows, &$pending, &$failed, &$conflicts, &$changedDocs, $store) {
     if (!$placed) {
         return;
     }
@@ -170,17 +172,27 @@ $commit = function (array $placed, $docId, callable $update) use (&$rows, &$pend
     foreach ($placed as $index) {
         unset($pending[$rows[$index]['rel']]);
     }
-    if ($updated) {
+    if ($updated === 1) {
         $changedDocs[$docId] = true;
         return;
     }
     foreach ($placed as $index) {
         $store->discard($rows[$index]['rel']);
-        $rows[$index]['status'] = 'failed';
-        $rows[$index]['detail'] = 'database update failed: ' . db()->getLastError();
+        $rows[$index]['status'] = $updated === 0 ? 'conflict' : 'failed';
+        $rows[$index]['detail'] = $updated === 0
+            ? 'skipped: it was changed while this command was running; run the command again'
+            : 'database update failed: ' . db()->getLastError();
         $rows[$index]['rel'] = null;
     }
-    $failed++;
+    $updated === 0 ? $conflicts++ : $failed++;
+};
+
+// 読んだときの値を条件に入れて書き戻し、1・0・false を返す（$commit を参照）
+$updateWhere = function (array $fields, $table, $where) {
+    if (!db()->update(db()->escape($fields), $table, $where)) {
+        return false;
+    }
+    return db()->getAffectedRows() > 0 ? 1 : 0;
 };
 
 foreach ($candidateIds as $docId) {
@@ -203,8 +215,8 @@ foreach ($candidateIds as $docId) {
         }
         $placed = [];
         $new = $convertValue($docId, $field, $doc[$field], $docTime, false, $placed);
-        $commit($placed, $docId, function () use ($docId, $field, $new) {
-            return db()->update(db()->escape([$field => $new]), '[+prefix+]site_content', sprintf('id=%d', $docId));
+        $commit($placed, $docId, function () use ($updateWhere, $doc, $docId, $field, $new) {
+            return $updateWhere([$field => $new], '[+prefix+]site_content', sprintf('id=%d AND editedon=%d', $docId, (int)$doc['editedon']));
         });
     }
 
@@ -219,11 +231,11 @@ foreach ($candidateIds as $docId) {
         while ($tv = db()->getRow($rs)) {
             $placed = [];
             $new = $convertValue($docId, 'tv' . $tv['tmplvarid'], $tv['value'], $docTime, true, $placed);
-            $commit($placed, $docId, function () use ($tv, $new) {
-                return db()->update(
-                    db()->escape(['value' => $new]),
+            $commit($placed, $docId, function () use ($updateWhere, $tv, $docId, $new) {
+                return $updateWhere(
+                    ['value' => $new],
                     '[+prefix+]site_tmplvar_contentvalues',
-                    sprintf('id=%d', (int)$tv['id'])
+                    sprintf("id=%d AND contentid=%d AND tmplvarid=%d AND value='%s'", (int)$tv['id'], $docId, (int)$tv['tmplvarid'], db()->escape($tv['value']))
                 );
             });
         }
@@ -231,7 +243,7 @@ foreach ($candidateIds as $docId) {
 
     // 下書き（site_revision。element=resource の version 0）。シリアライズした配列の、本文・要約・TV の値
     $draft = db()->getRow(db()->select(
-        'internalKey,content,editedon',
+        'internalKey,content,editedon,checksum',
         '[+prefix+]site_revision',
         sprintf("element='resource' AND elmid=%d AND version=0 AND content LIKE '%%data:%%'", $docId)
     ));
@@ -256,11 +268,11 @@ foreach ($candidateIds as $docId) {
             }
             if ($changed) {
                 $serialized = serialize($data);
-                $commit($placed, $docId, function () use ($draft, $serialized) {
-                    return db()->update(
-                        db()->escape(['content' => $serialized, 'checksum' => hash('crc32b', $serialized)]),
+                $commit($placed, $docId, function () use ($updateWhere, $draft, $serialized) {
+                    return $updateWhere(
+                        ['content' => $serialized, 'checksum' => hash('crc32b', $serialized)],
                         '[+prefix+]site_revision',
-                        sprintf('internalKey=%d', (int)$draft['internalKey'])
+                        sprintf("internalKey=%d AND checksum='%s'", (int)$draft['internalKey'], db()->escape($draft['checksum']))
                     );
                 });
             }
@@ -290,8 +302,8 @@ foreach ($rows as $row) {
         cli_out($line . ' -> ' . $row['detail']);
         $moved++;
         $movedDocs[$row['doc']] = true;
-    } elseif ($row['status'] === 'failed') {
-        cli_err($line . ' -> failed: ' . $row['detail']);
+    } elseif ($row['status'] === 'failed' || $row['status'] === 'conflict') {
+        cli_err($line . ' -> ' . ($row['status'] === 'failed' ? 'failed: ' : '') . $row['detail']);
     } else {
         cli_out($line . ' -> left as is: ' . $row['detail']);
         $skipped++;
@@ -314,12 +326,13 @@ if ($changedDocs) {
     evo()->clearCache('full');
 }
 cli_out(sprintf(
-    'Moved %d image(s) in %d document(s), %d left as is, %d failed.',
+    'Moved %d image(s) in %d document(s), %d left as is, %d failed, %d skipped by a conflict.',
     $moved,
     count($changedDocs),
     $skipped,
-    $failed
+    $failed,
+    $conflicts
 ));
-if ($failed > 0) {
+if ($failed > 0 || $conflicts > 0) {
     exit(1);
 }

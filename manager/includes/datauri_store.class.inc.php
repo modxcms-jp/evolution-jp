@@ -168,7 +168,9 @@ class EvoDataUriStore
     /** 書いたファイルを管理操作ログに書く（Uploaded File。貼り付けのアップロードと同じ） */
     public function record()
     {
-        ChangeLog::record($this->scope, 'Uploaded File', array_keys($this->saved));
+        // 確定したファイルは、先に後始末の対象から外す（管理操作ログの書き込みが失敗して処理が止まっても、保存済みの本文が使う画像を消さない）
+        $paths = array_keys($this->saved);
         $this->saved = [];
+        ChangeLog::record($this->scope, 'Uploaded File', $paths);
     }
 }
