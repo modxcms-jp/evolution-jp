@@ -1468,6 +1468,8 @@ return [
     "fb_edit_saving" => 'Saving...',
     "fb_edit_save_failed" => 'Could not save the image: %s',
     "fb_edit_load_failed" => 'The image could not be loaded.',
+    "fb_edit_open_not_found" => 'The image to edit was not found in this folder.',
+    "fb_edit_open_not_editable" => 'This image cannot be edited here (the format is not supported, or it is too large).',
     "fb_edit_encode_failed" => 'The image could not be exported in this format.',
     "fb_err_invalid_mode" => 'Invalid save mode.',
     "fb_err_not_editable" => 'This type of file cannot be edited.',

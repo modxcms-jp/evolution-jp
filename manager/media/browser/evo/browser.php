@@ -5,6 +5,8 @@
  *
  * ?modal=1 のときは EvoShell モーダル用のHTML断片を、それ以外はテーマCSSを読み込んだ
  * スタンドアロン完全HTML(chromelessフォールバックのポップアップ用)を出力する。
+ * folder・select で開いたときに選んでおくファイルを指定できる。edit=1 を足すと、select のファイルの画像編集を開いた状態で出る
+ * (保存すると、保存したファイルを選んだものとして呼んだ側へ返す。取り消すと、何も選ばずに閉じる)。
  * 常にピッカーの範囲で開く(URLに何を付けても、管理モードの設定は入れない)。
  */
 
@@ -53,6 +55,7 @@ $jsConfig = BrowserView::jsConfig($modx, $browserConfig, [
     'apiParams' => ['type' => $type],
     'initialFolder' => get_strvar('folder'),
     'initialSelect' => get_strvar('select'),
+    'initialEdit' => get_boolvar('edit'),
     'rootLabel' => $type,
     'maxUploadSize' => $scope->maxUploadSize(),
 ]);

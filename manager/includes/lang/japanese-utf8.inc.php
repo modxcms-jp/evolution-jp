@@ -1469,6 +1469,8 @@ return [
     "fb_edit_saving" => '保存しています...',
     "fb_edit_save_failed" => '画像を保存できませんでした: %s',
     "fb_edit_load_failed" => '画像を読み込めませんでした。',
+    "fb_edit_open_not_found" => '編集する画像がこのフォルダーに見つかりませんでした。',
+    "fb_edit_open_not_editable" => 'この画像はここでは編集できません（形式が対応していないか、大きすぎます）。',
     "fb_edit_encode_failed" => 'この形式では画像を書き出せませんでした。',
     "fb_err_invalid_mode" => '保存のしかたが正しくありません。',
     "fb_err_not_editable" => 'この種類のファイルは編集できません。',
