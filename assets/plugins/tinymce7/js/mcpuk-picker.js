@@ -280,7 +280,8 @@
     });
   }
 
-  // width はそのまま、height を新しい縦横比で決める。height だけがあれば width を決める。どちらも無ければ付けない
+  // width はそのまま、height を新しい縦横比で決める。height だけがあれば width を決める。どちらも無ければ付けない。
+  // ただし新しい画像より大きくはしない（小さくリサイズした画像を、元の大きさに引き伸ばして粗く出さない）
   function scaledSize(img, size) {
     if (!size || !size.width || !size.height) {
       return {};
@@ -288,10 +289,12 @@
     const width = parseInt(img.getAttribute('width'), 10);
     const height = parseInt(img.getAttribute('height'), 10);
     if (width > 0) {
-      return {width: width, height: Math.round(width * size.height / size.width)};
+      const shownWidth = Math.min(width, size.width);
+      return {width: shownWidth, height: Math.round(shownWidth * size.height / size.width)};
     }
     if (height > 0) {
-      return {width: Math.round(height * size.width / size.height), height: height};
+      const shownHeight = Math.min(height, size.height);
+      return {width: Math.round(shownHeight * size.width / size.height), height: shownHeight};
     }
     return {};
   }
