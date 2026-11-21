@@ -281,6 +281,11 @@ body.evo-shell #treeRoot {
     margin-top: var(--space-1, 4px);
 }
 
+/* サイト名は、ツリーの項目（nodes.php の行の white-space: nowrap）と同じく、ツリーの幅を狭めても折り返さない */
+#treeHolder .rootNode {
+    white-space: nowrap;
+}
+
 /* ツリーの字下げ。子の項目は親の .tree-children の中に入るので、入れ物の余白が深さの分だけ重なる。
    ＋－の無い行（ページ・続きを読む・空のフォルダ）は、＋－の画像と後ろの空白の分だけ右に寄せ、フォルダのアイコンと揃える
    （＋－の画像は幅 18px で、下の規則で 6px 詰めるので、寄せる幅は 12px と空白 1 つ） */
