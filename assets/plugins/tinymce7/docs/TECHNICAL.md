@@ -96,12 +96,13 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 
 ### 貼り付け・ドロップした画像のアップロード
 
-画像の入口はファイルピッカーに一本化しています。エディターに貼り付けた・ドロップした画像は、TinyMCE の `images_upload_handler`（`js/mcpuk-picker.js` の `window.mceModxImageUpload`）でファイルピッカーの API（`manager/media/browser/evo/api.php` の `action=uploadPasted`）に送り、返った URL を本文の `src` に入れます。置き場所は `{rb_base_dir}/images/年/月/`、名前は `pasted-年月日-時分秒.拡張子` です（`assets/docs/file-storage.md`）。画像のダイアログの「アップロード」タブは、どの設定でも出しません（`image_uploadtab: false`）。
+画像の入口はファイルピッカーに一本化しています。エディターに貼り付けた・ドロップした画像は、TinyMCE の `images_upload_handler`（`js/mcpuk-picker.js` の `window.mceModxImageUpload`）でファイルピッカーの API（`manager/media/browser/evo/api.php` の `action=uploadPasted`）に送り、返った URL を本文の `src` に入れます。置き場所は `{rb_base_dir}/images/年/月/`、名前の無い画像の名前は `pasted-doc-{リソースID}-{連番}.拡張子`（チャンクの編集では `pasted-chunk-{チャンクID}-{連番}.拡張子`）です（`assets/docs/file-storage.md`）。画像のダイアログの「アップロード」タブは、どの設定でも出しません（`image_uploadtab: false`）。
 
 使うかどうかは `EditorInitializer::canUploadPasted()`（1 か所）が決めます。次のすべてを満たすときだけ使えます。
 
 - `tinymce7_file_browser` が `mcpuk`
 - 管理画面のエディター（`forfrontend` でない）。フロントのエディターでは使いません。フロントのページはキャッシュに入り、セッションごとの CSRF トークンを埋め込めないためです
+- ID のある画面（`EditorInitializer::managerScreen()`。リソースの編集 `a=27`・下書きの編集 `a=131`/`132` と、チャンクの編集 `a=78`。`id` が 1 以上）。新しいリソース（`a=4`・`72`）では、保存するまで ID が無いのでアップロードせず、`paste_data_images` は `true` のまま `data:` 画像をエディターに置きます（保存時の変換がファイルにします）。新しいチャンク（`a=77`）と、ほかの画面では貼り付けた画像を受けません（`paste_data_images: false`。チャンクは保存時の変換の対象外のため）
 - このセッションがファイルピッカーの `images` を使える（`PickerScope::authorize()`。`api.php` が要求のたびに行う確かめと同じ。`use_browser` が有効なとき）
 - ロールの権限 `file_upload` がある（`PickerScope::allows()`。`api.php` の `uploadPasted` が表の `perm` で確かめるのと同じ）
 - CSRF トークンを出せる（`getCurrentCsrfToken()` がある）
@@ -109,7 +110,7 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 
 使えるときは、`images_upload_handler` を付け、`images_file_types` を TinyMCE の既定と `upload_images` の重なりにし、`window.MODX_FILE_PICKER.upload`（`{url, csrfToken}`）を渡します。使えないときは `paste_data_images: false` にして、貼り付けた画像を受けません（本文に `data:` 画像が入らない）。フロントのエディターでは貼り付けた画像を受けません（`paste_data_images: false`）。画像編集（`mceModxImageEdit` の登録と帯のボタン）は、管理画面ではピッカーを使えないとき付けません（`MODX_FILE_PICKER.imageEdit`）。フロントでは `file_browser` が `mcpuk` なら付け、使えない人が開いたときはピッカーが断ります（参照ボタンと同じ）。
 
-- 名前は、サーバーが決めます。JS は、名前を持つ File ならその名前、無ければ `image.拡張子` を送るだけです。サーバー（`FileStore::pastedPlaceholderExtension()`）が、名前が `image.拡張子` のものを `pasted-…` に置き換え、ほかの名前は元のまま保存します（同名があれば `名前(1).拡張子`）。拡張子は `blob.type` から決めます（`image/jpeg` は `jpg`）。
+- 名前は、サーバーが決めます。JS は、名前を持つ File ならその名前、無ければ `image.拡張子` を送るだけです。送るときは、画面の種類 `kind`（`doc`・`chunk`）と ID `id` も付けます（`MODX_FILE_PICKER.upload` の `kind`・`id`）。サーバー（`FileStore::pastedPlaceholderExtension()`・`savePastedFile()`）が、名前が `image.拡張子` のものを `pasted-doc-12-1.png` の形に置き換え（連番は、そのフォルダーの同じ種類・ID の連番の最大 + 1。途中の番号を消しても使い回さないが、いちばん大きい番号を消すとその番号はまた使われる）、ほかの名前は元のまま保存します（同名があれば `名前(1).拡張子`）。拡張子は `blob.type` から決めます（`image/jpeg` は `jpg`）。
 - 失敗（サーバーが返したエラー・JSON でない応答・HTTP のエラー）は `{message, remove: true}` で reject し、TinyMCE がその画像を本文から外して通知を出します。月のフォルダーを作れないときも HTTP エラー（`mkdir_failed` は 500）で返り、同じ扱いです。
 - 開いたときから本文にある `data:` 画像は、アップロードの対象にしません（`editorUpload.addFilter()`）。TinyMCE は読み込み時に base64 の `data:` 画像を `blob:` の URL に置き換え、保存時に `data:` に戻すため、初期化までの `SetContent` で本文の `blob:`・`data:` の画像の `src` を覚えて外します。開くたびに、既存の画像がファイルに保存されることはありません（保存すると、コアの保存時の変換が行います。`assets/docs/datauri-conversion.md`）。
 - 保存の前に、アップロード中の画像を待ちます。エディターの元の欄（textarea）のフォームに、`submit` の受け手を capture で付け、未アップロードの画像があれば `preventDefault()` して `editor.uploadImages()` を待ち、終わったら `form.requestSubmit(submitter)` で送り直します。アップロードが 1 つでも失敗したとき、`blob:` が残ったとき、送り直しに失敗したときは、送らずにエディターの通知（`tinymce7_upload_not_saved`）を出し、`documentDirty` を `true` に戻します（`manager/media/script/shell.js` の `submit` の受け手は `defaultPrevented` なら送らず、TinyMCE の受け手よりもこの受け手が先に呼ばれます。`document.mutate.save.click()` の合成クリックでも同じに動きます）。`form.submit()` を直接呼ぶ画面は `submit` イベントが出ないため、待ちません。

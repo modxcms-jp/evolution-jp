@@ -25,14 +25,18 @@ class FileStore
      * $modx->move_uploaded_file() は保存先の名前をもう一度無害化する（設定によっては括弧などが _ になる）。
      * 空きを確かめた名前と実際に保存される名前がずれて上書きしないよう、候補ごとに同じ無害化をかける。
      * 守る場所に当たる候補は使えないものとして次の番号へ進む
+     *
+     * @param callable|null $nameFor function (int $n): string。n 番目(0 から)の候補の名前。省略すると 名前、名前(1)、名前(2)…
      */
-    public static function findFreePath(PathResolver $resolver, DocumentParser $modx, $dirReal, $safeName)
+    public static function findFreePath(PathResolver $resolver, DocumentParser $modx, $dirReal, $safeName, ?callable $nameFor = null)
     {
         $dotPos = strrpos($safeName, '.');
         $baseName = $dotPos === false ? $safeName : substr($safeName, 0, $dotPos);
         $extension = $dotPos === false ? '' : substr($safeName, $dotPos);
         for ($suffix = 0; $suffix <= 200; $suffix++) {
-            $candidate = $suffix === 0 ? $safeName : $baseName . '(' . $suffix . ')' . $extension;
+            $candidate = $nameFor !== null
+                ? $nameFor($suffix)
+                : ($suffix === 0 ? $safeName : $baseName . '(' . $suffix . ')' . $extension);
             $candidatePath = $modx->sanitizeUploadedFilename($dirReal . $candidate);
             if ($resolver->resolveNewChild($dirReal, self::baseName($candidatePath)) === null) {
                 continue;
@@ -119,10 +123,10 @@ class FileStore
      * @return array{path:string,handle:resource|false,reason:string}|null 空きが見つからなければ null。
      *         handle は作成したファイルのハンドル(作れなかった場合は false で、path は最後に試した候補、reason は警告の文)
      */
-    public static function createFreeFile(PathResolver $resolver, DocumentParser $modx, $dirReal, $safeName)
+    public static function createFreeFile(PathResolver $resolver, DocumentParser $modx, $dirReal, $safeName, ?callable $nameFor = null)
     {
         for ($attempt = 0; $attempt < 5; $attempt++) {
-            $targetPath = self::findFreePath($resolver, $modx, $dirReal, $safeName);
+            $targetPath = self::findFreePath($resolver, $modx, $dirReal, $safeName, $nameFor);
             if ($targetPath === null) {
                 return null;
             }
@@ -145,6 +149,7 @@ class FileStore
      * @param array $dir PathResolver::resolveDir() の戻り値
      * @param int $size 保存する中身の大きさ(バイト)
      * @param callable $write function (string $targetPath): bool。確保した(空の)ファイルのフルパスを受けて書き、書けたら true
+     * @param callable|null $nameFor findFreePath() の $nameFor。候補の名前の付け方を変えるとき(savePastedFile())
      * @param int|false $sizeLimit checkNewFile() の $sizeLimit と同じ
      * @return array{name:string,size:int}|array{error:string} 失敗は error に、利用者に見せる文言
      */
@@ -156,6 +161,7 @@ class FileStore
         $originalName,
         $size,
         callable $write,
+        ?callable $nameFor = null,
         $sizeLimit = false
     ) {
         $checked = self::checkNewFile($scope, $modx, $originalName, $size, $sizeLimit);
@@ -163,7 +169,7 @@ class FileStore
             return $checked;
         }
 
-        $free = self::createFreeFile($resolver, $modx, $dir['real'], $checked['safeName']);
+        $free = self::createFreeFile($resolver, $modx, $dir['real'], $checked['safeName'], $nameFor);
         if ($free === null) {
             return ['error' => lang('fb_err_too_many_same_name')];
         }
@@ -279,14 +285,61 @@ class FileStore
         return date('Y/m', (int) $timestamp);
     }
 
-    /** 貼り付けた画像の名前。pasted-年月日-時分秒.拡張子(サイトの時刻) */
-    public static function pastedName($timestamp, $extension)
+    /** 貼り付けた画像の名前の種類。リソースの編集(doc)とチャンクの編集(chunk) */
+    const PASTED_KINDS = ['doc', 'chunk'];
+
+    /** 貼り付けた画像の名前の頭(連番・拡張子の前)。pasted-doc-12、pasted-chunk-3 */
+    public static function pastedBaseName($kind, $id)
     {
-        return 'pasted-' . date('Ymd-His', (int) $timestamp) . '.' . $extension;
+        return 'pasted-' . $kind . '-' . (int) $id;
+    }
+
+    /** フォルダーにある pasted-{kind}-{id}-{連番}.拡張子 の連番の最大(無ければ 0) */
+    public static function maxPastedNumber($dirReal, $kind, $id)
+    {
+        $max = 0;
+        $prefix = preg_quote(self::pastedBaseName($kind, $id), '/');
+        foreach (@scandir($dirReal) ?: [] as $entry) {
+            if (preg_match('/^' . $prefix . '-(\d{1,9})\./', $entry, $m)) {
+                $max = max($max, (int) $m[1]);
+            }
+        }
+
+        return $max;
     }
 
     /**
-     * 送られた名前が、貼り付けた画像の名前を保存する側が付けることを示す名前(image.png など)か。
+     * 貼り付けた画像を保存する(置き場所のフォルダーは、pastedFolder() と ensureFolderPath() で決めて渡す)。
+     * 名前は pastedBaseName() に、そのフォルダーにある同じ名前の頭(pasted-doc-12-*)の連番の最大 + 1(無ければ 1)と拡張子を付ける(pasted-doc-12-3.png)。
+     * 途中の番号を消しても、その番号は使い回さない(同じ名前で別の画像になると、ブラウザーや CDN が古い画像を出すため)。いちばん大きい番号を消したときだけ、その番号がまた使われる(番号はフォルダーの中身だけで決め、別に持たない)。連番は 9 桁まで数える
+     * 空きは排他的に確保し、取り合いで負けたら次の番号で取り直すので、同時の貼り付けでも重ならない。確かめ・イベントは saveNewFile() と同じ。
+     * CLI から: ensureFolderPath() でフォルダーを作ったあと、bytesWriter($modx, $bytes) を $write にして呼ぶ
+     *
+     * @param string $kind PASTED_KINDS のどれか
+     * @param string $extension 拡張子(ドットなし)
+     * @return array{name:string,size:int}|array{error:string}
+     */
+    public static function savePastedFile(
+        PathResolver $resolver,
+        BrowserScope $scope,
+        DocumentParser $modx,
+        array $dir,
+        $kind,
+        $id,
+        $extension,
+        $size,
+        callable $write
+    ) {
+        $first = self::maxPastedNumber($dir['real'], $kind, $id) + 1;
+        $nameFor = function ($n) use ($kind, $id, $extension, $first) {
+            return self::pastedBaseName($kind, $id) . '-' . ($first + $n) . '.' . $extension;
+        };
+
+        return self::saveNewFile($resolver, $scope, $modx, $dir, $nameFor(0), $size, $write, $nameFor);
+    }
+
+    /**
+     * 送られた名前が、保存する側が名前を付けることを示す名前(image.png など。名前の無い貼り付けの画像)か。
      * 拡張子は小文字で返す。そうでなければ null(元の名前をそのまま使う)
      */
     public static function pastedPlaceholderExtension($name)
