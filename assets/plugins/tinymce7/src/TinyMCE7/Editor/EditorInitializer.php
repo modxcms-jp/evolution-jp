@@ -128,6 +128,15 @@ final class EditorInitializer
         }
         $canUploadPasted = $this->canUploadPasted($fileBrowser, $isManager);
         $config = $this->applyPastedUpload($config, $canUploadPasted);
+        // 受けない理由が権限のときだけ、貼り付け・ドロップした画像を捨てる理由を知らせる（js/editor-setup.js）。mcpuk でないなどの理由では出さない
+        if ($isManager && $fileBrowser === 'mcpuk' && !$canUploadPasted
+            && $this->fileBrowserResolver->canUsePicker('images')
+            && !$this->fileBrowserResolver->canUploadToPicker()) {
+            $config['modx_upload_forbidden_message'] = $this->language->translate(
+                'tinymce7_upload_forbidden',
+                'You do not have permission to upload, so pasted images are not saved.'
+            );
+        }
 
         $configJson = $this->configRepository->encode($config);
 
@@ -201,19 +210,8 @@ final class EditorInitializer
         return $isManager
             && $fileBrowser === 'mcpuk'
             && function_exists('getCurrentCsrfToken')
-            && $this->canUploadToPicker()
+            && $this->fileBrowserResolver->canUploadToPicker()
             && $this->fileBrowserResolver->imagesFileTypes() !== [];
-    }
-
-    /**
-     * このセッションがピッカーの images を使え（api.php と同じ PickerScope::authorize()）、ファイルを置く権限 file_upload もあるか
-     * （api.php の uploadPasted が操作の表の perm で確かめるのと同じ PickerScope::allows()）
-     */
-    private function canUploadToPicker(): bool
-    {
-        $scope = \PickerScope::authorize(evo(), new \BrowserConfig(evo()), 'images');
-
-        return $scope instanceof \PickerScope && $scope->allows('file_upload');
     }
 
     /**

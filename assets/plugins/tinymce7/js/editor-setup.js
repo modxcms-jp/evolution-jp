@@ -159,7 +159,29 @@
     });
   }
 
+  // アップロードの権限が無く、貼り付け・ドロップした画像を受けないとき、画像が捨てられる理由を知らせる。
+  // 文言（modx_upload_forbidden_message）は、権限が理由のときだけサーバーが渡す
+  function bindUploadForbiddenNotice(editor) {
+    editor.options.register('modx_upload_forbidden_message', {processor: 'string', default: ''});
+    const message = editor.options.get('modx_upload_forbidden_message');
+    if (!message) {
+      return;
+    }
+    function hasImage(data) {
+      return !!data && Array.prototype.some.call(data.files || [], function (file) {
+        return /^image\//.test(file.type);
+      });
+    }
+    function notify(e) {
+      if (hasImage(e.clipboardData || e.dataTransfer)) {
+        editor.notificationManager.open({text: message, type: 'warning'});
+      }
+    }
+    editor.on('paste drop', notify);
+  }
+
   global.tinymce7EditorSetup = function (editor) {
+    bindUploadForbiddenNotice(editor);
     bindDocumentDirty(editor);
     bindInputNotification(editor);
     bindRelOrdering(editor);

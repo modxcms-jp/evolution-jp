@@ -53,7 +53,7 @@ interface BrowserScope
 
     /**
      * この範囲にだけある操作の表（action => ['handler' => 関数名, 'csrf' => bool, 'post' => bool, 'perm' => ロールの権限名]）。共通の操作は api.php が持つ。
-     * 行の条件(post・csrf・perm)は、api.php の振り分けの 1 か所だけが見る。操作ごとの条件を足すときも、各ハンドラーの中ではなくその振り分けで見る
+     * 行の条件(post・csrf・perm)は、api.php の振り分けの 1 か所だけが見る。操作ごとの条件を足すときも、各ハンドラーの中ではなくその振り分けで見る。例外は saveImage の別名保存（mode=copy）だけで、操作の表の perm は操作単位のため、ハンドラーの中で fbRequirePermission() を呼ぶ
      */
     public function actions();
 }
