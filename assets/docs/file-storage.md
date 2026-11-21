@@ -21,9 +21,11 @@
 - 名前は、貼り付けた画像（名前が `image.拡張子`）なら `pasted-年月日-時分秒.拡張子`（例 `pasted-20261121-182249.png`）。ファイルをドロップしたときなど、名前のあるファイルは元の名前のまま。同名があれば `名前(1).拡張子`（ピッカーのアップロードと同じ）
 - 拡張子（`upload_images`）・大きさ（`upload_maxsize`）・名前の無害化・`image_limit_width` による縮小・ファイルのパーミッション（`new_file_permissions`）・`OnFileBrowserUpload` の発火は、ピッカーのアップロード（`upload`）と同じ
 - 画像の置き場所はこの 1 か所に決まっていて、リクエストでは変えられない。種類が `images` 以外の要求は断る
-- ピッカーを使えない利用者（`use_browser` が無効、ウェブユーザーで `rb_webuser` が無効など）には貼り付けのアップロードを出さず、貼り付けた画像は受けない（本文に `data:` の画像が入らない）
+- 月のフォルダーは、保存できるファイルが 1 つ以上あるときだけ作る（拡張子・大きさの確かめ `FileStore::checkNewFile()` が通ってから）。確かめで全部はねられた要求では、空のフォルダーを作らない
+- 管理画面のエディターで、ピッカーを使えない利用者（`use_browser` が無効など）には貼り付けのアップロードを出さず、貼り付けた画像は受けない（本文に `data:` の画像が入らない）。フロントのエディターでは、貼り付けた画像を受けない
+- 保存する名前は、空きを `fopen('xb')` で排他的に確保（`FileStore::createFreeFile()`）してから、その空のファイルへ書く。ファイルブラウザの copy・saveImage（別名）も同じ関数を使う
 
-保存の処理は `manager/media/browser/evo/lib/FileStore.php` にあり、`api.php` を読み込まなくても（CLI などから）使える。
+保存の処理は `manager/media/browser/evo/lib/FileStore.php` にあり、`api.php` を読み込まなくても（CLI などから）使える。範囲は `PickerScope::forType()`（セッションを見ない）で作り、`PathResolver` と合わせて渡す。アップロードの経路は `FileStore::uploadedWriter()`（`image_limit_width` による縮小を含む）、バイト列の経路は `FileStore::bytesWriter()` で書く。バイト列の経路は縮小しない（足すなら、`bytesWriter()` で書いた後に `$modx->resizeImage()` を通す）。管理操作ログの `Uploaded File` は 1 回の操作でまとめて書くため、呼ぶ側が `ChangeLog::record()` で記録する（`OnFileBrowserUpload` は `saveNewFile()` が発火する）。
 
 ## 外の置き場所（EFS・NFS など）の使い方
 

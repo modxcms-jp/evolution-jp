@@ -3,7 +3,9 @@
 /**
  * ファイルブラウザの保存先への書き込み(フォルダーの作成・新しい名前でのファイルの保存・貼り付けた画像の置き場所)。
  * api.php は読み込むと認証と振り分けを実行するため、CLI など api.php の外からも使う処理はここに置く。
- * リクエストの値($_FILES・$_POST)と応答は扱わない。失敗は戻り値で返し、応答にするのは呼ぶ側。
+ * 範囲は PickerScope::forType()(セッションを見ない)で作り、PathResolver と合わせて渡す。
+ * リクエストの値($_FILES・$_POST)と HTTP の応答は扱わない。失敗は戻り値(エラーの code か利用者に見せる文言)で返し、応答にするのは呼ぶ側。
+ * 管理操作ログ(Uploaded File)の記録も、1 回の操作でまとめて書けるよう呼ぶ側が ChangeLog::record() で行う(Created Folder だけはここで記録する)。
  */
 class FileStore
 {
@@ -44,9 +46,9 @@ class FileStore
     }
 
     /**
-     * アップロードされたファイルを保存先へ置く。ピッカーと管理モードで共通なのは、この呼び出しだけ
-     * (拡張子・大きさ・同名のときの扱いの確認とイベントは、範囲ごとの処理が行う)。
-     * 縮小(image_limit_width)とパーミッションの設定は $modx->move_uploaded_file() が行う。失敗したらシステムログに残して false を返す
+     * アップロードされたファイル($_FILES の一時ファイル)を保存先のパスへ移す。既にあるファイル(空きを確保した空のファイルなど)は置き換える。
+     * 縮小(image_limit_width)とパーミッションの設定は $modx->move_uploaded_file() が行う。失敗したらシステムログに残して false を返す。
+     * アップロードされたファイルでないと PHP の move_uploaded_file() が失敗するので、CLI は bytesWriter() を使う
      */
     public static function storeUploaded(DocumentParser $modx, $originalName, $tmpPath, $targetPath)
     {
@@ -61,7 +63,7 @@ class FileStore
     }
 
     /**
-     * バイト列を保存先へ書く書き手(saveNewFile() の $write に渡す)。$_FILES に頼らないので、CLI からも使える。
+     * バイト列を保存先へ書く書き手(saveNewFile() の $write に渡す)。$_FILES に頼らないので、CLI からも使える(パスから書く書き手は持たない。CLI は data: を復号したバイト列から書く)。
      * image_limit_width による縮小は、アップロードの経路($modx->move_uploaded_file())だけが行う。
      * この経路にも縮小を足すなら、ここで書き込んだあとに $modx->resizeImage() を通す
      */
@@ -89,24 +91,12 @@ class FileStore
     }
 
     /**
-     * フォルダーに、新しい名前でファイルを 1 つ保存する(同名があれば連番。上書きはしない)。
-     * 拡張子の許可・大きさの上限・名前の無害化は同じ決まりで確かめ、保存したら範囲のアップロードのイベントを発火する。
-     * 管理操作ログへの記録は、1 回の操作でまとめて書けるよう呼ぶ側が ChangeLog::record() で行う。
+     * 新しい名前のファイルとして保存してよいかを確かめる(保存はしない)。拡張子の許可・大きさの上限・名前の無害化を、ここ 1 か所で判定する。
      *
-     * @param array $dir PathResolver::resolveDir() の戻り値
-     * @param int $size 保存する中身の大きさ(バイト)
-     * @param callable $write function (string $targetPath): bool。保存先のフルパスを受けて書き、書けたら true
-     * @return array{name:string,size:int}|array{error:string} 失敗は error に、利用者に見せる文言
+     * @return array{safeName:string}|array{error:string} 失敗は error に、利用者に見せる文言
      */
-    public static function saveNewFile(
-        PathResolver $resolver,
-        BrowserScope $scope,
-        DocumentParser $modx,
-        array $dir,
-        $originalName,
-        $size,
-        callable $write
-    ) {
+    public static function checkNewFile(BrowserScope $scope, DocumentParser $modx, $originalName, $size)
+    {
         // 拡張子は、実際に保存する名前（無害化した後）で確かめる
         $safeName = $modx->sanitizeFilename($originalName);
         if (!$scope->isAllowedNewName($safeName)) {
@@ -118,23 +108,81 @@ class FileStore
             return ['error' => lang('fb_err_too_large')];
         }
 
-        $targetPath = self::findFreePath($resolver, $modx, $dir['real'], $safeName);
-        if ($targetPath === null) {
+        return ['safeName' => $safeName];
+    }
+
+    /**
+     * findFreePath() で見つけた空きの名前を、排他的に作成(x)して確保する。
+     * 空きを確かめてから作るまでの間に同名ができても上書きしないよう、使われていたら次の候補を探す。
+     *
+     * @return array{path:string,handle:resource|false,reason:string}|null 空きが見つからなければ null。
+     *         handle は作成したファイルのハンドル(作れなかった場合は false で、path は最後に試した候補、reason は警告の文)
+     */
+    public static function createFreeFile(PathResolver $resolver, DocumentParser $modx, $dirReal, $safeName)
+    {
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $targetPath = self::findFreePath($resolver, $modx, $dirReal, $safeName);
+            if ($targetPath === null) {
+                return null;
+            }
+            $handle = Filesystem::attempt(function () use ($targetPath) {
+                return fopen($targetPath, 'xb');
+            }, $reason);
+            if ($handle !== false || (!file_exists($targetPath) && !is_link($targetPath))) {
+                // 'reason' は handle が false(権限など)のときの失敗の理由。名前が既にあった場合はループで次を探す
+                return ['path' => $targetPath, 'handle' => $handle, 'reason' => $reason];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * フォルダーに、新しい名前でファイルを 1 つ保存する(同名があれば連番。上書きはしない)。
+     * checkNewFile() で確かめ、空きの名前を排他的に確保(createFreeFile())してから、確保した空のファイルへ $write で書く。
+     * 保存したら範囲のアップロードのイベントを発火する。管理操作ログへの記録は、呼ぶ側が ChangeLog::record() で行う。
+     *
+     * @param array $dir PathResolver::resolveDir() の戻り値
+     * @param int $size 保存する中身の大きさ(バイト)
+     * @param callable $write function (string $targetPath): bool。確保した(空の)ファイルのフルパスを受けて書き、書けたら true
+     * @return array{name:string,size:int}|array{error:string} 失敗は error に、利用者に見せる文言
+     */
+    public static function saveNewFile(
+        PathResolver $resolver,
+        BrowserScope $scope,
+        DocumentParser $modx,
+        array $dir,
+        $originalName,
+        $size,
+        callable $write
+    ) {
+        $checked = self::checkNewFile($scope, $modx, $originalName, $size);
+        if (isset($checked['error'])) {
+            return $checked;
+        }
+
+        $free = self::createFreeFile($resolver, $modx, $dir['real'], $checked['safeName']);
+        if ($free === null) {
             return ['error' => lang('fb_err_too_many_same_name')];
         }
-        $targetName = self::baseName($targetPath);
+        $targetPath = $free['path'];
+        if ($free['handle'] === false) {
+            self::logSaveFailure($originalName, $targetPath, $free['reason']);
+            return ['error' => lang('fb_err_save_failed')];
+        }
+        fclose($free['handle']);
 
         if (!$write($targetPath)) {
+            @unlink($targetPath);
             return ['error' => lang('fb_err_save_failed')];
         }
 
         // プラグインがファイルを移動・削除してもよいよう、サイズはイベントの前に取る
-        $saved = ['name' => $targetName, 'size' => filesize($targetPath)];
+        $saved = ['name' => self::baseName($targetPath), 'size' => filesize($targetPath)];
 
         // invokeEvent() の第2引数は参照渡しなので、変数に入れてから渡す
         $eventParams = [
             'filepath' => $dir['real'],
-            'filename' => $targetName,
+            'filename' => $saved['name'],
         ];
         $modx->invokeEvent($scope->uploadEvent(), $eventParams);
 
@@ -155,7 +203,7 @@ class FileStore
      * $name は sanitizeFilename() を通した 1 要素の名前で渡す。
      *
      * @param array $parent PathResolver::resolveDir() の戻り値
-     * @return array{code:string,message:string,status:int}|null 作れたら null、だめなら API のエラーにする値
+     * @return string|null 作れたら null、だめならエラーの code(protected / already_exists / mkdir_failed)
      */
     public static function createFolder(
         PathResolver $resolver,
@@ -166,10 +214,10 @@ class FileStore
     ) {
         $target = $resolver->resolveNewChild($parent['real'], $name);
         if ($target === null) {
-            return ['code' => 'protected', 'message' => lang('fb_err_protected'), 'status' => 403];
+            return 'protected';
         }
         if (file_exists($target)) {
-            return ['code' => 'already_exists', 'message' => lang('fb_err_already_exists'), 'status' => 409];
+            return 'already_exists';
         }
 
         $folderPermissions = $modx->newFolderPermissions();
@@ -181,7 +229,7 @@ class FileStore
                 'to' => $target,
                 'reason' => $reason,
             ]);
-            return ['code' => 'mkdir_failed', 'message' => lang('fb_err_mkdir_failed'), 'status' => 500];
+            return 'mkdir_failed';
         }
         @chmod($target, $folderPermissions);
 
@@ -194,13 +242,13 @@ class FileStore
      * ルートからの相対パス(2026/11 など)のフォルダーを、無ければ 1 階層ずつ作って、そのフォルダーを返す。
      * 守る場所と同名のファイルがあるなど、使えない階層があれば失敗する
      *
-     * @return array{dir:array{rel:string,real:string}}|array{error:array{code:string,message:string,status:int}}
+     * @return array{dir:array{rel:string,real:string}}|array{error:string} error はエラーの code(not_found / protected / already_exists / mkdir_failed)
      */
     public static function ensureFolderPath(PathResolver $resolver, BrowserScope $scope, DocumentParser $modx, $relPath)
     {
         $dir = $resolver->resolveDir('');
         if ($dir === null) {
-            return ['error' => ['code' => 'not_found', 'message' => lang('fb_err_folder_not_found'), 'status' => 404]];
+            return ['error' => 'not_found'];
         }
 
         foreach (explode('/', trim($relPath, '/')) as $segment) {
@@ -209,7 +257,7 @@ class FileStore
                 $error = self::createFolder($resolver, $scope, $modx, $dir, $segment);
                 $child = $error === null ? $resolver->resolveDir(ChangeLog::relPath($dir, $segment)) : null;
                 if ($child === null) {
-                    return ['error' => $error ?: ['code' => 'mkdir_failed', 'message' => lang('fb_err_mkdir_failed'), 'status' => 500]];
+                    return ['error' => $error ?: 'mkdir_failed'];
                 }
             }
             $dir = $child;
@@ -245,30 +293,5 @@ class FileStore
         }
 
         return strtolower($m[1]);
-    }
-
-    /**
-     * ピッカーのファイルの path(SetUrl へ渡す相対パス)と url(ブラウザ内表示用の絶対 URL)。
-     * 一覧と、アップロードの応答で同じ作り方を使う
-     *
-     * @param string $relPath 種類のフォルダー(images など)の下のルートからの相対パス
-     * @return array{path:string,url:string}
-     */
-    public static function pickerFileUrls(PickerScope $scope, $relPath)
-    {
-        $config = $scope->config();
-        $urlPrefix = $config->urlPrefix();
-        // 種類のフォルダ(images など)を頭に付けたパスが、rb_base_url の下の URL になる
-        $relPath = $scope->type() . '/' . $relPath;
-
-        // path: SetUrl(TV値等)へ渡す相対パス(旧mcpuk同等)。読める形のまま渡し、
-        // FTP などで置かれた名前の % # ? だけは URL が切れないようエンコードする(% を最初に置き換える)
-        $path = ($urlPrefix !== '' ? $urlPrefix . '/' : '')
-            . str_replace(['%', '#', '?'], ['%25', '%23', '%3F'], $relPath);
-
-        // url: ブラウザ内表示用の絶対URL。パスの要素ごとにエンコードする
-        $url = $config->baseUrl() . implode('/', array_map('rawurlencode', explode('/', $relPath)));
-
-        return ['path' => $path, 'url' => $url];
     }
 }

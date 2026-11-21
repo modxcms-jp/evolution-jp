@@ -47,6 +47,15 @@ class PickerScope implements BrowserScope
             return ['code' => 'invalid_root', 'lang' => 'fb_err_invalid_root', 'status' => 403];
         }
 
+        return self::forType($modx, $config, $type);
+    }
+
+    /**
+     * セッションも設定も見ずに、種類の範囲を作る(CLI など、ログインしたセッションの無い処理用)。
+     * 呼ぶ側が、権限と種類の確かめ(authorize() が行う内容)を済ませていること
+     */
+    public static function forType(DocumentParser $modx, BrowserConfig $config, $type)
+    {
         return new self($modx, $config, $type);
     }
 
@@ -72,6 +81,28 @@ class PickerScope implements BrowserScope
         }
 
         return $this->guard;
+    }
+
+    /**
+     * ファイルの path(SetUrl へ渡す相対パス)と url(ブラウザ内表示用の絶対 URL)。一覧と、アップロードの応答で同じ作り方を使う
+     *
+     * @param string $relPath この種類のフォルダー(images など)の下の、ルートからの相対パス
+     * @return array{path:string,url:string}
+     */
+    public function fileUrls($relPath)
+    {
+        $urlPrefix = $this->config->urlPrefix();
+        // 種類のフォルダ(images など)を頭に付けたパスが、rb_base_url の下の URL になる
+        $relPath = $this->type . '/' . $relPath;
+
+        // path: 読める形のまま渡し、FTP などで置かれた名前の % # ? だけは URL が切れないようエンコードする(% を最初に置き換える)
+        $path = ($urlPrefix !== '' ? $urlPrefix . '/' : '')
+            . str_replace(['%', '#', '?'], ['%25', '%23', '%3F'], $relPath);
+
+        // url: パスの要素ごとにエンコードする
+        $url = $this->config->baseUrl() . implode('/', array_map('rawurlencode', explode('/', $relPath)));
+
+        return ['path' => $path, 'url' => $url];
     }
 
     public function listsFile($name)

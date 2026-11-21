@@ -231,7 +231,7 @@ function fbPickerList(PathResolver $resolver, PickerScope $scope, DocumentParser
     $files = [];
     foreach ($list['files'] as $file) {
         // path: SetUrl(TV値等)へ渡す相対パス(旧mcpuk同等)。url: ブラウザ内表示用の絶対URL
-        $urls = FileStore::pickerFileUrls($scope, $file['relPath']);
+        $urls = $scope->fileUrls($file['relPath']);
         $fileUrl = $urls['url'];
 
         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
@@ -429,7 +429,7 @@ function fbPickerSaveFiles(PathResolver $resolver, PickerScope $scope, DocumentP
 
         $relPath = ChangeLog::relPath($dir, $saved['name']);
         $uploaded[] = ['index' => $file['index'], 'name' => $saved['name'], 'size' => $saved['size']]
-            + FileStore::pickerFileUrls($scope, $relPath);
+            + $scope->fileUrls($relPath);
         $changed[] = $relPath;
     }
 
@@ -449,8 +449,8 @@ function fbPickerUpload(PathResolver $resolver, PickerScope $scope, DocumentPars
 
 /**
  * エディタに貼り付けた・ドロップした画像の保存。置き場所は images/年/月/(サイトの時刻。無ければ作る)に決まっている。
- * 名前が image.拡張子(TinyMCE が名前の無い画像に付ける名前)なら pasted-年月日-時分秒.拡張子 にし、ほかの名前は元のまま保存する。
- * 拡張子・大きさ・同名の連番は upload と同じ
+ * 名前の置き換えの決まりは FileStore::pastedPlaceholderExtension()。拡張子・大きさ・同名の連番は upload と同じ。
+ * 月のフォルダーを作れないときは、ほかの失敗と同じ形の HTTP エラー(mkdir_failed は 500)で返す
  */
 function fbPickerUploadPasted(PathResolver $resolver, PickerScope $scope, DocumentParser $modx)
 {
@@ -460,15 +460,31 @@ function fbPickerUploadPasted(PathResolver $resolver, PickerScope $scope, Docume
 
     $files = fbUploadedFiles();
     $now = request_time() + (int) $modx->config('server_offset_time', 0);
-    $folder = FileStore::ensureFolderPath($resolver, $scope, $modx, FileStore::pastedFolder($now));
-    if (isset($folder['error'])) {
-        fbError($folder['error']['code'], $folder['error']['message'], $folder['error']['status']);
-    }
-
-    fbPickerSaveFiles($resolver, $scope, $modx, $folder['dir'], $files, function ($name) use ($now) {
+    $nameOf = function ($name) use ($now) {
         $extension = FileStore::pastedPlaceholderExtension($name);
         return $extension === null ? $name : FileStore::pastedName($now, $extension);
-    });
+    };
+
+    // 保存できるファイルが 1 つ以上あるときだけ、年/月のフォルダーを作る。1 つも無いときは、ルートに対して同じ確かめを通して、
+    // 各ファイルの errors を返す(どれも保存されないので、置き場所は使われない)
+    $saveable = false;
+    foreach ($files as $file) {
+        if ($file['error'] === UPLOAD_ERR_OK && !isset(FileStore::checkNewFile($scope, $modx, $nameOf($file['name']), $file['size'])['error'])) {
+            $saveable = true;
+            break;
+        }
+    }
+    $folder = $saveable
+        ? FileStore::ensureFolderPath($resolver, $scope, $modx, FileStore::pastedFolder($now))
+        : ['dir' => $resolver->resolveDir('')];
+    if (isset($folder['error'])) {
+        fbFolderError($folder['error']);
+    }
+    if ($folder['dir'] === null) {
+        fbError('not_found', lang('fb_err_folder_not_found'), 404);
+    }
+
+    fbPickerSaveFiles($resolver, $scope, $modx, $folder['dir'], $files, $nameOf);
 }
 
 function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)
@@ -558,29 +574,17 @@ function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentPars
     fbSendJson(['uploaded' => $uploaded, 'errors' => $errors]);
 }
 
-/**
- * FileStore::findFreePath() で見つけた空きの名前を、排他的に作成(x)して確保する。
- * 空きを確かめてから作るまでの間に同名ができても上書きしないよう、使われていたら次の候補を探す。
- *
- * @return array{path:string,handle:resource|false,reason:string}|null 空きが見つからなければ null。
- *         handle は作成したファイルのハンドル(作れなかった場合は false で、path は最後に試した候補、reason は警告の文)
- */
-function fbCreateFreeFile(PathResolver $resolver, DocumentParser $modx, $dirReal, $safeName)
+/** FileStore::createFolder() などが返すエラーの code を、API のエラーにして返す */
+function fbFolderError($code)
 {
-    for ($attempt = 0; $attempt < 5; $attempt++) {
-        $targetPath = FileStore::findFreePath($resolver, $modx, $dirReal, $safeName);
-        if ($targetPath === null) {
-            return null;
-        }
-        $handle = Filesystem::attempt(function () use ($targetPath) {
-            return fopen($targetPath, 'xb');
-        }, $reason);
-        if ($handle !== false || (!file_exists($targetPath) && !is_link($targetPath))) {
-            // 'reason' は handle が false(権限など)のときの失敗の理由。名前が既にあった場合はループで次を探す
-            return ['path' => $targetPath, 'handle' => $handle, 'reason' => $reason];
-        }
-    }
-    return null;
+    $errors = [
+        'protected' => ['fb_err_protected', 403],
+        'already_exists' => ['fb_err_already_exists', 409],
+        'not_found' => ['fb_err_folder_not_found', 404],
+        'mkdir_failed' => ['fb_err_mkdir_failed', 500],
+    ];
+    [$key, $status] = $errors[$code] ?? $errors['mkdir_failed'];
+    fbError($code, lang($key), $status);
 }
 
 function fbActionMkdir(PathResolver $resolver, BrowserScope $scope, DocumentParser $modx)
@@ -598,7 +602,7 @@ function fbActionMkdir(PathResolver $resolver, BrowserScope $scope, DocumentPars
 
     $error = FileStore::createFolder($resolver, $scope, $modx, $dir, $name);
     if ($error !== null) {
-        fbError($error['code'], $error['message'], $error['status']);
+        fbFolderError($error);
     }
 
     fbSendJson(['name' => $name]);
@@ -833,7 +837,7 @@ function fbActionCopy(PathResolver $resolver, BrowserScope $scope, DocumentParse
         }
 
         // 空きを確かめてから作るまでの間に同名ができても上書きしないよう、排他的に作成して確保する
-        $free = fbCreateFreeFile($resolver, $modx, $destDir['real'], $safeName);
+        $free = FileStore::createFreeFile($resolver, $modx, $destDir['real'], $safeName);
         if ($free === null) {
             $errors[] = ['name' => $name, 'message' => lang('fb_err_too_many_same_name')];
             continue;
@@ -962,7 +966,7 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
         }
 
         // 空きを確かめてから作るまでの間に同名ができても上書きしないよう、排他的に作成して確保する
-        $free = fbCreateFreeFile($resolver, $modx, $dir['real'], $safeName);
+        $free = FileStore::createFreeFile($resolver, $modx, $dir['real'], $safeName);
         if ($free === null) {
             fbError('too_many_same_name', lang('fb_err_too_many_same_name'), 409);
         }
