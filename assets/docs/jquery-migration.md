@@ -36,12 +36,15 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
 | --- | --- | --- |
 | `data-field` | 欄の行（`tr`）。行の中に入れ子になった欄は、その欄を囲む要素 | 欄の名前 |
 | `data-field-part` | 行の中の部分 | `title`（見出し）・`value`（入力のセル）・`help`（説明）・`input`（`value` の中に入れ子の欄が並ぶとき、この欄自身の入力のまとまり。`menuindex` だけ） |
+| `data-field-group` | 欄の行をまとめる入れ物（メインタブの開閉する `details.mutate-group`、ページ設定タブの `div.mutate-section`） | まとまりの名前。メインタブは `basic`・`menu`、ページ設定タブは `publish`・`type`・`behavior` |
+| `data-moved-fields` | ほかの場所から移した欄の行を入れる表（タブの直下に 1 つ） | 値なし |
 
 | 部品 | 返すもの |
 | --- | --- |
 | `Evo.fieldRow(name, root)` | `root`（省略時は `document`）の中の、`data-field` が `name` の行。無ければ `null` |
 | `Evo.fieldRow(el)` | 要素 `el` が入っている行（`el` 自身が行ならその行。入れ子のときはいちばん外側の行）。無ければ `null` |
 | `Evo.fieldPart(nameOrEl, part)` | `Evo.fieldRow(nameOrEl)` の行の中の、`data-field-part` が `part` の要素（入れ子の欄の部分は含めない）。無ければ `null` |
+| `Evo.hideEmptyFieldGroups(root)` | `root`（省略時は `document`）の中の、見えている入力欄が無い `data-field-group` のまとまりを隠す（`style.display` で隠れているかを見る）。返り値なし |
 
 - 文書の編集画面では、属性を行の部品の tpl `manager/media/style/common/field_row.tpl`（標準のフィールド。`manager-form-row.md`）と `manager/actions/document/mutate_content/tv_row.tpl`（TV）に書いている。名前は `fields.php` の各関数が `renderFieldTr()` を通して部品に渡す。
 - 標準のフィールドの名前は `site_content` の列名にそろえる（`pagetitle`・`pub_date`・`contentType` など）。例外は 3 つ。ウェブリンクの URL の行は `weblink`（列は `content`）、「更新時にキャッシュを削除」の行は `syncsite`（列が無いので欄の name）、「メニューに表示」の `hidemenu` は行ではなく `menuindex` の行の中の入れ子。名前の正本は `fields.php`（`renderFieldTr()` の第 1 引数）と `field_menuindex.tpl`。
@@ -55,7 +58,11 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
 - `help` があるのは、TV の行（TV の説明の文字）、`hidemenu`（説明のアイコンを囲む `span`）、値の下に書式などの説明（部品の `help`）を出す行（`pub_date`・`unpub_date` など）。ほかの標準のフィールドの説明のアイコン（`img.tooltip`）は `value` の中にある。
 - フィールドではない行（`renderFieldTr()` の第 1 引数が空。下書きの採用日時など）は `data-field` が空で、`Evo.fieldRow()` の対象にならない。
 - エレメントの編集画面（`manager/actions/element/` の `mutate_templates`・`mutate_htmlsnippet`・`mutate_snippet`・`mutate_plugin`・`mutate_module`・`mutate_tmplvars` の各 `.dynamic.php`）の、新しいカテゴリー名の行は `data-field="newcategory"`（`manager/media/script/element-category.js` が使う）。
-- `custom_tpl_dir` で `field_row.tpl`・`tv_row.tpl`・`field_menuindex.tpl` を差し替えているサイトは、自分の tpl にも同じ属性を書く。属性が無いと、ManagerManager・QuickManager の欄の操作（隠す・名前を変える・タブへ移すなど）が効かない。
+- 欄の並びは `manager/actions/document/mutate_content/` の `tab_general.tpl`・`tab_settings.tpl` が決める。メインタブは、リソース名（ウェブリンクのときは URL も）→ 開閉するまとまり（既定は閉じている）→ 本文 →（本文の下に出す設定のときは TV →）移した欄の表、の順。どのまとまりに入っていても、欄は `data-field` で探せる。閉じた `details` の中の欄もフォームと一緒に送られる。開閉の状態は `manager/media/style/common/jscripts.tpl` がブラウザーの `localStorage`（`evo.mutate.group.{名前}`）に覚える。覚えるのは見出しを押したときだけで、スクリプトが開いたとき（ManagerManager の `mm_requireFields` が必須の欄のまとまりを開くなど）は覚えない。
+- 欄が 1 つも無いまとまりと、中身の無い `data-moved-fields` の表は、CSS（`manager/media/style/common/theme-base.css`）で出さない。欄をすべて隠した・移したまとまりは、`Evo.hideEmptyFieldGroups()`（`manager/media/script/evo.js`。見えている入力欄が無いまとまりを隠す）で隠す。ManagerManager はルールの実行後の後始末（`assets/plugins/managermanager/mm.js` の `MM.tidyUp()`）で、QuickManager は欄を隠したあと（`assets/plugins/qm/js/qm-edit.js` の `QMEdit.init()`）で呼ぶ。
+- ManagerManager の `mm_moveFieldsToTab` は、移し先のタブの直下の `data-moved-fields` の表へ入れる。無ければタブの直下の最初の表（`mm_createTab` のタブなど）。TV のタブ（`'TVs'`）の直下には表が無いので、TV のタブへは移せない。
+- TV は、グローバル設定の「リソース」タブの「テンプレート変数の表示位置」（`tvs_below_content`。既定は `manager/includes/default.config.php` の 0）が 0 なら TV のタブ（`tab_tv.tpl`。`#tabTVs` の中の `div.tmplvars#tv_body`）に、1 ならメインタブの本文の下（`section_tv.tpl` の `#tv_header`・`#tv_body`）に出す。判定は `manager/actions/document/mutate_content/functions.php` の `tvsBelowContent()`。ManagerManager の TV の指定（`mm_hideSections('tvs')`・`mm_renameSection('tvs')`・`mm_hideTabs('tv')`・`mm_renameTab('tv')`、TV をほかのタブへ移す `mm_moveFieldsToTab`）と QuickManager の `hidesections=tvs`・`hidetabs=tv` は、どちらの置き場所でも同じに効く（タブの指定は本文の下の見出しと本体にも、セクションの指定は TV のタブにも効く）。
+- `custom_tpl_dir` で `field_row.tpl`・`tv_row.tpl`・`field_menuindex.tpl` を差し替えているサイトは、自分の tpl にも同じ属性を書く。属性が無いと、ManagerManager・QuickManager の欄の操作（隠す・名前を変える・タブへ移すなど）が効かない。`tab_general.tpl`・`tab_settings.tpl`・`tab_tv.tpl` を差し替えているサイトは、以前の並びのまま出る（プレースホルダーは以前のものも出す）。新しい並びに合わせるときは、まとまりに `data-field-group`、移した欄を入れる表に `data-moved-fields`、TV のタブの中身に `div.tmplvars#tv_body` を書く。
 
 ## 画面の JS から別の画面へ移る
 

@@ -17,6 +17,13 @@ var mmRequire = {
         }
         return el.value;
     },
+    // 欄を囲む開閉するまとまり（details）を開いて、必須の欄を見えるようにする
+    openGroups: function (els) {
+        els.forEach(function (el) {
+            var group = el.closest("details");
+            if (group) { group.open = true; }
+        });
+    },
     // 欄にフォーカスしたら印を外す
     unmark: function () {
         this.classList.remove("mmRequired");
@@ -32,6 +39,7 @@ var mmRequire = {
         }
         settings.selectors.forEach(function (selector) {
             self.titles(MM.all(selector)).forEach(function (span) { span.insertAdjacentHTML("beforeend", requiredHTML); });
+            self.openGroups(MM.all(selector));
         });
         var form = document.getElementById("mutate");
         if (!form) { return; }
@@ -46,6 +54,7 @@ var mmRequire = {
                         el.classList.add("mmRequired");
                         el.addEventListener("focus", self.unmark);
                     });
+                    self.openGroups(els);
                 }
             });
             if (errors.length > 0) {

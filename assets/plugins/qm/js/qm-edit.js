@@ -9,6 +9,7 @@
  *     {sel: CSS セレクタ, nth: n}      n 番目（0 始まり）の 1 つ
  *     {sel: CSS セレクタ, all: true}   すべて
  *     {field: 欄の name}               その欄が入っている行（data-field の付いた行）
+ *   隠したあと、見えている欄が無くなったまとまり（data-field-group）を Evo.hideEmptyFieldGroups() で隠す
  * - 準備ができたら body を表示する（フォームの head でいったん隠している）
  */
 window.QMEdit = (function () {
@@ -78,6 +79,8 @@ window.QMEdit = (function () {
             (options.hide || []).forEach(function (rule) {
                 hide(target(rule));
             });
+            // 欄をすべて隠したまとまり（アコーディオンなど）は、見出しだけを残さない
+            Evo.hideEmptyFieldGroups();
             document.body.style.display = 'block';
         });
     }

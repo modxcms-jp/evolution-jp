@@ -83,7 +83,7 @@ $body[] = parseText(
     collect_tab_general_ph(request_intvar('id'))
 );
 
-if (!config('tvs_below_content', 1) && $tmplVars) {
+if (!tvsBelowContent() && $tmplVars) {
     $body[] = parseText(
         file_get_tpl('tab_tv.tpl'),
         collect_tab_tv_ph()

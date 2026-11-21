@@ -107,6 +107,10 @@ final class EditorInitializer
         $config = $this->preferences->applyEnterMode($config);
         // 「書式」を足す行を画面に出るボタンで決めるため、ひな形のボタンの有無を先に決める
         $config = $this->applyTemplates($config, empty($params['forfrontend']));
+        if (empty($params['forfrontend']) && !isset($config['link_list'])) {
+            // ダイアログを開くたびに、ログイン中の利用者のセッションで取りに行く
+            $config['link_list'] = MODX_BASE_URL . 'assets/plugins/tinymce7/link-list.php';
+        }
         $config = $this->preferences->applyCssSelectors($config);
         $config = $this->preferences->applyLinkRel($config);
         $config = $this->preferences->applyBodyAttributes($config);
