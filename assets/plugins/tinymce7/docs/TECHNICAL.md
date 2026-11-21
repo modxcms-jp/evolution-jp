@@ -104,6 +104,7 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 - 管理画面のエディター（`forfrontend` でない）。フロントのエディターでは使いません。フロントのページはキャッシュに入り、セッションごとの CSRF トークンを埋め込めないためです
 - ID のある画面（`EditorInitializer::managerScreen()`。リソースの編集 `a=27`・下書きの編集 `a=131`/`132` と、チャンクの編集 `a=78`。`id` が 1 以上）。新しいリソース（`a=4`・`72`）では、保存するまで ID が無いのでアップロードせず、`paste_data_images` は `true` のまま `data:` 画像をエディターに置きます（保存時の変換がファイルにします）。新しいチャンク（`a=77`）と、ほかの画面では貼り付けた画像を受けません（`paste_data_images: false`。チャンクは保存時の変換の対象外のため）
 - このセッションがファイルピッカーの `images` を使える（`PickerScope::authorize()`。`api.php` が要求のたびに行う確かめと同じ。`use_browser` が有効なとき）
+- ロールの権限 `file_upload` がある（`PickerScope::allows()`。`api.php` の `uploadPasted` が表の `perm` で確かめるのと同じ）。権限が無いとき（ピッカーは使えるのに `file_upload` だけ無いとき）は、どの画面でも、新しいリソースでも `paste_data_images: false` にし、画像を含む貼り付け・ドロップで警告の通知（`modx_upload_forbidden_message`、`js/editor-setup.js`）を出します。権限以外の理由で受けないときは通知しません
 - CSRF トークンを出せる（`getCurrentCsrfToken()` がある）
 - `upload_images` に、TinyMCE の画像の拡張子（`jpeg,jpg,jpe,jfi,jif,jfif,png,gif,bmp,webp`）と重なるものがある
 

@@ -23,6 +23,7 @@
 - 拡張子（`upload_images`）・大きさ（`upload_maxsize`）・名前の無害化・`image_limit_width` による縮小・ファイルのパーミッション（`new_file_permissions`）・`OnFileBrowserUpload` の発火は、ピッカーのアップロード（`upload`）と同じ
 - 画像の置き場所はこの 1 か所に決まっていて、リクエストでは変えられない。種類が `images` 以外の要求は断る
 - 月のフォルダーは、保存できるファイルが 1 つ以上あるときだけ作る（拡張子・大きさの確かめ `FileStore::checkNewFile()` が通ってから）。確かめで全部はねられた要求では、空のフォルダーを作らない
+- ファイルを置く操作（ピッカーの `upload`・`uploadPasted`・`saveImage` の `mode=copy`）は、管理画面のセッションではロールの権限 `file_upload` を求め、無ければ 403 `forbidden`。判定は `BrowserScope::allows()`（ピッカーはロールから読み直す。ウェブユーザーのセッションと管理モードは対象外）に寄せ、`api.php` の振り分けが操作の表の `perm` で見る（`saveImage` は `mode` が分かる操作の中）。画面は `BrowserView::jsConfig()` の `canUpload` でボタン・ドロップ・別名保存を無効にし、TinyMCE は `canUploadPasted()` が false になる。削除・名前の変更・移動・複製・新規フォルダー・`saveImage` の上書きは求めない
 - 管理画面のエディターで、ピッカーを使えない利用者（`use_browser` が無効など）には貼り付けのアップロードを出さず、貼り付けた画像は受けない（本文に `data:` の画像が入らない）。フロントのエディターでは、貼り付けた画像を受けない
 - 保存する名前は、空きを `fopen('xb')` で排他的に確保（`FileStore::createFreeFile()`）してから、その空のファイルへ書く。ファイルブラウザの copy・saveImage（別名）も同じ関数を使う
 
