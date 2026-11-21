@@ -911,9 +911,9 @@ function convertDataUriToFiles($content, $docid)
 }
 
 /**
- * data: が img タグの src 属性の値の先頭にあるか
+ * data: が img 要素の src 属性の値の先頭にあるか
  *
- * 本文の文章や style の中の data: は書き換えない
+ * 本文の文章、ほかの属性の値、script・style・textarea・コメントの中の data: は書き換えない
  *
  * @param string $content コンテンツ全体
  * @param int $dataUriPos data: の位置
@@ -921,15 +921,47 @@ function convertDataUriToFiles($content, $docid)
  */
 function isImgSrcValue($content, $dataUriPos)
 {
-    $tagStart = strrpos(substr($content, 0, $dataUriPos), '<');
-    if ($tagStart === false) {
+    $before = substr($content, 0, $dataUriPos);
+    $tagStart = strrpos($before, '<');
+    if ($tagStart === false || isInRawTextOrComment($before)) {
         return false;
     }
 
+    // 属性を 1 つずつ読み、最後が src= のときだけ一致させる（ほかの属性の値の中の src= は値として読み飛ばす）
     return (bool)preg_match(
-        '/^<img\b[^<>]*\ssrc\s*=\s*["\']?$/i',
-        substr($content, $tagStart, $dataUriPos - $tagStart)
+        '/^<img(?:\s+[^\s"\'<>\/=]+(?:\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s"\'<>`=]+))?)*\s+src\s*=\s*["\']?$/i',
+        substr($before, $tagStart)
     );
+}
+
+/**
+ * 末尾が script・style・textarea 要素かコメントの中か
+ *
+ * これらの中身はタグとして読まれないので、中に書いた img は画像ではない
+ *
+ * @param string $html 判定する位置より前の HTML
+ * @return bool
+ */
+function isInRawTextOrComment($html)
+{
+    preg_match_all('/<(\/?)(script|style|textarea)\b|<!--|-->/i', $html, $matches, PREG_SET_ORDER);
+    $inside = null;
+    foreach ($matches as $m) {
+        $token = strtolower($m[0]);
+        if ($inside === null) {
+            if ($token === '<!--') {
+                $inside = '-->';
+            } elseif (isset($m[2]) && $m[1] === '') {
+                $inside = '</' . strtolower($m[2]);
+            }
+            continue;
+        }
+        if ($token === $inside) {
+            $inside = null;
+        }
+    }
+
+    return $inside !== null;
 }
 
 /**
