@@ -48,12 +48,12 @@
             EvoShell.go('index.php?a=131&id=[+id+]');
         });
         onClick('delete', function () {
-            EvoDocumentActions.run('delete', [[+id+]], function () {
+            EvoDocumentActions.run('delete', [Number('[+id+]')], function () {
                 EvoCsrf.post("index.php?id=[+id+]&a=6");
             }, {hasChildren: [+docHasChildren+]});
         });
         onClick('undelete', function () {
-            EvoDocumentActions.run('undelete', [[+id+]], function () {
+            EvoDocumentActions.run('undelete', [Number('[+id+]')], function () {
                 EvoCsrf.post("index.php?id=[+id+]&a=63");
             });
         });
@@ -68,7 +68,7 @@
             EvoShell.go("index.php?id=[+id+]&a=51");
         });
         onClick('duplicate', function () {
-            EvoDocumentActions.run('duplicate', [[+id+]], function () {
+            EvoDocumentActions.run('duplicate', [Number('[+id+]')], function () {
                 EvoCsrf.post("index.php?id=[+id+]&a=94");
             });
         });

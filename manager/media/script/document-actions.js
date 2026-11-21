@@ -32,7 +32,9 @@ if (!window.EvoDocumentActions) {
                 guards: {site_start: 'cannot_unpublish_site_start'}
             },
             duplicate: {confirm: 'confirm_resource_duplicate'},
-            undelete: {confirm: 'confirm_undelete'}
+            undelete: {confirm: 'confirm_undelete'},
+            // 削除済みのリソース 1 件を完全に削除する（ツリーの右クリックメニュー。子は巻き込まない）
+            purge: {confirm: 'confirm_delete_resource'}
         };
 
         // 一覧の行メニューの設定（resources_list.static.php が initChildMenu() で渡す）
@@ -80,6 +82,11 @@ if (!window.EvoDocumentActions) {
                 }
             });
         };
+
+        // 一覧が子を持つと渡した ID か（一覧の外では子なしとして扱う）
+        function withChildren(id) {
+            return !!menuConfig && menuConfig.withChildren.indexOf(id) !== -1;
+        }
 
         function menuElement() {
             return menuConfig ? document.getElementById(menuConfig.menuId) : null;
@@ -150,7 +157,7 @@ if (!window.EvoDocumentActions) {
                     function () {
                         EvoCsrf.post(documentUrl(a, id, menuConfig.returnQuery));
                     },
-                    {hasChildren: menuConfig.withChildren.indexOf(id) !== -1}
+                    {hasChildren: withChildren(id)}
                 );
                 return;
             }
@@ -200,7 +207,7 @@ if (!window.EvoDocumentActions) {
         // 選んだ ID は、チェックした行と、ほかのページの分の hidden（data-table.js）の batch[]
         document.addEventListener('click', function (e) {
             const button = e.target.closest('button[data-batch-op]');
-            if (!button || !button.form || !menuConfig) {
+            if (!button || !button.form) {
                 return;
             }
             e.preventDefault();
@@ -220,7 +227,7 @@ if (!window.EvoDocumentActions) {
                 {
                     batch: true,
                     hasChildren: ids.some(function (id) {
-                        return menuConfig.withChildren.indexOf(id) !== -1;
+                        return withChildren(id);
                     })
                 }
             );

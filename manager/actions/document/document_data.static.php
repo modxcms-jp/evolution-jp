@@ -122,7 +122,6 @@ if (isset($content['parent']) && $content['parent'] != 0) {
     $cancelUrl = 'index.php?a=2';
 }
 ?>
-<script type="text/javascript" src="<?= manager_asset('media/script/document-actions.js') ?>"></script>
 <h1><?= lang('doc_data_title') ?></h1>
 
 <div id="actions">

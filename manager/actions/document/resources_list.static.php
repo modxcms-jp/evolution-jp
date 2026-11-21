@@ -506,8 +506,7 @@ function get_jscript($menuId, array $rowIds)
     );
 
     return sprintf(
-        '<script type="text/javascript" src="%s"></script>' . "\n" . '<script type="text/javascript">EvoDocumentActions.initChildMenu(%s);</script>',
-        hsc(manager_asset('media/script/document-actions.js')),
+        '<script type="text/javascript">EvoDocumentActions.initChildMenu(%s);</script>',
         $config
     );
 }

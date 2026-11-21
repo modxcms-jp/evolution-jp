@@ -560,12 +560,12 @@ if (is_array($evtOut)) {
                             EvoCsrf.post("index.php?a=6&id=" + itemToChange);
                         }, {hasChildren: selectedObjectHasChildren, title: selectedObjectName});
                     } else {
-                        alert("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('already_deleted'))) ?>);
+                        EvoDialog.alert(Evo.escapeHtml("'" + selectedObjectName + "' ") + <?= js_literal(stripcslashes(lang('already_deleted'))) ?>, '', null, {icon: 'warning'});
                     }
                     break;
                 case '63' : // undelete
                     if (selectedObjectDeleted == 0) {
-                        alert("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('not_deleted'))) ?>);
+                        EvoDialog.alert(Evo.escapeHtml("'" + selectedObjectName + "' ") + <?= js_literal(stripcslashes(lang('not_deleted'))) ?>, '', null, {icon: 'warning'});
                     } else {
                         EvoDocumentActions.run('undelete', [Number(itemToChange)], function () {
                             EvoCsrf.post("index.php?a=63&id=" + itemToChange);
@@ -575,13 +575,11 @@ if (is_array($evtOut)) {
                 case '64' : // delete
                     if (selectedObjectDeleted == 1) {
                         // 完全に削除するのは、削除済みのこのリソース 1 件だけ（子は巻き込まない）
-                        EvoDialog.confirm(Evo.escapeHtml("'" + selectedObjectName + "'") + "\n\n" + <?= js_literal(stripcslashes(lang('confirm_delete_resource'))) ?>, '', function (ok) {
-                            if (ok) {
-                                EvoCsrf.post("index.php?a=64&id=" + itemToChange);
-                            }
-                        });
+                        EvoDocumentActions.run('purge', [Number(itemToChange)], function () {
+                            EvoCsrf.post("index.php?a=64&id=" + itemToChange);
+                        }, {title: selectedObjectName});
                     } else {
-                        alert("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('already_deleted'))) ?>);
+                        EvoDialog.alert(Evo.escapeHtml("'" + selectedObjectName + "' ") + <?= js_literal(stripcslashes(lang('already_deleted'))) ?>, '', null, {icon: 'warning'});
                     }
                     break;
                 case '61' : // publish
