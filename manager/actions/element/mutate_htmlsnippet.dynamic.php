@@ -173,7 +173,7 @@ if (isset($content['which_editor'])) {
                         <span class="code-editor-title"><?= lang('chunk_code') ?></span>
                     </div>
                     <textarea
-                        dir="ltr" class="phptextarea" name="post"
+                        dir="ltr" class="phptextarea" name="post" id="post"
                         style="height:350px;width:100%"><?= hsc(entity('post') ?? entity('snippet')) ?></textarea>
                 </div>
 
