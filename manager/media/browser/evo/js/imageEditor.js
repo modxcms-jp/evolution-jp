@@ -859,8 +859,21 @@ export function createImageEditor(ctx) {
     Object.keys(cropInputs).forEach(function (key) {
         cropInputs[key].addEventListener('change', function () { onCropInput(key); });
     });
+    // リサイズの欄は、打ち終わるのを少し待ってからもう片方を計算し直す（欄から離れたときと Enter では、すぐ計算する）
+    var outInputTimer = null;
     Object.keys(outInputs).forEach(function (key) {
-        outInputs[key].addEventListener('change', function () { onOutInput(key); });
+        outInputs[key].addEventListener('input', function () {
+            clearTimeout(outInputTimer);
+            // 打ち直しの途中（空・0）では計算しない。欄を元の値で埋め戻さないため
+            if (!(parseInt(outInputs[key].value, 10) >= 1)) {
+                return;
+            }
+            outInputTimer = setTimeout(function () { onOutInput(key); }, 400);
+        });
+        outInputs[key].addEventListener('change', function () {
+            clearTimeout(outInputTimer);
+            onOutInput(key);
+        });
     });
     keepRatioEl.addEventListener('change', onKeepRatioChange);
     cancelBtn.addEventListener('click', cancel);
