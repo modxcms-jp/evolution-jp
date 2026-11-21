@@ -166,17 +166,21 @@ class DocAPI
     }
 
     /**
-     * トップページ（site_start）に許さない公開の状態なら、その理由の文を返す（保存と下書きの採用の共通の判定）。
-     * 非公開にする、未来の公開日がある、公開終了日がある、のどれかに当たると返す。問題が無ければ空文字。
+     * 設定で使っているページ（PROTECTED_PAGES）に許さない公開の状態なら、その理由の文を返す（保存と下書きの採用の共通の判定）。
+     * 非公開にする、未来の公開日がある、公開終了日がある、のどれかに当たると返す。当たるページでない・問題が無ければ空文字。
      * 警告と差し戻しは呼び出し側で行う。日付はタイムスタンプ（setPubStatus() を通した値）で渡す
      */
-    public function startDocPubError($published, $pub_date, $unpub_date)
+    public function protectedPubError($id, $published, $pub_date, $unpub_date)
     {
+        $setting = $this->protectedPageSetting($id);
+        if ($setting === '') {
+            return '';
+        }
         if ($published == 0) {
-            return 'Document is linked to site_start variable and cannot be unpublished!';
+            return stripcslashes(lang('cannot_unpublish_' . $setting));
         }
         if ($pub_date > request_time() || $unpub_date) {
-            return 'Document is linked to site_start variable and cannot have publish or unpublish dates set!';
+            return stripcslashes(lang('cannot_pub_dates_' . $setting));
         }
         return '';
     }
@@ -185,7 +189,7 @@ class DocAPI
      * 下書きを文書へ採用するときの値を決める（今すぐ採用・予約の受け付け・予約の時刻の採用の共通の規則）。
      * 今の文書の公開の状態を起点に、リソースの保存と同じ規則（setPubStatus()）で published と日付を決める。
      * $canPublish が偽（公開の権限が無い）なら、published だけ今の値を引き継ぐ。
-     * トップページ（site_start）に許さない状態なら、その理由の文も返す（startDocPubError()。無ければ空文字）。
+     * 設定で使っているページに許さない状態なら、その理由の文も返す（protectedPubError()。無ければ空文字）。
      * 下書きが空なら、日付を 0 で上書きしないよう規則をかけず、published だけ今の値を返す。
      * 返り値は [採用する値, 理由]。警告と差し戻し・ログは呼び出し側で行う
      */
@@ -202,12 +206,9 @@ class DocAPI
         if ($canPublish) {
             $draft = $ruled;
         }
-        if ((int)$docid !== (int)evo()->config('site_start')) {
-            return [$draft, ''];
-        }
         return [
             $draft,
-            $this->startDocPubError($draft['published'], $ruled['pub_date'], $ruled['unpub_date'])
+            $this->protectedPubError($docid, $draft['published'], $ruled['pub_date'], $ruled['unpub_date'])
         ];
     }
 
@@ -619,37 +620,58 @@ class DocAPI
     }
 
     /**
-     * 削除できないページの設定名と、警告の言語キーの末尾（トップページ・エラーページ・サイト停止中のページ。この順に当てる）
+     * 削除も非公開もできないページ（サイトの設定で使っているページ）の設定名。この順に当てる。
+     * 設定が空（0）のものは止めない。権限外告知のページが空のとき本体は error_page を使うが、それは error_page として止まる。
+     * 画面側（document-actions.js）は actionConfig() の ids のキーとして同じ一覧を受ける
      */
-    const DELETE_PROTECTED = [
-        'site_start' => 'site_start',
-        'error_page' => 'error_page',
-        'site_unavailable_page' => 'site_unavailable_page',
-    ];
+    const PROTECTED_PAGES = ['site_start', 'error_page', 'site_unavailable_page', 'unauthorized_page'];
 
     /**
-     * 設定でトップページ・エラーページ・サイト停止中のページになっているリソースの削除を止める警告の言語キー。当たらなければ空文字。
-     * $asChild が真なら、そのリソースが子孫にあって親の削除を止めるときの言語キー（文の中に ID の %d を持つ）
+     * そのリソースが当たる設定名（PROTECTED_PAGES）。当たらなければ空文字
      */
-    public function deleteGuardKey($id, $asChild = false)
+    public function protectedPageSetting($id)
     {
-        foreach (self::DELETE_PROTECTED as $setting => $suffix) {
-            if ((int)$id === (int)evo()->config($setting)) {
-                return ($asChild ? 'cannot_delete_child_' : 'cannot_delete_') . $suffix;
+        $id = (int)$id;
+        if (!$id) {
+            return '';
+        }
+        foreach (self::PROTECTED_PAGES as $setting) {
+            if ($id === (int)evo()->config($setting)) {
+                return $setting;
             }
         }
         return '';
     }
 
     /**
-     * 文書の操作の確認・警告の文言（document-actions.js の operations の表が言語キーで引く）
+     * 削除を止める警告の言語キー。当たらなければ空文字。
+     * $asChild が真なら、そのリソースが子孫にあって親の削除を止めるときの言語キー（文の中に ID の %d を持つ）
+     */
+    public function deleteGuardKey($id, $asChild = false)
+    {
+        $setting = $this->protectedPageSetting($id);
+        if ($setting === '') {
+            return '';
+        }
+        return ($asChild ? 'cannot_delete_child_' : 'cannot_delete_') . $setting;
+    }
+
+    /**
+     * 非公開にするのを止める警告の言語キー。当たらなければ空文字
+     */
+    public function unpublishGuardKey($id)
+    {
+        $setting = $this->protectedPageSetting($id);
+        return $setting === '' ? '' : 'cannot_unpublish_' . $setting;
+    }
+
+    /**
+     * 文書の操作の確認の文言（document-actions.js の operations の表が言語キーで引く）。警告の文言は PROTECTED_PAGES から組み立てる
      */
     const ACTION_LANG_KEYS = [
         'confirm_delete_resource', 'confirm_delete_resource_children', 'confirm_batch_delete',
         'confirm_batch_publish', 'confirm_batch_unpublish',
         'confirm_publish', 'confirm_unpublish', 'confirm_resource_duplicate', 'confirm_undelete',
-        'cannot_delete_site_start', 'cannot_delete_error_page', 'cannot_delete_site_unavailable_page',
-        'cannot_unpublish_site_start',
     ];
 
     /**
@@ -659,11 +681,14 @@ class DocAPI
     public function actionConfig()
     {
         $ids = [];
-        foreach (array_keys(self::DELETE_PROTECTED) as $setting) {
+        $keys = self::ACTION_LANG_KEYS;
+        foreach (self::PROTECTED_PAGES as $setting) {
             $ids[$setting] = (int)evo()->config($setting);
+            $keys[] = 'cannot_delete_' . $setting;
+            $keys[] = 'cannot_unpublish_' . $setting;
         }
         $lang = [];
-        foreach (self::ACTION_LANG_KEYS as $key) {
+        foreach ($keys as $key) {
             $lang[$key] = stripcslashes(lang($key));
         }
         return js_value(['ids' => $ids, 'lang' => $lang]);

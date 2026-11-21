@@ -6,30 +6,27 @@ if (!window.EvoDocumentActions) {
     window.EvoDocumentActions = {};
     (function () {
         // header.inc.php が ex_docapi.php の actionConfig() の値を入れる。
-        // ids: 設定名 => その設定のリソースの ID / lang: 言語キー => 文言
+        // ids: 設定名（トップページ・エラーページなど、止めるページ。順に当てる）=> その設定のリソースの ID / lang: 言語キー => 文言
         window.EvoDocumentActions.config = {ids: {}, lang: {}};
 
         // 操作ごとの定義の表。
         //   confirm: 1 件の確認の文言のキー
         //   batch: 一括の確認の文言のキー（%s に選んだ件数を入れる。無い操作は一括に使わない）
         //   children: 子があるときに確認へ足す行のキー
-        //   guards: 設定名 => 警告の文言のキー。その設定のリソースが対象に含まれるときは、確認の前に警告で止める
+        //   guard: 警告の文言のキーの前半（後ろに設定名を付ける）。サイトの設定で使っているページ（config.ids のキー）が
+        //     対象に含まれるときは、確認の前に警告で止める
         const operations = {
             delete: {
                 confirm: 'confirm_delete_resource',
                 batch: 'confirm_batch_delete',
                 children: 'confirm_delete_resource_children',
-                guards: {
-                    site_start: 'cannot_delete_site_start',
-                    error_page: 'cannot_delete_error_page',
-                    site_unavailable_page: 'cannot_delete_site_unavailable_page'
-                }
+                guard: 'cannot_delete_'
             },
             publish: {confirm: 'confirm_publish', batch: 'confirm_batch_publish'},
             unpublish: {
                 confirm: 'confirm_unpublish',
                 batch: 'confirm_batch_unpublish',
-                guards: {site_start: 'cannot_unpublish_site_start'}
+                guard: 'cannot_unpublish_'
             },
             duplicate: {confirm: 'confirm_resource_duplicate'},
             undelete: {confirm: 'confirm_undelete'},
@@ -60,12 +57,12 @@ if (!window.EvoDocumentActions) {
             const hasChildren = !!(opts && opts.hasChildren);
             const title = opts && opts.title;
             for (let i = 0; i < ids.length; i++) {
-                const setting = Object.keys(op.guards || {}).find(function (key) {
-                    return settingIds[key] === ids[i];
+                const setting = op.guard && Object.keys(settingIds).find(function (key) {
+                    return settingIds[key] && settingIds[key] === ids[i];
                 });
                 if (setting) {
                     // 一括のときは、どのリソースが当たったか分かるように ID を添える
-                    EvoDialog.alert((batch ? 'ID: ' + ids[i] + '\n' : '') + text(op.guards[setting]), '', null, {icon: 'warning'});
+                    EvoDialog.alert((batch ? 'ID: ' + ids[i] + '\n' : '') + text(op.guard + setting), '', null, {icon: 'warning'});
                     return;
                 }
             }

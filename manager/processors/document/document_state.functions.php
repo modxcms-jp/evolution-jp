@@ -132,9 +132,13 @@ function docPublishCheck($id, $publish)
     if (!docIsAccessible($id)) {
         return 'access_permission_denied';
     }
-    if (!$publish && $id == config('site_start')) {
-        // サイト開始ページは非公開にできない（画面の警告と同じ文言）
-        return stripcslashes(lang('cannot_unpublish_site_start'));
+    if (!$publish) {
+        // サイトの設定で使っているページは非公開にできない（画面の警告と同じ文言）
+        evo()->loadExtension('DocAPI');
+        $guardKey = evo()->doc->unpublishGuardKey($id);
+        if ($guardKey !== '') {
+            return stripcslashes(lang($guardKey));
+        }
     }
     if ($publish && !evo()->hasPermission('view_unpublished')) {
         $doc = db()->getObject('site_content', "id='{$id}'");
