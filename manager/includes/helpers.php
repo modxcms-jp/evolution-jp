@@ -1529,6 +1529,25 @@ function jpeg_exif_orientation($file)
 }
 
 /**
+ * 文字列の JPEG データ(data URI を復号したものなど)の EXIF の Orientation(1〜8)を返す。jpeg_exif_orientation() のデータ版。
+ */
+function jpeg_exif_orientation_from_string($data)
+{
+    if (!function_exists('exif_read_data')) {
+        return 1;
+    }
+    $stream = fopen('php://memory', 'r+');
+    if (!$stream) {
+        return 1;
+    }
+    fwrite($stream, $data);
+    rewind($stream);
+    $orientation = jpeg_exif_orientation($stream);
+    fclose($stream);
+    return $orientation;
+}
+
+/**
  * GD の画像へ EXIF の Orientation を反映した、表示上の向きの画像を返す(1 のときは同じ画像)。
  * 5〜8 は幅と高さが入れ替わる。
  *
@@ -1570,6 +1589,7 @@ function gd_apply_orientation($image, $orientation)
 
 /**
  * 画像を <img> で表示したときの幅と高さ。JPEG は EXIF の Orientation が 5〜8 なら、ブラウザが倒して表示するので入れ替える。
+ * 向きを先に調べてあるときは image_display_size_by_orientation() を使う。
  *
  * @param string $file 画像の絶対パス
  * @param array $info getimagesize() の結果
@@ -1581,4 +1601,14 @@ function image_display_size($file, $info)
         return [$info[1], $info[0]];
     }
     return [$info[0], $info[1]];
+}
+
+/**
+ * 幅・高さを EXIF の Orientation に合わせた表示上の大きさにする(5〜8 は入れ替える)。
+ *
+ * @return int[] [幅, 高さ]
+ */
+function image_display_size_by_orientation($width, $height, $orientation)
+{
+    return ((int) $orientation >= 5) ? [$height, $width] : [$width, $height];
 }

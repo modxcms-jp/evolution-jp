@@ -1179,14 +1179,19 @@ function resizeImage($imageData, $mimeType, $dimensions, $docid)
         return null;
     }
 
-    // 読み込む前にサイズを調べ、メモリが足りない巨大な画像は縮めずに元のデータのまま保存する
+    // 向きは JPEG だけが持つ。縮める大きさは表示上の向きで決める
     $info = @getimagesizefromstring($imageData);
+    $orientation = (($info[2] ?? null) === IMAGETYPE_JPEG) ? jpeg_exif_orientation_from_string($imageData) : 1;
+
+    // 読み込む前にサイズを調べ、メモリが足りない巨大な画像は縮めずに元のデータのまま保存する
     if ($info && $info[0] > 0 && $info[1] > 0) {
-        $resize = calculateResizeDimensions($info[0], $info[1], $dimensions);
+        [$displayWidth, $displayHeight] = image_display_size_by_orientation($info[0], $info[1], $orientation);
+        $resize = calculateResizeDimensions($displayWidth, $displayHeight, $dimensions);
         if ($resize === null) {
             return $imageData;
         }
-        if (!gd_can_load_image($info[0], $info[1], $info[2] ?? 0, $resize[0], $resize[1])) {
+        [$loadWidth, $loadHeight] = image_display_size_by_orientation($resize[0], $resize[1], $orientation);
+        if (!gd_can_load_image($info[0], $info[1], $info[2] ?? 0, $loadWidth, $loadHeight)) {
             evo()->logEvent(
                 0, 2, 'Image not resized: not enough memory', 'convertSingleDataUri',
                 ['docid' => $docid, 'mime' => $mimeType, 'width' => $info[0], 'height' => $info[1], 'target_width' => $resize[0], 'target_height' => $resize[1], 'memory_limit' => ini_get('memory_limit')]
@@ -1203,18 +1208,15 @@ function resizeImage($imageData, $mimeType, $dimensions, $docid)
     $originalWidth = imagesx($sourceImage);
     $originalHeight = imagesy($sourceImage);
 
-    // リサイズサイズを計算
-    $resize = calculateResizeDimensions(
-        $originalWidth,
-        $originalHeight,
-        $dimensions
-    );
+    [$displayWidth, $displayHeight] = image_display_size_by_orientation($originalWidth, $originalHeight, $orientation);
+    $resize = calculateResizeDimensions($displayWidth, $displayHeight, $dimensions);
 
     if ($resize === null) {
         return $imageData;
     }
 
-    list($finalWidth, $finalHeight) = $resize;
+    // 元の画像の向きのまま縮め、あとで向きを反映する
+    [$finalWidth, $finalHeight] = image_display_size_by_orientation($resize[0], $resize[1], $orientation);
 
     // リサイズ実行
     $resizedImage = createResizedImage(
@@ -1225,6 +1227,9 @@ function resizeImage($imageData, $mimeType, $dimensions, $docid)
         $originalHeight,
         $mimeType
     );
+    if ($resizedImage !== false) {
+        $resizedImage = gd_apply_orientation($resizedImage, $orientation);
+    }
 
     // imagedestroy() は PHP 8.5 で非推奨。変数を手放せば解放される
     unset($sourceImage);

@@ -1303,11 +1303,11 @@ class MODIFIERS
                 if (!$_ || !$_[0]) {
                     return '';
                 }
-                $info['width'] = $_[0];
-                $info['height'] = $_[1];
-                if ($_[0] > $_[1]) {
+                // 表示上の大きさ(Orientation 5〜8 の JPEG は幅と高さが入れ替わる)
+                [$info['width'], $info['height']] = image_display_size($path, $_);
+                if ($info['width'] > $info['height']) {
                     $info['aspect'] = 'landscape';
-                } elseif ($_[0] < $_[1]) {
+                } elseif ($info['width'] < $info['height']) {
                     $info['aspect'] = 'portrait';
                 } else {
                     $info['aspect'] = 'square';
@@ -1325,7 +1325,7 @@ class MODIFIERS
                     default:
                         $info['type'] = 'unknown';
                 }
-                $info['attrib'] = $_[3];
+                $info['attrib'] = sprintf('width="%d" height="%d"', $info['width'], $info['height']);
                 switch ($opt) {
                     case 'width':
                         return $info['width'];

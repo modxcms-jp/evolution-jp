@@ -13,7 +13,7 @@
 
 ## 画像リサイズ
 
-`<img>` タグの `width` / `height` 属性が元画像より小さい場合のみ縮小（拡大しない）。アスペクト比維持、透明度サポート（PNG/GIF/WebP）。
+`<img>` タグの `width` / `height` 属性が元画像より小さい場合のみ縮小（拡大しない）。アスペクト比維持、透明度サポート（PNG/GIF/WebP）。JPEG は EXIF の Orientation を画素に反映して書き出す（書き出すと EXIF は残らないため）。大きさの判定も、向きを反映した幅・高さで行う（`jpeg_exif_orientation_from_string()` / `gd_apply_orientation()`、`manager/includes/helpers.php`）。
 
 ## 設定
 
