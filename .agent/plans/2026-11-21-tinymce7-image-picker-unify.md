@@ -11,8 +11,8 @@ TinyMCE 7 の本文に、画像が `data:image/png;base64,...`（画像の中身
 - [x] (2026-11-21) 現状を調べ、ExecPlan を作った
 - [x] (2026-11-21) 計画者が挙げた 9 つの論点を本人が決め、Decision Log に移した（計画の手順と検証も合わせて直した）
 - [x] (2026-11-21) M1: ファイルピッカーを、指定したファイルの画像編集を開いた状態で起動できるようにする（PR 1、Refs #1666）
-- [ ] M2: TinyMCE で画像をダブルクリックすると、ファイルピッカーの画像編集が開き、保存後に src を差し替える（PR 2、M3 と一緒）
-- [ ] M3: `tinymce-cropper.js`・`image_cropper` の設定・Cropper.js の読み込みを消す（PR 2、Closes #1666）
+- [x] (2026-11-21) M2: TinyMCE で画像をダブルクリックすると、ファイルピッカーの画像編集が開き、保存後に src を差し替える（PR 2、M3 と一緒）
+- [x] (2026-11-21) M3: `tinymce-cropper.js`・`image_cropper` の設定・Cropper.js の読み込みを消す（PR 2、Closes #1666）
 - [ ] M4: 貼り付け・ドロップした画像を、ファイルピッカーの API でアップロードして URL を入れる（PR 3、Closes #1652）
 
 ## Surprises & Discoveries
@@ -36,6 +36,14 @@ TinyMCE 7 の本文に、画像が `data:image/png;base64,...`（画像の中身
 - 2026-11-21（M1）: `folder` のフォルダーが無いときは、今どおり根の一覧へ戻ったうえで `fb_edit_open_not_found` を出す。根に同じ名前のファイルがあっても、別のファイルを編集させないので編集は開かない。
 - 2026-11-21（M1）: 5,000 万画素を超える画像は、一覧のサムネイル（`api.php?action=thumb`）が 404 になり、コンソールにエラーが出る。M1 の変更とは関係の無い今の動き。
 - 2026-11-21（M1）: M1 の時点では、`mcpuk-picker.js` は `evoFbClose` をまだ受けない（M2 で足す）。M1 の iframe の検証は、テスト用の親のページで postMessage を記録して行った。本物の TinyMCE のダイアログでの確認は M2 で行う。
+- 2026-11-21（M2）: TinyMCE 7 は、画像をダブルクリックしても何もしない（既定の画像のダイアログは開かない。プラグインの `file_browser` が `none` でも同じ）。対象外の画像では、M2 の処理も何もしないので、ダブルクリックでは何も起きない。
+- 2026-11-21（M2）: Firefox は、同じ URL の画像を読み込み済みの画像として持ち続ける。`fetch(url, {cache: 'reload'})` の後に `new Image()` で読んでも、エディタの img を付け直しても、上書きする前の中身と大きさのまま（画像のリクエスト自体が出ない）。Chromium では新しくなる。上書きのときは、表示用の src と大きさの読み込みに `_evofb=<時刻>` のクエリを付け、`data-mce-src`（TinyMCE が本文の src として書き出す値）はクエリの無い URL にした。保存される本文・undo・redo・コード表示の往復にクエリは出ない。エディタの DOM の img の src を直に読む処理だけは、クエリの付いた値を受け取る。
+- 2026-11-21（M2）: `editor.undoManager.transact()` の中の変更は、`add()` が `level` を付けた `change` を出す。その後に `editor.dispatch('change')` を呼ぶと二重になるので、呼ばない（計画の手順 2 の「最後に dispatch('change')」は取りやめた）。
+- 2026-11-21（M2）: 上書きかどうかは、元の画像（`data-mce-src`）と返ってきた URL を、オリジンと `decodeURIComponent` したパスで比べて決める（画像の割り出しと同じ正規化）。元の src のクエリ（`?v=1` など）は、差し替えるときに捨てる。ピッカーが返すのはファイルの URL だけで、クエリに意味を持たせる根拠が無いため。
+- 2026-11-21（M2）: 新しい画像の大きさを読めなかったときは、width・height を元のまま残す（消さない）。
+- 2026-11-21（M2）: 編集できる拡張子と種類のフォルダーの一覧は、JS に持たせず、`BrowserConfig::EDITABLE_EXTENSIONS`・`TYPES` を `window.MODX_FILE_PICKER` で渡す。`rb_base_url` が管理画面と別のオリジン（CDN など）のときは、ピッカーの画像編集が同じオリジンの画像しか開けないので、ダブルクリックでは何もせず、帯のボタンも無効にする。
+- 2026-11-21（M2）: `window.MODX_FILE_PICKER` のキーは `browserUrl`・`baseUrl`（`MODX_BASE_URL`）・`rbBaseUrl`（`rb_base_url` の絶対の URL）・`siteUrl`・`stripImagePaths`・`types`・`editableExtensions`。
+- 2026-11-21（M2）: フロント（`forfrontend`）のエディタでも、`file_browser` が `mcpuk` ならダブルクリックと帯のボタンが付く。ピッカーを使えないウェブユーザー（`rb_webuser` が無効など）では、開いてからピッカーが断る（参照ボタンと同じ動きで、新しい穴ではない）。M4 で `PickerScope::authorize()` を `EditorInitializer` で見るとき、`mceModxImageEdit` の登録とボタンの文言もその結果で出し分ける。
 
 ## Decision Log
 
@@ -75,6 +83,8 @@ TinyMCE 7 の本文に、画像が `data:image/png;base64,...`（画像の中身
   - 却下: 今の `upload` に「フォルダが無ければ作る」を足す（ピッカーの画面のアップロードの動きまで変わる）。
 - 2026-11-21（計画者）アップロードできるかは、エディタを出すときに PHP で `PickerScope::authorize(evo(), new BrowserConfig(evo()), 'images')` を呼んで決める（ピッカーの入口と同じ判定を使う）。通れば `images_upload_handler` を設定し、トークン（`getCurrentCsrfToken()`）と送り先の URL を渡す。通らなければ受け手を設定せず `paste_data_images: false` にする。`images_file_types` は TinyMCE の既定と `upload_images` の重なりにする（許可していない形式は最初から受け付けない）。
 - 2026-11-21（計画者）アップロードの途中で保存したときは、送る前にアップロードを待つ。エディタの元の欄のフォームに、捕捉の段階（capture）の `submit` の受け手を付け、未アップロードの画像があれば `preventDefault()` して `editor.uploadImages()` を待ち、終わったら `form.requestSubmit(e.submitter)` で送り直す（要確認: shell の document の受け手は `defaultPrevented` を見て送らないこと、TinyMCE の `submit` の受け手より先に呼ばれること、`document.mutate.save.click()` の合成クリックでも同じに動くこと）。
+- 2026-11-21 本人の決定（古いグローバル変数）: `window.MODX_FILE_BROWSER_URL`・`MODX_BASE_URL`・`MODX_SITE_URL`・`MODX_STRIP_IMAGE_PATHS` は出さなくし、`window.MODX_FILE_PICKER` の 1 つにする。互換のために古い名前を残すことはせず、PR 本文とリリースノートに互換に関わる変更として書く（`breaking change` のラベル）。
+- 2026-11-21（M2 で変更）上書きしたときに表示を新しくするしかたは、`fetch(url, {cache: 'reload'})` をやめ、表示用の src と大きさの読み込みにだけ `_evofb` のクエリを付ける形にした（Surprises の M2 の項。Firefox で古い画像が出たため）。
 - 2026-11-21（計画者）既存のサイトの設定ファイルに `image_cropper` の項目が残っていても、読む処理を消すだけにする（TinyMCE は知らない設定を無視する）。互換のための読み替えは置かず、リリースノートに書く。
 
 ## Outcomes & Retrospective
@@ -224,6 +234,7 @@ PHP 7.4 で、`api.php`・`browser.php`・`BrowserView.php`・`EditorInitializer
   - 文書: `docs: 貼り付けた画像の置き場所と保存時の変換の対象を実装に合わせる`
 - ExecPlan のブランチ: `plan/1652-1666-image-upload`
 - M1 のブランチ: `feat/1666-picker-open-editor`（origin/main 8df4c2987 から。Issue に紐づけない）、PR #1707。配布 zip は 1,639,964 → 1,641,042 バイト（+1,078）
+- M2+M3 のブランチ: `feat/1666-tinymce7-edit-in-picker`（M1 のブランチ 43533415a の上に積んだ。#1707 のマージ後に base を main へ切り替える）。配布 zip は M1 の 1,641,042 → 1,638,203 バイト（−2,839。main の 1,639,964 からは −1,761）
 - 別に起票する（起票はまとめ役が行う。この計画では扱わない）:
   - ファイルのアップロードのロールの権限: 本体に「ファイルのアップロード」に当たるロールの権限が無く、ファイルピッカー（`PickerScope`）は管理画面にログインしている人なら誰でもアップロードできる。貼り付けのアップロードも同じ判定を使うので、権限を足すとそのまま効く
   - 既に本文に入っている data: 画像をまとめてファイルへ移す CLI: #1652・#1666 の不具合で入った data: 画像を、文書をまたいで `images/年/月/` などへ移し、本文の src を書き換える（この計画では開いたときにアップロードの対象から外すだけ）
