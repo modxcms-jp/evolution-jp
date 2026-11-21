@@ -911,9 +911,9 @@ function convertDataUriToFiles($content, $docid)
 }
 
 /**
- * data: が img タグの src 属性の値の先頭にあるか
+ * data: が img 要素の src 属性の値の先頭にあるか
  *
- * 本文の文章や style の中の data: は書き換えない
+ * 本文の文章、ほかの属性の値、script・style・textarea・コメントの中の data: は書き換えない
  *
  * @param string $content コンテンツ全体
  * @param int $dataUriPos data: の位置
@@ -921,15 +921,92 @@ function convertDataUriToFiles($content, $docid)
  */
 function isImgSrcValue($content, $dataUriPos)
 {
-    $tagStart = strrpos(substr($content, 0, $dataUriPos), '<');
-    if ($tagStart === false) {
+    $before = substr($content, 0, $dataUriPos);
+    $tagStart = openTagStartAtEnd($before);
+    if ($tagStart === null) {
         return false;
     }
 
+    // 属性を 1 つずつ読み、最後が src= のときだけ一致させる（ほかの属性の値の中の src= は値として読み飛ばす）
     return (bool)preg_match(
-        '/^<img\b[^<>]*\ssrc\s*=\s*["\']?$/i',
-        substr($content, $tagStart, $dataUriPos - $tagStart)
+        '/^<img(?:\s+[^\s"\'<>\/=]+(?:\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s"\'<>`=]+))?)*\s+src\s*=\s*["\']?$/i',
+        substr($before, $tagStart)
     );
+}
+
+/**
+ * HTML を頭からたどり、末尾が開始タグの途中なら、そのタグの < の位置を返す
+ *
+ * 末尾がタグの外、script・style・textarea の中身（タグとして読まれない）、コメントの中なら null
+ *
+ * @param string $html 判定する位置より前の HTML
+ * @return int|null
+ */
+function openTagStartAtEnd($html)
+{
+    $pos = 0;
+    while (($lt = strpos($html, '<', $pos)) !== false) {
+        if (substr($html, $lt, 4) === '<!--') {
+            $end = strpos($html, '-->', $lt + 4);
+            if ($end === false) {
+                return null;
+            }
+            $pos = $end + 3;
+            continue;
+        }
+        if (!preg_match('/\G<\/?[a-z]/i', $html, $m, 0, $lt)) {
+            $pos = $lt + 1;
+            continue;
+        }
+        $gt = tagEndPos($html, $lt);
+        if ($gt === null) {
+            return $lt;
+        }
+        $pos = $gt + 1;
+        if (preg_match('/\G<(script|style|textarea)\b/i', $html, $m, 0, $lt)) {
+            $close = stripos($html, '</' . $m[1], $pos);
+            if ($close === false) {
+                return null;
+            }
+            $pos = $close;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * タグを閉じる > の位置。= のあとの引用符で囲んだ値の中の > は飛ばす
+ *
+ * @param string $html HTML
+ * @param int $lt タグの < の位置
+ * @return int|null 閉じていなければ null
+ */
+function tagEndPos($html, $lt)
+{
+    $len = strlen($html);
+    $afterEquals = false;
+    for ($i = $lt + 1; $i < $len; $i++) {
+        $c = $html[$i];
+        if ($c === '>') {
+            return $i;
+        }
+        if ($afterEquals && ($c === '"' || $c === "'")) {
+            $i = strpos($html, $c, $i + 1);
+            if ($i === false) {
+                return null;
+            }
+            $afterEquals = false;
+            continue;
+        }
+        if ($c === '=') {
+            $afterEquals = true;
+        } elseif (!ctype_space($c)) {
+            $afterEquals = false;
+        }
+    }
+
+    return null;
 }
 
 /**

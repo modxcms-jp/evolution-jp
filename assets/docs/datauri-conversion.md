@@ -9,7 +9,7 @@
 ## 対象と保存先
 
 - 対象フィールド: `content`（本文）だけ。`introtext`（要約）は対象にしない。ウェブリンク（`type` が `reference`）の本文も対象にしない
-- 対象の位置: `<img>` タグの `src` 属性の値になっている Data URI だけ（`isImgSrcValue()`）。本文の文章や `<style>` の中の `data:` は書き換えない
+- 対象の位置: `<img>` 要素の `src` 属性の値になっている Data URI だけ（`isImgSrcValue()`）。属性を 1 つずつ読むので、`data-src` やほかの属性の値の中の `src=` は対象にならない。本文の文章、`<script>`・`<style>`・`<textarea>` の中、HTML コメントの中の `data:` は書き換えない。本文を頭からタグ単位でたどり、引用符で囲んだ属性の値は読み飛ばすので、属性の値の中に `<textarea>` などの文字があっても要素とは見なさない（`openTagStartAtEnd()`）
 - 新規のリソースの ID を保存の途中で取り直したときは、書き出したファイルを新しい ID の場所へ移し、本文のパスも直す（`moveDataUriFilesToNewId()`）
 - 保存先: `content/images/datauri/{リソースID}/` （例: `20250103143022_a1b2c3d4.png`）
 - 最大ファイルサイズ: 50MB
