@@ -128,16 +128,13 @@ final class EditorInitializer
         }
         $screen = $isManager ? $this->managerScreen() : ['target' => null, 'newDocument' => false];
         $canUploadPasted = $this->canUploadPasted($fileBrowser, $screen['target']);
-        $config = $this->applyPastedUpload($config, $canUploadPasted, $screen['newDocument']);
-        // 受けない理由が権限のときだけ、貼り付け・ドロップした画像を捨てる理由を知らせる（js/editor-setup.js）。mcpuk でないなどの理由では出さない
-        if ($isManager && $fileBrowser === 'mcpuk' && !$canUploadPasted
+        // 画面によらず、権限 file_upload が無いために受けないときは、新しいリソースでも貼り付けた画像を受けず、理由を知らせる（js/editor-setup.js）。
+        // mcpuk でない・ピッカーを使えないなど、権限以外の理由では知らせない
+        $uploadForbidden = $isManager
+            && $fileBrowser === 'mcpuk'
             && $this->fileBrowserResolver->canUsePicker('images')
-            && !$this->fileBrowserResolver->canUploadToPicker()) {
-            $config['modx_upload_forbidden_message'] = $this->language->translate(
-                'tinymce7_upload_forbidden',
-                'You do not have permission to upload, so pasted images are not saved.'
-            );
-        }
+            && !$this->fileBrowserResolver->canUploadToPicker();
+        $config = $this->applyPastedUpload($config, $canUploadPasted, $screen['newDocument'], $uploadForbidden);
 
         $configJson = $this->configRepository->encode($config);
 
@@ -232,7 +229,7 @@ final class EditorInitializer
     /**
      * 貼り付け・ドロップした画像を、ファイルピッカーの API でアップロードして本文に URL を入れるか。
      * 使えるのは、管理画面のエディターで、ID のある画面（managerScreen() の target）で、ファイルブラウザが mcpuk で、
-     * このセッションがピッカーの images を使え（api.php と同じ PickerScope::authorize()）、アップロードできる画像の拡張子が 1 つ以上あるとき。
+     * このセッションがピッカーの images を使え（api.php と同じ PickerScope::authorize()）、アップロードの権限 file_upload があり（PickerScope::allows()）、アップロードできる画像の拡張子が 1 つ以上あるとき。
      * フロントのエディターでは使わない。フロントのページはキャッシュに入り、セッションごとの CSRF トークンを埋め込めないため。
      * 使えないときは、貼り付けの画像を受けない（applyPastedUpload()）
      *
@@ -251,9 +248,10 @@ final class EditorInitializer
      * 貼り付けのアップロードの設定。どちらのときも、画像のダイアログのアップロードタブは出さない
      * （画像の入口はファイルピッカーの参照ボタンと、貼り付け・ドロップ）。
      * アップロードしないときは、新しいリソースだけ貼り付けた画像を受ける（data: のまま置き、保存時の変換が ID の決まった後にファイルにする）。
-     * ほかは、本文に data: 画像が入らないよう受けない（チャンクは保存時の変換の対象外）
+     * ほかは、本文に data: 画像が入らないよう受けない（チャンクは保存時の変換の対象外）。
+     * 権限 file_upload が無いとき（$uploadForbidden）は、新しいリソースでも受けず、受けない理由の文言を渡す
      */
-    private function applyPastedUpload(array $config, bool $canUploadPasted, bool $newDocument): array
+    private function applyPastedUpload(array $config, bool $canUploadPasted, bool $newDocument, bool $uploadForbidden): array
     {
         $config['image_uploadtab'] = false;
         if ($canUploadPasted) {
@@ -263,7 +261,13 @@ final class EditorInitializer
                 'Saving was cancelled because an image upload did not finish. Please save again.'
             );
         } else {
-            $config['paste_data_images'] = $newDocument;
+            $config['paste_data_images'] = $newDocument && !$uploadForbidden;
+            if ($uploadForbidden) {
+                $config['modx_upload_forbidden_message'] = $this->language->translate(
+                    'tinymce7_upload_forbidden',
+                    'You do not have permission to upload, so pasted images are not saved.'
+                );
+            }
         }
 
         return $config;
