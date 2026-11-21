@@ -17,12 +17,16 @@
  *                     foldersOnly=1はツリー展開用(filesは空。ファイルの走査を省く)
  *                     守る場所(PathGuard)は、どちらの範囲でも一覧に出さない
  * GET  action=thumb  (type, folder, file)                     -> 画像バイナリ(縮小したもの)
- * POST action=upload (type, folder, files[], overwrite?)       -> {uploaded:[{index,name,size,url}], errors:[{index,name,message,code?,targetName?}]}
+ * POST action=upload (type, folder, files[], overwrite?)       -> {uploaded:[{index,name,size,path?,url?}], errors:[{index,name,message,code?,targetName?}]}
  *                     index は files[] の順番(0 から)。画面はこれで、送ったファイルと結果を対応づける
  *                     ピッカーは同名があれば 名前(1).拡張子 で別の名前にし、OnFileBrowserUpload を発火する。
  *                     管理モードは overwrite=1 のときだけ同名のファイルを上書きし(ファイルだけ。フォルダ・リンクは断る)、
  *                     OnFileManagerUpload を発火する。overwrite が無いときは、保存せずに errors へ code: exists と、
  *                     保存する名前(無害化した後)の targetName を入れて返す。画面は確かめた上で、該当のファイルだけ overwrite=1 で送り直す
+ *                     path・url はピッカーの応答だけに付く(一覧の files と同じ作り方)
+ * POST action=uploadPasted (type=images, files[])               -> {uploaded:[{index,name,size,path,url}], errors:[{index,name,message}]}(ピッカーだけ)
+ *                     エディタに貼り付けた・ドロップした画像の保存。置き場所は images/年/月/(サイトの時刻。無ければ作る)に決まっていて、folder は受けない。
+ *                     名前が image.拡張子 なら pasted-年月日-時分秒.拡張子 にし、ほかの名前は元のまま。拡張子・大きさ・同名の連番・OnFileBrowserUpload は upload と同じ
  * POST action=mkdir  (type, folder, name)                      -> {name}
  * POST action=rename (type, folder, target, newName)           -> {name}
  * POST action=delete (type, folder, files[], folders[])        -> {deleted:[...], errors:[{name,message}]}
@@ -441,6 +445,30 @@ function fbPickerUpload(PathResolver $resolver, PickerScope $scope, DocumentPars
     }
 
     fbPickerSaveFiles($resolver, $scope, $modx, $dir, fbUploadedFiles(), fn($name) => $name);
+}
+
+/**
+ * エディタに貼り付けた・ドロップした画像の保存。置き場所は images/年/月/(サイトの時刻。無ければ作る)に決まっている。
+ * 名前が image.拡張子(TinyMCE が名前の無い画像に付ける名前)なら pasted-年月日-時分秒.拡張子 にし、ほかの名前は元のまま保存する。
+ * 拡張子・大きさ・同名の連番は upload と同じ
+ */
+function fbPickerUploadPasted(PathResolver $resolver, PickerScope $scope, DocumentParser $modx)
+{
+    if ($scope->type() !== 'images') {
+        fbError('invalid_type', lang('fb_err_invalid_type'), 400);
+    }
+
+    $files = fbUploadedFiles();
+    $now = request_time() + (int) $modx->config('server_offset_time', 0);
+    $folder = FileStore::ensureFolderPath($resolver, $scope, $modx, FileStore::pastedFolder($now));
+    if (isset($folder['error'])) {
+        fbError($folder['error']['code'], $folder['error']['message'], $folder['error']['status']);
+    }
+
+    fbPickerSaveFiles($resolver, $scope, $modx, $folder['dir'], $files, function ($name) use ($now) {
+        $extension = FileStore::pastedPlaceholderExtension($name);
+        return $extension === null ? $name : FileStore::pastedName($now, $extension);
+    });
 }
 
 function fbManageUpload(PathResolver $resolver, ManageScope $scope, DocumentParser $modx)

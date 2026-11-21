@@ -135,6 +135,7 @@ class PickerScope implements BrowserScope
             'list' => ['handler' => 'fbPickerList'],
             'thumb' => ['handler' => 'fbActionThumb'],
             'upload' => ['handler' => 'fbPickerUpload', 'csrf' => true],
+            'uploadPasted' => ['handler' => 'fbPickerUploadPasted', 'csrf' => true, 'post' => true],
         ];
     }
 }
