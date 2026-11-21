@@ -5,6 +5,11 @@
     return;
   }
 
+  // PHP（FileBrowserResolver）が window.MODX_FILE_PICKER として渡す値
+  function settings() {
+    return global.MODX_FILE_PICKER || {};
+  }
+
   const TYPE_MAP = Object.freeze({
     image: 'images',
     media: 'media',
@@ -111,9 +116,14 @@
       width: width,
       height: height,
       onMessage: function (api, details) {
-        if (details && details.mceAction === 'evoFbPick') {
+        if (!details) {
+          return;
+        }
+        if (details.mceAction === 'evoFbPick') {
           api.close();
           onPick(details.url);
+        } else if (details.mceAction === 'evoFbClose') {
+          api.close();
         }
       }
     });
@@ -135,16 +145,16 @@
 
     url = url.replace(/^(?:\.\.\/)+/, '');
 
-    if (global.MODX_STRIP_IMAGE_PATHS === true) {
+    if (settings().stripImagePaths === true) {
       return sanitizePath(url);
     }
 
-    const siteUrl = String(global.MODX_SITE_URL || '').trim();
+    const siteUrl = String(settings().siteUrl || '').trim();
     if (siteUrl) {
       return sanitizeUrlSegment(siteUrl) + '/' + sanitizePath(url);
     }
 
-    const baseUrl = String(global.MODX_BASE_URL || '').trim();
+    const baseUrl = String(settings().baseUrl || '').trim();
     if (baseUrl) {
       return sanitizeUrlSegment(baseUrl) + '/' + sanitizePath(url);
     }
@@ -183,10 +193,318 @@
     return restore;
   }
 
+  // src を、エディターの基準 URL から見た絶対 URL にし、{origin, segments（要素ごとに decodeURIComponent）} にする。
+  // 画像の判定と、上書きかどうかの比較で同じ正規化を使う
+  function parseSiteUrl(editor, src) {
+    if (!src) {
+      return null;
+    }
+    try {
+      const url = new URL(String(src), editor.documentBaseURI.getURI());
+      return {
+        origin: url.origin,
+        segments: url.pathname.split('/').map(normalizePathSegment)
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function sameFile(a, b) {
+    return !!a && !!b && a.origin === b.origin && a.segments.join('/') === b.segments.join('/');
+  }
+
+  // 画像の src が、ファイルピッカーの種類のフォルダ（rb_base_url の下の images・media・files）の
+  // 画像編集できる拡張子の画像のときだけ {type, folder, name} を返す。
+  // それ以外（data:・blob:・別オリジン・範囲外・ピッカーと別のオリジンの rb_base_url）は null
+  function resolveSiteImage(editor, img) {
+    return img ? resolveSiteSrc(editor, img.getAttribute('src')) : null;
+  }
+
+  function resolveSiteSrc(editor, src) {
+    const rbBaseUrl = String(settings().rbBaseUrl || '');
+    if (!rbBaseUrl || !src) {
+      return null;
+    }
+
+    const target = parseSiteUrl(editor, src);
+    const base = parseSiteUrl(editor, rbBaseUrl);
+    if (!target || !base || target.origin !== base.origin || base.origin !== global.location.origin) {
+      return null;
+    }
+
+    const baseSegments = base.segments.filter(Boolean);
+    const rest = target.segments.filter(Boolean);
+    if (rest.length < baseSegments.length + 2 || baseSegments.some(function (segment, index) {
+      return rest[index] !== segment;
+    })) {
+      return null;
+    }
+
+    const segments = rest.slice(baseSegments.length);
+    const type = segments[0];
+    const name = segments[segments.length - 1];
+    const extension = name.indexOf('.') === -1 ? '' : name.split('.').pop().toLowerCase();
+    if ((settings().types || []).indexOf(type) === -1 || (settings().editableExtensions || []).indexOf(extension) === -1) {
+      return null;
+    }
+
+    return {type: type, folder: segments.slice(1, -1).join('/'), name: name};
+  }
+
+  // ファイルピッカーを、そのファイルの画像編集を開いた状態で起動する URL
+  function pickerEditUrl(target) {
+    const baseUrl = settings().browserUrl;
+    if (!target || !baseUrl) {
+      return null;
+    }
+    const separator = baseUrl.indexOf('?') === -1 ? '?' : '&';
+    let url = baseUrl + separator + 'type=' + encodeURIComponent(target.type);
+    if (target.folder) {
+      url += '&folder=' + encodeURIComponent(target.folder);
+    }
+    return url + '&select=' + encodeURIComponent(target.name) + '&edit=1';
+  }
+
+  function openImageEditor(editor, img) {
+    const url = pickerEditUrl(resolveSiteImage(editor, img));
+    if (!url) {
+      return;
+    }
+    openInEditorDialog(editor, url, function (path) {
+      replaceImage(editor, img, normalizeUrl(path));
+    });
+  }
+
+  // 上書きのときは同じ URL の古い画像がブラウザの画像キャッシュに残るので、大きさの取得と表示にはクエリ付きの URL を使う
+  function cacheBusted(url) {
+    return url + (url.indexOf('?') === -1 ? '?' : '&') + '_evofb=' + Date.now();
+  }
+
+  function loadImageSize(url) {
+    return new Promise(function (resolve) {
+      const image = new global.Image();
+      image.onload = function () {
+        resolve({width: image.naturalWidth, height: image.naturalHeight});
+      };
+      image.onerror = function () {
+        resolve(null);
+      };
+      image.src = url;
+    });
+  }
+
+  // width はそのまま、height を新しい縦横比で決める。height だけがあれば width を決める。どちらも無ければ付けない。
+  // ただし新しい画像より大きくはしない（小さくリサイズした画像を、元の大きさに引き伸ばして粗く出さない）
+  // width・height は、本文の属性の値か、画像のダイアログの欄の値（文字列）
+  function scaledSize(widthValue, heightValue, size) {
+    if (!size || !size.width || !size.height) {
+      return {};
+    }
+    const width = parseInt(widthValue, 10);
+    const height = parseInt(heightValue, 10);
+    if (width > 0) {
+      const shownWidth = Math.min(width, size.width);
+      return {width: shownWidth, height: Math.round(shownWidth * size.height / size.width)};
+    }
+    if (height > 0) {
+      const shownHeight = Math.min(height, size.height);
+      return {width: Math.round(shownHeight * size.width / size.height), height: shownHeight};
+    }
+    return {};
+  }
+
+  function replaceImage(editor, img, url) {
+    if (!url || editor.removed || !editor.getBody().contains(img)) {
+      return;
+    }
+
+    const current = img.getAttribute('data-mce-src') || img.getAttribute('src');
+    const overwritten = sameFile(parseSiteUrl(editor, current), parseSiteUrl(editor, url));
+    // 本文に残る URL（data-mce-src）はクエリなしのまま
+    const shown = overwritten ? cacheBusted(url) : url;
+    const removed = function () {
+      return editor.removed || !editor.getBody().contains(img);
+    };
+
+    loadImageSize(editor.documentBaseURI.toAbsolute(shown)).then(function (size) {
+      if (removed()) {
+        return;
+      }
+      const dimensions = scaledSize(img.getAttribute('width'), img.getAttribute('height'), size);
+      const attributes = {
+        src: shown,
+        'data-mce-src': url,
+        srcset: null
+      };
+      if (size) {
+        attributes.width = dimensions.width || null;
+        attributes.height = dimensions.height || null;
+      }
+      editor.undoManager.transact(function () {
+        editor.dom.setAttribs(img, attributes);
+      });
+      editor.nodeChanged();
+    });
+  }
+
+  function isEditableTarget(node) {
+    return !!node && node.nodeName === 'IMG'
+      && !node.hasAttribute('data-mce-object')
+      && !node.hasAttribute('data-mce-placeholder');
+  }
+
+  // TinyMCE の「画像の挿入/編集」ダイアログ（image プラグイン）の、ソース欄の参照ボタンの隣に「画像を編集」を入れる。
+  // ダイアログにボタンを足す API が無いので、開いたダイアログの DOM に差し込む。
+  // 差し込めないとき（TinyMCE の更新でダイアログの作りが変わったとき）は、コンソールにエラーを出す。
+  // 画像を選んだときの帯の「画像を編集」（公式の部品）は、そのときも使える
+  function attachEditButtonToImageDialog(editor, dialog, overwrittenUrls) {
+    let data;
+    try {
+      data = dialog.getData();
+    } catch (e) {
+      return;
+    }
+    if (!data || !data.src || typeof data.src !== 'object' || !('dimensions' in data)) {
+      return;
+    }
+    const dialogs = global.document.querySelectorAll('.tox-dialog');
+    const root = dialogs[dialogs.length - 1];
+    const browse = root && root.querySelector('.tox-browse-url');
+    if (!browse) {
+      console.error('TinyMCE7: the image dialog layout has changed; the "' + editor.options.get('modx_image_edit_label') + '" button could not be added next to the browse button.');
+      return;
+    }
+    if (root.querySelector('.evo-image-edit-button')) {
+      return;
+    }
+
+    const label = editor.options.get('modx_image_edit_label');
+    const button = browse.cloneNode(false);
+    button.classList.add('evo-image-edit-button');
+    button.removeAttribute('id');
+    button.removeAttribute('data-alloy-id');
+    button.setAttribute('type', 'button');
+    button.setAttribute('title', label);
+    button.setAttribute('aria-label', label);
+    button.innerHTML = '<span class="tox-icon">' + (editor.ui.registry.getAll().icons['edit-image'] || '') + '</span>';
+    browse.parentNode.insertBefore(button, browse.nextSibling);
+
+    function updateEnabled() {
+      button.disabled = !resolveSiteSrc(editor, dialog.getData().src.value);
+    }
+    updateEnabled();
+    const input = browse.parentNode.querySelector('input');
+    if (input) {
+      input.addEventListener('input', updateEnabled);
+      input.addEventListener('change', updateEnabled);
+    }
+
+    button.addEventListener('click', function (event) {
+      event.preventDefault();
+      const before = dialog.getData().src.value;
+      const url = pickerEditUrl(resolveSiteSrc(editor, before));
+      if (!url) {
+        return;
+      }
+      openInEditorDialog(editor, url, function (path) {
+        const saved = normalizeUrl(path);
+        const overwritten = sameFile(parseSiteUrl(editor, before), parseSiteUrl(editor, saved));
+        loadImageSize(editor.documentBaseURI.toAbsolute(overwritten ? cacheBusted(saved) : saved)).then(function (size) {
+          const latest = dialog.getData();
+          const dimensions = scaledSize(latest.dimensions && latest.dimensions.width, latest.dimensions && latest.dimensions.height, size);
+          latest.src = {value: saved, meta: {}};
+          if (dimensions.width) {
+            latest.dimensions = {width: String(dimensions.width), height: String(dimensions.height)};
+          }
+          dialog.setData(latest);
+          updateEnabled();
+          if (overwritten) {
+            overwrittenUrls.add(saved);
+          }
+        });
+      });
+    });
+  }
+
+  // 画像のダイアログから上書き保存した画像は、ダイアログを閉じた後に、本文の表示だけをクエリ付きの URL で読み直す
+  function refreshOverwrittenImages(editor, overwrittenUrls) {
+    if (overwrittenUrls.size === 0) {
+      return;
+    }
+    const urls = Array.from(overwrittenUrls);
+    overwrittenUrls.clear();
+    global.setTimeout(function () {
+      editor.dom.select('img').forEach(function (node) {
+        const src = node.getAttribute('data-mce-src');
+        if (urls.indexOf(src) !== -1) {
+          editor.dom.setAttribs(node, {src: cacheBusted(src), 'data-mce-src': src});
+        }
+      });
+    }, 0);
+  }
+
+  global.mceModxImageEdit = function (editor) {
+    editor.options.register('modx_image_edit_label', {processor: 'string', default: 'Edit image'});
+
+    // ダブルクリックでは「画像の挿入/編集」ダイアログを開く（幅・高さ・キャプションなどもそこで直せる）。
+    // 画像の編集は、ダイアログに入れた「画像を編集」から開く
+    editor.on('DblClick', function (event) {
+      if (!isEditableTarget(event.target)) {
+        return;
+      }
+      event.preventDefault();
+      editor.selection.select(event.target);
+      editor.execCommand('mceImage');
+    });
+
+    const overwrittenUrls = new Set();
+    editor.on('OpenWindow', function (event) {
+      if (event && event.dialog) {
+        // ダイアログの DOM は、通知の後に描かれる
+        global.setTimeout(function () {
+          attachEditButtonToImageDialog(editor, event.dialog, overwrittenUrls);
+        }, 0);
+      }
+    });
+    editor.on('CloseWindow', function () {
+      refreshOverwrittenImages(editor, overwrittenUrls);
+    });
+
+    editor.ui.registry.addButton('modxImageEdit', {
+      icon: 'edit-image',
+      tooltip: editor.options.get('modx_image_edit_label'),
+      onSetup: function (api) {
+        function update() {
+          const node = editor.selection.getNode();
+          api.setEnabled(isEditableTarget(node) && !!resolveSiteImage(editor, node));
+        }
+        update();
+        editor.on('NodeChange', update);
+        return function () {
+          editor.off('NodeChange', update);
+        };
+      },
+      onAction: function () {
+        const node = editor.selection.getNode();
+        if (isEditableTarget(node)) {
+          openImageEditor(editor, node);
+        }
+      }
+    });
+
+    editor.ui.registry.addContextToolbar('modxImageEdit', {
+      predicate: isEditableTarget,
+      items: 'modxImageEdit',
+      position: 'node',
+      scope: 'node'
+    });
+  };
+
   global.mceModxFilePicker = function (callback, value, meta) {
-    const baseUrl = global.MODX_FILE_BROWSER_URL;
+    const baseUrl = settings().browserUrl;
     if (!baseUrl) {
-      console.error('TinyMCE7: MODX_FILE_BROWSER_URL is not defined.');
+      console.error('TinyMCE7: MODX_FILE_PICKER.browserUrl is not defined.');
       return;
     }
 

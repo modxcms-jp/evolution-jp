@@ -10,28 +10,5 @@
   "relative_urls": false,
   "convert_urls": false,
   "font_size_formats": "12px 14px 16px 18px 20px 24px 28px 32px 40px 48px",
-  "image_cropper": {
-    "enabled": true,
-    "jsUrl": "https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js",
-    "cssUrl": "https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css",
-    "enableDoubleClick": true,
-    "outputMimeType": "image/png",
-    "outputQuality": 0.92,
-    "labels": {
-      "editTooltip": "画像を編集",
-      "modalTitle": "画像の編集",
-      "apply": "適用",
-      "cancel": "キャンセル",
-      "rotateLeft": "左回転",
-      "rotateRight": "右回転",
-      "reset": "リセット",
-      "zoomIn": "拡大",
-      "zoomOut": "縮小"
-    },
-    "cropperOptions": {
-      "viewMode": 1,
-      "dragMode": "move"
-    }
-  },
   "license_key": "gpl"
 }

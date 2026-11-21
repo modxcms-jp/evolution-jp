@@ -12,11 +12,10 @@
 - プラグインのエントリーポイント: `plugin.tinymce7.php`
 - 設定ファイル: `config/manager.json`, `config/frontend.json`, `config/toolbar-presets.json`
 - 管理画面設定用スタイル: `css/tinymce7.settings.css`
-- MCPuk 連携スクリプト: `js/mcpuk-picker.js`
-- 画像編集モーダル連携スクリプト: `js/tinymce-cropper.js`
+- MCPuk 連携スクリプト（ファイルの選択と画像の編集）: `js/mcpuk-picker.js`
 - ひな形挿入プラグイン: `js/modx-template.js`
 - リンクのダイアログの文書の一覧（JSON を返す入口）: `link-list.php`
-- エディター共通の setup（未保存の印・input の通知・リンクのダイアログの選択肢）: `js/editor-setup.js`（`window.tinymce7EditorSetup(editor)`）。`EditorInitializer` は config の JSON を出し、設定ファイルやサイトの `setup` を先に呼んだあとでこれを呼ぶ
+- エディター共通の setup（未保存の印・input の通知・リンクのダイアログの選択肢・画像編集の呼び出し）: `js/editor-setup.js`（`window.tinymce7EditorSetup(editor)`。ファイルピッカーの画像編集 `window.mceModxImageEdit(editor)` もここから呼ぶ）。`EditorInitializer` は config の JSON を出し、設定ファイルやサイトの `setup` を先に呼んだあとでこれを呼ぶ
 - TinyMCE ローカル配置先 (任意): `tinymce/js/tinymce/` に公式 TinyMCE7 パッケージを展開
 - オートローダー: `src/bootstrap.php`
 
@@ -75,38 +74,23 @@ TinyMCE の UI 言語は `language` オプションで決まります（未指�
 
 Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN はありません。`language_url` が見つからない場合は TinyMCE 既定の英語 UI で表示されます。必要な言語だけを上記のいずれかの場所へコピーしてください。
 
-### 画像編集 (`image_cropper` 設定)
+### 画像編集（ファイルピッカーの画像編集）
 
-`config/manager.json` には `image_cropper` オブジェクトを追加しており、Cropper.js を利用したトリミング／回転／リサイズ機能を制御します。
+`tinymce7_file_browser` が `mcpuk`（既定）のとき、ファイルピッカーの画像編集（トリミング・回転・サイズ変更）で本文の画像を編集できます。保存すると、保存したファイルの URL で本文の画像の `src` を差し替えます（`data:` 画像にはなりません）。処理は `js/mcpuk-picker.js` の `window.mceModxImageEdit(editor)` で、`js/editor-setup.js` から呼びます。入口は次の 2 つです。
 
-```json
-"image_cropper": {
-  "enabled": true,
-  "jsUrl": "https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js",
-  "cssUrl": "https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css",
-  "enableDoubleClick": true,
-  "outputMimeType": "image/png",
-  "outputQuality": 0.92,
-  "labels": {
-    "editTooltip": "画像を編集"
-  },
-  "cropperOptions": {
-    "viewMode": 1,
-    "autoCropArea": 1
-  }
-}
-```
+- 本文の画像をダブルクリックすると、TinyMCE の「画像の挿入/編集」ダイアログが開きます。ソース欄の参照ボタンの隣の「画像を編集」を押すと、その画像を開いた状態でファイルピッカーの画像編集が開きます。保存すると、ダイアログのソースと幅・高さの欄が書き換わり、幅・高さ・キャプション・クラスなどをそのダイアログで直してから「保存」で本文に入れます。
+  - TinyMCE の画像のダイアログにはボタンを足す API が無いので、ダイアログが開いたとき（`OpenWindow`）にその DOM へボタンを差し込みます。TinyMCE の更新でダイアログの作りが変わって差し込めないときは、コンソールにエラー（`TinyMCE7: the image dialog layout has changed ...`）を出します。TinyMCE の版を上げたときは、ダイアログにボタンが入ることを確かめてください。
+  - ダブルクリックでダイアログを開くのは、サイトの外の画像や編集できない形式の画像でも同じです（そのときは「画像を編集」を押せません）。
+- 画像を選んだときに出る帯の「画像を編集」ボタン（TinyMCE の公式の部品）を押すと、ダイアログを通らずにファイルピッカーの画像編集が開き、保存すると本文の画像を直接差し替えます。ダイアログへの差し込みが働かないときも、この入口は使えます。
 
-主なオプションは次の通りです。
-
-- `enabled`: `true` にすると画像選択時に「画像を編集」ボタンが表示されます。
-- `jsUrl` / `cssUrl`: Cropper.js を読み込む CDN やローカルファイルの URL。空にすると既定値が利用されます。
-- `enableDoubleClick`: `true` の場合は画像ダブルクリックでもモーダルが開きます。
-- `outputMimeType` / `outputQuality`: `canvas.toDataURL()` の出力形式と品質。JPEG 出力も指定可能です。
-- `labels`: モーダル内の文言を上書きできます。
-- `cropperOptions`: Cropper.js の初期化オプションをそのまま渡します。
-
-フロントエンド用設定でも `image_cropper` を定義すれば同様の機能を利用できます。不要な場合は `enabled` を `false` に設定するか、オブジェクトごと削除してください。
+- 画像の編集の対象は、`src` がファイルピッカーの種類のフォルダ（`rb_base_url` の下の `images`・`media`・`files`）にある jpg・jpeg・png の画像だけです。`data:`・`blob:`、別のサイトの画像、`rb_base_url` の外、ほかの形式の画像、`rb_base_url` が管理画面と別のオリジンのときの画像では、ダイアログの「画像を編集」と帯のボタンは押せません。
+- 保存のしかたは「別のファイルとして保存」が既定です。「元のファイルを上書き」を選んだときは、同じファイルかを URL の origin とパス（`decodeURIComponent` した要素）で比べ、エディターの画像の表示用の `src` にだけ `_evofb=<時刻>` のクエリを付けて表示を新しくします。保存される値（`data-mce-src`。本文の `src` の元）にはクエリは付かず、元の `src` にあったクエリも保存後は付きません。
+- 本文の `width` はそのまま、`height` は新しい画像の縦横比で計算し直します（`height` だけがあるときは `width` を計算し、どちらも無ければ付けません）。ただし、新しい画像の大きさを超えるときは、新しい画像の大きさまで下げます（小さくリサイズした画像を引き伸ばして粗く出さないため。例: `width="1200"` の画像を 600×400 にリサイズすると `width="600" height="400"`）。`srcset` は消します。
+- 編集を取り消すと、ダイアログが閉じて本文は変わりません。
+- `tinymce7_file_browser` を `none` にすると `js/mcpuk-picker.js` を読まないので、この機能は働きません。
+- 大きさを読めなかったときは、`width`・`height` は元のままにします。
+- ピッカーへの設定は `window.MODX_FILE_PICKER`（`FileBrowserResolver::mcpukBootstrapScript()` が出力）で渡します。キーは `browserUrl`（ピッカーの URL）、`rbBaseUrl`（`rb_base_url` の絶対 URL）、`baseUrl`（サイトの設置パス `MODX_BASE_URL`）、`siteUrl`（`MODX_SITE_URL`）、`stripImagePaths`（グローバル設定「相対パスを渡す」）、`types`（`BrowserConfig::TYPES`）、`editableExtensions`（`BrowserConfig::EDITABLE_EXTENSIONS`）です。
+- ボタンの文言は言語ファイルの `tinymce7_image_edit` で、エディターのオプション `modx_image_edit_label` として渡します。
 
 ## 画像のキャプション (`image_caption`)
 `config/manager.json`・`config/frontend.json` で `image_caption: true` を指定しており、どのツールバー構成でも画像のダイアログに「キャプションの表示」が出ます（構成の定義 `toolbar-presets.json` は同じキーを持たないので、設定ファイルの値がそのまま効きます）。オンにすると、画像が次の形で保存されます。
@@ -142,7 +126,7 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 - キャプションをオンにすると、仮の文字「Caption」（英語）が `<figcaption>` に入ります。本文で書き換えてください。書き換えずに保存すると、公開側にもそのまま `Caption` と出ます。
 - キャプションを外すと `figure` ごと `<img>` だけに戻ります。
 - 画像にリンクを付けたときは `figure.image > a > img` の形です。リンクのダイアログの「クラス」「Rel」の補正（「リンクのダイアログの「クラス」と「Rel」」）は、ダイアログが編集するリンクではなく本文のすべてのリンクを見るので、この形でも働きます。
-- 画像のダブルクリックで開く画像編集（`image_cropper`）は、`figure` の中の画像でも開きます。
+- ファイルピッカーの画像編集（「画像編集（ファイルピッカーの画像編集）」）は、`figure` の中の画像でも開きます。
 
 ## リンクの操作の帯 (`link_context_toolbar`)
 `manager.json`・`frontend.json` で `link_context_toolbar: true` を指定しており（TinyMCE 7 の既定はオフ）、リンクの中にカーソルを置くと、リンクの上に小さなツールバー（link プラグインのコンテキストフォーム）が出ます。URL の入力欄と、「Link」（入力欄の URL を反映）・「Remove link」（リンクの削除）・「Open link」（リンクを開く）のボタンが並びます。
