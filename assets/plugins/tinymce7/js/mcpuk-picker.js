@@ -290,22 +290,21 @@
     }
 
     const absolute = editor.documentBaseURI.toAbsolute(url);
-    const overwritten = absolute === editor.documentBaseURI.toAbsolute(img.getAttribute('src'));
-    // 上書きのときは、同じ URL の古い画像がキャッシュに残っているので、読み直してから縦横比を取る
-    const refreshed = overwritten
-      ? global.fetch(absolute, {cache: 'reload'}).catch(function () {})
-      : Promise.resolve();
+    const overwritten = absolute === editor.documentBaseURI.toAbsolute(img.getAttribute('data-mce-src') || img.getAttribute('src'));
+    // 上書きのときは同じ URL の古い画像がブラウザの画像キャッシュに残るので、
+    // 大きさの取得と表示にはクエリ付きの URL を使う。本文に残る URL（data-mce-src）はクエリなしのまま
+    const shown = overwritten
+      ? url + (url.indexOf('?') === -1 ? '?' : '&') + '_evofb=' + Date.now()
+      : url;
 
-    refreshed.then(function () {
-      return loadImageSize(absolute);
-    }).then(function (size) {
+    loadImageSize(editor.documentBaseURI.toAbsolute(shown)).then(function (size) {
       if (!img.parentNode) {
         return;
       }
       const dimensions = scaledSize(img, size);
       editor.undoManager.transact(function () {
         editor.dom.setAttribs(img, {
-          src: url,
+          src: shown,
           'data-mce-src': url,
           srcset: null,
           width: dimensions.width || null,
