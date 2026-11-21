@@ -1597,10 +1597,8 @@ function gd_apply_orientation($image, $orientation)
  */
 function image_display_size($file, $info)
 {
-    if (($info[2] ?? null) === IMAGETYPE_JPEG && jpeg_exif_orientation($file) >= 5) {
-        return [$info[1], $info[0]];
-    }
-    return [$info[0], $info[1]];
+    $orientation = ($info[2] ?? null) === IMAGETYPE_JPEG ? jpeg_exif_orientation($file) : 1;
+    return image_display_size_by_orientation($info[0], $info[1], $orientation);
 }
 
 /**
