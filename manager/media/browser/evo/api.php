@@ -51,6 +51,7 @@
  *
  * 成功した変更は、ChangeLog::record() が管理操作ログ(1 件ごとに 1 行)に残す。管理操作ログに書けなかったパスだけをシステムログに残す。表示系は記録しない。
  * 守る場所(権限によって触らせないパス)に当たる操作は 403 protected(複数の名前を受ける操作は、その名前の errors)。
+ * ファイルを置く操作(upload・uploadPasted・saveImage の copy)は、ピッカーではロールの権限 file_upload が無ければ 403 forbidden(ウェブユーザーと管理モードは対象外)。
  * 読み取り系(list/thumb)はセッション検証のみ。書き込み系とdownloadはCSRFトークン必須。
  */
 
@@ -131,7 +132,18 @@ if (!empty($operation['post']) && !is_post()) {
 if (!empty($operation['csrf'])) {
     checkCsrfToken();
 }
+if (!empty($operation['perm'])) {
+    fbRequirePermission($scope, $operation['perm']);
+}
 call_user_func($operation['handler'], $resolver, $scope, $modx);
+
+/** 範囲がロールの権限 $permission を許さないときは 403。操作の表の perm と、操作の中で分かる条件（saveImage の mode）が使う */
+function fbRequirePermission(BrowserScope $scope, $permission)
+{
+    if (!$scope->allows($permission)) {
+        fbError('forbidden', lang('fb_err_upload_forbidden'), 403);
+    }
+}
 
 function fbCommonActions()
 {
@@ -903,6 +915,10 @@ function fbActionSaveImage(PathResolver $resolver, BrowserScope $scope, Document
     $mode = postv('mode', 'copy');
     if ($mode !== 'copy' && $mode !== 'overwrite') {
         fbError('invalid_mode', lang('fb_err_invalid_mode'), 400);
+    }
+    // 別名保存は新しいファイルを置く操作なので、アップロードの権限を求める(上書きは求めない)。表の perm は操作単位なので、mode が分かるここで確かめる
+    if ($mode === 'copy') {
+        fbRequirePermission($scope, 'file_upload');
     }
 
     // target は既にある名前を指すので、名前を変えずに 1 要素であることだけを確かめる(rename と同じ)

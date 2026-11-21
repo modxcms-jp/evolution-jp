@@ -238,7 +238,8 @@ function init(root, entry, behaviors) {
 
     function applyWritable() {
         mkdirBtn.disabled = !state.writable;
-        uploadBtn.disabled = !state.writable;
+        // フォルダーが書けないとき、またはアップロードの権限が無いとき(理由は別々の注意で出す)
+        uploadBtn.disabled = !state.writable || !config.canUpload;
         pasteBtn.disabled = !state.writable;
         noticeEl.hidden = state.writable;
     }
@@ -883,10 +884,10 @@ function init(root, entry, behaviors) {
         if (!itemEl) {
             var folderItems = [];
             if (state.writable) {
-                folderItems.push(
-                    { label: t('fb_new_folder'), onSelect: createFolder },
-                    { label: t('fb_upload'), onSelect: function () { uploadBtn.click(); } }
-                );
+                folderItems.push({ label: t('fb_new_folder'), onSelect: createFolder });
+                if (config.canUpload) {
+                    folderItems.push({ label: t('fb_upload'), onSelect: function () { uploadBtn.click(); } });
+                }
                 if (canPasteTo(state.folder)) {
                     folderItems.push({ label: t('fb_paste'), onSelect: function () { pasteTo(state.folder); } });
                 }
