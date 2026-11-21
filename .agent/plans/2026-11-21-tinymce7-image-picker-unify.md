@@ -48,7 +48,10 @@ TinyMCE 7 の本文に、画像が `data:image/png;base64,...`（画像の中身
 - 2026-11-21 本人の決定（width・height 属性）: 編集した画像を本文に戻すとき、width の属性はそのまま、height は保存した画像の縦横比で計算し直す（`Math.round(width × 新しい高さ ÷ 新しい幅)`）。width が無く height だけあるときは、height をそのままにして width を計算し直す。どちらも無ければ付けない。
   - 却下: 保存した画像の画素数にする（今の cropper の動き。大きな写真ではページの中で大きく出る）。両方消す。
 - 2026-11-21 本人の決定（既存の data: 画像）: 既に本文に入っている data: 画像はそのまま残す。開いた時点の本文にある data: 画像は、`editor.editorUpload.addFilter()` でアップロードの対象から外す（開くだけでファイルが書かれ、開くたびに増えることを防ぐ）。文書をまとめて移す CLI は別の Issue にする（Artifacts and Notes）。
-- 2026-11-21 本人の決定（保存時の変換 `convert_datauri_to_file`）: 残す（今どおり要約だけが対象）。`assets/docs/datauri-conversion.md` の「対象: content、introtext」を実装に合わせて直す。
+- 2026-11-21 本人の決定（保存時の変換 `convert_datauri_to_file`）: 対象を本文（`content`）の `<img>` の `src` の data: 画像だけにし、要約（`introtext`）は外す（#1700 で対応。`assets/docs/datauri-conversion.md` も合わせて直す）。
+  - 理由: data: 画像は TinyMCE 側（M4）で入らなくするのが本筋だが、それで防げない経路と既存の文書のためのフォールバックとして残す。利用者は非エンジニアが多く、「リソースを開いてそのまま保存してください」と伝えるだけでレコードを直せる。
+  - 既存の data: 画像を開いたときにアップロードしない決定（「既存の data: 画像」）はそのまま。開くだけでは変わらず、保存したときにこの変換でファイルになる。
+  - 却下: 今どおり要約だけ（本文に入った data: 画像が直る手段が無い）。
 - 2026-11-21 本人の決定（画像のダイアログの「アップロード」タブ）: 出さない（`image_uploadtab: false`）。アップロードは同じダイアログの参照ボタンから、ファイルピッカーで置き場所を選んで行う。
 - 2026-11-21 本人の決定（進め方）: PR #1670（#1661、TinyMCE の setup を `js/editor-setup.js` へ）と PR #1671（#1668、ファイルピッカーの選択の帯）のマージを待ち、それから `origin/main` から始める。M1 は #1671 と同じ `filebrowser.js` を、M2・M4 は #1670 と同じ setup を触るため。
 - 2026-11-21（計画者）ファイルピッカーへの指定は、今ある `folder`・`select`（開いたときに選ぶファイル）に `edit=1` を足す形にする。`select` のファイルが一覧にあり、`imageEditor.canEdit()` が通れば画像編集を開く。通らなければ（無い・gif・大きすぎる）一覧のまま理由を出す。
@@ -142,7 +145,7 @@ TinyMCE 側の新しい処理は、ファイルピッカーとの橋渡しとし
    - `global.mceModxImageUpload = function (blobInfo, progress) {...}`: FormData に `action=uploadPasted`・`type=images`・`csrf_token`・`files[]` を入れ（名前は、`blobInfo.blob()` が名前を持つ `File` で、その名前が `image.拡張子` でなければ元の名前、そうでなければブラウザの時刻で `pasted-年月日-時分秒.拡張子`。拡張子は `blob.type` から決める（`image/jpeg` は `jpg`））、`XMLHttpRequest` で送る（`upload.onprogress` を `progress()` に渡す）。成功なら `normalizeUrl(uploaded[0].path)` で resolve、`errors` か JSON でない応答（CSRF の 403 など）なら `reject({message, remove: true})`（画像を本文から消して理由を出す）。
    - `init` のときに本文の data: 画像の src を覚え、`editor.editorUpload.addFilter()` でそれを外す（既存の data: 画像を開くたびにアップロードしない）。貼り付けた画像は blob: で入るので対象に残る。
    - 保存の前に待つ処理（Decision Log の capture の `submit`）を `global.mceModxImageEdit` と同じ setup の入口で付ける。
-4. 文書: `assets/docs/file-storage.md` に「エディタに貼り付けた画像の置き場所」の節を足す。`assets/plugins/tinymce7/docs/TECHNICAL.md` に貼り付けのアップロードを書く。`assets/docs/datauri-conversion.md` の対象を「要約（introtext）だけ」に直し、本文の data: 画像はエディタで入らなくなったこと（貼り付けはファイルピッカーの API でアップロード）を書く。
+4. 文書: `assets/docs/file-storage.md` に「エディタに貼り付けた画像の置き場所」の節を足す。`assets/plugins/tinymce7/docs/TECHNICAL.md` に貼り付けのアップロードを書く。`assets/docs/datauri-conversion.md` に、TinyMCE 7 では本文の data: 画像がエディタで入らなくなったこと（貼り付けはファイルピッカーの API でアップロード）を書く（保存時の変換の対象は #1700 で本文に直してある）。
 
 期待される観測: a=27 で PNG を貼り付けると、少しのあいだ通知が出て、`content/images/2026/11/pasted-20261121-143022.png` のようなファイルができ、ファイルピッカーの一覧に出る。保存後の DB の `content` の src はそのファイルの URL で、`data:` も `blob:` も無い。
 

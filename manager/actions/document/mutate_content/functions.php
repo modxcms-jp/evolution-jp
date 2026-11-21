@@ -884,6 +884,10 @@ function convertDataUriToFiles($content, $docid)
 
     $offset = 0;
     while (($pos = strpos($content, 'data:', $offset)) !== false) {
+        if (!isImgSrcValue($content, $pos)) {
+            $offset = $pos + 5;
+            continue;
+        }
         $result = extractDataUri($content, $pos);
 
         if ($result === null) {
@@ -904,6 +908,28 @@ function convertDataUriToFiles($content, $docid)
     }
 
     return $content;
+}
+
+/**
+ * data: が img タグの src 属性の値の先頭にあるか
+ *
+ * 本文の文章や style の中の data: は書き換えない
+ *
+ * @param string $content コンテンツ全体
+ * @param int $dataUriPos data: の位置
+ * @return bool
+ */
+function isImgSrcValue($content, $dataUriPos)
+{
+    $tagStart = strrpos(substr($content, 0, $dataUriPos), '<');
+    if ($tagStart === false) {
+        return false;
+    }
+
+    return (bool)preg_match(
+        '/^<img\b[^<>]*\ssrc\s*=\s*["\']?$/i',
+        substr($content, $tagStart, $dataUriPos - $tagStart)
+    );
 }
 
 /**
