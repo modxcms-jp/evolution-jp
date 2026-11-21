@@ -5,6 +5,11 @@
     return;
   }
 
+  // PHP（FileBrowserResolver）が window.MODX_FILE_PICKER として渡す値
+  function settings() {
+    return global.MODX_FILE_PICKER || {};
+  }
+
   const TYPE_MAP = Object.freeze({
     image: 'images',
     media: 'media',
@@ -111,9 +116,14 @@
       width: width,
       height: height,
       onMessage: function (api, details) {
-        if (details && details.mceAction === 'evoFbPick') {
+        if (!details) {
+          return;
+        }
+        if (details.mceAction === 'evoFbPick') {
           api.close();
           onPick(details.url);
+        } else if (details.mceAction === 'evoFbClose') {
+          api.close();
         }
       }
     });
@@ -135,16 +145,16 @@
 
     url = url.replace(/^(?:\.\.\/)+/, '');
 
-    if (global.MODX_STRIP_IMAGE_PATHS === true) {
+    if (settings().stripImagePaths === true) {
       return sanitizePath(url);
     }
 
-    const siteUrl = String(global.MODX_SITE_URL || '').trim();
+    const siteUrl = String(settings().siteUrl || '').trim();
     if (siteUrl) {
       return sanitizeUrlSegment(siteUrl) + '/' + sanitizePath(url);
     }
 
-    const baseUrl = String(global.MODX_BASE_URL || '').trim();
+    const baseUrl = String(settings().basePath || '').trim();
     if (baseUrl) {
       return sanitizeUrlSegment(baseUrl) + '/' + sanitizePath(url);
     }
@@ -183,10 +193,181 @@
     return restore;
   }
 
+  const EDITABLE_EXTENSIONS = ['jpg', 'jpeg', 'png'];
+
+  // 画像の src が、ファイルピッカーの種類のフォルダ（rb_base_url の下の images・media・files）の
+  // jpg・jpeg・png のときだけ {type, folder, name} を返す。それ以外（data:・blob:・別オリジン・範囲外）は null
+  function resolveSiteImage(editor, img) {
+    const baseUrl = String(settings().baseUrl || '');
+    const src = img && img.getAttribute('src');
+    if (!baseUrl || !src) {
+      return null;
+    }
+
+    let target;
+    let base;
+    try {
+      target = new URL(editor.documentBaseURI.toAbsolute(src));
+      base = new URL(baseUrl, global.location.href);
+    } catch (e) {
+      return null;
+    }
+    if (target.origin !== base.origin) {
+      return null;
+    }
+
+    const basePath = base.pathname.replace(/\/+$/, '') + '/';
+    if (target.pathname.indexOf(basePath) !== 0) {
+      return null;
+    }
+
+    const segments = target.pathname.slice(basePath.length).split('/').map(normalizePathSegment);
+    if (segments.length < 2 || segments.some(function (segment) { return segment === ''; })) {
+      return null;
+    }
+
+    const type = segments[0];
+    const name = segments[segments.length - 1];
+    const extension = name.indexOf('.') === -1 ? '' : name.split('.').pop().toLowerCase();
+    if (Object.values(TYPE_MAP).indexOf(type) === -1 || EDITABLE_EXTENSIONS.indexOf(extension) === -1) {
+      return null;
+    }
+
+    return {type: type, folder: segments.slice(1, -1).join('/'), name: name};
+  }
+
+  function openImageEditor(editor, img) {
+    const target = resolveSiteImage(editor, img);
+    const baseUrl = settings().browserUrl;
+    if (!target || !baseUrl) {
+      return;
+    }
+
+    const separator = baseUrl.indexOf('?') === -1 ? '?' : '&';
+    let url = baseUrl + separator + 'type=' + encodeURIComponent(target.type);
+    if (target.folder) {
+      url += '&folder=' + encodeURIComponent(target.folder);
+    }
+    url += '&select=' + encodeURIComponent(target.name) + '&edit=1';
+
+    openInEditorDialog(editor, url, function (path) {
+      replaceImage(editor, img, normalizeUrl(path));
+    });
+  }
+
+  function loadImageSize(url) {
+    return new Promise(function (resolve) {
+      const image = new global.Image();
+      image.onload = function () {
+        resolve({width: image.naturalWidth, height: image.naturalHeight});
+      };
+      image.onerror = function () {
+        resolve(null);
+      };
+      image.src = url;
+    });
+  }
+
+  // width はそのまま、height を新しい縦横比で決める。height だけがあれば width を決める。どちらも無ければ付けない
+  function scaledSize(img, size) {
+    if (!size || !size.width || !size.height) {
+      return {};
+    }
+    const width = parseInt(img.getAttribute('width'), 10);
+    const height = parseInt(img.getAttribute('height'), 10);
+    if (width > 0) {
+      return {width: width, height: Math.round(width * size.height / size.width)};
+    }
+    if (height > 0) {
+      return {width: Math.round(height * size.width / size.height), height: height};
+    }
+    return {};
+  }
+
+  function replaceImage(editor, img, url) {
+    if (!url || !img.parentNode) {
+      return;
+    }
+
+    const absolute = editor.documentBaseURI.toAbsolute(url);
+    const overwritten = absolute === editor.documentBaseURI.toAbsolute(img.getAttribute('src'));
+    // 上書きのときは、同じ URL の古い画像がキャッシュに残っているので、読み直してから縦横比を取る
+    const refreshed = overwritten
+      ? global.fetch(absolute, {cache: 'reload'}).catch(function () {})
+      : Promise.resolve();
+
+    refreshed.then(function () {
+      return loadImageSize(absolute);
+    }).then(function (size) {
+      if (!img.parentNode) {
+        return;
+      }
+      const dimensions = scaledSize(img, size);
+      editor.undoManager.transact(function () {
+        editor.dom.setAttribs(img, {
+          src: url,
+          'data-mce-src': url,
+          srcset: null,
+          width: dimensions.width || null,
+          height: dimensions.height || null
+        });
+      });
+      editor.nodeChanged();
+      editor.dispatch('change');
+    });
+  }
+
+  function isEditableTarget(node) {
+    return !!node && node.nodeName === 'IMG'
+      && !node.hasAttribute('data-mce-object')
+      && !node.hasAttribute('data-mce-placeholder');
+  }
+
+  global.mceModxImageEdit = function (editor) {
+    editor.options.register('modx_image_edit_label', {processor: 'string', default: 'Edit image'});
+
+    editor.on('DblClick', function (event) {
+      if (!isEditableTarget(event.target) || !resolveSiteImage(editor, event.target)) {
+        return;
+      }
+      event.preventDefault();
+      openImageEditor(editor, event.target);
+    });
+
+    editor.ui.registry.addButton('modxImageEdit', {
+      icon: 'edit-image',
+      tooltip: editor.options.get('modx_image_edit_label'),
+      onSetup: function (api) {
+        function update() {
+          const node = editor.selection.getNode();
+          api.setEnabled(isEditableTarget(node) && !!resolveSiteImage(editor, node));
+        }
+        update();
+        editor.on('NodeChange', update);
+        return function () {
+          editor.off('NodeChange', update);
+        };
+      },
+      onAction: function () {
+        const node = editor.selection.getNode();
+        if (isEditableTarget(node)) {
+          openImageEditor(editor, node);
+        }
+      }
+    });
+
+    editor.ui.registry.addContextToolbar('modxImageEdit', {
+      predicate: isEditableTarget,
+      items: 'modxImageEdit',
+      position: 'node',
+      scope: 'node'
+    });
+  };
+
   global.mceModxFilePicker = function (callback, value, meta) {
-    const baseUrl = global.MODX_FILE_BROWSER_URL;
+    const baseUrl = settings().browserUrl;
     if (!baseUrl) {
-      console.error('TinyMCE7: MODX_FILE_BROWSER_URL is not defined.');
+      console.error('TinyMCE7: MODX_FILE_PICKER.browserUrl is not defined.');
       return;
     }
 

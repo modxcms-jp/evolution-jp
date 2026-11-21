@@ -37,5 +37,6 @@ $_lang['tinymce7_template_select'] = 'ひな形';
 $_lang['tinymce7_template_preview'] = 'プレビュー';
 $_lang['tinymce7_template_insert'] = '挿入';
 $_lang['tinymce7_template_cancel'] = 'キャンセル';
+$_lang['tinymce7_image_edit'] = '画像を編集';
 $_lang['tinymce7_link_list_unpublished'] = '（未公開）';
 $_lang['tinymce7_link_list_truncated'] = '（ここより深い文書は省略。URL に [~ID~] を直接書く）';

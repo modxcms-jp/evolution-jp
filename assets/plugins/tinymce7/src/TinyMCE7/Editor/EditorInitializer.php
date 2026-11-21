@@ -126,6 +126,9 @@ final class EditorInitializer
         }
 
         [$config, $fileBrowser] = $this->fileBrowserResolver->resolve($config, $params);
+        if ($fileBrowser === 'mcpuk') {
+            $config['modx_image_edit_label'] = $this->language->translate('tinymce7_image_edit', 'Edit image');
+        }
 
         $configJson = $this->configRepository->encode($config);
 

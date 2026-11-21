@@ -164,5 +164,8 @@
     bindInputNotification(editor);
     bindRelOrdering(editor);
     bindChoiceLists(editor);
+    if (typeof global.mceModxImageEdit === 'function') {
+      global.mceModxImageEdit(editor);
+    }
   };
 })(window);

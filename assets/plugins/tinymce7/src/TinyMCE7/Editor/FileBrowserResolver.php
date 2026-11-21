@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace TinyMCE7\Editor;
 
+require_once MODX_MANAGER_PATH . 'media/browser/evo/lib/BrowserConfig.php';
+
 final class FileBrowserResolver
 {
     /**
@@ -42,16 +44,16 @@ final class FileBrowserResolver
 
     public function mcpukBootstrapScript(): string
     {
-        $snippets = [];
-        $snippets[] = 'window.MODX_FILE_BROWSER_URL = ' . json_encode($this->mcpukBrowserUrl()) . ';';
-        $snippets[] = 'window.MODX_BASE_URL = ' . json_encode(MODX_BASE_URL) . ';';
+        $settings = [
+            'browserUrl' => $this->mcpukBrowserUrl(),
+            'baseUrl' => (new \BrowserConfig(evo()))->baseUrl(),
+            'basePath' => MODX_BASE_URL,
+            'stripImagePaths' => (string) evo()->config('strip_image_paths') === '1',
+        ];
         if (defined('MODX_SITE_URL')) {
-            $snippets[] = 'window.MODX_SITE_URL = ' . json_encode(MODX_SITE_URL) . ';';
+            $settings['siteUrl'] = MODX_SITE_URL;
         }
 
-        $snippets[] = 'window.MODX_STRIP_IMAGE_PATHS = '
-            . json_encode((string) evo()->config('strip_image_paths') === '1') . ';';
-
-        return implode('', $snippets);
+        return 'window.MODX_FILE_PICKER = ' . json_encode($settings, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) . ';';
     }
 }
