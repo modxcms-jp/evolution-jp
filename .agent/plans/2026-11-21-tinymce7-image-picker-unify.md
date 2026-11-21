@@ -13,7 +13,7 @@ TinyMCE 7 の本文に、画像が `data:image/png;base64,...`（画像の中身
 - [x] (2026-11-21) M1: ファイルピッカーを、指定したファイルの画像編集を開いた状態で起動できるようにする（PR 1、Refs #1666）
 - [x] (2026-11-21) M2: TinyMCE で画像をダブルクリックすると、ファイルピッカーの画像編集が開き、保存後に src を差し替える（PR 2、M3 と一緒）
 - [x] (2026-11-21) M3: `tinymce-cropper.js`・`image_cropper` の設定・Cropper.js の読み込みを消す（PR 2、Closes #1666）
-- [ ] M4: 貼り付け・ドロップした画像を、ファイルピッカーの API でアップロードして URL を入れる（PR 3、Closes #1652）
+- [x] (2026-11-21) M4: 貼り付け・ドロップした画像を、ファイルピッカーの API でアップロードして URL を入れる（PR 3、Closes #1652）
 
 ## Surprises & Discoveries
 
@@ -44,6 +44,14 @@ TinyMCE 7 の本文に、画像が `data:image/png;base64,...`（画像の中身
 - 2026-11-21（M2）: 編集できる拡張子と種類のフォルダーの一覧は、JS に持たせず、`BrowserConfig::EDITABLE_EXTENSIONS`・`TYPES` を `window.MODX_FILE_PICKER` で渡す。`rb_base_url` が管理画面と別のオリジン（CDN など）のときは、ピッカーの画像編集が同じオリジンの画像しか開けないので、ダブルクリックでは何もせず、帯のボタンも無効にする。
 - 2026-11-21（M2）: `window.MODX_FILE_PICKER` のキーは `browserUrl`・`baseUrl`（`MODX_BASE_URL`）・`rbBaseUrl`（`rb_base_url` の絶対の URL）・`siteUrl`・`stripImagePaths`・`types`・`editableExtensions`。
 - 2026-11-21（M2）: フロント（`forfrontend`）のエディタでも、`file_browser` が `mcpuk` ならダブルクリックと帯のボタンが付く。ピッカーを使えないウェブユーザー（`rb_webuser` が無効など）では、開いてからピッカーが断る（参照ボタンと同じ動きで、新しい穴ではない）。M4 で `PickerScope::authorize()` を `EditorInitializer` で見るとき、`mceModxImageEdit` の登録とボタンの文言もその結果で出し分ける。
+  - 2026-11-21 追記（M4）: 出し分けは管理画面だけにした。フロントのエディタはページのキャッシュに入るので、セッションで結果を変えると、最初に表示した人の結果が焼き込まれる。フロントでは `file_browser` の設定だけで決める（この項の今の動きのまま）。
+- 2026-11-21（M4）: TinyMCE 7 は、本文を読み込むときに base64 の data: 画像を blob: に置き換える（保存するときに data: に戻す）。開いたときの textarea の data: の src を覚える形は効かないので、初期化までの `SetContent` で本文の blob:・data: の img を覚え、`editor.editorUpload.addFilter()` で外す。`editor.editorUpload` は setup の時点では無く、`PreInit` で登録する。
+- 2026-11-21（M4）: アップロードが有効なときは、HTML の貼り付けやコード表示で入れた data: 画像も、エディタがアップロードして `images/年/月/` に置く。保存時の変換（`content/images/datauri/`、#1700）が効くのは、RTE を使わない文書や外部からの書き込みなど、エディタを通らない経路だけ。M4 の検証表の最後の行は、RTE を使わない文書で確かめた。
+- 2026-11-21（M4）: 本文に data: 画像のある既存の文書を開いて何もせず保存すると、アップロードはされないが、保存時の変換で `content/images/datauri/<ID>/` にファイルができる（#1700 の今の動き）。M4 の検証表の「ファイルは増えず」は、`images/年/月/` が増えないという意味。
+- 2026-11-21（M4）: フロント（`index.php`）では `csrf_token.php` を読み込まない（`IN_MANAGER_MODE` のときだけ）。フロントのページはキャッシュにも入るので、CSRF のトークンを埋め込めない。貼り付けのアップロードは管理画面のエディタだけにし、フロントのエディタは `paste_data_images: false` にした。
+- 2026-11-21（M4）: Firefox のヘッドレスでは、合成の `ClipboardEvent` に File を載せても TinyMCE が処理しない（検証の限界）。Firefox の貼り付けは、貼り付けの結果にあたる data: 画像の HTML を `mceInsertClipboardContent` で渡して確かめ、`image.png` の名前の経路は Chromium で確かめた。
+- 2026-11-21（M4）: アップロードの失敗の通知は、TinyMCE の日本語の雛形が「画像{0}をアップロードできませんでした」なので、理由の文と続けると「画像許可されている最大サイズを超えています。をアップロードできませんでした」のように読みにくい。理由の文そのものは正しい。
+- 2026-11-21（M4）: `[picker] Uploaded File`・`Created Folder` は、システムログ（`temp/logs/system`）ではなく管理操作ログ（`modx_manager_log`）に出る（`ChangeLog::record()` の決まりどおり）。
 
 ## Decision Log
 
@@ -85,6 +93,11 @@ TinyMCE 7 の本文に、画像が `data:image/png;base64,...`（画像の中身
 - 2026-11-21（計画者）アップロードの途中で保存したときは、送る前にアップロードを待つ。エディタの元の欄のフォームに、捕捉の段階（capture）の `submit` の受け手を付け、未アップロードの画像があれば `preventDefault()` して `editor.uploadImages()` を待ち、終わったら `form.requestSubmit(e.submitter)` で送り直す（要確認: shell の document の受け手は `defaultPrevented` を見て送らないこと、TinyMCE の `submit` の受け手より先に呼ばれること、`document.mutate.save.click()` の合成クリックでも同じに動くこと）。
 - 2026-11-21 本人の決定（古いグローバル変数）: `window.MODX_FILE_BROWSER_URL`・`MODX_BASE_URL`・`MODX_SITE_URL`・`MODX_STRIP_IMAGE_PATHS` は出さなくし、`window.MODX_FILE_PICKER` の 1 つにする。互換のために古い名前を残すことはせず、PR 本文とリリースノートに互換に関わる変更として書く（`breaking change` のラベル）。
 - 2026-11-21（M2 で変更）上書きしたときに表示を新しくするしかたは、`fetch(url, {cache: 'reload'})` をやめ、表示用の src と大きさの読み込みにだけ `_evofb` のクエリを付ける形にした（Surprises の M2 の項。Firefox で古い画像が出たため）。
+- 2026-11-21（M4 で変更）保存の処理は `api.php` の関数（`fbPickerStoreFile`・`fbEnsureFolder`・`fbPickerFileUrls`）ではなく、`manager/media/browser/evo/lib/FileStore.php` に置いた。後の CLI（#1674）が `api.php` を読み込まずに使うため（`api.php` は読み込むと認証と振り分けを実行する）。置き場所と名前を決める部分（`pastedFolder()`・`pastedName()`。時刻は引数）、確かめ（`checkNewFile()`）、名前の排他な確保（`createFreeFile()`、`fopen` の `xb`）、書き込み（`saveNewFile()` に書き手を渡す。`uploadedWriter()`・`bytesWriter()`）、フォルダーの作成（`createFolder()`・`ensureFolderPath()`）に分けた。範囲はセッションを見ない `PickerScope::forType()` でも作れ、`authorize()` は確かめの後でそれを呼ぶ。一覧の path・url は `PickerScope::fileUrls()`。
+  - 理由: 同じ秒に別の利用者が貼り付けても同じファイルに書かないよう、名前の確保を排他にする。拡張子違いや大きすぎで失敗したときに空の年・月のフォルダーを残さないよう、確かめが通ってから作る。
+- 2026-11-21（M4 で変更）貼り付けた画像の名前は、画面ではなくサーバーが付ける。画面は、名前を持つファイルならその名前、無ければ `image.<拡張子>` を送り、サーバー（`FileStore`）が `image.<拡張子>` を `pasted-年月日-時分秒.<拡張子>` に置き換える。時刻をサーバーの 1 か所にするため。
+- 2026-11-21（M4 で変更）貼り付けのアップロードを使うかは `EditorInitializer::canUploadPasted()` の 1 か所で決める（管理画面のエディタで、`file_browser` が `mcpuk`、`authorize()` が通り、画像の拡張子の重なりがあるとき）。権限 `file_upload`（#1673 の 2 本目）は、ここと、`PickerScope::actions()` の行の印（振り分けの 1 か所で見る）に足す。
+- 2026-11-21（M4）保存の前に待つ処理で、アップロードが失敗したとき・blob: が残ったとき・送り直しに失敗したときは、送らずに通知を出し、未保存の印（`documentDirty`）を戻す。月のフォルダーを作れないときは、要求全体の失敗として HTTP の 500 を返す（画面は画像を消して理由を出す）。
 - 2026-11-21（計画者）既存のサイトの設定ファイルに `image_cropper` の項目が残っていても、読む処理を消すだけにする（TinyMCE は知らない設定を無視する）。互換のための読み替えは置かず、リリースノートに書く。
 
 ## Outcomes & Retrospective
@@ -235,6 +248,7 @@ PHP 7.4 で、`api.php`・`browser.php`・`BrowserView.php`・`EditorInitializer
 - ExecPlan のブランチ: `plan/1652-1666-image-upload`
 - M1 のブランチ: `feat/1666-picker-open-editor`（origin/main 8df4c2987 から。Issue に紐づけない）、PR #1707。配布 zip は 1,639,964 → 1,641,042 バイト（+1,078）
 - M2+M3 のブランチ: `feat/1666-tinymce7-edit-in-picker`（M1 のブランチ 43533415a の上に積んだ。#1707 のマージ後に base を main へ切り替える）。配布 zip は M1 の 1,641,042 → 1,638,203 バイト（−2,839。main の 1,639,964 からは −1,761）
+- M4 のブランチ: `feat/1652-tinymce7-paste-upload`（M2+M3 のブランチの上に積み、#1695・#1696・#1697・#1702・#1703 の入った main を取り込んだ 3108c51f1 から）。配布 zip は 1,642,889 → 1,652,818 バイト（+9,929）。今の main（1,644,653）と比べて M1〜M4 の合計は +8,165
 - 別に起票する（起票はまとめ役が行う。この計画では扱わない）:
   - ファイルのアップロードのロールの権限: 本体に「ファイルのアップロード」に当たるロールの権限が無く、ファイルピッカー（`PickerScope`）は管理画面にログインしている人なら誰でもアップロードできる。貼り付けのアップロードも同じ判定を使うので、権限を足すとそのまま効く
   - 既に本文に入っている data: 画像をまとめてファイルへ移す CLI: #1652・#1666 の不具合で入った data: 画像を、文書をまたいで `images/年/月/` などへ移し、本文の src を書き換える（この計画では開いたときにアップロードの対象から外すだけ）
