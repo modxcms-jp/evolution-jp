@@ -6313,10 +6313,15 @@ class DocumentParser
         $limitWidth = $this->config('image_limit_width');
         // 縮められるのは GD で読み書きする JPEG・PNG・GIF だけ。ほかの形式（TIFF・PSD・ICO・BMP など）は縮めずにそのまま保存する
         $resizable = [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF];
-        $cannotResize = !$limitWidth || $img[0] <= $limitWidth || empty($img[2]) || !in_array($img[2], $resizable, true);
-        $limitHeight = $cannotResize ? 0 : max(1, (int)(($img[1] / $img[0]) * $limitWidth));
+        // 上限は表示上の幅で判定する(Orientation 5〜8 の JPEG は、ファイル上の幅と高さが入れ替わる)
+        $orientation = (($img[2] ?? null) === IMAGETYPE_JPEG) ? jpeg_exif_orientation($tmp_path) : 1;
+        [$displayWidth, $displayHeight] = image_display_size_by_orientation($img[0], $img[1], $orientation);
+        $cannotResize = !$limitWidth || $displayWidth <= $limitWidth || empty($img[2]) || !in_array($img[2], $resizable, true);
+        $limitHeight = $cannotResize ? 0 : max(1, (int)(($displayHeight / $displayWidth) * $limitWidth));
+        // 読み込む元の画像の向きのままで縮める大きさ
+        [$newWidth, $newHeight] = image_display_size_by_orientation($limitWidth, $limitHeight, $orientation);
         // 読み込むメモリが足りない巨大な画像は、致命的エラーで止まらないよう縮めずにそのまま保存する
-        if (!$cannotResize && !gd_can_load_image($img[0], $img[1], $img[2], $limitWidth, $limitHeight)) {
+        if (!$cannotResize && !gd_can_load_image($img[0], $img[1], $img[2], $newWidth, $newHeight)) {
             $cannotResize = true;
             $this->logEvent(
                 0, 2, 'Image not resized: not enough memory', 'move_uploaded_file',
@@ -6349,11 +6354,15 @@ class DocumentParser
                 return false;
         }
 
-        $new_image = imagecreatetruecolor($limitWidth, $limitHeight);
+        $new_image = imagecreatetruecolor($newWidth, $newHeight);
 
         imagecopyresampled(
-            $new_image, $source, 0, 0, 0, 0, $limitWidth, $limitHeight, $img[0], $img[1]
+            $new_image, $source, 0, 0, 0, 0, $newWidth, $newHeight, $img[0], $img[1]
         );
+        // 向きを反映する前に元の画像を手放す(回転で縮小した大きさの画像がもう 1 枚できるため。imagedestroy() は PHP 8.5 で非推奨)
+        unset($source);
+        // 縮めてから向きを画素に反映する(書き出すと EXIF は残らないため)
+        $new_image = gd_apply_orientation($new_image, $orientation);
         switch ($img[2]) {
             case IMAGETYPE_JPEG:
                 $rs = imagejpeg($new_image, $target_path);
