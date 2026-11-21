@@ -58,7 +58,7 @@ function ddMaxLength(field, options) {
     });
 }
 
-// mm_ddMaxLength の画面側の処理。PHP から attach() と guardSubmit() を呼ぶ
+// mm_ddMaxLength の画面側の処理。PHP から attach() と guardSubmit(超過の文言) を呼ぶ
 var mmDdMaxLength = {
     // 欄に残りの文字数の表示を付ける。fieldIds: 欄の id の配列、max: 最大の文字数
     attach: function (fieldIds, max) {
@@ -84,7 +84,8 @@ var mmDdMaxLength = {
         return found;
     },
     // 残りが負の欄があれば保存を止める（以前の return false と同じく、既定の動作と伝播の両方を止める）
-    guardSubmit: function () {
+    // message: 保存を止めるときに出す文言（言語ファイルの文言。HTML として出す）
+    guardSubmit: function (message) {
         const self = this;
         const form = document.getElementById('mutate');
         if (!form) { return; }
@@ -105,7 +106,8 @@ var mmDdMaxLength = {
             });
 
             if (ddErrors.length > 0) {
-                alert('Некорректно заполнены поля: ' + ddErrors.join(','));
+                const names = ddErrors.map(function (name) { return ' - ' + Evo.escapeHtml(name); });
+                EvoDialog.alert(message + '\n\n' + names.join('\n'), '', null, {icon: 'warning'});
                 e.preventDefault();
                 e.stopPropagation();
             }

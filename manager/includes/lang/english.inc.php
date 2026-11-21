@@ -1522,4 +1522,9 @@ return [
     "styleguide_view_current" => 'Current',
     "styleguide_view_proposal" => 'Proposed scale',
     "styleguide_view_compare" => 'Side by side',
+    "cannot_unpublish_site_start" => 'This Resource is set as the site start page, so it cannot be unpublished.',
+    "required_field" => 'Required',
+    "required_fields_missing" => 'The following required fields are empty. Please fill them in.',
+    "max_length_exceeded" => 'The following fields exceed the maximum length. Please shorten them.',
+    "googlemap_not_found" => 'The address was not found.',
 ];

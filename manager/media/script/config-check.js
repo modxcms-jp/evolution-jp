@@ -46,10 +46,18 @@ if (!window.EvoConfigCheck) {
             }
             e.preventDefault();
             const id = el.dataset.pluginId;
-            if (!el.dataset.confirm || !window.confirm(el.dataset.confirm)) {
+            if (!el.dataset.confirm) {
                 return;
             }
             const action = el.dataset.configCheckPlugin === 'delete' ? 'deleteplugin' : 'disableplugin';
+            EvoDialog.confirm(el.dataset.confirm, '', function (confirmed) {
+                if (confirmed) {
+                    removePlugin(action, id);
+                }
+            });
+        });
+
+        function removePlugin(action, id) {
             post({action: action, id: id}).then(function (ok) {
                 if (!ok) {
                     return;
@@ -64,6 +72,6 @@ if (!window.EvoConfigCheck) {
                     hideFieldset(wrapper);
                 }
             });
-        });
+        }
     })();
 }

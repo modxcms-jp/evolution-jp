@@ -3,7 +3,7 @@
  * mm_ddMaxLength
  * @version 1.0.1 (2012-01-13)
  *
- * Позволяет ограничить количество вводимых символов в TV.
+ * TV に入力できる文字数を制限する
  *
  * @copyright 2012, DivanDesign
  * http://www.DivanDesign.ru
@@ -49,7 +49,7 @@ function mm_ddMaxLength($tvs = '', $roles = '', $templates = '', $length = 150)
         $fieldIds[] = 'tv' . $tv['id'];
     }
     $output .= 'mmDdMaxLength.attach(' . js_value($fieldIds) . ', ' . (int)$length . ');' . "\n";
-    $output .= 'mmDdMaxLength.guardSubmit();' . "\n";
+    $output .= 'mmDdMaxLength.guardSubmit(' . js_literal(lang('max_length_exceeded')) . ');' . "\n";
 
     $output .= "\n// ---------------- mm_ddMaxLength :: End -------------";
 

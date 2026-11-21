@@ -40,6 +40,8 @@ function mm_widget_googlemap($fields, $googleApiKey = '', $default = '', $roles 
         $output .= "//  -------------- googlemap widget ------------- \n";
         $output .= includeJs(config('base_url') . 'assets/plugins/managermanager/widgets/googlemap/googlemap.js');
 
+        $output .= 'mm_gmap.notFoundMessage = ' . js_literal(lang('googlemap_not_found')) . ";\n";
+
         foreach ($fields as $targetTv) {
             if (!isset($mm_fields[$targetTv])) {
                 continue;

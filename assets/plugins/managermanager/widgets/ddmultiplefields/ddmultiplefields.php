@@ -1,23 +1,23 @@
 <?php
 /**
  * mm_ddMultipleFields
- * @param tvs {comma separated string} - Имена TV, для которых необходимо применить виджет.
- * @param roles {comma separated string} - Роли, для которых необходимо применить виждет, пустое значение — все роли. По умолчанию: ''.
- * @param templates {comma separated string} - Id шаблонов, для которых необходимо применить виджет, пустое значение — все шаблоны. По умолчанию: ''.
- * @param columns {comma separated string} - Типы колонок (field — колонка типа поля, text — текстовая колонка, id — скрытое поле с уникальным идентификатором, select — список с выбором значений (см. columnsData)). По умолчанию: 'field'.
- * @param columnsTitle {comma separated string} - Названия колонок. По умолчанию: ''.
- * @param colWidth {comma separated string} - Ширины колонок (может быть задана одна ширина). По умолчанию: 180;
- * @param splY {string} - Разделитель между строками. По умолчанию: '||'.
- * @param splX {string} - Разделитель между колонками. По умолчанию: '::'.
- * @param imgW {integer} - Максимальная ширина превьюшки. По умолчанию: 300.
- * @param imgH {integer} - Максимальная высота превьюшки. По умолчанию: 100.
- * @param minRow {integer} - Минимальное количество строк. По умолчанию: 0.
- * @param maxRow {integer} - Максимальное количество строк. По умолчанию: 0 (без лимита).
- * @param columnsData {separated string} - Список возможных значений для полей в формате json, через ||. По умолчанию: ''.
+ * @param tvs {comma separated string} - ウィジェットを適用する TV の名前
+ * @param roles {comma separated string} - 適用するロール。空ならすべて。既定は空
+ * @param templates {comma separated string} - 適用するテンプレートの ID。空ならすべて。既定は空
+ * @param columns {comma separated string} - 列の種類（field: 欄、text: テキスト、id: 一意の ID を持つ隠し欄、select: 値の一覧から選ぶ。columnsData を参照）。既定は field
+ * @param columnsTitle {comma separated string} - 列の見出し。既定は空
+ * @param colWidth {comma separated string} - 列の幅（1 つだけ指定してもよい）。既定は 180
+ * @param splY {string} - 行の区切り。既定は '||'
+ * @param splX {string} - 列の区切り。既定は '::'
+ * @param imgW {integer} - プレビュー画像の最大の幅。既定は 300
+ * @param imgH {integer} - プレビュー画像の最大の高さ。既定は 100
+ * @param minRow {integer} - 行数の下限。既定は 0
+ * @param maxRow {integer} - 行数の上限。既定は 0（無制限）
+ * @param columnsData {separated string} - select 列の選択肢。JSON を || で区切る。既定は空
  *
  * @version 4.3.4 (2012-12-20)
  *
- * Позволяет добавлять произвольное количество полей (TV) к одному документу (записывается в одно через разделители).
+ * 1 つのドキュメントに任意の数の欄（TV）を足す。値は区切り文字でつないで 1 つの TV に保存する
  *
  * @link http://code.divandesign.biz/modx/mm_ddmultiplefields/4.3.4
  *
@@ -58,11 +58,9 @@ function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns =
             }
             $columnsData[] = $eval ? json_encode($eval) : $value;
         }
-        //Сливаем в строку, что бы передать на клиент
         $columnsData = implode('||', $columnsData);
     }
 
-    //Стиль превью изображения
     $stylePrewiew = "max-width:" . (int)$imgW . "px; max-height:" . (int)$imgH . "px; margin: 4px 0; cursor: pointer;";
 
     // Which template is this page using?

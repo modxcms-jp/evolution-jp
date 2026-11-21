@@ -106,6 +106,10 @@ function mm_requireFields($fields, $roles = '', $templates = '')
     $output .= 'mmRequire.run(' . js_value([
         'fixDateType' => $fixDateType,
         'selectors' => $selectors,
+        'messages' => [
+            'required' => lang('required_field'),
+            'missing' => lang('required_fields_missing'),
+        ],
     ]) . ');' . "\n";
     $output .= "//  -------------- mm_requireFields :: End ------------- \n";
 
