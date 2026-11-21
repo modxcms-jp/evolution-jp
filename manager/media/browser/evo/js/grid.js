@@ -101,7 +101,7 @@ export function createGrid(ctx) {
 
     function thumbSrc(file) {
         if (file.thumb === 'api') {
-            return apiUrl(ctx.config, { action: 'thumb', folder: state.folder, file: file.name, v: file.mtime });
+            return apiUrl(ctx.config, { action: 'thumb', folder: state.folder, file: file.name, v: file.mtime + '-' + ctx.config.thumbVersion });
         }
         return file.thumb;
     }
