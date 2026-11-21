@@ -28,7 +28,7 @@ if (!window.EvoMoveDocument) {
                 return false;
             }
             if (ids.includes(pn.id.substr(4))) {
-                alert(f.dataset.illegalParentSelf);
+                EvoDialog.alert(f.dataset.illegalParentSelf, '', null, {icon: 'warning'});
                 return false;
             }
             while (pn.getAttribute('p') > 0) {
@@ -37,7 +37,7 @@ if (!window.EvoMoveDocument) {
                     break;
                 }
                 if (ids.includes(pn.id.substr(4))) {
-                    alert(f.dataset.illegalParentChild);
+                    EvoDialog.alert(f.dataset.illegalParentChild, '', null, {icon: 'warning'});
                     return false;
                 }
             }

@@ -12,8 +12,18 @@ if (!window.EvoDocumentActions) {
             return 'index.php?a=' + a + '&id=' + id + (suffix || '');
         }
 
-        function confirmed(message) {
-            return !message || window.confirm(message);
+        // 確認の文言があれば EvoDialog で確かめ、OK のときだけ run を呼ぶ。文言が無ければそのまま呼ぶ
+        function confirmThen(message, run) {
+            if (!message) {
+                run();
+                return;
+            }
+            // 言語ファイルの文言は「\n\n」で始まるものがあるので、先頭の改行は落とす
+            EvoDialog.confirm(message.replace(/^\n+/, ''), '', function (ok) {
+                if (ok) {
+                    run();
+                }
+            });
         }
 
         function menuElement() {
@@ -51,14 +61,14 @@ if (!window.EvoDocumentActions) {
                 EvoShell.go(documentUrl(51, id));
             },
             duplicate: function (id, message) {
-                if (confirmed(message)) {
+                confirmThen(message, function () {
                     EvoCsrf.post(documentUrl(94, id));
-                }
+                });
             },
             delete: function (id, message) {
-                if (confirmed(message)) {
+                confirmThen(message, function () {
                     EvoCsrf.post(documentUrl(6, id));
-                }
+                });
             }
         };
 
@@ -79,12 +89,12 @@ if (!window.EvoDocumentActions) {
             const id = selectedId;
             if (postMenuActions[a]) {
                 if (a === 62 && id === menuConfig.siteStart) {
-                    window.alert('Document is linked to site_start variable and cannot be unpublished!');
+                    EvoDialog.alert(menuConfig.siteStartMessage, '', null, {icon: 'warning'});
                     return;
                 }
-                if (confirmed(menuConfig.confirm[postMenuActions[a]])) {
+                confirmThen(menuConfig.confirm[postMenuActions[a]], function () {
                     EvoCsrf.post(documentUrl(a, id, menuConfig.returnQuery));
-                }
+                });
                 return;
             }
             switch (a) {
@@ -128,6 +138,18 @@ if (!window.EvoDocumentActions) {
                 });
             });
         };
+
+        // 確認が要る送信ボタン（button[data-submit-confirm]）。確かめてから、同じボタンで送信し直す
+        document.addEventListener('click', function (e) {
+            const button = e.target.closest('button[data-submit-confirm]');
+            if (!button || !button.form) {
+                return;
+            }
+            e.preventDefault();
+            confirmThen(button.dataset.submitConfirm, function () {
+                button.form.requestSubmit(button);
+            });
+        });
 
         document.addEventListener('click', function (e) {
             const el = e.target.closest('[data-doc-action]');
