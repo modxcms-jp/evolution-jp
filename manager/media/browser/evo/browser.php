@@ -58,6 +58,7 @@ $jsConfig = BrowserView::jsConfig($modx, $browserConfig, [
     'initialEdit' => get_boolvar('edit'),
     'rootLabel' => $type,
     'maxUploadSize' => $scope->maxUploadSize(),
+    'canUpload' => $scope->allows('file_upload'),
 ]);
 
 if ($isModal) {

@@ -77,6 +77,8 @@ class BrowserView
             // サムネイルの URL に入れる版(ブラウザーのキャッシュも、作り方を変えたときに切り替わる)
             'thumbVersion' => ThumbnailService::CACHE_VERSION,
             'maxUploadSize' => $options['maxUploadSize'],
+            // ファイルを置く操作(アップロード・画像の別名保存)をしてよいか。false ならボタン・ドロップ・別名保存を無効にする(API も 403 で断る)
+            'canUpload' => (bool) $options['canUpload'],
             'lang' => $messages,
         ];
     }
@@ -105,6 +107,7 @@ class BrowserView
         $markup .= '    </div>';
         $markup .= '  </div>';
         $markup .= '  <div class="evo-fb-notice" role="status" data-role="notice" hidden>' . hsc(lang('fb_not_writable')) . '</div>';
+        $markup .= '  <div class="evo-fb-notice" role="status" data-role="upload-notice"' . ($jsConfig['canUpload'] ? ' hidden' : '') . '>' . hsc(lang('fb_upload_forbidden')) . '</div>';
         $markup .= '  <div class="evo-fb-body">';
         $markup .= '    <div class="evo-fb-tree" id="evoFbTree" data-role="tree"></div>';
         $markup .= '    <div class="evo-fb-content">';
@@ -157,9 +160,12 @@ class BrowserView
         $markup .= '        <div class="evo-fb-edit-error" role="alert" data-role="edit-error" hidden></div>';
         $markup .= '        <div class="evo-fb-edit-save-mode" role="radiogroup" aria-labelledby="evoFbEditSaveAs">';
         $markup .= '          <span class="evo-fb-edit-heading" id="evoFbEditSaveAs">' . hsc(lang('fb_edit_save_as')) . '</span>';
-        $markup .= '          <label class="evo-fb-edit-check"><input type="radio" name="evoFbEditMode" value="copy" data-role="edit-mode" checked> ' . hsc(lang('fb_edit_save_copy')) . '</label>';
-        $markup .= '          <label class="evo-fb-edit-check"><input type="radio" name="evoFbEditMode" value="overwrite" data-role="edit-mode"> ' . hsc(lang('fb_edit_save_overwrite')) . '</label>';
+        $markup .= '          <label class="evo-fb-edit-check"><input type="radio" name="evoFbEditMode" value="copy" data-role="edit-mode"' . ($jsConfig['canUpload'] ? ' checked' : ' disabled') . '> ' . hsc(lang('fb_edit_save_copy')) . '</label>';
+        $markup .= '          <label class="evo-fb-edit-check"><input type="radio" name="evoFbEditMode" value="overwrite" data-role="edit-mode"' . ($jsConfig['canUpload'] ? '' : ' checked') . '> ' . hsc(lang('fb_edit_save_overwrite')) . '</label>';
         $markup .= '        </div>';
+        if (!$jsConfig['canUpload']) {
+            $markup .= '        <div class="evo-fb-edit-note">' . hsc(lang('fb_upload_forbidden')) . '</div>';
+        }
         $markup .= '        <div class="evo-fb-edit-note">' . hsc(lang('fb_edit_exif_notice')) . '</div>';
         $markup .= '      </div>';
         $markup .= '      <div class="evo-fb-overlay-footer evo-fb-edit-footer">';

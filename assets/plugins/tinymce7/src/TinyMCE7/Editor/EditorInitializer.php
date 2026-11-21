@@ -191,7 +191,7 @@ final class EditorInitializer
 
     /**
      * 貼り付け・ドロップした画像を、ファイルピッカーの API でアップロードして本文に URL を入れるか。
-     * 使えるのは、管理画面のエディターで、ファイルブラウザが mcpuk で、このセッションがピッカーの images を使え（api.php と同じ PickerScope::authorize()）、
+     * 使えるのは、管理画面のエディターで、ファイルブラウザが mcpuk で、このセッションがピッカーの images を使え（api.php と同じ PickerScope::authorize()）、アップロードの権限 file_upload があり（PickerScope::allows()）、
      * アップロードできる画像の拡張子が 1 つ以上あるとき。
      * フロントのエディターでは使わない。フロントのページはキャッシュに入り、セッションごとの CSRF トークンを埋め込めないため。
      * 使えないときは、本文に data: 画像が入らないよう、貼り付けの画像を受けない（applyPastedUpload()）
@@ -201,8 +201,19 @@ final class EditorInitializer
         return $isManager
             && $fileBrowser === 'mcpuk'
             && function_exists('getCurrentCsrfToken')
-            && $this->fileBrowserResolver->canUsePicker('images')
+            && $this->canUploadToPicker()
             && $this->fileBrowserResolver->imagesFileTypes() !== [];
+    }
+
+    /**
+     * このセッションがピッカーの images を使え（api.php と同じ PickerScope::authorize()）、ファイルを置く権限 file_upload もあるか
+     * （api.php の uploadPasted が操作の表の perm で確かめるのと同じ PickerScope::allows()）
+     */
+    private function canUploadToPicker(): bool
+    {
+        $scope = \PickerScope::authorize(evo(), new \BrowserConfig(evo()), 'images');
+
+        return $scope instanceof \PickerScope && $scope->allows('file_upload');
     }
 
     /**

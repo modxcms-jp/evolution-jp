@@ -808,7 +808,8 @@ export function createImageEditor(ctx) {
         outKey = 'w';
         keepRatio = true;
         keepRatioEl.checked = true;
-        overlayEl.querySelector('[data-role="edit-mode"][value="copy"]').checked = true;
+        // 別名保存の権限が無いときは、画面の側で無効にしてある上書きを選ぶ
+        overlayEl.querySelector('[data-role="edit-mode"]:not([disabled])').checked = true;
         nameEl.textContent = file.name;
         showError('');
         statusEl.textContent = '';

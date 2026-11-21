@@ -130,6 +130,20 @@ class PickerScope implements BrowserScope
         return $this->config->isAllowedFilename($this->type, $newName);
     }
 
+    /**
+     * 管理画面のセッションはロールの権限で決める（要求のたびにロールから読み直し、変更をログインし直さずに反映する）。
+     * ウェブユーザーのセッション（設定 rb_webuser）は、ロールを持たないので今までどおり許す
+     */
+    public function allows($permission)
+    {
+        if (!sessionv('mgrValidated')) {
+            return true;
+        }
+        manager()->refreshMgrPermissions();
+
+        return $this->modx->hasPermission($permission);
+    }
+
     public function maxUploadSize()
     {
         return $this->config->maxUploadSize();
@@ -165,8 +179,8 @@ class PickerScope implements BrowserScope
         return [
             'list' => ['handler' => 'fbPickerList'],
             'thumb' => ['handler' => 'fbActionThumb'],
-            'upload' => ['handler' => 'fbPickerUpload', 'csrf' => true],
-            'uploadPasted' => ['handler' => 'fbPickerUploadPasted', 'csrf' => true, 'post' => true],
+            'upload' => ['handler' => 'fbPickerUpload', 'csrf' => true, 'perm' => 'file_upload'],
+            'uploadPasted' => ['handler' => 'fbPickerUploadPasted', 'csrf' => true, 'post' => true, 'perm' => 'file_upload'],
         ];
     }
 }

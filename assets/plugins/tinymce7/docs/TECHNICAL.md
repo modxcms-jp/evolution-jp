@@ -103,6 +103,7 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 - `tinymce7_file_browser` が `mcpuk`
 - 管理画面のエディター（`forfrontend` でない）。フロントのエディターでは使いません。フロントのページはキャッシュに入り、セッションごとの CSRF トークンを埋め込めないためです
 - このセッションがファイルピッカーの `images` を使える（`PickerScope::authorize()`。`api.php` が要求のたびに行う確かめと同じ。`use_browser` が有効なとき）
+- ロールの権限 `file_upload` がある（`PickerScope::allows()`。`api.php` の `uploadPasted` が表の `perm` で確かめるのと同じ）
 - CSRF トークンを出せる（`getCurrentCsrfToken()` がある）
 - `upload_images` に、TinyMCE の画像の拡張子（`jpeg,jpg,jpe,jfi,jif,jfif,png,gif,bmp,webp`）と重なるものがある
 

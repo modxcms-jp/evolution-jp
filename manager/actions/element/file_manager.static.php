@@ -33,6 +33,7 @@ echo BrowserView::managePane(
         'initialSelect' => $fb_select,
         'rootLabel' => $fb_scope->rootLabel(),
         'maxUploadSize' => $fb_scope->maxUploadSize(),
+        'canUpload' => $fb_scope->allows('file_upload'),
     ]),
     lang('manage_files')
 );
