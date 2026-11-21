@@ -720,6 +720,7 @@ return [
     "role_eventlog_management" => 'システムログ管理',
     "role_export_static" => '静的HTMLファイルとして書き出す',
     "role_file_manager" => 'ファイルマネージャーを使用',
+    "role_file_upload" => 'ファイルのアップロード',
     "role_frames" => '管理画面へのアクセス（全域）',
     "role_help" => 'ヘルプページを表示',
     "role_home" => '管理画面ホームへのアクセス',
@@ -1525,4 +1526,9 @@ return [
     "styleguide_view_current" => '今の見た目',
     "styleguide_view_proposal" => '目盛りの案',
     "styleguide_view_compare" => '並べて比べる',
+    "cannot_unpublish_site_start" => 'このリソースはトップページに設定されているため、非公開にできません。',
+    "required_field" => '必須',
+    "required_fields_missing" => '次の必須の欄が空です。入力してください。',
+    "max_length_exceeded" => '次の欄が文字数の上限を超えています。短くしてください。',
+    "googlemap_not_found" => '住所が見つかりませんでした。',
 ];

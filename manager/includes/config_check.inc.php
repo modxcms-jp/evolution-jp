@@ -141,12 +141,14 @@ class ConfigCheck {
         $msg = $this->_lang['configcheck_templateswitcher_present_msg'];
         foreach ($plugins as $plugin) {
             $id = (int) $plugin['id'];
+            // 確認ダイアログは文言を HTML として出すので、名前はここでエスケープする（属性へは更に hsc する）
+            $pluginName = hsc($plugin['name']);
             $links = [];
             if ($canDisable) {
                 $links[] = sprintf(
                     '<a href="#" data-config-check-plugin="disable" data-plugin-id="%d" data-confirm="%s">%s</a>',
                     $id,
-                    hsc(sprintf($this->_lang['configcheck_templateswitcher_confirm_disable'], $plugin['name'], $id)),
+                    hsc(sprintf($this->_lang['configcheck_templateswitcher_confirm_disable'], $pluginName, $id)),
                     $this->_lang['configcheck_templateswitcher_disable_label']
                 );
             }
@@ -154,7 +156,7 @@ class ConfigCheck {
                 $links[] = sprintf(
                     '<a href="#" data-config-check-plugin="delete" data-plugin-id="%d" data-confirm="%s">%s</a>',
                     $id,
-                    hsc(sprintf($this->_lang['configcheck_templateswitcher_confirm_delete'], $plugin['name'], $id)),
+                    hsc(sprintf($this->_lang['configcheck_templateswitcher_confirm_delete'], $pluginName, $id)),
                     $this->_lang['configcheck_templateswitcher_delete_label']
                 );
             }

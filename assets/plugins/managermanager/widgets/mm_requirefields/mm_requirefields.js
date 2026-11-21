@@ -28,11 +28,15 @@ var mmRequire = {
     unmark: function () {
         this.classList.remove("mmRequired");
     },
-    // settings: {fixDateType: bool, selectors: [CSS セレクタ, ...]}
+    // settings: {fixDateType: bool, selectors: [CSS セレクタ, ...], messages: {required: 欄の印の title, missing: 保存を止めるときの文言}}
     run: function (settings) {
         var self = this;
         MM.addStyle(".mmRequired { background-image: none !important; background-color: #ff9999 !important; } .requiredIcon { color: #ff0000; font-weight: bold; margin-left: 3px; cursor: help; }");
-        var requiredHTML = "<span class=\"requiredIcon\" title=\"Required\">*</span>";
+        var requiredIcon = document.createElement("span");
+        requiredIcon.className = "requiredIcon";
+        requiredIcon.title = settings.messages.required;
+        requiredIcon.textContent = "*";
+        var requiredHTML = requiredIcon.outerHTML;
         // 公開日・公開終了日は 1.0.2 では input に type が無いので足す
         if (settings.fixDateType) {
             MM.all("#pub_date, #unpub_date").forEach(function (el) { el.type = "text"; });
@@ -58,12 +62,9 @@ var mmRequire = {
                 }
             });
             if (errors.length > 0) {
-                var errMsg = errors.length + " required fields are missing:\n\n ";
-                for (var i = 0; i < errors.length; i++) {
-                    errMsg += " - " + errors[i] + " \n";
-                }
-                errMsg += " \nPlease correct the indicated fields.";
-                alert(errMsg);
+                // EvoDialog の message は HTML なので、欄の名前はエスケープして並べる
+                var items = errors.map(function (name) { return " - " + Evo.escapeHtml(name); });
+                EvoDialog.alert(settings.messages.missing + "\n\n" + items.join("\n"), "", null, {icon: "warning"});
                 e.preventDefault();
                 e.stopPropagation();
             }

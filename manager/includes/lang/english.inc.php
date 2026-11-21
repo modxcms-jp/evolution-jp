@@ -718,6 +718,7 @@ return [
     "role_eventlog_management" => 'System log management',
     "role_export_static" => 'Export Static HTML',
     "role_file_manager" => 'Use the File Manager',
+    "role_file_upload" => 'Upload files',
     "role_frames" => 'Request manager frames',
     "role_help" => 'View help pages',
     "role_home" => 'Request manager intro page',
@@ -1524,4 +1525,9 @@ return [
     "styleguide_view_current" => 'Current',
     "styleguide_view_proposal" => 'Proposed scale',
     "styleguide_view_compare" => 'Side by side',
+    "cannot_unpublish_site_start" => 'This Resource is set as the site start page, so it cannot be unpublished.',
+    "required_field" => 'Required',
+    "required_fields_missing" => 'The following required fields are empty. Please fill them in.',
+    "max_length_exceeded" => 'The following fields exceed the maximum length. Please shorten them.',
+    "googlemap_not_found" => 'The address was not found.',
 ];

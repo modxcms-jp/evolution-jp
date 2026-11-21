@@ -249,8 +249,7 @@ function fbPickerList(PathResolver $resolver, PickerScope $scope, DocumentParser
         if ($isRaster) {
             $dimensions = @getimagesize($file['fullPath']);
             if ($dimensions) {
-                $width = $dimensions[0];
-                $height = $dimensions[1];
+                [$width, $height] = image_display_size($file['fullPath'], $dimensions);
             }
             $contentFormat = ThumbnailService::mismatchedFormat($ext, $dimensions);
         }
@@ -311,8 +310,7 @@ function fbManageList(PathResolver $resolver, ManageScope $scope, DocumentParser
         if (ThumbnailService::isRasterImageExtension($ext)) {
             $dimensions = @getimagesize($file['fullPath']);
             if ($dimensions) {
-                $item['width'] = $dimensions[0];
-                $item['height'] = $dimensions[1];
+                [$item['width'], $item['height']] = image_display_size($file['fullPath'], $dimensions);
             }
             $contentFormat = ThumbnailService::mismatchedFormat($ext, $dimensions);
             if ($contentFormat !== null) {

@@ -314,6 +314,7 @@ function role($key, $default = null)
                             echo render_form('logs', lang('role_view_logs'));
                             echo render_form('settings', lang('role_edit_settings'));
                             echo render_form('file_manager', lang('role_file_manager'));
+                            echo render_form('file_upload', lang('role_file_upload'), '', true);
                             echo render_form('bk_manager', lang('role_bk_manager'));
                             echo render_form('export_static', lang('role_export_static'));
                             echo render_form('remove_locks', lang('role_remove_locks'));
@@ -330,7 +331,7 @@ function role($key, $default = null)
 
 
 <?php
-function render_form($name, $label, $status = '')
+function render_form($name, $label, $status = '', $defaultOn = false)
 {
     $tpl = <<< EOT
 <label>
@@ -340,8 +341,10 @@ function render_form($name, $label, $status = '')
 </label>
 
 EOT;
-    $checked = (role($name) == 1) ? 'checked' : '';
-    $value = (role($name) == 1) ? 1 : 0;
+    // 新規のロール（値が無いとき）は、$defaultOn の権限だけ最初からオンにする
+    $on = role($name) === null && $defaultOn ? true : role($name) == 1;
+    $checked = $on ? 'checked' : '';
+    $value = $on ? 1 : 0;
     if ($status == 'disabled') {
         $checked = 'checked';
         $value = 1;

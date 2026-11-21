@@ -36,7 +36,7 @@
 
 - Web サーバー (Apache / Nginx など)
 - PHP 7.4 以上（8.2 以降を推奨）
-- PHP の拡張: mbstring（必須）、mysqli（必須）
+- PHP の拡張: mbstring（必須）、mysqli（必須）、exif（推奨。無いと、ファイルピッカーのサムネイルと大きさに写真の向きを反映しません）
 - MySQL 互換データベース (MySQL 5.x - 8.x / MariaDB など)
 - アップデートできるのは 1.0.0J 以降のサイトです。それより古い DB（上流の古い Evolution など）からは、そのままではアップデートできません
 

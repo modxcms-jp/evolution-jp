@@ -32,78 +32,56 @@ siblings: function(el, sel){
         return c !== el && c.matches(sel);
     });
 },
-//Обновляет мульти-поле, берёт значение из оригинального поля
 updateField: function(id){
-    //Если есть текущее поле
     if (ddMultiple[id].currentField){
         var original = document.getElementById(id);
-        //Задаём значение текущему полю (берём у оригинального поля), запускаем событие изменения
         ddMultiple[id].currentField.value = ddMultiple.trimValue(original ? original.value : "");
         ddMultiple.fire(ddMultiple[id].currentField);
-        //Забываем текущее поле (ибо уже обработали)
         ddMultiple[id].currentField = false;
     }
 },
-//Обновляет оригинальное поле TV, собирая данные по мульти-полям
 updateTv: function(id){
     var masRows = [];
 
-    //Перебираем все строки
     ddMultiple.rows(id).forEach(function(row){
         var masCol = [],
             id_field = {index: false, val: false, field: false};
 
-        //Перебираем все колонки, закидываем значения в массив
         row.querySelectorAll(".ddField").forEach(function(field, index){
-            //Если поле с типом id
             if (ddMultiple[id].columns[index] == "id"){
                 id_field.index = index;
                 id_field.field = field;
 
-                //Сохраняем значение поля
                 id_field.val = field.value;
-                //Если значение пустое, то генерим
                 if (id_field.val == "") id_field.val = (new Date).getTime();
 
-                //Обнуляем значение
                 field.value = "";
             }
-            //Собираем значения строки в массив
             masCol.push(ddMultiple.trimValue(field.value));
         });
 
         var col = masCol.join(ddMultiple[id].splX);
         if (col.length != ((masCol.length - 1) * ddMultiple[id].splX.length)){
-            //Проверяем было ли поле с id
             if (id_field.index !== false){
-                //Записываем значение в поле
                 id_field.field.value = id_field.val;
-                //Обновляем значение в массиве
                 masCol[id_field.index] = id_field.val;
-                //Пересобираем строку
                 col = masCol.join(ddMultiple[id].splX);
             }
             masRows.push(col);
         }
     });
 
-    //Записываем значение в оригинальное поле
     var original = document.getElementById(id);
     if (original){
         original.value = ddMultiple.maskQuoutes(masRows.join(ddMultiple[id].splY));
     }
 },
-//Инициализация
-//Принимает id оригинального поля, его значения и родителя поля
 init: function(id, val, target){
-    //Делаем таблицу мульти-полей（元の欄への書き戻しは送信（保存・プレビュー）のときにまとめて行う）
     var table = ddMultiple.make("<table class=\"ddMultipleField\" id=\"" + id + "ddMultipleField\"></table>");
     target.appendChild(table);
 
-    //Если заголовков хватает
     if (ddMultiple[id].columnsTitle.length == ddMultiple[id].columns.length){
         var text = "";
-        //Создадим шапку
         ddMultiple[id].columnsTitle.forEach(function(title){
             text += "<th>" + title + "</th>";
         });
@@ -111,22 +89,18 @@ init: function(id, val, target){
         table.appendChild(ddMultiple.make("<tr><th></th>" + text + "<th></th></tr>"));
     }
 
-    //Делаем новые мульти-поля
     var arr = val.split(ddMultiple[id].splY);
 
-    //Проверяем на максимальное и минимальное количество строк
     if (ddMultiple[id].maxRow && arr.length > ddMultiple[id].maxRow) arr.length = ddMultiple[id].maxRow;
     else if (ddMultiple[id].minRow && arr.length < ddMultiple[id].minRow) arr.length = ddMultiple[id].minRow;
 
     for (var i = 0, len = arr.length; i < len; i++){
-        //В случае, если размер массива был увеличен по minRow, значением будет undefined, посему зафигачим пустую строку
+        // minRow で配列を伸ばした分は undefined なので、空の行にする
         ddMultiple.makeFieldRow(id, arr[i] || "");
     }
 
-    //Создаём кнопку +
     ddMultiple.makeAddButton(id);
 
-    //Добавляем возможность перетаскивания
     table.setAttribute("data-sortable", "true");
     table.setAttribute("data-sortable-items", ".ddFieldBlock");
     table.setAttribute("data-sortable-handle", ".ddSortHandle");
@@ -135,25 +109,19 @@ init: function(id, val, target){
         ddMultiple.moveAddButton(id);
     });
     window.MODXSortable.prepareList(table);
-    //Запускаем обновление, если были ограничения
     if (ddMultiple[id].maxRow || ddMultiple[id].minRow) ddMultiple.fire(table);
 
 },
-//Функция создания строки
-//Принимает id и данные строки
 makeFieldRow: function(id, val){
-    //Проверяем привышает ли количество строк максимальное
     if (ddMultiple[id].maxRow && ddMultiple.rows(id).length >= ddMultiple[id].maxRow) return;
     var fieldBlock = ddMultiple.make("<tr class=\"ddFieldBlock " + id + "ddFieldBlock\" ><td class=\"ddSortHandle\"><div></div></td></tr>");
     var table = document.getElementById(id + "ddMultipleField");
     if (table) table.appendChild(fieldBlock);
 
-    //Разбиваем переданное значение на колонки
     val = ddMultiple.maskQuoutes(val).split(ddMultiple[id].splX);
 
     var field;
 
-    //Перебираем колонки
     ddMultiple[id].columns.forEach(function(type, key){
         if (!val[key]) val[key] = "";
         if (!ddMultiple[id].columnsTitle[key]) ddMultiple[id].columnsTitle[key] = "";
@@ -161,10 +129,8 @@ makeFieldRow: function(id, val){
 
         var col = ddMultiple.makeFieldCol(fieldBlock);
 
-        //По умолчанию создаём поле как текстовое
         field = ddMultiple.makeText(val[key], ddMultiple[id].columnsTitle[key], ddMultiple[id].colWidth[key], col);
 
-        //Если текущая колонка является полем
         if (type == "field"){
             ddMultiple[id].makeFieldFunction(id, col);
 
@@ -202,14 +168,12 @@ makeFieldRow: function(id, val){
     //Create DeleteButton
     ddMultiple.makeDeleteButton(id, ddMultiple.makeFieldCol(fieldBlock));
 
-    //При изменении（入力欄の素の change を表の変更として知らせる）
     fieldBlock.querySelectorAll(".ddField").forEach(function(input){
         input.addEventListener("change", function(){
             ddMultiple.fire(input.closest(".ddMultipleField"));
         });
     });
 
-    //Специально для полей, содержащих изображения необходимо инициализировать
     fieldBlock.querySelectorAll(".ddFieldCol").forEach(function(col){
         if (col.querySelector(".ddField_image")){
             col.querySelectorAll(".ddField").forEach(function(input){
@@ -220,7 +184,6 @@ makeFieldRow: function(id, val){
 
     return fieldBlock;
 },
-//Создание колонки поля
 makeFieldCol: function(fieldRow){
     var col = ddMultiple.make("<td class=\"ddFieldCol\"></td>");
     fieldRow.appendChild(col);
@@ -231,7 +194,6 @@ makeDeleteButton: function(id, fieldCol){
     var button = ddMultiple.make("<input class=\"ddDeleteButton\" type=\"button\" value=\"×\" />");
     fieldCol.appendChild(button);
     button.addEventListener("click", function(){
-        //Проверяем на минимальное количество строк
         if (ddMultiple[id].minRow && ddMultiple.rows(id).length <= ddMultiple[id].minRow){
             return;
         }
@@ -241,7 +203,6 @@ makeDeleteButton: function(id, fieldCol){
         if (!par){
             return;
         }
-        //Отчистим значения полей
         par.querySelectorAll(".ddField").forEach(function(input){
             input.value = "";
         });
@@ -249,27 +210,22 @@ makeDeleteButton: function(id, fieldCol){
         //最後の 1 行は消さずに値を空にし、プレビューを隠す（元の作りのままページ内のすべてのプレビューが対象）
         if (ddMultiple.rows(id).length == 1)
             MM.hide(".ddField_image");
-        //Если больше одной строки, то можно удалить текущую строчку（元はフェードアウトの後に消していた）
         if (ddMultiple.siblings(par, ".ddFieldBlock").length > 0){
-            //Если контейнер имеет кнопку добалвения, перенесём её
             var prev = par.previousElementSibling;
             if (par.querySelector(".ddAddButton") && prev && prev.matches(".ddFieldBlock")){
                 ddMultiple.moveAddButton(id, prev);
             }
             par.remove();
         }
-        //Инициализируем событие изменения
         ddMultiple.fire(table);
     });
 },
-//Функция создания кнопки +, вызывается при инициализации
 makeAddButton: function(id){
     var button = ddMultiple.make("<input class=\"ddAddButton\" type=\"button\" value=\"+\" />");
     var rows = ddMultiple.rows(id);
     var col = ddMultiple.lastCol(rows[rows.length - 1]);
     if (col) col.appendChild(button);
     button.addEventListener("click", function(){
-        //Вешаем на кнопку создание новой строки（行の上限に達していれば何もしない）
         var row = ddMultiple.makeFieldRow(id, "");
         if (!row){
             return;
@@ -279,15 +235,12 @@ makeAddButton: function(id){
         ddMultiple.fire(button.closest(".ddMultipleField"));
     });
 },
-//Перемещение кнопки +
 moveAddButton: function(id, target){
-    //Если не передали, куда вставлять, вставляем в самый конец
     if (!target){
         var rows = ddMultiple.rows(id);
         target = rows[rows.length - 1];
     }
 
-    //Находим кнопку добавления и переносим куда надо
     var button = document.querySelector("#" + id + "ddMultipleField .ddAddButton");
     var col = ddMultiple.lastCol(target);
     if (button && col) col.appendChild(button);
@@ -310,12 +263,10 @@ makeImage: function(id, fieldCol){
         if (attach) attach.click();
     });
     img.addEventListener("load", function(){
-        //Удаление дерьма, блеать (превьюшка, оставленная от виджета showimagetvs)
         var old = document.getElementById(id + "PreviewContainer");
         if (old) old.remove();
     });
 
-    //Находим поле, привязываем события（利用者の入力の change と、値を入れたときの ddmultiple:change）
     fieldCol.querySelectorAll(".ddField").forEach(function(field){
         var update = function(){
             var url = field.value;
@@ -343,7 +294,6 @@ makeImage: function(id, fieldCol){
 },
 //Make date field
 makeDate: function(value, title, fieldCol){
-    //name нужен для DatePicker`а
     var field = ddMultiple.make("<input type=\"text\" title=\"" + title + "\" class=\"ddField DatePicker\" name=\"ddMultipleDate\" />");
     field.value = value;
     fieldCol.appendChild(field);
@@ -356,7 +306,6 @@ makeTextarea: function(value, title, width, fieldCol){
     fieldCol.appendChild(field);
     return field;
 },
-//Функция создания списка
 makeSelect: function(value, title, data, width, fieldCol){
     var select = document.createElement("select");
     select.className = "ddField";
@@ -379,7 +328,6 @@ makeSelect: function(value, title, data, width, fieldCol){
     fieldCol.appendChild(select);
     return select;
 },
-//Функция ничего не делает
 makeNull: function(id, fieldCol){return false;},
 //ページ共通の値を受け取る（ルールごとに呼ばれてよい）
 configure: function(settings){
@@ -428,7 +376,6 @@ attach: function(id, settings){
 
     ddMultiple.init(id, original.value, original.parentElement);
 },
-//Маскирует кавычки
 maskQuoutes: function(text){
     text = text.replace(/"/g, "&#34;");
     text = text.replace(/'/g, "&#39;");
@@ -456,7 +403,6 @@ if (typeof(SetUrl) != "undefined" && !SetUrl.ddMultipleWrapped) {
     //シェルで画面を移っても SetUrl は残るので、包み直さない（change が重なる）
     SetUrl.ddMultipleWrapped = true;
 }
-//Самбмит главной формы
 var form = document.getElementById("mutate");
 if (form){
     //new FormData(form)（保存・プレビュー）とネイティブの送信のどちらでも、送る値を最新にする

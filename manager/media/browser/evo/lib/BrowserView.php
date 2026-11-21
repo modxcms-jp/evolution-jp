@@ -4,6 +4,8 @@
  * ファイルブラウザの画面(HTML と、JS へ渡す設定)。画面の本体(markup())は共通で、置かれる場所ごとの外側だけを分ける。
  * 範囲の違いは JS の設定の値(apiParams など)と入口の JS(entry)だけで表し、管理モードにだけあるダイアログは外側で足す。
  */
+require_once __DIR__ . '/ThumbnailService.php';
+
 class BrowserView
 {
     /**
@@ -72,6 +74,8 @@ class BrowserView
             'editMaxPixels' => BrowserConfig::EDIT_MAX_PIXELS,
             // 最初からエディターで開く拡張子。ほかのファイルも、サーバーが中身をテキストと認めれば開ける
             'textExtensions' => BrowserConfig::TEXT_EXTENSIONS,
+            // サムネイルの URL に入れる版(ブラウザーのキャッシュも、作り方を変えたときに切り替わる)
+            'thumbVersion' => ThumbnailService::CACHE_VERSION,
             'maxUploadSize' => $options['maxUploadSize'],
             'lang' => $messages,
         ];

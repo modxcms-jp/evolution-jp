@@ -245,7 +245,7 @@ if (!$numRecords) {
                 $class !== '' ? ' class="' . hsc($class) . '"' : '',
                 hsc($title),
                 hsc($url),
-                $confirm !== '' ? ' onclick="' . hsc('return confirm(' . js_literal(stripcslashes($confirm)) . ');') . '"' : '',
+                $confirm !== '' ? ' data-submit-confirm="' . hsc(stripcslashes($confirm)) . '"' : '',
                 hsc($label)
             );
         };
@@ -504,11 +504,12 @@ function get_jscript($menuId)
     }
 
     $config = sprintf(
-        '{menuId:%s,rtl:%s,returnQuery:%s,siteStart:%d,confirm:{%s}}',
+        '{menuId:%s,rtl:%s,returnQuery:%s,siteStart:%d,siteStartMessage:%s,confirm:{%s}}',
         js_literal($menuId),
         $modx_textdir === 'rtl' ? 'true' : 'false',
         js_literal($returnQuery),
         (int) evo()->config('site_start'),
+        js_literal(stripcslashes(lang('cannot_unpublish_site_start'))),
         implode(',', $confirm)
     );
 
