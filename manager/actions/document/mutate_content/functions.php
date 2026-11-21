@@ -136,6 +136,14 @@ function sectionContent()
     return parseText(file_get_tpl('section_content.tpl'), $ph);
 }
 
+/**
+ * TV をメインタブの本文の下（#tv_body）に出すか。0 なら TV のタブ（#tabTVs）に出す（グローバル設定の tvs_below_content）
+ */
+function tvsBelowContent()
+{
+    return (string) config('tvs_below_content') === '1';
+}
+
 function sectionTV($tpl, $fields)
 {
     $ph = [];
@@ -790,6 +798,8 @@ if (!function_exists('collect_tab_general_ph')) {
     {
         return [
             '_lang_settings_general' => lang('settings_general'),
+            '_lang_group_basic' => lang('mutate_group_basic'),
+            '_lang_group_menu' => lang('mutate_group_menu'),
             'fieldPagetitle' => fieldPagetitle(),
             'fieldLongtitle' => fieldLongtitle(),
             'fieldDescription' => fieldDescription(),
@@ -802,7 +812,7 @@ if (!function_exists('collect_tab_general_ph')) {
             'renderSplit' => renderSplit(),
             'fieldParent' => fieldParent(),
             'sectionContent' => sectionContent(),
-            'sectionTV' => config('tvs_below_content', 1)
+            'sectionTV' => tvsBelowContent()
                 ? sectionTV(file_get_tpl('section_tv.tpl'), fieldsTV()) : ''
         ];
     }
@@ -821,6 +831,9 @@ if (!function_exists('collect_tab_settings_ph')) {
     {
         $ph = [];
         $ph['_lang_settings_page_settings'] = lang('settings_page_settings');
+        $ph['_lang_group_publish'] = lang('mutate_group_publish');
+        $ph['_lang_group_type'] = lang('mutate_group_type');
+        $ph['_lang_group_behavior'] = lang('mutate_group_behavior');
         $ph['fieldPublished'] = evo()->doc->mode === 'normal' ? fieldPublished() : '';
         $ph['fieldPub_date'] = fieldPub_date($docid);
         $ph['fieldUnpub_date'] = fieldUnpub_date($docid);
