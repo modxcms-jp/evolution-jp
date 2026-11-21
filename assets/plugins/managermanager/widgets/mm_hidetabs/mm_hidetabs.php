@@ -38,8 +38,11 @@ function mm_hideTabs($tabs, $roles = '', $templates = '')
                 $output .= 'MM.hide("#tabSettings");';
                 break;
             case 'tv':
+                // TV の置き場所の設定（tvs_below_content）に関係なく効くよう、本文の下の見出しと本体も隠す（mm_hideSections('tvs') と同じ）
                 $output .= 'MM.hide("#tabTVsHeader");';
                 $output .= 'MM.hide("#tabTVs");';
+                $output .= 'MM.hide("#tv_header");';
+                $output .= 'MM.hide("#tv_body");';
                 break;
             case 'access':
                 $output .= 'MM.hide("#tabAccessHeader");';

@@ -854,6 +854,11 @@ return [
     "settings_mail" => 'Mail',
     "settings_page_invalid_msg" => 'For "%s", specify the ID of a published document that is not deleted (ID: %s)',
     "settings_page_settings" => 'Settings',
+    "mutate_group_basic" => 'Page details',
+    "mutate_group_menu" => 'Menu and placement',
+    "mutate_group_publish" => 'Publishing',
+    "mutate_group_type" => 'Type and output',
+    "mutate_group_behavior" => 'Other settings',
     "settings_properties" => 'Properties',
     "settings_resources" => 'Resources',
     "settings_section_basics" => 'Basics',
@@ -1327,6 +1332,10 @@ return [
     "bkmgr_restore_invalid_file" => 'The selected snapshot was not found or could not be read.',
     "delete_resource_complete" => 'Delete complete',
 
+    "setting_tvs_below_content" => 'Template variable position',
+    "setting_tvs_below_content_tab" => 'The "Template Variables" tab',
+    "setting_tvs_below_content_below" => 'Below the content on the "General" tab',
+    "setting_tvs_below_content_desc" => 'Where the resource edit screen shows the template variable fields. Fields moved to another tab by ManagerManager stay where they were moved.',
     "enable_draft_title" => 'Draft function',
     "enable_draft_message" => 'Show draft UI.',
 
