@@ -13,7 +13,7 @@
 - [x] (2026-11-20) 段階 1: 送信用の隠し input 11 件を `class="hidden"` に、管理ログの検索・システム情報の詳細・サイトの書き出し・バックアップのスナップショットの行を部品へ移し、見出しの右の間を共通の 12px にした（直書きの style の行 189 → 164）
 - [x] (2026-11-22) 段階 2A: 見出しの縦の揃えを共通にし（文字を入れる欄のある行は上余白、ほかは基準線）、スニペットとチャンクの行を部品へ移した（2 画面の直書きの style の行 26 → 12）
 - [x] (2026-11-22) 段階 2B: プラグインとテンプレートの行を部品へ移し、4 画面の説明の欄の `padding:0` の直書きをやめた（4 画面の直書きの style の行 39 → 30）
-- [ ] 段階 2C: モジュールと TV の行を部品へ移す
+- [x] (2026-11-22) 段階 2C: モジュールと TV の行を部品へ移した（2 画面の直書きの style の行 34 → 18）。エレメントの 6 画面がすべて部品を使う
 - [ ] 段階 3: ユーザーの画面。ユーザーの設定の手書きのタブを `EvoSettingsForm` へ、Web ユーザーとプロフィールの重複をなくす。設定の説明を部品の説明の欄へ移し、`EvoSettingsForm::style()` を共通の CSS へ移す
 - [ ] 段階 4: 文書の画面の残り（TV の行 `tv_row.tpl` を部品へ、ほかの直書き）
 
@@ -25,6 +25,7 @@
 - 見出しの色の変数も 2 つある（`--mutate-field-title-color` と `--settings-th-color`）。
 - `EvoSettingsForm::style()` は画面に `<style>` を直に出している。`table.settings`（詳細度 0,1,1）の `width: 100%` が `theme-base.css` の `.settings`（0,1,0）の 600px に勝つので、`style()` を出す画面（グローバル設定・ユーザー・プロフィール）では 600px が効かず、出さない Web ユーザーの画面では効く（推測。段階 3 で計算後のスタイルで確かめる）。
 - `custom_tpl_dir` は設定の定義に無い隠れた設定で、読むのは文書の編集画面の `file_get_tpl()`（`manager/actions/document/mutate_content/functions.php`）だけ。
+- コード用の textarea（`class="phptextarea"`。プロパティ・TV の elements と default）の行は、共通の規則（`theme-base.css` の `.phptextarea` の等幅のフォント）で文字の上下の広さが本文と違うため、見出しの 1 行目との差が +5px ほど残る（文字の矩形の上端で測った値）。直書きが原因ではなく、見出しの列の見た目をそろえる後回しの判断に含める。
 - 段階 1: 見出しのセルの縦の揃えは、画面ごとに上揃え（設定の表、システム情報の詳細の表、サイトの書き出しの `td.head`）と中央（文書の行、th の既定）に分かれている。共通で上揃えにすると、文書の行の見出しが入力欄の文字とずれる（そろえるには `foundation-proposal.css` のように上の余白の計算と組みにする）。これは先送りした「見出しの列の幅・色をそろえる」判断に含めて決め、段階 1 では移した表の見出しは th の既定（中央）のままにした。システム情報の詳細の表で値が 2 行になる数項目は、見出しが縦の中央に出る。
 
 ## Decision Log
@@ -151,7 +152,14 @@
 
 期待される観測: プラグインとテンプレートの編集画面の見出しと値の行が `tr.field-row` で出る。保存・カテゴリの新規作成・パラメーターの表・イベントの選択・プラグインのコードの入力から名前や説明を拾う動き（blur）・ManagerManager がプラグインの画面に足すタブが main と同じに動く。
 
-### 段階 2C・3・4
+### 段階 2C（ブランチ `refactor/1631-stage2c-module-tv-forms`。モジュールと TV）
+
+1. モジュール（`element/mutate_module.dynamic.php`）: 名前・無効（`label` 空）・既存のカテゴリ・新しいカテゴリ（`field` を `newcategory`、`attr` に `id="newcategry"` と表示の切り替えの `style`）・説明・アイコン・外部ファイル（JS からも使われず静的に隠れた行。送る値 `enable_resource`・`resourcefile` が保存されるので、`attr` の `style="display:none"` で今のまま隠して残す）・ロック（`label` 空）・プロパティ・パラメーターの表（`attr` に `id="displayparamrow"`、`#displayparams` は値の中の `div`）・依存のタブの共有の行（`label` 空）・guid の行（`attr` に `class="sharedparams"` と、JS が切り替える表示の `style`）を `EvoFieldRow::render()` へ。見出しは `td` から `th`（太字）に。消す: `align`・`valign`・`padding-top`・見出しのコロン、`cursor:pointer` の直書き（`.clickable-label` に）、`p.actionButtons` の `float:none;overflow:hidden;zoom:1`、説明の textarea の `padding:0`（高さと幅は残す）。残す: 欄の幅、プロパティの textarea の `display:block`、「パラメーターを更新」ボタン（onclick が無く、押しても何も起きない。直すと動きが変わるので別の Issue）とその `style`、依存の DataTable・権限のチェックの一覧・`div.sharedparams`。JS が使う name（`disabled`・`locked`・`enable_resource`・`enable_sharedparams`・`icon`・`post`・`user_groups[]`・`chkallgroups`・`makePublic`・`docid`）は変えない。
+2. TV（`element/mutate_tmplvars.dynamic.php`）: 名前・caption・type・elements（`attr` に `id="inputoption"` と、JS が切り替える表示の `style`）・default・widget・パラメーター（見出しを `th` に、`attr` に `id="displayparamrow"`、`#displayparams` は値の中の要素）・カテゴリ・新しいカテゴリ・説明・ロック（`label` 空）・ランクの行を `EvoFieldRow::render()` へ。TV のインラインの JS が `#inputoption th`（visibility）と `#inputoption textarea` を使うので、見出しのセルが `th` のままであることを確かめる。消す: `align`・`valign`・`nowrap`・`padding-top`、tooltip の `style="cursor:help"`（`forms.css` の `img.tooltip` と同じ）、パラメーターの行の `div` の `padding-top:8px`、textarea の無効な `type="text"`、説明の textarea の `padding:0`（高さは残す）。残す: 欄の幅（300px・400px）、名前の `[*` `*]` の囲み、`#tmplvarsPane label` の `<style>`（権限の一覧の label に効く）、権限・アクセスの一覧、TV のインラインの JS が組むパラメーターの表（`element-properties.js` と同じ処理の重複は別の Issue）。type の select を組む処理は、`entity('type')` に `'text'` を入れる順序を変えない。
+
+期待される観測: モジュールと TV の編集画面の見出しと値の行が `tr.field-row` で出る。保存・カテゴリの新規作成・ロック・パラメーターの表・モジュールの共有の切り替え・アイコンの選択・TV の type を変えたときの elements の行の出し入れ・widget のパラメーターの表が main と同じに動く。
+
+### 段階 3・4
 
 段階 2B で見つかった重複: エラー報告のラジオの組（inherit・0・1・2・99 と言語キー、注意書き）が、スニペットとプラグインの画面に同じ HTML で 2 か所あり、グローバル設定の定義（`settings_form.definition.inc.php`）にも同じ選択肢がある。選択肢を 1 か所に置き、2 画面はそれを使う形にまとめる（2C か段階 3 のついでに）。TV の説明の textarea の `padding:0` も 2C で消す。
 
@@ -187,6 +195,7 @@
 - 段階 1: ブランチ `refactor/1631-stage1-report-tables`（段階 0 のワークツリーで main から切り替えた）、PR #1653
 - 段階 2A: ブランチ `refactor/1631-stage2-element-forms`、ワークツリー `.claude/worktrees/issue-1631-stage2`（段階 0・1 のワークツリーは外から消されたので作り直した）、PR #1718
 - 段階 2B: ブランチ `refactor/1631-stage2b-plugin-template-forms`（同じワークツリーで main から切り替えた）、PR #1721
+- 段階 2C: ブランチ `refactor/1631-stage2c-module-tv-forms`（同じワークツリーで main から切り替えた）、PR #1724
 
 ## Interfaces and Dependencies
 

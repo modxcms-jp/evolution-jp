@@ -163,20 +163,26 @@ function content($key, $default = null)
             <div class="tab-page" id="tabModule">
                 <h2 class="tab"><?= lang('settings_general') ?></h2>
                 <table>
-                    <tr>
-                        <td align="left"><?= lang('module_name') ?>:</td>
-                        <td align="left"><input name="name" type="text" maxlength="100"
-                                value="<?= hsc(content('name')) ?>" class="inputBox">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td align="left" valign="top" colspan="2"><input name="disabled"
-                                type="checkbox" <?= content('disabled') == 1 ? 'checked="checked"' : '' ?>
-                                value="on" class="inputBox" />
-                            <span class="clickable-label"
-                                onclick="document.mutate.disabled.click();"><?= content('disabled') == 1 ? '<span class="mutate-field-title">' . lang('module_disabled') . '</span>' : lang('module_disabled') ?></span>
-                        </td>
-                    </tr>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('module_name'),
+                        'body' => '<input name="name" type="text" maxlength="100" value="' . hsc(content('name')) . '" class="inputBox">',
+                    ]);
+
+                    // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
+                    ob_start();
+                    ?>
+                    <input name="disabled"
+                        type="checkbox" <?= content('disabled') == 1 ? 'checked="checked"' : '' ?>
+                        value="on" class="inputBox" />
+                    <span class="clickable-label"
+                        onclick="document.mutate.disabled.click();"><?= content('disabled') == 1 ? '<span class="mutate-field-title">' . lang('module_disabled') . '</span>' : lang('module_disabled') ?></span>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => '',
+                        'body' => ob_get_clean(),
+                    ]);
+                    ?>
                 </table>
 
                 <!-- PHP text editor start -->
@@ -198,74 +204,110 @@ function content($key, $default = null)
             <div class="tab-page" id="tabConfig">
                 <h2 class="tab"><?= lang('settings_config') ?></h2>
                 <table>
-                    <tr>
-                        <td align="left"><?= lang('existing_category') ?>:</td>
-                        <td align="left">
-                            <select name="categoryid">
-                                <?= manager()->elementCategoryOptions(content('category')) ?>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr id="newcategry" data-field="newcategory" style="display:none;">
-                        <td align="left" valign="top" style="padding-top:5px;"><?= lang('new_category') ?>
-                            :
-                        </td>
-                        <td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text"
-                                maxlength="45" value="<?= hsc(content('newcategory', '')) ?>"
-                                class="inputBox"></td>
-                    </tr>
-                    <tr>
-                        <td align="left"><?= lang('module_desc') ?>:</td>
-                        <td align="left"><textarea name="description"
-                                style="padding:0;width:300px;height:4em;"><?= hsc(content('description')) ?></textarea>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td align="left"><?= lang('icon') ?> <span class="comment">(32x32)</span>:</td>
-                        <td align="left"><input type="text" maxlength="255" style="width: 235px;" name="icon"
-                                value="<?= hsc(content('icon')) ?>" /> <input type="button"
-                                value="<?= lang('insert') ?>"
-                                onclick="BrowseServer();" />
-                        </td>
-                    </tr>
-                    <tr style="display:none;">
-                        <td align="left"><input name="enable_resource" title="<?= lang('enable_resource') ?>"
-                                type="checkbox" <?= content('enable_resource') == 1 ? ' checked="checked"' : '' ?>
-                                class="inputBox" /> <span style="cursor:pointer"
-                                onclick="document.mutate.enable_resource.click();"
-                                title="<?= lang('enable_resource') ?>"><?= lang("element") ?></span>:
-                        </td>
-                        <td align="left"><input name="resourcefile" type="text" maxlength="255"
-                                value="<?= hsc(content('resourcefile')) ?>" class="inputBox" />
-                        </td>
-                    </tr>
-                    <?php if (evo()->hasPermission('save_module') == 1) { ?>
-                        <tr>
-                            <td align="left" valign="top" colspan="2"><input name="locked"
-                                    type="checkbox" <?= content('locked') == 1 ? ' checked="checked"' : '' ?>
-                                    class="inputBox" />
-                                <span style="cursor:pointer"
-                                    onclick="document.mutate.locked.click();"><?= lang('lock_module') ?></span>
-                                <span class="comment"><?= lang('lock_module_msg') ?></span>
-                            </td>
-                        </tr>
-                    <?php } ?>
-                    <tr>
-                        <td align="left" valign="top"><?= lang('module_config') ?>:</td>
-                        <td align="left" valign="top"><textarea
-                                name="properties"
-                                style="display:block;"
-                                maxlength="65535"
-                                class="inputBox phptextarea"
-                                onchange="showParameters(this);"><?= hsc(content('properties')) ?></textarea>
-                            <input type="button" value="<?= lang('update_params') ?>"
-                                style="width:16px; margin-left:2px;" title="<?= lang('update_params') ?>" />
-                        </td>
-                    </tr>
-                    <tr id="displayparamrow">
-                        <td valign="top" align="left">&nbsp;</td>
-                        <td align="left" id="displayparams">&nbsp;</td>
-                    </tr>
+                    <?php
+                    ob_start();
+                    ?>
+                    <select name="categoryid">
+                        <?= manager()->elementCategoryOptions(content('category')) ?>
+                    </select>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('existing_category'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    // 新しいカテゴリの行は、element-category.js が表示を切り替える
+                    ob_start();
+                    ?>
+                    <input name="newcategory" type="text"
+                        maxlength="45" value="<?= hsc(content('newcategory', '')) ?>"
+                        class="inputBox">
+                    <?php
+                    echo EvoFieldRow::render([
+                        'field' => 'newcategory',
+                        'label' => lang('new_category'),
+                        'body' => ob_get_clean(),
+                        'attr' => ['id' => 'newcategry', 'style' => 'display:none;'],
+                    ]);
+
+                    ob_start();
+                    ?>
+                    <textarea name="description"
+                        style="width:300px;height:4em;"><?= hsc(content('description')) ?></textarea>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('module_desc'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    ob_start();
+                    ?>
+                    <input type="text" maxlength="255" style="width: 235px;" name="icon"
+                        value="<?= hsc(content('icon')) ?>" /> <input type="button"
+                        value="<?= lang('insert') ?>"
+                        onclick="BrowseServer();" />
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('icon'),
+                        'label_extra' => ' <span class="comment">(32x32)</span>',
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    // 外部ファイルの行は、送る値（enable_resource・resourcefile）を保つため隠して残す
+                    ob_start();
+                    ?>
+                    <input name="enable_resource" title="<?= lang('enable_resource') ?>"
+                        type="checkbox" <?= content('enable_resource') == 1 ? ' checked="checked"' : '' ?>
+                        class="inputBox" />
+                    <input name="resourcefile" type="text" maxlength="255"
+                        value="<?= hsc(content('resourcefile')) ?>" class="inputBox" />
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('element'),
+                        'body' => ob_get_clean(),
+                        'attr' => ['style' => 'display:none;'],
+                    ]);
+
+                    // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
+                    if (evo()->hasPermission('save_module') == 1) {
+                        ob_start();
+                        ?>
+                        <input name="locked"
+                            type="checkbox" <?= content('locked') == 1 ? ' checked="checked"' : '' ?>
+                            class="inputBox" />
+                        <span class="clickable-label"
+                            onclick="document.mutate.locked.click();"><?= lang('lock_module') ?></span>
+                        <span class="comment"><?= lang('lock_module_msg') ?></span>
+                        <?php
+                        echo EvoFieldRow::render([
+                            'label' => '',
+                            'body' => ob_get_clean(),
+                        ]);
+                    }
+
+                    ob_start();
+                    ?>
+                    <textarea
+                        name="properties"
+                        style="display:block;"
+                        maxlength="65535"
+                        class="inputBox phptextarea"
+                        onchange="showParameters(this);"><?= hsc(content('properties')) ?></textarea>
+                    <input type="button" value="<?= lang('update_params') ?>"
+                        style="width:16px; margin-left:2px;" title="<?= lang('update_params') ?>" />
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('module_config'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    // パラメーターの表は element-properties.js が #displayparams の中身を置き換え、行ごと表示を切り替える
+                    echo EvoFieldRow::render([
+                        'label' => '',
+                        'body' => '<div id="displayparams">&nbsp;</div>',
+                        'attr' => ['id' => 'displayparamrow'],
+                    ]);
+                    ?>
                 </table>
             </div>
 
@@ -277,39 +319,52 @@ function content($key, $default = null)
                     <h2 class="tab"><?= lang('settings_dependencies') ?></h2>
                     <div class="sectionBody">
                         <?php
-                        $display = (content('enable_sharedparams') != 1) ? 'style="display:none;"' : '';
+                        // 共有の欄は、enable_sharedparams が 1 でないときは隠す
+                        $sharedHidden = content('enable_sharedparams') != 1;
                         ?>
                         <table>
-                            <tr>
-                                <td align="left" valign="top" colspan="2">
-                                    <input
-                                        name="enable_sharedparams"
-                                        type="checkbox"
-                                        <?= content('enable_sharedparams') == 1 ? ' checked="checked"' : '' ?>
-                                        class="inputBox" />
-                                    <span style="cursor:pointer"
-                                        onclick="document.mutate.enable_sharedparams.click();">
-                                        <?= lang('enable_sharedparams') ?>:
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr class="sharedparams" <?= $display ?>>
-                                <td align="left" valign="top"><?= lang('guid') ?>:</td>
-                                <td align="left" valign="top">
-                                    <input
-                                        name="guid" type="text" maxlength="32"
-                                        value="<?=
-                                                hsc(content('guid') ?: manager()->createGuid())
-                                                ?>"
-                                        class="inputBox" /><br />
-                                    <span class="comment"><?= lang('enable_sharedparams_msg') ?></span><br />
-                                </td>
-                            </tr>
+                            <?php
+                            // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
+                            ob_start();
+                            ?>
+                            <input
+                                name="enable_sharedparams"
+                                type="checkbox"
+                                <?= content('enable_sharedparams') == 1 ? ' checked="checked"' : '' ?>
+                                class="inputBox" />
+                            <span class="clickable-label"
+                                onclick="document.mutate.enable_sharedparams.click();">
+                                <?= lang('enable_sharedparams') ?>
+                            </span>
+                            <?php
+                            echo EvoFieldRow::render([
+                                'label' => '',
+                                'body' => ob_get_clean(),
+                            ]);
+
+                            // guid の行は、enable_sharedparams の change で .sharedparams の表示が切り替わる
+                            ob_start();
+                            ?>
+                            <input
+                                name="guid" type="text" maxlength="32"
+                                value="<?=
+                                        hsc(content('guid') ?: manager()->createGuid())
+                                        ?>"
+                                class="inputBox" />
+                            <?php
+                            echo EvoFieldRow::render([
+                                'label' => lang('guid'),
+                                'body' => ob_get_clean(),
+                                'help' => lang('enable_sharedparams_msg'),
+                                'class' => 'sharedparams',
+                                'attr' => $sharedHidden ? ['style' => 'display:none;'] : [],
+                            ]);
+                            ?>
                         </table>
                     </div>
-                    <div class="sectionBody sharedparams" <?= $display ?>>
+                    <div class="sectionBody sharedparams"<?= $sharedHidden ? ' style="display:none;"' : '' ?>>
                         <p><?= lang('module_viewdepend_msg') ?></p>
-                        <p class="actionButtons" style="float:none;overflow:hidden;zoom:1">
+                        <p class="actionButtons">
                             <a href="#" onclick="loadDependencies();return false;">
                                 <?= lang('manage_depends') ?>
                             </a>
