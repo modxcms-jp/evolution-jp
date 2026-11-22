@@ -16,7 +16,7 @@ echo EvoFieldRow::render([
 | キー | 内容 |
 | --- | --- |
 | `field` | `data-field` の値。フィールドではない行は空（省略可） |
-| `label` | 見出しの HTML。`span.field-title`（`data-field-part="title"`）の中に入る。名前だけを入れる |
+| `label` | 見出しの HTML。`span.field-title`（`data-field-part="title"`）の中に入る。名前だけを入れる。ただし、その行を選ぶチェックボックスは、名前と一緒に `label` 要素で包んで入れてよい（DocManager の TV の一括変更、モジュールの外部ファイルの行） |
 | `label_extra` | 見出しのセルで、名前の後ろに置く HTML（鍵のアイコン・言語の select など）。名前の変更（ManagerManager）が `title` の中身を置き換えても消えない |
 | `body` | 値のセルの HTML |
 | `help` | 値の下の説明の HTML。空なら出さない。`div.form-text`（`data-field-part="help"`）で包む。`.form-text` は `--color-text-muted` の灰色で区別し、文字の大きさは本文と同じ（小さくしない） |
@@ -38,7 +38,7 @@ echo EvoFieldRow::render([
 
 ## 見出しの列の幅と色
 
-- 見出しの列の幅は、全画面で変数 `--form-label-width`（200px。`theme-base.css` の `:root`）の 1 つ。`.field-label` が `width` に使い、長い見出しは折り返す。画面ごとに見出しの幅や `white-space: nowrap` を足さない。
+- 見出しの列の幅は、全画面で変数 `--form-label-width`（200px。`theme-base.css` の `:root`）の 1 つ。テーマでは決めない。`.field-label` と、プラグインが設定の表に足す手書きの行の見出し（`.settings tr:not(.field-row) > th`）が `width` に使い、長い見出しは折り返す。画面ごとに見出しの幅や `white-space: nowrap` を足さない。
 - 見出しの文字の色は、変数 `--mutate-field-title-color`（既定は `--color-warning`）の 1 つ。`.field-label`・`.field-title` に `forms.css` が当てる。
 
 ## 見出しと値の間

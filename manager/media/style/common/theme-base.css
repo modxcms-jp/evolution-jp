@@ -279,8 +279,9 @@ optgroup option {
     text-align: start;
 }
 
-/* プラグインが設定の表に足す手書きの行（行の部品を使わない th）の見出しは上揃え */
+/* プラグインが設定の表に足す手書きの行（行の部品を使わない th）の見出しは、行の部品と同じ幅で上揃え */
 .settings tr:not(.field-row) > th {
+    width: var(--form-label-width);
     vertical-align: top;
 }
 
