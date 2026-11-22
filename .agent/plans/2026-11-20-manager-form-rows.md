@@ -320,6 +320,7 @@
 - 段階 3C-1: ブランチ `refactor/1631-stage3c1-web-user-settings`（同じワークツリーで main から切り替えた）、PR #1737
 - 段階 3C-2: ブランチ `refactor/1631-stage3c2-user-form-rows`（同じワークツリーで main から切り替えた）、PR #1738
 - 段階 4A: ブランチ `refactor/1631-stage4a-tv-rows`（同じワークツリーで main から切り替えた）、PR #1740
+- 段階 4B: ブランチ `refactor/1631-stage4b-remaining-styles`（同じワークツリーで main から切り替えた）、PR #1742
 
 ## Interfaces and Dependencies
 
