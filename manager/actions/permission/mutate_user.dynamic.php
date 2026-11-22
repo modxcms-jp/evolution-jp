@@ -30,10 +30,10 @@ if ($action === 12) {
     if (!$user) {
         exit('No user returned while getting username!<p>');
     }
-    $_SESSION['itemname'] = $user['username'];
+    sessionv('*itemname', $user['username']);
 } else {
     $user = [];
-    $_SESSION['itemname'] = 'New user';
+    sessionv('*itemname', 'New user');
 }
 
 require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
