@@ -278,7 +278,7 @@
 - 段階 3A: ブランチ `refactor/1631-stage3a-settings-table`（同じワークツリーで main から切り替えた）、PR #1733
 - 段階 3B: ブランチ `refactor/1631-stage3b-user-settings-definition`（同じワークツリーで main から切り替えた）、PR #1736
 - 段階 3C-1: ブランチ `refactor/1631-stage3c1-web-user-settings`（同じワークツリーで main から切り替えた）、PR #1737
-- 段階 3C-2: ブランチ `refactor/1631-stage3c2-user-form-rows`（同じワークツリーで main から切り替えた）
+- 段階 3C-2: ブランチ `refactor/1631-stage3c2-user-form-rows`（同じワークツリーで main から切り替えた）、PR #1738
 
 ## Interfaces and Dependencies
 
