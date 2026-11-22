@@ -33,9 +33,6 @@
 
     /* 入力欄とボタンの上下の余白 */
     --control-padding-y: var(--space-1);
-
-    /* フォームの行: ラベルの列の幅は 1 つ */
-    --form-label-width: 150px;
 }
 
 body {
@@ -48,13 +45,6 @@ h2 { font-size: var(--font-size-xl); line-height: var(--line-height-tight); }
 h3 { font-size: var(--font-size-lg); line-height: var(--line-height-tight); }
 h4, h5, h6 { font-size: var(--font-size-md); line-height: var(--line-height-tight); }
 small, .comment { font-size: var(--font-size-sm); }
-
-/* フォームの行: ラベルの列の幅をそろえる（ラベルの縦の揃えは theme-base.css の .field-label が決める） */
-.field-row > .field-label,
-.settings th {
-    width: var(--form-label-width);
-    text-align: left;
-}
 
 /* 箱の内側の余白は 1 段（中の文字の左端を全画面でそろえる） */
 .section .sectionBody,

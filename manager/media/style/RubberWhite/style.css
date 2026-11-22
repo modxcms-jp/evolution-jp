@@ -357,7 +357,6 @@
     --searchbar-border-color: var(--light-border);
     --searchbar-bg: linear-gradient(180deg, var(--color-gray-50) 0%, var(--color-gray-100) 100%);
     --searchbar-radius: var(--radius-md);
-    --settings-th-color: var(--color-gray-700);
     --fieldset-tab-page-border-color: var(--color-border-lighter);
 
     /* ツリーの上のボタン（common/tree.css） */

@@ -16,7 +16,7 @@ echo EvoFieldRow::render([
 | キー | 内容 |
 | --- | --- |
 | `field` | `data-field` の値。フィールドではない行は空（省略可） |
-| `label` | 見出しの HTML。`span.field-title`（`data-field-part="title"`）の中に入る。名前だけを入れる |
+| `label` | 見出しの HTML。`span.field-title`（`data-field-part="title"`）の中に入る。名前だけを入れる。ただし、その行を選ぶチェックボックスは、名前と一緒に `label` 要素で包んで入れてよい（DocManager の TV の一括変更、モジュールの外部ファイルの行） |
 | `label_extra` | 見出しのセルで、名前の後ろに置く HTML（鍵のアイコン・言語の select など）。名前の変更（ManagerManager）が `title` の中身を置き換えても消えない |
 | `body` | 値のセルの HTML |
 | `help` | 値の下の説明の HTML。空なら出さない。`div.form-text`（`data-field-part="help"`）で包む。`.form-text` は `--color-text-muted` の灰色で区別し、文字の大きさは本文と同じ（小さくしない） |
@@ -26,7 +26,7 @@ echo EvoFieldRow::render([
 - HTML を受けるキー（`label`・`label_extra`・`body`・`help`）は、呼び出し側で出力に合わせてエスケープしてから渡す（利用者の入力・DB や環境から来る値は `hsc()`）。部品は差し込んだ値を再評価しないので、値の中の `[+…+]` はそのまま出る。部品の出力を、あとで `parseText()` などのタグ解析に通す画面（文書の編集画面は大きな tpl に差し込む）は、値を `hsc_for_tpl()` で渡す（`template-system.md`）。言語ファイルとコードの定数の HTML はそのまま渡してよい。
 - 値のセルの HTML が大きい行は、PHP の画面では `ob_start()` と `ob_get_clean()` で HTML を組んで `body` に渡す（`sprintf()` や heredoc で組まない）。
 - 種類ごとの違いは、呼び出し側が配列で表す。部品の中に画面ごとの分岐を足さない。文書の編集画面の値のセルの `.field-inline` の包みは、呼び出し側の `renderFieldTr()`（`mutate_content/functions.php`）が行う。
-- 使っている画面: 文書の編集（`renderFieldTr()` 経由）・下書きの公開・グローバル設定とユーザーの設定の表（`EvoSettingsForm`）・システム情報・スタイルガイド・管理ログの検索・サイトの書き出し・バックアップのスナップショット・スニペット・チャンク・プラグイン・テンプレート・モジュール・TV の編集（エレメントの 6 画面）・文書の編集画面の TV の行（`fieldsTV()`。`class` は `mutate-tv-row`）・管理ユーザー・Web ユーザー・プロフィールの編集（プロフィールの行・パスワード・メール・名前・ログインの状態の行は、3 画面が共有する `manager/actions/permission/mutate_user/user_form_rows.php` の関数が部品で出す）・管理ユーザーと Web ユーザーの編集の「ユーザー」タブ（設定の定義）。
+- 使っている画面: 文書の編集（`renderFieldTr()` 経由）・下書きの公開・グローバル設定とユーザーの設定の表（`EvoSettingsForm`）・システム情報・スタイルガイド・管理ログの検索・サイトの書き出し・バックアップのスナップショット・スニペット・チャンク・プラグイン・テンプレート・モジュール・TV の編集（エレメントの 6 画面）・文書の編集画面の TV の行（`fieldsTV()`。`class` は `mutate-tv-row`）・DocManager の TV の一括変更の表（`assets/modules/docmanager/tv.ajax.php`）・管理ユーザー・Web ユーザー・プロフィールの編集（プロフィールの行・パスワード・メール・名前・ログインの状態の行は、3 画面が共有する `manager/actions/permission/mutate_user/user_form_rows.php` の関数が部品で出す）・管理ユーザーと Web ユーザーの編集の「ユーザー」タブ（設定の定義）。
 
 ## data-field の決まり
 
@@ -36,6 +36,11 @@ echo EvoFieldRow::render([
 
 設定 `custom_tpl_dir` のフォルダに `field_row.tpl` があれば、部品はそれを読む。文書の画面だけでなく、部品を使うすべての画面（文書の編集画面の TV の行を含む）に効く。読む処理は `helpers.php` の `tpl_read()` で、文書の編集画面の `file_get_tpl()` も同じ関数を使う。差し替える tpl には、`data-field`・`data-field-part` と、`[+class+]`・`[+attr+]` の置き場所を書く。
 
+## 見出しの列の幅と色
+
+- 見出しの列の幅は、変数 `--form-label-width` で決める。編集画面は 150px（`theme-base.css` の `:root`）、見出しの長い設定の表は 200px（`.settings` で上書き）の 2 つだけ。テーマでは決めない。`.field-label` と、プラグインが設定の表に足す手書きの行の見出し（`.settings tr:not(.field-row) > th`）が `width` に使い、長い見出しは折り返す。画面ごとに見出しの幅や `white-space: nowrap` を足さない。
+- 見出しの文字の色は、変数 `--mutate-field-title-color`（既定は `--color-warning`）の 1 つ。`.field-label`・`.field-title` に `forms.css` が当てる。
+
 ## 見出しと値の間
 
 見出しのセルの右の間（`--space-3`）は、共通の CSS（`theme-base.css` の `.field-label`）が決める。画面ごとに `padding-right` を直書きしない。表のセルの上下・左右の余白は、1px（表のセルの既定）に変数 `--field-row-gap` を足した値（設定の表は 4px、TV の表 `.mutate-tv-table` は 2px）。画面ごとに `cellpadding`・`cellspacing` の属性や `padding` を直書きしない。
@@ -43,7 +48,7 @@ echo EvoFieldRow::render([
 ## 見出しの縦の揃えと見出しの無い行
 
 - 見出しの 1 行目の文字は、値の 1 行目の文字に共通の CSS（`theme-base.css`）でそろえる。値が文字・チェックボックス・ラジオの行は基準線でそろえる。文字を入れる欄（入力欄・セレクト・textarea）のある行は上揃えにし、見出しの上の余白を欄の中の文字の高さに合わせる（textarea の基準線は下端なので、基準線ではそろわない）。複数行の欄でも見出しは上に来る。画面ごとに `padding-top`・`valign` を直書きしない。「文字を入れる欄」は `forms.css` の欄の高さの規則と同じ一覧にする。
-- 設定の表（`class="settings"`）は、全幅・見出しは本文と同じ大きさ（列の幅は 200px）・行の間に点線で、`theme-base.css` の `.settings` が決める。セルの余白は 1px に変数 `--field-row-gap`（設定の表は 4px）を足した値。ただし見出しの右は `.field-label` の `--space-3`、文字を入れる欄のある行の見出しの上は揃えの規則が決め、そこにも同じ変数が足されるので、上の揃えは崩れない。設定の表の説明（`EvoSettingsForm` の `desc`）は `help` に入る。
+- 設定の表（`class="settings"`）は、全幅・見出しは本文と同じ大きさ（列の幅は `--form-label-width` を 200px に上書きする）・行の間に点線で、`theme-base.css` の `.settings` が決める。セルの余白は 1px に変数 `--field-row-gap`（設定の表は 4px）を足した値。ただし見出しの右は `.field-label` の `--space-3`、文字を入れる欄のある行の見出しの上は揃えの規則が決め、そこにも同じ変数が足されるので、上の揃えは崩れない。設定の表の説明（`EvoSettingsForm` の `desc`）は `help` に入る。
 - 見出しの無い行（「ロックする」のチェックボックスなど）は、`label` を空にして渡し、値を入力欄の列にそろえる。部品に「見出しの無い行」の形は足さない。
 - 見出しにコロンは付けない。
 

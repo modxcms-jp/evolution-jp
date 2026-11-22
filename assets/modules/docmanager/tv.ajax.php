@@ -43,7 +43,8 @@ header('Content-Type: text/html; charset=' . $modx->config('modx_charset', 'UTF-
 
 if ($total > 0) {
     require(MODX_CORE_PATH . 'tmplvars.inc.php');
-    $output .= "<table class='mutate-tv-table' border='0' cellspacing='0' cellpadding='3'>";
+    require_once MODX_CORE_PATH . 'field_row.class.inc.php';
+    $rows = [];
 
     for ($i = 0; $i < $total; $i++) {
         $row = db()->getRow($rs);
@@ -51,26 +52,25 @@ if ($total > 0) {
         $fieldElements = $row['elements'] ?? '';
         $row['form_name'] = 'templatevariables';
 
-        if ($i > 0 && $i < $total) {
-            $output .= '<tr><td colspan="2"><div class="split"></div></td></tr>';
-        }
-
-        $output .= '<tr class="mutate-tv-row">
-                        <td class="mutate-tv-label">
-                                <label class="mutate-field-title" for="cb_update_tv_' . $row['id'] . '"><input type="checkbox" name="update_tv_' . $row['id'] . '" id="cb_update_tv_' . $row['id'] . '" value="yes" />&nbsp;' . hsc($row['caption']) . '</label><br /><span class="comment">' . tv_input_description_html($row['description']) . '</span>
-                        </td>
-                        <td class="mutate-tv-value">';
-        $output .= renderFormElement(
-            $row['type'],
-            $row['id'],
-            $defaultText,
-            $fieldElements,
-            $defaultText,
-            'width:300px;',
-            $row
-        );
-        $output .= '</td></tr>';
+        // 一括変更する TV のチェックボックスを見出しにする
+        $rows[] = EvoFieldRow::render([
+            'label' => '<label for="cb_update_tv_' . $row['id'] . '"><input type="checkbox" name="update_tv_' . $row['id'] . '" id="cb_update_tv_' . $row['id'] . '" value="yes" />&nbsp;' . hsc($row['caption']) . '</label>',
+            'body' => renderFormElement(
+                $row['type'],
+                $row['id'],
+                $defaultText,
+                $fieldElements,
+                $defaultText,
+                'width:300px;',
+                $row
+            ),
+            'help' => tv_input_description_html($row['description']),
+            'class' => 'mutate-tv-row',
+        ]);
     }
+    // 区切り線は行と行の間にだけ入れる
+    $output .= "<table class='mutate-tv-table'>"
+        . implode('<tr><td colspan="2"><div class="split"></div></td></tr>', $rows);
     $output .= '</table>';
 } else {
     echo $dm->lang['DM_tv_no_tv'];

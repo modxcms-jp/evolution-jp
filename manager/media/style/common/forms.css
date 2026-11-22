@@ -175,10 +175,11 @@
         cursor: help;
     }
 
-    /* 編集画面の欄の名前（field_row.tpl の文書の行。RTE の見出しなどの .mutate-field-title も同じ） */
-    .mutate-field-row .field-title,
-    .mutate-tv-row .field-title,
-    .mutate-field-title {
+    /* 編集画面の欄の名前（行の部品の見出しのセルと名前。RTE の見出しなどの .mutate-field-title と、プラグインが設定の表に足す手書きの行の見出しも同じ） */
+    .field-label,
+    .field-title,
+    .mutate-field-title,
+    .settings tr:not(.field-row) > th {
         color: var(--mutate-field-title-color, var(--color-warning, #444));
         font-weight: bold;
     }

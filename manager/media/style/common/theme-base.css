@@ -222,8 +222,14 @@ optgroup option {
     background: var(--searchbar-bg, #dbdbdb);
 }
 
+/* 見出しの列の幅（編集画面の既定。長い見出しは折り返す。設定の表は下の .settings で広げる） */
+:root {
+    --form-label-width: 150px;
+}
+
 /* 行の部品（field_row.tpl）の見出しのセル。揃えは行頭（th の既定は中央）。太さは th の既定（太字）。右に値のセルとの間を取る */
 .field-label {
+    width: var(--form-label-width);
     text-align: start;
     padding-inline-end: var(--space-3, 12px);
 }
@@ -259,7 +265,9 @@ optgroup option {
    ただし見出しの右は .field-label の --space-3、文字を入れる欄のある行の見出しの上は揃えの規則（上の .field-label）が決め、
    そこにも同じ --field-row-gap が足されるので、行の部品の揃えは崩れない。
    見出しの文字の大きさは本文と同じ。見出しの列の幅は 200px */
+/* 設定の表は見出しが長いので、見出しの列を広げる */
 .settings {
+    --form-label-width: 200px;
     --field-row-gap: 4px;
     border-collapse: collapse;
     width: 100%;
@@ -270,13 +278,12 @@ optgroup option {
 }
 
 .settings th {
-    width: 200px !important;
-    color: var(--settings-th-color, #555);
     text-align: start;
 }
 
-/* プラグインが設定の表に足す手書きの行（行の部品を使わない th）の見出しは上揃え */
+/* プラグインが設定の表に足す手書きの行（行の部品を使わない th）の見出しは、行の部品と同じ幅で上揃え */
 .settings tr:not(.field-row) > th {
+    width: var(--form-label-width);
     vertical-align: top;
 }
 
@@ -515,10 +522,6 @@ table[data-moved-fields]:empty {
     height: 24px;
 }
 
-.mutate-field-row > .field-label {
-    width: 120px;
-}
-
 .clickable-label {
     cursor: pointer;
 }
@@ -551,24 +554,7 @@ table[data-moved-fields]:empty {
     height: 24px;
 }
 
-/* DocManager の TV の一括変更の表（手書きの行）。見出しの列の値は、下の文書の編集画面の TV の行と同じ */
-.mutate-tv-label {
-    width: 200px;
-    vertical-align: top;
-    white-space: nowrap;
-}
-
-.mutate-tv-value {
-    position: relative;
-    vertical-align: top;
-}
-
-/* 文書の編集画面の TV の行（行の部品 + .mutate-tv-row）。見出しの列は幅 200px・折り返さない（上の DocManager の .mutate-tv-label と同じ値） */
-.mutate-tv-row > .field-label {
-    width: 200px;
-    white-space: nowrap;
-}
-
+/* TV の行（行の部品 + .mutate-tv-row。文書の編集画面と DocManager の一括変更の表） */
 .mutate-tv-row > .field-value {
     position: relative;
 }
