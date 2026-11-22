@@ -233,7 +233,7 @@
 
 期待される観測: 3 画面のプロフィールの行・パスワードの欄・メール・名前の行が、同じ HTML（値と、プロフィールの画面の通知の方法の有無だけが違う）で出る。保存・名前の変更・パスワードの変更（自動生成・指定・通知の方法）・写真の選択・生年月日の選択・入力エラーで戻したときが main と同じに動く。本体の 3 画面の設定の表に手書きの行が残っていない（見出しの規則はプラグインの手書きの行のために残す）。
 
-### 段階 4A（ブランチ `refactor/1631-stage4-document-rows`。TV の行）
+### 段階 4A（ブランチ `refactor/1631-stage4a-tv-rows`。TV の行）
 
 1. `custom_tpl_dir` から tpl を読む処理を 1 か所にまとめる。`manager/includes/helpers.php` に、既定のフォルダを引数で受け取る関数（例: `tpl_read($file, $defaultDir)`。`custom_tpl_dir` が空でなく、そこに同じ名前のファイルがあればそれ、無ければ既定のフォルダのもの）を置き、`EvoFieldRow::tpl()` と `mutate_content/functions.php` の `file_get_tpl()` がそれを使う。読んだ内容を使い回す（キャッシュ）かは、今の 2 つの動き（`EvoFieldRow` は使い回す、`file_get_tpl()` は毎回読む）を変えない形にする。
 2. `fields.php` の `fieldsTV()` の TV の行を、`tv_row.tpl` から `EvoFieldRow::render()` に替える。`field` は `tv{id}`、`label` は caption（今と同じく `hsc`）、`help` は説明（今と同じくエスケープしない。管理者が入れる値）、`body` は入力欄、`class` は `mutate-tv-row`。見出しの列の幅 200px・折り返さない・見出しの名前の色（`--mutate-field-title-color`）は、TV の行の class の規則で今のまま保つ（#1739 で見直す）。日付の TV の値のセルの `z-index:100` は、今の日付の選択の部品で重なりを防ぐのに要るかを確かめ、要るなら CSS で当てる（直書きを残さない）。区切り線の行（`renderSplit()`）の形は変えない（ManagerManager の `hideRows`・`mm_movefieldstotab` が使う）。`tv_row.tpl` を消す。
