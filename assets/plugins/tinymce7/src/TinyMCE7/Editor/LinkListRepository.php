@@ -43,7 +43,7 @@ final class LinkListRepository
         $children = [];
         foreach ($rows as $row) {
             $parent = (int)$row['parent'];
-            // 親が見えない（削除済み・権限なし）文書は最上位に置く
+            // 親が見えない（削除済み・権限なし・allowed_parents の範囲外）文書は最上位に置く
             $children[isset($byId[$parent]) ? $parent : 0][] = $row;
         }
 

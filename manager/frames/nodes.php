@@ -427,7 +427,7 @@ function get_tree_orderby()
 
 /**
  * allowed_parents があるとき、表示を許可されたリソースだけに絞る条件
- * 非コンテナは parseNode() の isContainAllowed() と同じ判定になる
+ * 非コンテナは parseNode() の isContainAllowed() と同じ判定になる。0 を含む設定では SQL では絞らず、表示は isContainAllowed() が決める
  */
 function allowed_docs_condition()
 {

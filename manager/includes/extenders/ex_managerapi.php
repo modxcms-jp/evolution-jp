@@ -1167,7 +1167,7 @@ class ManagerAPI
         }
 
         foreach ($childlen as $child) {
-            if (in_array($child, evo()->user_allowed_docs)) {
+            if (in_array($child, (array)evo()->user_allowed_docs)) {
                 return true;
             }
         }
@@ -1259,7 +1259,7 @@ class ManagerAPI
 
     /**
      * allowed_parents の範囲の中の文書だけに絞る SQL の条件式（前に AND は付けない）。制限なし（設定が空、または 0 を含む）なら空文字。
-     * 範囲は getUserAllowedDocs() と同じ（許可した親と、その子孫）
+     * 範囲は getUserAllowedDocs() の一覧と同じ（許可した親と、その子孫。削除済みとその下を除き、10 階層まで）
      *
      * @param string $alias site_content の別名（呼ぶ側の固定の文字列。別名が無い問い合わせは空）
      * @return string
