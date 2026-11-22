@@ -36,7 +36,7 @@ function mm_renameField($field, $newlabel, $roles = '', $templates = '', $newhel
             break;
 
         case 'which_editor':
-            $output .= '(function (el) { const p = el && el.previousElementSibling; if (p && p.matches("span.mutate-field-title")) { p.innerHTML = ' . $label . '; } })(document.getElementById("which_editor"));';
+            $output .= 'MM.html("#which_editor_title", ' . $label . ');';
             break;
 
         case 'content':
