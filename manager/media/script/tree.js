@@ -231,7 +231,11 @@ function revealPaneDocument() {
     }, Promise.resolve(true)).then(function () {
         if (stillCurrent()) {
             selectTreeNode(doc.id);
+            return;
         }
+        // 移った先の文書の処理は、ここで読み込んでいた親（読み込み中）で止まっていることがある。
+        // 読み込みが済んだので、移った先の文書についてやり直す（文書の画面でなければ何もしない）
+        revealPaneDocument();
     });
 }
 
