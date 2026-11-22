@@ -7,7 +7,7 @@
         enctype="multipart/form-data"
         action="index.php"
         onsubmit="documentDirty=false;"
-        novalidate
+        novalidate[+tree_document_attr+]
 >
     <input type="hidden" name="a" value="[+a+]"/>
     <input type="hidden" name="id" value="[+id+]"/>
