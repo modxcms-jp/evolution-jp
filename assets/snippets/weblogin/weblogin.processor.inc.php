@@ -282,7 +282,7 @@ $email = $row['email'];
 if ($internalKey) {
     $rs = db()->select('setting_name, setting_value', $tbl_web_user_settings, 'webuser=' . (int)$internalKey);
     while ($row = db()->getRow($rs, 'both')) {
-        $modx->config[$row[0]] = $row[1];
+        evo()->setConfig($row[0], $row[1]);
     }
 }
 
