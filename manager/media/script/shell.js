@@ -24,6 +24,23 @@
         return new URL(url, window.location.href).href;
     }
 
+    // data-shell-once="<グローバル変数の名前>" の付いたスクリプト（外部のライブラリの本体）の、読めた URL と、そのとき出来た変数の値。
+    // 変数が出来ていれば読めたとみなす。変数が覚えた値のままのあいだは、画面を移っても読み直さない
+    // （別のスクリプトが同じ名前の変数を作り直していたら読み直す）。全体の読み込みで読んだものは DOMContentLoaded で拾う
+    const loadedOnceScripts = new Map();
+
+    function rememberOnceScript(el, resolvedUrl) {
+        const name = el.getAttribute('data-shell-once');
+        if (name && window[name]) {
+            loadedOnceScripts.set(resolvedUrl, window[name]);
+        }
+    }
+
+    function isLoadedOnce(el, resolvedUrl) {
+        const name = el.getAttribute('data-shell-once');
+        return !!name && loadedOnceScripts.has(resolvedUrl) && window[name] === loadedOnceScripts.get(resolvedUrl);
+    }
+
     function hasLiveScriptTag(resolvedUrl, exceptNode) {
         return Array.from(document.querySelectorAll('script[src]')).some(function (el) {
             if (el === exceptNode) {
@@ -110,6 +127,11 @@
                     runNext(index + 1);
                     return;
                 }
+                // ライブラリの本体は、一度読んだら読み直さない（作り直すと、前の本体が窓に付けたリスナーなどが残る）
+                if (isLoadedOnce(old, resolved)) {
+                    runNext(index + 1);
+                    return;
+                }
                 const el = document.createElement('script');
                 Array.from(old.attributes).forEach(function (attr) {
                     if (attr.name === 'async' || attr.name === 'defer') {
@@ -118,7 +140,11 @@
                     el.setAttribute(attr.name, attr.value);
                 });
                 el.async = false;
-                el.onload = el.onerror = function () {
+                el.onload = function () {
+                    rememberOnceScript(el, resolved);
+                    runNext(index + 1);
+                };
+                el.onerror = function () {
                     runNext(index + 1);
                 };
                 old.parentNode.replaceChild(el, old);
@@ -1223,6 +1249,10 @@
         if (!document.body.classList.contains('evo-shell')) {
             return;
         }
+
+        document.querySelectorAll('script[src][data-shell-once]').forEach(function (el) {
+            rememberOnceScript(el, resolveUrl(el.getAttribute('src')));
+        });
 
         initTreeResizer();
 
