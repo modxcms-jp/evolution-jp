@@ -431,14 +431,8 @@ function get_tree_orderby()
  */
 function allowed_docs_condition()
 {
-    if (!evo()->conf_var('allowed_parents')) {
-        return '';
-    }
-    if (!isset(evo()->user_allowed_docs)) {
-        evo()->user_allowed_docs = manager()->getUserAllowedDocs();
-    }
-    $ids = array_filter(array_map('intval', (array)evo()->user_allowed_docs));
-    return sprintf('AND sc.id IN (%s)', $ids ? implode(',', $ids) : '0');
+    $cond = manager()->allowedDocsCondition('sc');
+    return $cond === '' ? '' : 'AND ' . $cond;
 }
 
 function getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder)

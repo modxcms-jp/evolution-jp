@@ -1257,6 +1257,31 @@ class ManagerAPI
         return $modx->user_allowed_docs;
     }
 
+    /**
+     * allowed_parents の範囲の中の文書だけに絞る SQL の条件式（前に AND は付けない）。制限なし（設定が空、または 0 を含む）なら空文字。
+     * 範囲は getUserAllowedDocs() と同じ（許可した親と、その子孫）
+     *
+     * @param string $alias site_content の別名（呼ぶ側の固定の文字列。別名が無い問い合わせは空）
+     * @return string
+     * @throws InvalidArgumentException $alias が識別子でないとき
+     */
+    public function allowedDocsCondition($alias = 'sc')
+    {
+        $alias = (string)$alias;
+        if ($alias !== '' && !preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $alias)) {
+            throw new InvalidArgumentException('Invalid table alias');
+        }
+        if (!evo()->conf_var('allowed_parents') || in_array(0, $this->getAllowedParentIds(), true)) {
+            return '';
+        }
+        $ids = array_map('intval', (array)$this->getUserAllowedDocs());
+        return sprintf(
+            '%sid IN (%s)',
+            $alias === '' ? '' : $alias . '.',
+            $ids ? implode(',', $ids) : '0'
+        );
+    }
+
     // ルート直下にリソースを作ってよいか
     public function isAllowroot()
     {
