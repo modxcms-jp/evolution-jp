@@ -41,8 +41,9 @@ final class EvoSettingsForm
      * @param array $values 欄に出す値（system は systemValues() の結果、user・profile はそのユーザーの値。差し戻しを含む）
      * @param array $stored 保存されているシステム設定（storedValues() の結果。差し戻しを含まない）。
      *                      「今の設定は何か」を判るのに使う（一括変更の基準、user・profile の条件の行と「システム設定に従う」の値）
-     * @param string $scope system（グローバル設定）・user（ユーザー編集画面）・profile（プロフィール）。
-     *                      user・profile は、その scope の行だけを同じタブ・小見出し・順で出す
+     * @param string $scope system（グローバル設定）・user（ユーザー編集画面）・profile（プロフィール）・
+     *                      web（Web ユーザー編集画面。値は web_user_settings の値）。
+     *                      system 以外は、その scope の行だけを同じタブ・小見出し・順で出す
      */
     public function __construct(array $tabs, array $values, array $stored, string $scope = 'system')
     {
