@@ -220,7 +220,17 @@
 
 期待される観測: Web ユーザーの新規・編集の「セキュリティ」タブが設定の表（説明は欄の下、欄は 250px、見出しは普通の太字）で出て、保存した値が main と同じ。ログイン回数などの行は「ログイン設定」タブの末尾に出て、リセット・ブロックの切り替え・日付が main と同じに動く。管理ユーザーと Web ユーザーのログインの曜日・IP の制限が、保存の処理が作る値で main と同じ結果になる。
 
-### 段階 3C-2・4
+### 段階 3C-2（ブランチ `refactor/1631-stage3c2-user-form-rows`。3 画面の重複と、残りの手書きの行）
+
+1. 3 つのユーザーの画面（管理ユーザー `mutate_user/tpl/form/tab_general.php`・`tab_profile.php`、Web ユーザー `mutate_web_user.dynamic.php`、プロフィール `mutate_user_pf.dynamic.php`）で同じ形に 3 回書かれている行を、共通の関数（3 画面だけが使う 1 つのファイル。`manager/actions/permission/` の下）から `EvoFieldRow::render()` で出す。対象: プロフィールの 13 行（氏名・電話・携帯・FAX・住所・市区町村・都道府県・郵便番号・国・生年月日・性別・コメント・写真）、パスワードの欄（パスワードの変更・自動生成と指定・通知の方法）、メール、ユーザー名と名前の変更。
+2. 画面ごとの違いは呼び出し側の引数（値の配列と、少しのオプション）で表し、関数の中に画面ごとの分岐を積まない。プロフィールの画面だけパスワードの通知の方法を出さない（今の動きのまま。送る値も今のまま）。枠の見出し（`legend`）・`<small>`・`td.warning` の見出し・直書きの幅など、画面ごとに場当たりでずれていた細かな見た目は、管理ユーザーの画面に合わせる。JS が使う id・name（`showname`・`editname`・`passwordBlock`・`newpassword`・`specifiedpassword`・`confirmpassword`・`passwordgenmethod`・`passwordnotifymethod`・`blocked`・`dob`・`photo`・`iphoto` など）と、送る値は変えない。
+3. 3 画面の残りの手書きの見出しと値の行（ロールの選択など）も `EvoFieldRow::render()` にする。スタイルガイドの手書きの見本「ユーザー編集の表」（`styleguide_sample.static.php`）も部品で組む。そのあとで、3A で足した一時的な規則 `.settings tr:not(.field-row) > th { vertical-align: top }`（`theme-base.css`）を消す（`class="settings"` の表に手書きの `<tr><th>` が残っていないことを grep で確かめる）。
+4. プロフィールの画面の使われない `checkbox()` を消す。3 画面に同じ形で入っている JS（`changestate()`・`changePasswordState()`・写真の選択など）は、同じ処理なら 1 つにまとめる（中身が違う・まとめると範囲が大きくなる場合は、まとめずに ExecPlan に記録する）。
+5. 文書: `manager-form-row.md`（使っている画面）。
+
+期待される観測: 3 画面のプロフィールの行・パスワードの欄・メール・名前の行が、同じ HTML（値と、プロフィールの画面の通知の方法の有無だけが違う）で出る。保存・名前の変更・パスワードの変更（自動生成・指定・通知の方法）・写真の選択・生年月日の選択・入力エラーで戻したときが main と同じに動く。一時的な見出しの規則が無くなり、設定の表の手書きの行が残っていない。
+
+### 段階 4
 
 段階 3 の残りの PR は、3B のあとに、調査の結果（2026-11-22）をもとにこの節に手順を書き足す。3C で一緒に扱うこと（3B の自己レビューより）: (1) 3A で足した一時的な規則 `.settings tr:not(.field-row) > th { vertical-align: top }`（`theme-base.css`）は、Web ユーザーの画面の 3 つの表と、スタイルガイドの手書きの見本「ユーザー編集の表」（`styleguide_sample.static.php`）を行の部品へ移したあとで消す。(2) 曜日の「選ばれているか」の判定が、画面（`EvoSettingsForm` の `checkboxes` 型。`,` で分けて一致を見る）とログインの処理（`login.processor.functions.php` の `strpos`）で違う。Web ユーザーの曜日の欄を同じ型へ移すときに、管理ユーザーと Web ユーザーのログインの処理も同じ判定にそろえる（`,` の無い古い値があるかも確かめる）。(3) プロフィールの画面（`mutate_user_pf.dynamic.php`）の使われない `checkbox()` を消す。
 
