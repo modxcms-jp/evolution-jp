@@ -228,9 +228,15 @@
       }
       container.addEventListener('pointerdown', markResizedByUser);
       container.addEventListener('keydown', markResizedByUser);
-      new (editor.getWin().ResizeObserver)(resize).observe(editor.getBody());
+      const observer = new (editor.getWin().ResizeObserver)(resize);
+      observer.observe(editor.getBody());
       // 窓の高さだけが変わったときは body の大きさが変わらない
       global.addEventListener('resize', resize);
+      // シェルの画面遷移では editor.remove() で破棄される。窓のリスナーと監視が破棄したエディタを持ち続けないよう外す
+      editor.on('remove', function () {
+        global.removeEventListener('resize', resize);
+        observer.disconnect();
+      });
     });
   }
 
