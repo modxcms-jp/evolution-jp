@@ -471,6 +471,30 @@
             "added_at": "2026-11-21T23:15:00+09:00",
             "last_used_at": "2026-11-21T23:15:00+09:00",
             "source": "2026-11-21-tinymce7-image-picker-unify-001"
+        },
+        {
+            "id": "change-060",
+            "location": "SKILL.md（1 件ごとの繰り返しの手順 5「検証」）",
+            "status": "adopted",
+            "added_at": "2026-11-22T21:45:00+09:00",
+            "last_used_at": "2026-11-22T21:45:00+09:00",
+            "source": "2026-11-22-manager-form-rows-001"
+        },
+        {
+            "id": "change-061",
+            "location": "SKILL.md（止まる条件「要相談」の互換性を損なう変更）",
+            "status": "adopted",
+            "added_at": "2026-11-22T21:45:00+09:00",
+            "last_used_at": "2026-11-22T21:45:00+09:00",
+            "source": "2026-11-22-manager-form-rows-001"
+        },
+        {
+            "id": "change-062",
+            "location": ".claude/skills/adaptive-validation-runner/SKILL.md（Playwright の書き方）",
+            "status": "adopted",
+            "added_at": "2026-11-22T21:45:00+09:00",
+            "last_used_at": "2026-11-22T21:45:00+09:00",
+            "source": "2026-11-22-manager-form-rows-001"
         }
     ]
 }

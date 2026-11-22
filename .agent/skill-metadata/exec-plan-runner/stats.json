@@ -28,13 +28,13 @@
             "source": "2026-10-16-orchestration-runner-001"
         },
         "__summary": {
-            "seen_runs": 59,
-            "used_runs": 59,
-            "helped_runs": 59,
+            "seen_runs": 62,
+            "used_runs": 62,
+            "helped_runs": 62,
             "conflicted_runs": 0,
             "stale_runs": 0,
             "archived_runs": 0,
-            "active_runs": 34
+            "active_runs": 36
         },
         "change-004": {
             "seen_runs": 1,
@@ -539,6 +539,33 @@
             "stale_runs": 0,
             "last_used_at": "2026-11-21T23:15:00+09:00",
             "source": "2026-11-21-tinymce7-image-picker-unify-001"
+        },
+        "change-060": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-22T21:45:00+09:00",
+            "source": "2026-11-22-manager-form-rows-001"
+        },
+        "change-061": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-22T21:45:00+09:00",
+            "source": "2026-11-22-manager-form-rows-001"
+        },
+        "change-062": {
+            "seen_runs": 1,
+            "used_runs": 1,
+            "helped_runs": 1,
+            "conflicted_runs": 0,
+            "stale_runs": 0,
+            "last_used_at": "2026-11-22T21:45:00+09:00",
+            "source": "2026-11-22-manager-form-rows-001"
         }
     }
 }
