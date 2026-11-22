@@ -6,7 +6,7 @@
  * 文言は読んだときの言語の lang() で引く（言語ファイルの文言は信頼する HTML として出る）。
  */
 require_once __DIR__ . '/snapshot_store.class.inc.php';
-require_once __DIR__ . '/error_reporting_options.class.inc.php';
+require_once __DIR__ . '/error_reporting.class.inc.php';
 
 return [
     [

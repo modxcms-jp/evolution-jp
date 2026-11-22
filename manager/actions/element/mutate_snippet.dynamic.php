@@ -176,7 +176,7 @@ function entity($key, $default = null)
                         'body' => ob_get_clean(),
                     ]);
 
-                    $snippetErrorReporting = entity('error_reporting', 'inherit');
+                    $snippetErrorReporting = entity('error_reporting', EvoErrorReporting::INHERIT);
                     echo EvoFieldRow::render([
                         'label' => lang('a17_error_reporting_title'),
                         'body' => EvoErrorReporting::radios((string)$snippetErrorReporting),

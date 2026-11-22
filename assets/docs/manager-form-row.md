@@ -19,7 +19,7 @@ echo EvoFieldRow::render([
 | `label` | 見出しの HTML。`span.field-title`（`data-field-part="title"`）の中に入る。名前だけを入れる |
 | `label_extra` | 見出しのセルで、名前の後ろに置く HTML（鍵のアイコン・言語の select など）。名前の変更（ManagerManager）が `title` の中身を置き換えても消えない |
 | `body` | 値のセルの HTML |
-| `help` | 値の下の説明の HTML。空なら出さない。`div.form-text`（`data-field-part="help"`）で包む |
+| `help` | 値の下の説明の HTML。空なら出さない。`div.form-text`（`data-field-part="help"`）で包む。`.form-text` は `--color-text-muted` の灰色で区別し、文字の大きさは本文と同じ（小さくしない） |
 | `class` | 行に足す class（文書の編集画面は `mutate-field-row`） |
 | `attr` | 行に足す属性 `[名前 => 値]`（`data-show-if`・`style` など）。値は部品が `hsc()` する |
 

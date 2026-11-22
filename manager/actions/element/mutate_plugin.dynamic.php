@@ -501,7 +501,7 @@ function entity($key, $default = null)
                         'body' => ob_get_clean(),
                     ]);
 
-                    $pluginErrorReporting = entity('error_reporting', 'inherit');
+                    $pluginErrorReporting = entity('error_reporting', EvoErrorReporting::INHERIT);
                     echo EvoFieldRow::render([
                         'label' => lang('a17_error_reporting_title'),
                         'body' => EvoErrorReporting::radios((string)$pluginErrorReporting),
