@@ -123,9 +123,9 @@ class BrowserView
         $markup .= '    </div>';
         $markup .= '  </div>';
         $markup .= '  <div class="evo-fb-uploads" data-role="uploads"></div>';
-        $markup .= '  <div class="evo-fb-overlay" data-role="move-overlay" hidden>';
-        $markup .= '    <div class="evo-fb-overlay-panel" role="dialog" aria-modal="true" aria-labelledby="evoFbMoveTitle" data-role="move-panel">';
-        $markup .= '      <div class="evo-fb-overlay-header" id="evoFbMoveTitle">' . hsc(lang('fb_move_dest_title')) . '</div>';
+        $markup .= '  <dialog class="evo-fb-overlay" aria-labelledby="evoFbMoveTitle" data-role="move-overlay">';
+        $markup .= '    <div class="evo-fb-overlay-panel" data-role="move-panel">';
+        $markup .= self::titleBar('evoFbMoveTitle', hsc(lang('fb_move_dest_title')));
         $markup .= '      <div class="evo-fb-path" data-role="move-path"></div>';
         $markup .= '      <div class="evo-fb-grid evo-fb-grid-folders" data-role="move-grid"></div>';
         $markup .= '      <div class="evo-fb-overlay-footer">';
@@ -133,9 +133,10 @@ class BrowserView
         $markup .= '        <button type="button" class="evo-fb-btn evo-fb-btn-primary" data-role="move-confirm">' . hsc(lang('fb_move_here')) . '</button>';
         $markup .= '      </div>';
         $markup .= '    </div>';
-        $markup .= '  </div>';
-        $markup .= '  <div class="evo-fb-overlay" data-role="preview-overlay" hidden>';
-        $markup .= '    <div class="evo-fb-overlay-panel evo-fb-preview-panel" role="dialog" aria-modal="true" aria-label="' . hsc(lang('preview')) . '" data-role="preview-panel">';
+        $markup .= '  </dialog>';
+        $markup .= '  <dialog class="evo-fb-overlay" aria-labelledby="evoFbPreviewTitle" data-role="preview-overlay">';
+        $markup .= '    <div class="evo-fb-overlay-panel evo-fb-preview-panel" data-role="preview-panel">';
+        $markup .= self::titleBar('evoFbPreviewTitle', hsc(lang('preview')));
         $markup .= '      <img class="evo-fb-preview-img" data-role="preview-img" alt="">';
         $markup .= '      <video class="evo-fb-preview-media" data-role="preview-video" controls preload="metadata" hidden></video>';
         $markup .= '      <audio class="evo-fb-preview-audio" data-role="preview-audio" controls preload="metadata" hidden></audio>';
@@ -146,11 +147,11 @@ class BrowserView
         $markup .= '        <span class="evo-fb-preview-actions" data-role="preview-actions"></span>';
         $markup .= '      </div>';
         $markup .= '    </div>';
-        $markup .= '  </div>';
-        $markup .= '  <div class="evo-fb-overlay" data-role="edit-overlay" hidden>';
-        $markup .= '    <div class="evo-fb-overlay-panel evo-fb-edit-panel" role="dialog" aria-modal="true" aria-labelledby="evoFbEditTitle" data-role="edit-panel">';
+        $markup .= '  </dialog>';
+        $markup .= '  <dialog class="evo-fb-overlay" aria-labelledby="evoFbEditTitle" data-role="edit-overlay">';
+        $markup .= '    <div class="evo-fb-overlay-panel evo-fb-edit-panel" data-role="edit-panel">';
+        $markup .= self::titleBar('evoFbEditTitle', hsc(lang('fb_edit_title')) . ' <span class="evo-fb-edit-name" data-role="edit-name"></span>');
         $markup .= '      <div class="evo-fb-edit-layout">';
-        $markup .= '      <div class="evo-fb-overlay-header evo-fb-edit-header" id="evoFbEditTitle">' . hsc(lang('fb_edit_title')) . ' <span class="evo-fb-edit-name" data-role="edit-name"></span></div>';
         $markup .= self::imageEditorStage();
         $markup .= '      <div class="evo-fb-edit-controls">';
         $markup .= self::imageEditorControls();
@@ -174,11 +175,23 @@ class BrowserView
         $markup .= '      </div>';
         $markup .= '      </div>';
         $markup .= '    </div>';
-        $markup .= '  </div>';
+        $markup .= '  </dialog>';
         $markup .= $extras;
         $markup .= '</div>';
 
         return $markup;
+    }
+
+    /**
+     * ダイアログの見出しの帯と ×(見た目は evo-dialog.js の .evo-titlebar、× は overlay.js が Esc と同じ処理につなぐ)
+     *
+     * @param string $id 見出しの id(パネルの aria-labelledby が指す)
+     * @param string $titleHtml エスケープ済みの見出し
+     */
+    private static function titleBar($id, $titleHtml)
+    {
+        return '<div class="evo-titlebar"><div class="evo-titlebar-title" id="' . $id . '">' . $titleHtml . '</div>'
+            . '<button type="button" class="evo-titlebar-close" aria-label="' . hsc(lang('close')) . '">&times;</button></div>';
     }
 
     /** 画像の編集の、プレビューとトリミングの枠。枠には四隅と各辺の中央のつまみ、操作中だけ出す 3 分割の線を置く */
@@ -244,9 +257,9 @@ class BrowserView
     public static function manageExtras()
     {
         $html = '';
-        $html .= '  <div class="evo-fb-overlay" data-role="text-overlay" hidden>';
-        $html .= '    <div class="evo-fb-overlay-panel evo-fb-text-panel" role="dialog" aria-modal="true" aria-labelledby="evoFbTextTitle" data-role="text-panel">';
-        $html .= '      <div class="evo-fb-overlay-header" id="evoFbTextTitle">' . hsc(lang('fb_text_title')) . '</div>';
+        $html .= '  <dialog class="evo-fb-overlay" aria-labelledby="evoFbTextTitle" data-role="text-overlay">';
+        $html .= '    <div class="evo-fb-overlay-panel evo-fb-text-panel" data-role="text-panel">';
+        $html .= self::titleBar('evoFbTextTitle', hsc(lang('fb_text_title')));
         $html .= '      <div class="code-editor evo-fb-text-editor">';
         $html .= '        <div class="code-editor-header">';
         $html .= '          <span class="code-editor-title" data-role="text-name"></span>';
@@ -261,7 +274,7 @@ class BrowserView
         $html .= '        <button type="button" class="evo-fb-btn evo-fb-btn-primary" data-role="text-save" disabled>' . hsc(lang('save')) . '</button>';
         $html .= '      </div>';
         $html .= '    </div>';
-        $html .= '  </div>';
+        $html .= '  </dialog>';
 
         return $html;
     }
@@ -317,6 +330,7 @@ class BrowserView
     <?= manager_theme_stylesheets() ?>
     <link rel="stylesheet" href="../../style/common/selection-dock.css?<?= asset_version(MODX_MANAGER_PATH . 'media/style/common/selection-dock.css') ?>">
     <link rel="stylesheet" href="filebrowser.css?<?= asset_version(MODX_MANAGER_PATH . 'media/browser/evo/filebrowser.css') ?>">
+    <script src="../../script/evo-dialog.js?<?= asset_version(MODX_MANAGER_PATH . 'media/script/evo-dialog.js') ?>"></script>
 </head>
 <body class="evo-fb-standalone">
 <?= self::markup($jsConfig, $extras) ?>

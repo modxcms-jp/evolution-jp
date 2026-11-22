@@ -537,34 +537,7 @@ body.evo-shell #evoShellModal {
     box-sizing: border-box;
 }
 
-/* タイトル(断片側のh1をここへ移す)と閉じるボタンの固定ヘッダー。
-   テーマの見出し配色(actionButtons a.defaultと同じ--color-primary系)を流用しつつ、
-   明るいテーマ色でも白文字とのコントラストを確保するため暗色オーバーレイを重ねる */
-body.evo-shell #evoShellModalHeader {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2, 8px);
-    padding: 0 var(--space-2, 8px) 0 var(--space-4, 16px);
-    min-height: 44px;
-    background-image:
-        linear-gradient(rgba(0, 0, 0, .3), rgba(0, 0, 0, .3)),
-        linear-gradient(var(--color-primary-start, var(--color-primary, #375665)), var(--color-primary-end, var(--color-primary, #375665)));
-    color: var(--color-text-inverse, #fff);
-}
-
-body.evo-shell #evoShellModalHeader h1 {
-    margin: 0;
-    padding: var(--space-2, 8px) 0;
-    background: none;
-    border: none;
-    box-shadow: none;
-    color: inherit;
-    font-size: 1.1em;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, .4);
-}
-
+/* 見出しの帯(断片側の h1 をここへ移す)と閉じるボタンの見た目は、evo-dialog.js の .evo-titlebar */
 body.evo-shell #evoShellModalBody {
     overflow: auto;
     padding: var(--space-4, 16px);
@@ -601,29 +574,6 @@ body.evo-shell #evoShellModalFooter #actions {
 body.evo-shell #evoShellModalFooter #actions .actionButtons {
     display: inline-flex;
     gap: var(--space-2, 8px);
-}
-
-body.evo-shell #evoShellModal .evo-modal-close {
-    flex: 0 0 auto;
-    width: 28px;
-    height: 28px;
-    border: 0;
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-    font-size: 20px;
-    line-height: 26px;
-    padding: 0;
-}
-
-body.evo-shell #evoShellModal .evo-modal-close:hover {
-    background: rgba(255, 255, 255, .2);
-}
-
-body.evo-shell #evoShellModal .evo-modal-close:focus-visible {
-    background: rgba(255, 255, 255, .2);
-    outline: 2px solid currentColor;
-    outline-offset: 2px;
 }
 
 /* 送信中(EvoShell.submit)は送信ボタンとactionButtonsを押せない見た目にする */

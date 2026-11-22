@@ -801,20 +801,31 @@
     color: rgba(255, 255, 255, 0.85);
 }
 
-/* 移動先選択・プレビューのオーバーレイ */
+/* ダイアログ(移動先・プレビュー・画像の編集・テキスト)。<dialog> を showModal() で最前面に出し、
+   ウィンドウ全体を覆う透明な入れ物にして、中のパネルを真ん中に置く(パネルは見出しの帯でウィンドウの中を動かせる) */
 
 .evo-fb-overlay {
-    position: absolute;
+    position: fixed;
     inset: 0;
-    z-index: 10;
-    display: flex;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.4);
 }
 
-.evo-fb-overlay[hidden] {
-    display: none;
+.evo-fb-overlay[open] {
+    display: flex;
+}
+
+.evo-fb-overlay::backdrop {
+    background: rgba(0, 0, 0, 0.4);
 }
 
 .evo-fb-overlay-panel {
@@ -823,14 +834,20 @@
     gap: var(--space-2, 8px);
     width: min(560px, 92%);
     max-height: 80%;
-    padding: var(--space-4, 16px);
+    /* 見出しの帯(.evo-titlebar)は上と左右の端まで広げる */
+    --evo-fb-panel-pad: var(--space-4, 16px);
+    padding: 0 var(--evo-fb-panel-pad) var(--evo-fb-panel-pad);
+    overflow: hidden;
     background: var(--color-surface, #fff);
     border-radius: var(--radius-lg, 4px);
-    box-shadow: var(--shadow-xl, 0 2px 15px rgba(0, 0, 0, 0.2));
+    /* 暗い背景の上に出すので、シェルのモーダル(shell.css の #evoShellModal)と同じ暗い影にする。
+       テーマの --shadow-xl は明るい画面に浮かべる要素向けで、明るい色のテーマでは白く光って見える */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, .35);
 }
 
-.evo-fb-overlay-header {
-    font-weight: bold;
+.evo-fb-overlay-panel > .evo-titlebar {
+    align-self: stretch;
+    margin-inline: calc(-1 * var(--evo-fb-panel-pad));
 }
 
 .evo-fb-grid-folders {
@@ -962,11 +979,11 @@
    狭いとき: 上から プレビュー・操作欄・保存のしかた の順に並べて全体をスクロールさせ、キャンセル・保存のボタンは下に留める */
 .evo-fb-edit-panel {
     width: min(1100px, 96%);
-    height: 96%;
+    /* 高さは中身に合わせる(上限はウィンドウの 96%。超えるときは .evo-fb-edit-layout の中でスクロールする) */
     max-height: 96%;
-    padding: 0;
+    --evo-fb-panel-pad: 0;
+    gap: 0;
     box-sizing: border-box;
-    overflow: hidden;
     container-type: inline-size;
 }
 
@@ -975,17 +992,14 @@
     grid-template-columns: minmax(0, 1fr);
     /* 中身の高さで並べて全体をスクロールさせる(auto のままだと、高さの決まった入れ物に合わせて行が縮み、重なる)。
        中身が少ないときは、ボタンを下端に置く */
-    grid-template-rows: repeat(4, max-content) 1fr;
-    grid-template-areas: "head" "stage" "controls" "foot" "buttons";
+    grid-template-rows: repeat(3, max-content) 1fr;
+    grid-template-areas: "stage" "controls" "foot" "buttons";
     gap: var(--space-3, 12px);
-    height: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
     padding: var(--space-3, 12px) var(--space-3, 12px) 0;
     box-sizing: border-box;
     overflow: auto;
-}
-
-.evo-fb-edit-header {
-    grid-area: head;
 }
 
 .evo-fb-edit-stage {
@@ -1013,14 +1027,20 @@
 @container (min-width: 640px) {
     .evo-fb-edit-layout {
         grid-template-columns: minmax(0, 1fr) 260px;
-        grid-template-rows: auto minmax(0, 1fr) auto;
-        grid-template-areas: "head head" "stage controls" "foot buttons";
+        grid-template-rows: minmax(0, 1fr) auto;
+        grid-template-areas: "stage controls" "foot buttons";
         overflow: hidden;
         padding-bottom: var(--space-3, 12px);
     }
 
+    /* 表示の枠の高さは、画像(回転後)の縦横比から決める(--evo-fb-edit-ratio は JS が入れる)。横長の画像で上下が余らない。
+       行の高さは、この枠と右の操作欄の高いほうになり、枠は行いっぱいに伸ばす(操作欄より低くならず、操作欄にスクロールバーが出ない) */
     .evo-fb-edit-stage {
+        box-sizing: border-box;
+        width: 100%;
         height: auto;
+        aspect-ratio: var(--evo-fb-edit-ratio, 4 / 3);
+        align-self: stretch;
     }
 
     .evo-fb-edit-controls {
@@ -1036,7 +1056,6 @@
 
 .evo-fb-edit-name {
     font-weight: normal;
-    color: var(--color-text-muted, #606060);
     word-break: break-all;
 }
 

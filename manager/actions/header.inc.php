@@ -75,6 +75,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
             EvoShell.closeLabel = <?= js_literal(lang('close')) ?>;
         }
         EvoDialog.cancelLabel = <?= js_literal(lang('cancel')) ?>;
+        EvoDialog.closeLabel = <?= js_literal(lang('close')) ?>;
         <?php evo()->loadExtension('DocAPI'); ?>
         EvoDocumentActions.config = <?= evo()->doc->actionConfig() ?>;
 

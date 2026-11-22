@@ -264,6 +264,7 @@ export function createImageEditor(ctx) {
             return;
         }
         var b = bounds();
+        stageEl.style.setProperty('--evo-fb-edit-ratio', b.w + ' / ' + b.h);
         var style = window.getComputedStyle(stageEl);
         var maxW = stageEl.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
         var maxH = stageEl.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);

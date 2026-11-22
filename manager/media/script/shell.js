@@ -352,8 +352,8 @@
         overlay.className = 'hidden';
         overlay.innerHTML =
             '<div id="evoShellModal" role="dialog" aria-modal="true">' +
-            '<div id="evoShellModalHeader">' +
-            '<button type="button" class="evo-modal-close" aria-label="Close">&times;</button>' +
+            '<div id="evoShellModalHeader" class="evo-titlebar">' +
+            '<button type="button" class="evo-modal-close evo-titlebar-close" aria-label="Close">&times;</button>' +
             '</div>' +
             '<div id="evoShellModalBody"></div>' +
             '<div id="evoShellModalFooter"></div>' +
@@ -425,6 +425,9 @@
         body.innerHTML = html;
         body.scrollTop = 0;
         hoistStylesheets(body);
+        if (overlay.classList.contains('hidden')) {
+            document.getElementById('evoShellModal').style.translate = '';
+        }
         overlay.classList.remove('hidden');
 
         // #actionsはスクロールしないフッターへ、見出し(h1)は固定ヘッダーへ移す
@@ -446,6 +449,7 @@
                 el.remove();
             });
             if (heading) {
+                heading.classList.add('evo-titlebar-title');
                 header.insertBefore(heading, closeButton);
             }
         }
