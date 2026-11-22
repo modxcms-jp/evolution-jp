@@ -325,7 +325,7 @@ function entity($key, $default = null)
                     <?php
                     echo EvoFieldRow::render([
                         'label' => lang('tmplvars_name'),
-                        'body' => '<span style="font-family:\'Courier New\', Courier, mono">[*</span><input name="name" type="text" maxlength="50" value="' . hsc(entity('name')) . '" class="inputBox" style="width:300px;"><span style="font-family:\'Courier New\', Courier, mono">*]</span>',
+                        'body' => '[*<input name="name" type="text" maxlength="50" value="' . hsc(entity('name')) . '" class="inputBox" style="width:300px;">*]',
                     ]);
                     echo EvoFieldRow::render([
                         'label' => lang('tmplvars_caption'),
@@ -404,10 +404,10 @@ function entity($key, $default = null)
                         case 'checkbox':
                         case 'option':
                         case 'custom_tv':
-                            $display = '';
+                            $showOptions = true;
                             break;
                         default:
-                            $display = 'style="display:none;"';
+                            $showOptions = false;
                     }
 
                     function getInputTypeName($query) {
@@ -424,15 +424,13 @@ function entity($key, $default = null)
                     $name2 = getInputTypeName("name like'input:%'");
 
                     if ($name1 == entity('type') || $name2 == entity('type')) {
-                        $display = '';
+                        $showOptions = true;
                     }
-                    ?>
-                    <?php
                     // type が選択肢を持つときだけ出す。type の change で JS が表示と、見出しの visibility を切り替える
                     echo EvoFieldRow::render([
                         'label' => lang('tmplvars_elements'),
                         'body' => $form_elements . $tooltip_input_option,
-                        'attr' => ['id' => 'inputoption'] + ($display !== '' ? ['style' => 'display:none;'] : []),
+                        'attr' => ['id' => 'inputoption'] + ($showOptions ? [] : ['style' => 'display:none;']),
                     ]);
 
                     ob_start();
@@ -703,7 +701,7 @@ function entity($key, $default = null)
     var itype = document.getElementById('type');
     if (itype) itype.addEventListener('change', function() {
         const inputOption = document.getElementById('inputoption');
-        const optionHeader = document.querySelector('#inputoption th');
+        const optionHeader = document.querySelector('#inputoption > .field-label');
         const optionTextareas = document.querySelectorAll('#inputoption textarea');
         const optionValue = optionTextareas.length ? optionTextareas[0].value : undefined;
         const setOptionValue = function(value) {

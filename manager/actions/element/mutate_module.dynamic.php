@@ -248,7 +248,8 @@ function content($key, $default = null)
                         onclick="BrowseServer();" />
                     <?php
                     echo EvoFieldRow::render([
-                        'label' => lang('icon') . ' <span class="comment">(32x32)</span>',
+                        'label' => lang('icon'),
+                        'label_extra' => ' <span class="comment">(32x32)</span>',
                         'body' => ob_get_clean(),
                     ]);
 
@@ -260,15 +261,11 @@ function content($key, $default = null)
                         class="inputBox" /> <span class="clickable-label"
                         onclick="document.mutate.enable_resource.click();"
                         title="<?= lang('enable_resource') ?>"><?= lang("element") ?></span>
-                    <?php
-                    $resourceLabel = ob_get_clean();
-                    ob_start();
-                    ?>
                     <input name="resourcefile" type="text" maxlength="255"
                         value="<?= hsc(content('resourcefile')) ?>" class="inputBox" />
                     <?php
                     echo EvoFieldRow::render([
-                        'label' => $resourceLabel,
+                        'label' => lang('element'),
                         'body' => ob_get_clean(),
                         'attr' => ['style' => 'display:none;'],
                     ]);
@@ -324,7 +321,8 @@ function content($key, $default = null)
                     <h2 class="tab"><?= lang('settings_dependencies') ?></h2>
                     <div class="sectionBody">
                         <?php
-                        $display = (content('enable_sharedparams') != 1) ? 'style="display:none;"' : '';
+                        // 共有の欄は、enable_sharedparams が 1 でないときは隠す
+                        $sharedHidden = content('enable_sharedparams') != 1;
                         ?>
                         <table>
                             <?php
@@ -361,12 +359,12 @@ function content($key, $default = null)
                                 'body' => ob_get_clean(),
                                 'help' => lang('enable_sharedparams_msg'),
                                 'class' => 'sharedparams',
-                                'attr' => content('enable_sharedparams') != 1 ? ['style' => 'display:none;'] : [],
+                                'attr' => $sharedHidden ? ['style' => 'display:none;'] : [],
                             ]);
                             ?>
                         </table>
                     </div>
-                    <div class="sectionBody sharedparams" <?= $display ?>>
+                    <div class="sectionBody sharedparams"<?= $sharedHidden ? ' style="display:none;"' : '' ?>>
                         <p><?= lang('module_viewdepend_msg') ?></p>
                         <p class="actionButtons">
                             <a href="#" onclick="loadDependencies();return false;">
