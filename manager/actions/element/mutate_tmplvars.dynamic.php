@@ -19,7 +19,7 @@ if (is_array($evtOut)) {
 
 $form_elements = '<textarea name="elements" maxlength="65535" style="width:400px;height:110px;" class="inputBox phptextarea">' . hsc(entity('elements')) . "</textarea>\n";
 
-$tooltip_tpl = '<img src="[+src+]" title="[+title+]" alt="[+alt+]" class="tooltip" tabindex="0" onclick="alert(this.alt);" style="cursor:help" />';
+$tooltip_tpl = '<img src="[+src+]" title="[+title+]" alt="[+alt+]" class="tooltip" tabindex="0" onclick="alert(this.alt);" />';
 $ph = [];
 $ph['src'] = style('icons_tooltip_over');
 $ph['title'] = lang('tmplvars_input_option_msg');
@@ -322,23 +322,18 @@ function entity($key, $default = null)
             <div class="tab-page" id="tabGeneral">
                 <h2 class="tab"><?= lang('settings_general') ?></h2>
                 <table>
-                    <tr>
-                        <th align="left"><?= lang('tmplvars_name') ?></th>
-                        <td align="left"><span style="font-family:'Courier New', Courier, mono">[*</span><input
-                                name="name" type="text" maxlength="50" value="<?= hsc(entity('name')) ?>"
-                                class="inputBox" style="width:300px;"><span
-                                style="font-family:'Courier New', Courier, mono">*]</span></td>
-                    </tr>
-                    <tr>
-                        <th align="left"><?= lang('tmplvars_caption') ?></th>
-                        <td align="left"><input name="caption" type="text" maxlength="80"
-                                value="<?= hsc(entity('caption')) ?>" class="inputBox"
-                                style="width:300px;"></td>
-                    </tr>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('tmplvars_name'),
+                        'body' => '<span style="font-family:\'Courier New\', Courier, mono">[*</span><input name="name" type="text" maxlength="50" value="' . hsc(entity('name')) . '" class="inputBox" style="width:300px;"><span style="font-family:\'Courier New\', Courier, mono">*]</span>',
+                    ]);
+                    echo EvoFieldRow::render([
+                        'label' => lang('tmplvars_caption'),
+                        'body' => '<input name="caption" type="text" maxlength="80" value="' . hsc(entity('caption')) . '" class="inputBox" style="width:300px;">',
+                    ]);
 
-                    <tr>
-                        <th align="left"><?= lang('tmplvars_type') ?></th>
-                        <td align="left">
+                    ob_start();
+                    ?>
                             <select id="type" name="type" size="1" class="inputBox" style="width:300px;">
                                 <?php
                                 $option = [];
@@ -396,9 +391,12 @@ function entity($key, $default = null)
                                 echo implode("\n", $row);
                                 ?>
                             </select>
-                        </td>
-                    </tr>
                     <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('tmplvars_type'),
+                        'body' => ob_get_clean(),
+                    ]);
+
                     switch (entity('type')) {
                         case 'dropdown':
                         case 'listbox':
@@ -429,61 +427,78 @@ function entity($key, $default = null)
                         $display = '';
                     }
                     ?>
-                    <tr id="inputoption" <?= $display ?>>
-                        <th align="left" valign="top"><?= lang('tmplvars_elements') ?></th>
-                        <td align="left" nowrap="nowrap"><?= $form_elements . $tooltip_input_option ?></td>
-                    </tr>
-                    <tr>
-                        <th align="left" valign="top"><?= lang('tmplvars_default') ?></th>
-                        <td align="left" nowrap="nowrap"><textarea name="default_text" type="text"
-                                class="inputBox phptextarea" rows="5"
-                                style="width:400px;"><?= hsc(entity('default_text')) ?></textarea>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th align="left"><?= lang('tmplvars_widget') ?></th>
-                        <td align="left">
-                            <select name="display" size="1" class="inputBox" style="width:400px;"
-                                onchange="showParameters(this);">
-                                <option value="" <?= selected(entity('display') == '') ?>>&nbsp;</option>
-                                <option value="custom_widget" <?= selected(entity('display') === 'custom_widget') ?>>
-                                    Custom Processor
-                                </option>
-                                <option value="image" <?= selected(entity('display') === 'image') ?>>Image
-                                </option>
-                                <option value="hyperlink" <?= selected(entity('display') === 'hyperlink') ?>>
-                                    Hyperlink
-                                </option>
-                                <option value="htmltag" <?= selected(entity('display') === 'htmltag') ?>>HTML
-                                    Generic Tag
-                                </option>
-                                <option value="string" <?= selected(entity('display') === 'string') ?>>String
-                                    Formatter
-                                </option>
-                                <option value="date" <?= selected(entity('display') === 'date') ?>>Date
-                                    Formatter
-                                </option>
-                                <option value="unixtime" <?= selected(entity('display') === 'unixtime') ?>>
-                                    Unixtime
-                                </option>
-                                <option value="delim" <?= selected(entity('display') === 'delim') ?>>Delimited
-                                    List
-                                </option>
-                                <option value="datagrid" <?= selected(entity('display') === 'datagrid') ?>>
-                                    Data Grid
-                                </option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr id="displayparamrow">
-                        <td valign="top" align="left"><?= lang('tmplvars_widget_prop') ?>
-                            <div style="padding-top:8px;"><a href="javascript://"
-                                    onclick="resetParameters(); return false"><img
-                                        src="<?= style('icons_refresh') ?>"
-                                        alt="<?= lang('tmplvars_reset_params') ?>"></a></div>
-                        </td>
-                        <td align="left" id="displayparams">&nbsp;</td>
-                    </tr>
+                    <?php
+                    // type が選択肢を持つときだけ出す。type の change で JS が表示と、見出しの visibility を切り替える
+                    echo EvoFieldRow::render([
+                        'label' => lang('tmplvars_elements'),
+                        'body' => $form_elements . $tooltip_input_option,
+                        'attr' => ['id' => 'inputoption'] + ($display !== '' ? ['style' => 'display:none;'] : []),
+                    ]);
+
+                    ob_start();
+                    ?>
+                    <textarea name="default_text"
+                        class="inputBox phptextarea" rows="5"
+                        style="width:400px;"><?= hsc(entity('default_text')) ?></textarea>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('tmplvars_default'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    ob_start();
+                    ?>
+                    <select name="display" size="1" class="inputBox" style="width:400px;"
+                        onchange="showParameters(this);">
+                        <option value="" <?= selected(entity('display') == '') ?>>&nbsp;</option>
+                        <option value="custom_widget" <?= selected(entity('display') === 'custom_widget') ?>>
+                            Custom Processor
+                        </option>
+                        <option value="image" <?= selected(entity('display') === 'image') ?>>Image
+                        </option>
+                        <option value="hyperlink" <?= selected(entity('display') === 'hyperlink') ?>>
+                            Hyperlink
+                        </option>
+                        <option value="htmltag" <?= selected(entity('display') === 'htmltag') ?>>HTML
+                            Generic Tag
+                        </option>
+                        <option value="string" <?= selected(entity('display') === 'string') ?>>String
+                            Formatter
+                        </option>
+                        <option value="date" <?= selected(entity('display') === 'date') ?>>Date
+                            Formatter
+                        </option>
+                        <option value="unixtime" <?= selected(entity('display') === 'unixtime') ?>>
+                            Unixtime
+                        </option>
+                        <option value="delim" <?= selected(entity('display') === 'delim') ?>>Delimited
+                            List
+                        </option>
+                        <option value="datagrid" <?= selected(entity('display') === 'datagrid') ?>>
+                            Data Grid
+                        </option>
+                    </select>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('tmplvars_widget'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    // パラメーターの表は #displayparams の中身を JS が置き換え、行ごと表示を切り替える
+                    ob_start();
+                    ?>
+                    <div><a href="javascript://"
+                            onclick="resetParameters(); return false"><img
+                                src="<?= style('icons_refresh') ?>"
+                                alt="<?= lang('tmplvars_reset_params') ?>"></a></div>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('tmplvars_widget_prop'),
+                        'label_extra' => ob_get_clean(),
+                        'body' => '<div id="displayparams">&nbsp;</div>',
+                        'attr' => ['id' => 'displayparamrow'],
+                    ]);
+                    ?>
                 </table>
             </div>
 
@@ -535,43 +550,64 @@ function entity($key, $default = null)
             <div class="tab-page" id="tabInfo">
                 <h2 class="tab"><?= lang('settings_properties') ?></h2>
                 <table>
-                    <tr>
-                        <th align="left"><?= lang('existing_category') ?></th>
-                        <td align="left">
-                            <select name="categoryid" style="width:300px;">
-                                <?= manager()->elementCategoryOptions(entity('category')) ?>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr id="newcategry" data-field="newcategory" style="display:none;">
-                        <th align="left" valign="top" style="padding-top:5px;"><?= lang('new_category') ?></th>
-                        <td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text"
-                                maxlength="45" value="<?= hsc(entity('newcategory', '')) ?>"
-                                class="inputBox"
-                                style="width:300px;"></td>
-                    </tr>
-                    <tr>
-                        <th align="left"><?= lang('tmplvars_description') ?></th>
-                        <td align="left"><textarea name="description"
-                                style="padding:0;height:4em;"><?= hsc(entity('description')) ?></textarea>
-                        </td>
-                    </tr>
-                    <?php if (evo()->hasPermission('save_template') == 1) { ?>
-                        <tr>
-                            <td align="left" colspan="2"><label><input name="locked" value="on"
-                                        type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : "" ?>
-                                        class="inputBox" />
-                                    <b><?= lang('lock_tmplvars') ?></b> <span
-                                        class="comment"><?= lang('lock_tmplvars_msg') ?></span></label>
-                            </td>
-                        </tr>
-                    <?php } ?>
-                    <tr>
-                        <th align="left"><?= lang('tmplvars_rank') ?></th>
-                        <td align="left"><input name="rank" type="text" maxlength="4"
-                                value="<?= hsc(entity('rank', 0)) ?>"
-                                class="inputBox" style="width:300px;"></td>
-                    </tr>
+                    <?php
+                    ob_start();
+                    ?>
+                    <select name="categoryid" style="width:300px;">
+                        <?= manager()->elementCategoryOptions(entity('category')) ?>
+                    </select>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('existing_category'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    // 新しいカテゴリの行は、element-category.js が表示を切り替える
+                    ob_start();
+                    ?>
+                    <input name="newcategory" type="text"
+                        maxlength="45" value="<?= hsc(entity('newcategory', '')) ?>"
+                        class="inputBox"
+                        style="width:300px;">
+                    <?php
+                    echo EvoFieldRow::render([
+                        'field' => 'newcategory',
+                        'label' => lang('new_category'),
+                        'body' => ob_get_clean(),
+                        'attr' => ['id' => 'newcategry', 'style' => 'display:none;'],
+                    ]);
+
+                    ob_start();
+                    ?>
+                    <textarea name="description"
+                        style="height:4em;"><?= hsc(entity('description')) ?></textarea>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('tmplvars_description'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
+                    if (evo()->hasPermission('save_template') == 1) {
+                        ob_start();
+                        ?>
+                        <label><input name="locked" value="on"
+                                type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : "" ?>
+                                class="inputBox" />
+                            <b><?= lang('lock_tmplvars') ?></b> <span
+                                class="comment"><?= lang('lock_tmplvars_msg') ?></span></label>
+                        <?php
+                        echo EvoFieldRow::render([
+                            'label' => '',
+                            'body' => ob_get_clean(),
+                        ]);
+                    }
+
+                    echo EvoFieldRow::render([
+                        'label' => lang('tmplvars_rank'),
+                        'body' => '<input name="rank" type="text" maxlength="4" value="' . hsc(entity('rank', 0)) . '" class="inputBox" style="width:300px;">',
+                    ]);
+                    ?>
                 </table>
             </div>
 
