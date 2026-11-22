@@ -195,7 +195,7 @@
 - 段階 1: ブランチ `refactor/1631-stage1-report-tables`（段階 0 のワークツリーで main から切り替えた）、PR #1653
 - 段階 2A: ブランチ `refactor/1631-stage2-element-forms`、ワークツリー `.claude/worktrees/issue-1631-stage2`（段階 0・1 のワークツリーは外から消されたので作り直した）、PR #1718
 - 段階 2B: ブランチ `refactor/1631-stage2b-plugin-template-forms`（同じワークツリーで main から切り替えた）、PR #1721
-- 段階 2C: ブランチ `refactor/1631-stage2c-module-tv-forms`（同じワークツリーで main から切り替えた）
+- 段階 2C: ブランチ `refactor/1631-stage2c-module-tv-forms`（同じワークツリーで main から切り替えた）、PR #1724
 
 ## Interfaces and Dependencies
 
