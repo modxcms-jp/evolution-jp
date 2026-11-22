@@ -499,11 +499,13 @@ final class EvoSettingsForm
     {
         $key = $row['key'];
         $size = (int)($row['size'] ?? 255) ?: 255;
+        // maxlength の既定は size。0 のときは属性を出さない（長さに上限を付けない）
+        $maxlength = (int)($row['maxlength'] ?? $size);
         return sprintf(
-            '<input type="text" name="%s" value="%s" maxlength="%d"%s%s%s />',
+            '<input type="text" name="%s" value="%s"%s%s%s%s />',
             hsc($key),
             hsc($this->value($key, $row)),
-            $size,
+            $maxlength > 0 ? sprintf(' maxlength="%d"', $maxlength) : '',
             $size <= 10 ? sprintf(' style="width:%dem;"', $size) : '',
             !empty($row['disabled']) ? ' disabled' : '',
             $this->rowAttributes($row)

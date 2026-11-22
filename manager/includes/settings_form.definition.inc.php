@@ -28,6 +28,7 @@ return [
                         'key' => 'allowed_parents',
                         'scope' => ['user'],
                         'type' => 'text',
+                        'maxlength' => 0,
                         'label' => lang('user_allowed_parents'),
                         'desc' => lang('user_allowed_parents_message'),
                     ],
