@@ -39,7 +39,7 @@ function userFormProfileRows(array $data, array $countries): string
     }
 
     // 国
-    $chosenCountry = post_strvar('country', $data['country'] ?? '');
+    $chosenCountry = $data['country'] ?? '';
     $options = '<option value=""' . ($chosenCountry ? '' : ' selected="selected"') . ">&nbsp;</option>\n";
     foreach ($countries as $key => $country) {
         $options .= sprintf(
@@ -89,10 +89,9 @@ function userFormProfileRows(array $data, array $countries): string
         'body' => '<textarea name="comment" class="inputBox" rows="5">' . hsc($data['comment'] ?? '') . '</textarea>',
     ]);
 
-    // 写真。選んだ写真は SetUrl() がプレビュー（img[name=iphoto]）に出す
-    if (post_strvar('photo')) {
-        $photo = post_strvar('photo');
-    } elseif (!empty($data['photo'])) {
+    // 写真。選んだ写真は SetUrl() がプレビュー（img[name=iphoto]）に出す。
+    // 説明（div.form-text）を値のセルに直に書くのは、説明のあとにプレビューの画像を置く並びを保つため（help は値の最後に付く）
+    if (!empty($data['photo'])) {
         $photo = $data['photo'];
     } else {
         $photo = config('base_url') . 'manager/' . style('tx');
@@ -121,9 +120,12 @@ function userFormProfileRows(array $data, array $countries): string
  *
  * @param bool $isNew  新規（見出しは「パスワード」で、チェックは無く欄を初めから出す）
  * @param bool $notify 通知の方法を選ばせる。false は通知の方法を画面に出さず、画面で見せる（s）を送る
+ * @param array $values 選んでおく値（passwordgenmethod: g 自動生成・spec 指定、passwordnotifymethod: s 画面に表示・e メール）。無ければ g と s
  */
-function userFormPasswordRow(bool $isNew, bool $notify): string
+function userFormPasswordRow(bool $isNew, bool $notify, array $values = []): string
 {
+    $genMethod = $values['passwordgenmethod'] ?? 'g';
+    $notifyMethod = $values['passwordnotifymethod'] ?? 's';
     ob_start();
     if (!$isNew) {
         ?>
@@ -137,20 +139,20 @@ function userFormPasswordRow(bool $isNew, bool $notify): string
         <fieldset style="width:300px;padding:0;">
             <label>
                 <input name="passwordgenmethod" value="g" type="radio"
-                    <?= post_strvar('passwordgenmethod') === 'spec' ? '' : 'checked="checked"' ?> />
+                    <?= $genMethod === 'spec' ? '' : 'checked="checked"' ?> />
                 <?= lang('password_gen_gen') ?>
             </label><br/>
             <label>
                 <input name="passwordgenmethod" value="spec" type="radio"
-                    <?= post_strvar('passwordgenmethod') === 'spec' ? 'checked="checked"' : '' ?>>
+                    <?= $genMethod === 'spec' ? 'checked="checked"' : '' ?>>
                 <?= lang('password_gen_specify') ?>
             </label><br/>
             <div style="padding-left:20px">
-                <label for="specifiedpassword" style="width:120px"><?= lang('change_password_new') ?>:</label>
+                <label for="specifiedpassword"><?= lang('change_password_new') ?>:</label>
                 <input id="specifiedpassword" name="specifiedpassword" type="password"
                     onkeypress="document.userform.passwordgenmethod[1].checked=true;"
                     size="20" autocomplete="new-password" /><br/>
-                <label for="confirmpassword" style="width:120px"><?= lang('change_password_confirm') ?>:</label>
+                <label for="confirmpassword"><?= lang('change_password_confirm') ?>:</label>
                 <input id="confirmpassword" name="confirmpassword" type="password"
                     onkeypress="document.userform.passwordgenmethod[1].checked=true;"
                     size="20" autocomplete="new-password" /><br/>
@@ -161,11 +163,11 @@ function userFormPasswordRow(bool $isNew, bool $notify): string
             <fieldset style="width:300px;padding:0;">
                 <label>
                     <input name="passwordnotifymethod" value="e" type="radio"
-                        <?= post_strvar('passwordnotifymethod') === 'e' ? 'checked="checked"' : '' ?> /><?= lang('password_method_email') ?>
+                        <?= $notifyMethod === 'e' ? 'checked="checked"' : '' ?> /><?= lang('password_method_email') ?>
                 </label><br/>
                 <label>
                     <input name="passwordnotifymethod" value="s" type="radio"
-                        <?= post_strvar('passwordnotifymethod') === 'e' ? '' : 'checked="checked"' ?> /><?= lang('password_method_screen') ?>
+                        <?= $notifyMethod === 'e' ? '' : 'checked="checked"' ?> /><?= lang('password_method_screen') ?>
                 </label>
             </fieldset>
         <?php } else { ?>

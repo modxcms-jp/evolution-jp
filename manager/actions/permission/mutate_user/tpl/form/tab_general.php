@@ -6,11 +6,13 @@
     <?php
     echo userFormBlockedNotice($user, (bool) user('id'));
 
+    // 新規と、名前を変えた入力のまま差し戻したときは、初めから名前の入力欄を出す
+    $oldUsername = user('oldusername');
     echo userFormNameRows([
         'username' => user('username'),
-        'oldusername' => user('oldusername', user('username')),
+        'oldusername' => $oldUsername ?: user('username'),
         'hasName' => (bool) user('id'),
-        'editing' => $action === 11,
+        'editing' => $action === 11 || ($oldUsername && $oldUsername != user('username')),
     ]);
 
     echo userFormPasswordRow($action === 11, true);

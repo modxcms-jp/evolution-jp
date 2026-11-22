@@ -19,7 +19,7 @@
 - [x] (2026-11-22) 段階 3A: 設定の説明を欄の下の説明（help）に、設定の表の CSS を共通（theme-base.css）にまとめ、EvoSettingsForm::style() と画面の style を消した
 - [x] (2026-11-22) 段階 3B: ユーザーの設定の手書きの 4 項目を設定の定義の「ユーザー」タブへ（曜日は新しい `checkboxes` 型）、`USER_TAB_KEYS` を消し、ログインの状態の行を「ログイン設定」タブへ移した
 - [x] (2026-11-22) 段階 3C-1: Web ユーザーの設定を設定の定義（scope `web`）へ移し、ログインの曜日・許可 IP の判定を `list_has_item()` の 1 つにそろえた（管理ユーザーと Web ユーザー）
-- [ ] 段階 3C-2: 3 画面の重複（パスワードの欄・プロフィールの行）をなくし、手書きの行のための一時的な規則を消す
+- [ ] 段階 3C-2: 3 画面の重複（パスワードの欄・プロフィールの行）をなくす（見出しの規則はプラグインが足す手書きの行のために残す。Surprises 参照）
 - [ ] 段階 4: 文書の画面の残り（TV の行 `tv_row.tpl` を部品へ、ほかの直書き）
 
 ## Surprises & Discoveries
@@ -226,15 +226,17 @@
 
 1. 3 つのユーザーの画面（管理ユーザー `mutate_user/tpl/form/tab_general.php`・`tab_profile.php`、Web ユーザー `mutate_web_user.dynamic.php`、プロフィール `mutate_user_pf.dynamic.php`）で同じ形に 3 回書かれている行を、共通の関数（3 画面だけが使う 1 つのファイル。`manager/actions/permission/` の下）から `EvoFieldRow::render()` で出す。対象: プロフィールの 13 行（氏名・電話・携帯・FAX・住所・市区町村・都道府県・郵便番号・国・生年月日・性別・コメント・写真）、パスワードの欄（パスワードの変更・自動生成と指定・通知の方法）、メール、ユーザー名と名前の変更。
 2. 画面ごとの違いは呼び出し側の引数（値の配列と、少しのオプション）で表し、関数の中に画面ごとの分岐を積まない。プロフィールの画面だけパスワードの通知の方法を出さない（今の動きのまま。送る値も今のまま）。枠の見出し（`legend`）・`<small>`・`td.warning` の見出し・直書きの幅など、画面ごとに場当たりでずれていた細かな見た目は、管理ユーザーの画面に合わせる。JS が使う id・name（`showname`・`editname`・`passwordBlock`・`newpassword`・`specifiedpassword`・`confirmpassword`・`passwordgenmethod`・`passwordnotifymethod`・`blocked`・`dob`・`photo`・`iphoto` など）と、送る値は変えない。
-3. 3 画面の残りの手書きの見出しと値の行（ロールの選択など）も `EvoFieldRow::render()` にする。スタイルガイドの手書きの見本「ユーザー編集の表」（`styleguide_sample.static.php`）も部品で組む。そのあとで、3A で足した一時的な規則 `.settings tr:not(.field-row) > th { vertical-align: top }`（`theme-base.css`）を消す（`class="settings"` の表に手書きの `<tr><th>` が残っていないことを grep で確かめる）。
+3. 3 画面の残りの手書きの見出しと値の行（ロールの選択など）も `EvoFieldRow::render()` にする。スタイルガイドの手書きの見本「ユーザー編集の表」（`styleguide_sample.static.php`）も部品で組む。3A で足した規則 `.settings tr:not(.field-row) > th { vertical-align: top }`（`theme-base.css`）は、TinyMCE 7 のプラグインが `class="settings"` の表に手書きの `<tr><th>` を足すので残す（Surprises 参照。本体の 3 画面とスタイルガイドの見本に手書きの行が残っていないことは grep で確かめた）。
 4. プロフィールの画面の使われない `checkbox()` を消す。3 画面に同じ形で入っている JS（`changestate()`・`changePasswordState()`・写真の選択など）は、同じ処理なら 1 つにまとめる（中身が違う・まとめると範囲が大きくなる場合は、まとめずに ExecPlan に記録する）。
 5. 文書: `manager-form-row.md`（使っている画面）。
 
-期待される観測: 3 画面のプロフィールの行・パスワードの欄・メール・名前の行が、同じ HTML（値と、プロフィールの画面の通知の方法の有無だけが違う）で出る。保存・名前の変更・パスワードの変更（自動生成・指定・通知の方法）・写真の選択・生年月日の選択・入力エラーで戻したときが main と同じに動く。一時的な見出しの規則が無くなり、設定の表の手書きの行が残っていない。
+期待される観測: 3 画面のプロフィールの行・パスワードの欄・メール・名前の行が、同じ HTML（値と、プロフィールの画面の通知の方法の有無だけが違う）で出る。保存・名前の変更・パスワードの変更（自動生成・指定・通知の方法）・写真の選択・生年月日の選択・入力エラーで戻したときが main と同じに動く。本体の 3 画面の設定の表に手書きの行が残っていない（見出しの規則はプラグインの手書きの行のために残す）。
 
 ### 段階 4
 
-段階 3 の残りの PR は、3B のあとに、調査の結果（2026-11-22）をもとにこの節に手順を書き足す。3C で一緒に扱うこと（3B の自己レビューより）: (1) 3A で足した一時的な規則 `.settings tr:not(.field-row) > th { vertical-align: top }`（`theme-base.css`）は、Web ユーザーの画面の 3 つの表と、スタイルガイドの手書きの見本「ユーザー編集の表」（`styleguide_sample.static.php`）を行の部品へ移したあとで消す。(2) 曜日の「選ばれているか」の判定が、画面（`EvoSettingsForm` の `checkboxes` 型。`,` で分けて一致を見る）とログインの処理（`login.processor.functions.php` の `strpos`）で違う。Web ユーザーの曜日の欄を同じ型へ移すときに、管理ユーザーと Web ユーザーのログインの処理も同じ判定にそろえる（`,` の無い古い値があるかも確かめる）。(3) プロフィールの画面（`mutate_user_pf.dynamic.php`）の使われない `checkbox()` を消す。
+段階 3C-2 で残った直書き（段階 4 の「残りの直書き」で扱う）: パスワードの行の `fieldset` の `width:300px;padding:0`・`div` の `padding-left:20px`・`span.warning` の `font-weight:normal`。
+
+段階 3 の残りの PR は、3B のあとに、調査の結果（2026-11-22）をもとにこの節に手順を書き足す。3C で一緒に扱うこと（3B の自己レビューより）: (1) 3A で足した規則 `.settings tr:not(.field-row) > th { vertical-align: top }`（`theme-base.css`）は、本体の手書きの行を部品へ移したあとも、プラグイン（TinyMCE 7）が足す手書きの行のために残す（Surprises 参照）。(2) 曜日の「選ばれているか」の判定が、画面（`EvoSettingsForm` の `checkboxes` 型。`,` で分けて一致を見る）とログインの処理（`login.processor.functions.php` の `strpos`）で違う。Web ユーザーの曜日の欄を同じ型へ移すときに、管理ユーザーと Web ユーザーのログインの処理も同じ判定にそろえる（`,` の無い古い値があるかも確かめる）。(3) プロフィールの画面（`mutate_user_pf.dynamic.php`）の使われない `checkbox()` を消す。
 
 段階 2B で見つかった重複（エラー報告の選択肢）は段階 3E で、TV の説明の textarea の `padding:0` は段階 2C で対応済み。
 
