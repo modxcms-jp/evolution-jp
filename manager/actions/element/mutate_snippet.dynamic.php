@@ -176,33 +176,10 @@ function entity($key, $default = null)
                         'body' => ob_get_clean(),
                     ]);
 
-                    $snippetErrorReporting = entity('error_reporting', 'inherit');
-                    ob_start();
-                    ?>
-                    <label>
-                        <input type="radio" name="error_reporting" value="inherit"<?= $snippetErrorReporting === 'inherit' ? ' checked="checked"' : '' ?>>
-                        <?= lang('element_error_reporting_inherit') ?>
-                    </label><br/>
-                    <label>
-                        <input type="radio" name="error_reporting" value="0"<?= $snippetErrorReporting === '0' ? ' checked="checked"' : '' ?>>
-                        <?= lang('a17_error_reporting_opt0') ?>
-                    </label><br/>
-                    <label>
-                        <input type="radio" name="error_reporting" value="1"<?= $snippetErrorReporting === '1' ? ' checked="checked"' : '' ?>>
-                        <?= lang('a17_error_reporting_opt1') ?>
-                    </label><br/>
-                    <label>
-                        <input type="radio" name="error_reporting" value="2"<?= $snippetErrorReporting === '2' ? ' checked="checked"' : '' ?>>
-                        <?= lang('a17_error_reporting_opt2') ?>
-                    </label><br/>
-                    <label>
-                        <input type="radio" name="error_reporting" value="99"<?= $snippetErrorReporting === '99' ? ' checked="checked"' : '' ?>>
-                        <?= lang('a17_error_reporting_opt99') ?>
-                    </label>
-                    <?php
+                    $snippetErrorReporting = entity('error_reporting', EvoErrorReporting::INHERIT);
                     echo EvoFieldRow::render([
                         'label' => lang('a17_error_reporting_title'),
-                        'body' => ob_get_clean(),
+                        'body' => EvoErrorReporting::radios((string)$snippetErrorReporting),
                         'help' => lang('a17_error_reporting_msg'),
                     ]);
 

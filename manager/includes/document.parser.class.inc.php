@@ -12,6 +12,7 @@ if (is_file(MODX_BASE_PATH . 'assets/helpers.php')) {
 }
 require_once(__DIR__ . '/system.event.class.inc.php');
 require_once(__DIR__ . '/logger.class.php');
+require_once MODX_CORE_PATH . 'error_reporting.class.inc.php';
 require_once(__DIR__ . '/traits/document.parser.subparser.trait.php');
 
 class DocumentParser
@@ -2848,7 +2849,7 @@ class DocumentParser
         return $content;
     }
 
-    public function evalPlugin($pluginCode, $params, $errorReporting = 'inherit')
+    public function evalPlugin($pluginCode, $params, $errorReporting = EvoErrorReporting::INHERIT)
     {
         $modx = &$this;
         $modx->event->params = $params; // store params inside event object
@@ -2887,7 +2888,7 @@ class DocumentParser
         return (($echo === false) ? '' : $echo) . ($return ?? '');
     }
 
-    public function evalSnippet($phpcode, $params, $errorReporting = 'inherit')
+    public function evalSnippet($phpcode, $params, $errorReporting = EvoErrorReporting::INHERIT)
     {
         $this->currentSnippetCode = $phpcode;
         $phpcode = trim($phpcode);
@@ -2963,46 +2964,10 @@ class DocumentParser
 
     private function resolveErrorReportingLevel($requested)
     {
-        $valid = ['0', '1', '2', '99'];
-        $globalSetting = (string)$this->config('error_reporting', '1');
-        if (!in_array($globalSetting, $valid, true)) {
-            $globalSetting = '1';
-        }
-
-        if ($requested === null || $requested === '') {
-            $requested = 'inherit';
-        }
-
-        $requestedValue = (string)$requested;
-        if ($requestedValue !== 'inherit' && !in_array($requestedValue, $valid, true)) {
-            $requestedValue = 'inherit';
-        }
-
-        $effective = $requestedValue === 'inherit' ? $globalSetting : $requestedValue;
-        $level = (int)($effective === '99' ? 99 : $effective);
-
-        return [
-            'requested' => $requestedValue,
-            'effective' => $effective,
-            'level' => $level,
-            'mask' => $this->mapErrorReportingLevelToMask($level),
-            'global' => $globalSetting,
-            'compatibility' => $level !== 99,
-        ];
-    }
-
-    private function mapErrorReportingLevelToMask($level)
-    {
-        switch ($level) {
-            case 0:
-                return 0;
-            case 1:
-                return E_ALL & ~E_NOTICE & ~E_DEPRECATED;
-            case 2:
-                return E_ALL & ~E_NOTICE;
-            default:
-                return E_ALL;
-        }
+        return EvoErrorReporting::resolve(
+            $requested,
+            (string)$this->config('error_reporting', EvoErrorReporting::DEFAULT_LEVEL)
+        );
     }
 
     private function enterErrorContext($type, $name, array $resolved)
@@ -3174,7 +3139,7 @@ class DocumentParser
                 $params
             );
             // run snippet
-            $errorReporting = $this->snippetCache[$snippetName . 'ErrorReporting'] ?? 'inherit';
+            $errorReporting = $this->snippetCache[$snippetName . 'ErrorReporting'] ?? EvoErrorReporting::INHERIT;
             $result = $this->evalSnippet(
                 $this->snippetCache[$snippetName],
                 $parameters,
@@ -3194,18 +3159,18 @@ class DocumentParser
             $row = db()->getRow($result);
             $phpCode = $this->snippetCache[$snippetName] = $row['snippet'];
             $properties = $this->snippetCache["{$snippetName}Props"] = $row['properties'];
-            $this->snippetCache["{$snippetName}ErrorReporting"] = $row['error_reporting'] ?? 'inherit';
+            $this->snippetCache["{$snippetName}ErrorReporting"] = $row['error_reporting'] ?? EvoErrorReporting::INHERIT;
         } else {
             $phpCode = $this->snippetCache[$snippetName] = "return false;";
             $properties = '';
             $this->snippetCache["{$snippetName}Props"] = '';
-            $this->snippetCache["{$snippetName}ErrorReporting"] = 'inherit';
+            $this->snippetCache["{$snippetName}ErrorReporting"] = EvoErrorReporting::INHERIT;
         }
         // load default params/properties
         $parameters = $this->parseProperties($properties);
         $parameters = array_merge($parameters, $params);
         // run snippet
-        $errorReporting = $this->snippetCache["{$snippetName}ErrorReporting"] ?? 'inherit';
+        $errorReporting = $this->snippetCache["{$snippetName}ErrorReporting"] ?? EvoErrorReporting::INHERIT;
         $result = $this->evalSnippet($phpCode, $parameters, $errorReporting);
 
         $this->currentSnippet = $previousSnippet;
@@ -3406,7 +3371,7 @@ class DocumentParser
             }
             $params = array_merge($default_params, $params);
         }
-        $errorReporting = $snippetObject['error_reporting'] ?? 'inherit';
+        $errorReporting = $snippetObject['error_reporting'] ?? EvoErrorReporting::INHERIT;
         $value = $this->evalSnippet($snippetObject['content'], $params, $errorReporting);
 
         if ($modifiers !== false) {
@@ -3665,7 +3630,7 @@ class DocumentParser
             $name = $row['name'];
             $this->snippetCache[$name] = $row['snippet'];
             $this->snippetCache["{$name}Props"] = $row['properties'];
-            $this->snippetCache["{$name}ErrorReporting"] = $row['error_reporting'] ?? 'inherit';
+            $this->snippetCache["{$name}ErrorReporting"] = $row['error_reporting'] ?? EvoErrorReporting::INHERIT;
         }
     }
 
@@ -5387,7 +5352,7 @@ class DocumentParser
             // get plugin code and properties
             $pluginCode = $this->getPluginCode($pluginName);
             $pluginProperties = $this->getPluginProperties($pluginName);
-            $pluginErrorReporting = $this->pluginCache[$pluginName . 'ErrorReporting'] ?? 'inherit';
+            $pluginErrorReporting = $this->pluginCache[$pluginName . 'ErrorReporting'] ?? EvoErrorReporting::INHERIT;
 
             // load default params/properties
             $parameter = $this->parseProperties($pluginProperties);
@@ -5453,7 +5418,7 @@ class DocumentParser
         if (isset($this->pluginCache[$pluginName])) {
             $this->pluginCache["{$pluginName}Props"] = '';
             if (!isset($this->pluginCache["{$pluginName}ErrorReporting"])) {
-                $this->pluginCache["{$pluginName}ErrorReporting"] = 'inherit';
+                $this->pluginCache["{$pluginName}ErrorReporting"] = EvoErrorReporting::INHERIT;
             }
             return;
         }
@@ -5470,11 +5435,11 @@ class DocumentParser
             $row = db()->getRow($result);
             $code = $row['plugincode'];
             $properties = $row['properties'];
-            $errorReporting = $row['error_reporting'] ?? 'inherit';
+            $errorReporting = $row['error_reporting'] ?? EvoErrorReporting::INHERIT;
         } else {
             $code = 'return false;';
             $properties = '';
-            $errorReporting = 'inherit';
+            $errorReporting = EvoErrorReporting::INHERIT;
         }
         $this->pluginCache[$pluginName] = $code;
         $this->pluginCache["{$pluginName}Props"] = $properties;

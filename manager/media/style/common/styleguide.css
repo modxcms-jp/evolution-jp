@@ -160,11 +160,6 @@
     min-width: 0;
 }
 
-.form-text {
-    color: var(--color-text-muted, #666);
-    font-size: var(--font-size-sm, .875em);
-}
-
 /* 前に付く文字・欄・ボタンを 1 つの枠につなぐ。中の部品は同じ高さ（--control-height）になる */
 .input-group {
     display: flex;

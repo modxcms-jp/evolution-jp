@@ -6,6 +6,7 @@
  * 文言は読んだときの言語の lang() で引く（言語ファイルの文言は信頼する HTML として出る）。
  */
 require_once __DIR__ . '/snapshot_store.class.inc.php';
+require_once __DIR__ . '/error_reporting.class.inc.php';
 
 return [
     [
@@ -497,12 +498,7 @@ return [
                         'key' => 'error_reporting',
                         'type' => 'radio',
                         'label' => lang('a17_error_reporting_title'),
-                        'options' => [
-                            '0' => lang('a17_error_reporting_opt0'),
-                            '1' => lang('a17_error_reporting_opt1'),
-                            '2' => lang('a17_error_reporting_opt2'),
-                            '99' => lang('a17_error_reporting_opt99'),
-                        ],
+                        'options' => EvoErrorReporting::levelOptions(),
                         'desc' => lang('a17_error_reporting_msg'),
                     ],
                     [
