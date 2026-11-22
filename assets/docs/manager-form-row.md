@@ -34,7 +34,7 @@ echo EvoFieldRow::render([
 
 ## custom_tpl_dir
 
-設定 `custom_tpl_dir` のフォルダに `field_row.tpl` があれば、部品はそれを読む（読む処理は `tpl_read()`（`helpers.php`）。文書の編集画面の `file_get_tpl()` も同じ関数を使う）（文書の画面だけでなく、部品を使うすべての画面に効く）。差し替える tpl には、`data-field`・`data-field-part` と、`[+class+]`・`[+attr+]` の置き場所を書く。
+設定 `custom_tpl_dir` のフォルダに `field_row.tpl` があれば、部品はそれを読む。文書の画面だけでなく、部品を使うすべての画面（文書の編集画面の TV の行を含む）に効く。読む処理は `helpers.php` の `tpl_read()` で、文書の編集画面の `file_get_tpl()` も同じ関数を使う。差し替える tpl には、`data-field`・`data-field-part` と、`[+class+]`・`[+attr+]` の置き場所を書く。
 
 ## 見出しと値の間
 

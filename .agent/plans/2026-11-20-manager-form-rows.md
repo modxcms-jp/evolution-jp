@@ -20,7 +20,8 @@
 - [x] (2026-11-22) 段階 3B: ユーザーの設定の手書きの 4 項目を設定の定義の「ユーザー」タブへ（曜日は新しい `checkboxes` 型）、`USER_TAB_KEYS` を消し、ログインの状態の行を「ログイン設定」タブへ移した
 - [x] (2026-11-22) 段階 3C-1: Web ユーザーの設定を設定の定義（scope `web`）へ移し、ログインの曜日・許可 IP の判定を `list_has_item()` の 1 つにそろえた（管理ユーザーと Web ユーザー）
 - [x] (2026-11-22) 段階 3C-2: 3 画面の重複（パスワードの欄・プロフィールの行）をなくした。3 画面の行と JS を共通の関数（`mutate_user/user_form_rows.php`）から出す（見出しの規則はプラグインが足す手書きの行のために残す。Surprises 参照）
-- [ ] 段階 4: 文書の画面の残り（TV の行 `tv_row.tpl` を部品へ、ほかの直書き）
+- [x] (2026-11-22) 段階 4A: TV の行（`tv_row.tpl` を消した）を部品へ移し、tpl を読む処理を `tpl_read()` に、区切り線の添字のずれを直した
+- [ ] 段階 4B: 文書の画面・書き出し・パスワードの欄の残りの直書き（`Closes #1631`）
 
 ## Surprises & Discoveries
 
@@ -248,6 +249,8 @@
 
 ### 段階 4 の申し送り（段階 1〜3 から）
 
+段階 4A の自己レビューから 4B へ: (1) TV の表の開始タグ（`fields.php` の `fieldsTV()`）の `border`・`cellspacing`・`cellpadding="3"` を、行の部品の余白（`--field-row-gap` など）に置き換える。(2) DocManager の TV の一括変更の表（`assets/modules/docmanager/tv.ajax.php`）は手書きの `.mutate-tv-label`・`.mutate-tv-value` の行で、`theme-base.css` に文書の編集画面の TV の行と同じ値の規則が 2 組ある（お互いをコメントに書いた）。DocManager の表も `EvoFieldRow::render()` に移せば古い規則を消せる。4B の範囲に入れるか、#1739 で見出しの列の幅を見直すときに一緒に扱う。
+
 段階 3C-2 で残った直書き（段階 4 の「残りの直書き」で扱う）: パスワードの行の `fieldset` の `width:300px;padding:0`・`div` の `padding-left:20px`・`span.warning` の `font-weight:normal`。
 
 段階 3 の残りの PR は、3B のあとに、調査の結果（2026-11-22）をもとにこの節に手順を書き足す。3C で一緒に扱うこと（3B の自己レビューより）: (1) 3A で足した規則 `.settings tr:not(.field-row) > th { vertical-align: top }`（`theme-base.css`）は、本体の手書きの行を部品へ移したあとも、プラグイン（TinyMCE 7）が足す手書きの行のために残す（Surprises 参照）。(2) 曜日の「選ばれているか」の判定が、画面（`EvoSettingsForm` の `checkboxes` 型。`,` で分けて一致を見る）とログインの処理（`login.processor.functions.php` の `strpos`）で違う。Web ユーザーの曜日の欄を同じ型へ移すときに、管理ユーザーと Web ユーザーのログインの処理も同じ判定にそろえる（`,` の無い古い値があるかも確かめる）。(3) プロフィールの画面（`mutate_user_pf.dynamic.php`）の使われない `checkbox()` を消す。
@@ -293,6 +296,7 @@
 - 段階 3B: ブランチ `refactor/1631-stage3b-user-settings-definition`（同じワークツリーで main から切り替えた）、PR #1736
 - 段階 3C-1: ブランチ `refactor/1631-stage3c1-web-user-settings`（同じワークツリーで main から切り替えた）、PR #1737
 - 段階 3C-2: ブランチ `refactor/1631-stage3c2-user-form-rows`（同じワークツリーで main から切り替えた）、PR #1738
+- 段階 4A: ブランチ `refactor/1631-stage4a-tv-rows`（同じワークツリーで main から切り替えた）
 
 ## Interfaces and Dependencies
 
