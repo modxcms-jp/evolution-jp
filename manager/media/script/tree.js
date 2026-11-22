@@ -244,6 +244,8 @@ function revealPaneDocument() {
         if (!label) {
             return true;
         }
+        // 手で押した読み込み（until なし。次の 1 ページだけ）の途中なら、それを待つことになる
+        var joined = !!more.loading;
         return loadMoreNodes(
             label,
             more.getAttribute('data-indent'),
@@ -252,7 +254,11 @@ function revealPaneDocument() {
             doc.id
         ).then(function () {
             // 読み込む間に親が閉じられたら、見えない行を選ばない
-            return box.style.display === 'block' && box.dataset.closing !== '1';
+            if (box.style.display !== 'block' || box.dataset.closing === '1') {
+                return false;
+            }
+            // 手で押した分では届かなかったら、新しい「残り」から文書を含むページまで読み直す
+            return joined ? loadMoreIfHidden() : true;
         });
     }
     doc.parents.reduce(function (chain, pid) {
