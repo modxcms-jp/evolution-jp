@@ -591,13 +591,12 @@ function entity($key, $default = null)
                         ?>
                         <label><input name="locked" value="on"
                                 type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : "" ?>
-                                class="inputBox" />
-                            <b><?= lang('lock_tmplvars') ?></b> <span
-                                class="comment"><?= lang('lock_tmplvars_msg') ?></span></label>
+                                class="inputBox" /> <?= lang('lock_tmplvars') ?></label>
                         <?php
                         echo EvoFieldRow::render([
                             'label' => '',
                             'body' => ob_get_clean(),
+                            'help' => lang('lock_tmplvars_msg'),
                         ]);
                     }
 

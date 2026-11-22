@@ -189,12 +189,12 @@ template('id');
                                     type="checkbox" class="inputBox"
                                     <?= checked(template('locked') == 1) ?>
                                 > <?= lang('lock_template') ?>
-                                <span class="comment"><?= lang('lock_template_msg') ?></span>
                             </label>
                             <?php
                             echo EvoFieldRow::render([
                                 'label' => '',
                                 'body' => ob_get_clean(),
+                                'help' => lang('lock_template_msg'),
                             ]);
                         }
                         ?>

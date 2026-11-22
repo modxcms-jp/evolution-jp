@@ -187,17 +187,14 @@ function entity($key, $default = null)
                     if (evo()->hasPermission('save_snippet') == 1) {
                         ob_start();
                         ?>
-                        <label>
-                            <input name="locked"
+                        <label><input name="locked"
                                 type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : '' ?>
-                                class="inputBox">
-                            <b><?= lang('lock_snippet') ?></b>
-                            <span class="comment"><?= lang('lock_snippet_msg') ?></span>
-                        </label>
+                                class="inputBox"> <?= lang('lock_snippet') ?></label>
                         <?php
                         echo EvoFieldRow::render([
                             'label' => '',
                             'body' => ob_get_clean(),
+                            'help' => lang('lock_snippet_msg'),
                         ]);
                     }
 

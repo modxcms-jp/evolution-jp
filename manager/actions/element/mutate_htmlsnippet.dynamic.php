@@ -294,12 +294,12 @@ if (isset($content['which_editor'])) {
                                 name="locked"
                                 type="checkbox"
                                 <?= entity('locked') == 1 || entity('locked') === 'on' ? ' checked="checked"' : '' ?>
-                                class="inputBox" value="on" /> <?= lang('lock_htmlsnippet') ?>
-                            <span class="comment"><?= lang('lock_htmlsnippet_msg') ?></span></label>
+                                class="inputBox" value="on" /> <?= lang('lock_htmlsnippet') ?></label>
                         <?php
                         echo EvoFieldRow::render([
                             'label' => '',
                             'body' => ob_get_clean(),
+                            'help' => lang('lock_htmlsnippet_msg'),
                         ]);
                     }
                     ?>

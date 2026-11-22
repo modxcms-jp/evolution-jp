@@ -272,16 +272,14 @@ function content($key, $default = null)
                     if (evo()->hasPermission('save_module') == 1) {
                         ob_start();
                         ?>
-                        <input name="locked"
+                        <label><input name="locked"
                             type="checkbox" <?= content('locked') == 1 ? ' checked="checked"' : '' ?>
-                            class="inputBox" />
-                        <span class="clickable-label"
-                            onclick="document.mutate.locked.click();"><?= lang('lock_module') ?></span>
-                        <span class="comment"><?= lang('lock_module_msg') ?></span>
+                            class="inputBox" /> <?= lang('lock_module') ?></label>
                         <?php
                         echo EvoFieldRow::render([
                             'label' => '',
                             'body' => ob_get_clean(),
+                            'help' => lang('lock_module_msg'),
                         ]);
                     }
 
