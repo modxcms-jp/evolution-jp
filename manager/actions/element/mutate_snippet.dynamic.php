@@ -140,16 +140,15 @@ function entity($key, $default = null)
                 <h2 class="tab"><?= lang('settings_properties') ?></h2>
                 <table>
                     <?php
-                    // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
                     if (evo()->hasPermission('save_snippet') == 1) {
                         ob_start();
                         ?>
-                        <label><input name="locked"
+                        <input name="locked"
                                 type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : '' ?>
-                                class="inputBox"> <?= lang('lock_snippet') ?></label>
+                                class="inputBox">
                         <?php
                         echo EvoFieldRow::render([
-                            'label' => '',
+                            'label' => lang('lock_snippet'),
                             'body' => ob_get_clean(),
                             'help' => lang('lock_snippet_msg'),
                         ]);

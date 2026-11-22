@@ -142,20 +142,17 @@ template('id');
                     <h2 class="tab"><?= lang('settings_properties') ?></h2>
                     <table>
                         <?php
-                        // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
                         if (evo()->hasPermission('save_template') == 1) {
                             ob_start();
                             ?>
-                            <label>
-                                <input
-                                    id="locked" name="locked"
-                                    type="checkbox" class="inputBox"
-                                    <?= checked(template('locked') == 1) ?>
-                                > <?= lang('lock_template') ?>
-                            </label>
+                            <input
+                                id="locked" name="locked"
+                                type="checkbox" class="inputBox"
+                                <?= checked(template('locked') == 1) ?>
+                            >
                             <?php
                             echo EvoFieldRow::render([
-                                'label' => '',
+                                'label' => lang('lock_template'),
                                 'body' => ob_get_clean(),
                                 'help' => lang('lock_template_msg'),
                             ]);

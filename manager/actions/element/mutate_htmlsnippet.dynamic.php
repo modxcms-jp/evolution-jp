@@ -235,18 +235,17 @@ if (isset($content['which_editor'])) {
                         ]);
                     }
 
-                    // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
                     if (evo()->hasPermission('save_chunk') == 1) {
                         ob_start();
                         ?>
-                        <label><input
+                        <input
                                 name="locked"
                                 type="checkbox"
                                 <?= entity('locked') == 1 || entity('locked') === 'on' ? ' checked="checked"' : '' ?>
-                                class="inputBox" value="on" /> <?= lang('lock_htmlsnippet') ?></label>
+                                class="inputBox" value="on" />
                         <?php
                         echo EvoFieldRow::render([
-                            'label' => '',
+                            'label' => lang('lock_htmlsnippet'),
                             'body' => ob_get_clean(),
                             'help' => lang('lock_htmlsnippet_msg'),
                         ]);

@@ -191,27 +191,26 @@ function content($key, $default = null)
                 <h2 class="tab"><?= lang('settings_config') ?></h2>
                 <table>
                     <?php
-                    // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
                     ob_start();
                     ?>
-                    <label><input name="disabled"
+                    <input name="disabled"
                         type="checkbox" <?= content('disabled') == 1 ? 'checked="checked"' : '' ?>
-                        value="on" class="inputBox" /> <?= content('disabled') == 1 ? "<span class='warning'>" . lang('module_disabled') . "</span>" : lang('module_disabled') ?></label>
+                        value="on" class="inputBox" />
                     <?php
                     echo EvoFieldRow::render([
-                        'label' => '',
+                        'label' => content('disabled') == 1 ? "<span class='warning'>" . lang('module_disabled') . "</span>" : lang('module_disabled'),
                         'body' => ob_get_clean(),
                     ]);
 
                     if (evo()->hasPermission('save_module') == 1) {
                         ob_start();
                         ?>
-                        <label><input name="locked"
+                        <input name="locked"
                             type="checkbox" <?= content('locked') == 1 ? ' checked="checked"' : '' ?>
-                            class="inputBox" /> <?= lang('lock_module') ?></label>
+                            class="inputBox" />
                         <?php
                         echo EvoFieldRow::render([
-                            'label' => '',
+                            'label' => lang('lock_module'),
                             'body' => ob_get_clean(),
                             'help' => lang('lock_module_msg'),
                         ]);
