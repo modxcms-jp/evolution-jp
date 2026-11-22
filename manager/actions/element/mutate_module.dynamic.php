@@ -258,9 +258,7 @@ function content($key, $default = null)
                     ?>
                     <input name="enable_resource" title="<?= lang('enable_resource') ?>"
                         type="checkbox" <?= content('enable_resource') == 1 ? ' checked="checked"' : '' ?>
-                        class="inputBox" /> <span class="clickable-label"
-                        onclick="document.mutate.enable_resource.click();"
-                        title="<?= lang('enable_resource') ?>"><?= lang("element") ?></span>
+                        class="inputBox" />
                     <input name="resourcefile" type="text" maxlength="255"
                         value="<?= hsc(content('resourcefile')) ?>" class="inputBox" />
                     <?php
