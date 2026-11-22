@@ -1,0 +1,10 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-18-backup-reorg",
+    "run_id": "2026-11-18-backup-reorg-002",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-23T03:07:20+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "partial",
+    "findings": []
+}

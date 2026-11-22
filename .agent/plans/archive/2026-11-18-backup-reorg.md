@@ -17,7 +17,7 @@
 - [x] (2026-11-18) S6b PHP の書き出しを複数行の INSERT にする（動きを変える）
 - [x] (2026-11-18) S7 復元の前の確かめを足し、作成の結果をそろえる（動きを変える）
 - [x] (2026-11-18) S8 入口を薄くする: ダウンロードを processor へ移し、失敗の知らせ方をそろえる（動きを変える）
-- [ ] S9 言葉をそろえ、CLI の `db:backup` を `db:snapshot` に改名する（動きを変える。別の Issue #1584 で `develop/1.4` に入れる。2026-11-18 に Issue を起こした）
+- [x] (2026-11-23) S9 言葉をそろえ、CLI の `db:backup` を `db:snapshot` に改名する: この計画からは外し、1.4 の Issue #1584（`develop/1.4` に入れる）で行う。#1561 は S8 で閉じた
 - [x] (2026-11-18) 最終確認: PHP 7.4・MySQL 5.7 で往復を確かめる（S8 のブランチで。結果は Surprises）
 
 ## Surprises & Discoveries
@@ -109,6 +109,20 @@
 - 2026-11-18 / yamamoto（Claude が起案。S8 の自己レビューから）: ダウンロードの手順（このサイトの表に絞る・一時ファイルに書く・ファイル名）は `EvoBackupManager::writeDownload()`・`downloadName()` に置き、a=306 の processor は結果に応じて `#evoBackupError` を返すかファイルを送るだけにする。「このサイトの表に絞る」は `EvoDbTables::own()` 1 つにする。CLI の `db:backup` は、書き手（PHP か mysqldump）を選ぶ処理だけを持ち、作成の手順は `EvoBackupManager::createSnapshot()` を呼ぶので、今のままにする。画面のスナップショットのタブの `<style>`（表の `border-collapse` と `td` の `padding`）は、背景色の決め打ちだけを消し、余白は #1448（テーマの差をそろえる作業）に任せる。ダウンロード・スナップショットの作成（a=306・307）は、processor が `exit` するので管理ログに残らない（修正前の a=93 の `mode=backup` と同じ）。記録するかは別に決める。
 
 ## Outcomes & Retrospective
+
+結果（S1〜S8。PR #1563・#1566・#1569・#1574・#1576・#1578・#1581・#1583・#1585。2026-11-18 に main へ入り、#1561 が閉じた）:
+
+- データベースの控えを 4 つのクラスに分けた: 表の一覧と状態は `EvoDbTables`、ダンプの書く・読むは `EvoSqlDump`、保存先と世代は `EvoSnapshotStore`、作成と復元の手順は `EvoBackupManager`。管理画面・CLI・`$modx->snapshot()` はこれらを呼ぶだけになった。`Mysqldumper`・a=55・`cli_full_table_name()` は別名を残さずに消した。
+- 受け入れの条件のうち、言葉と CLI の改名（S9）のほかはそろった。管理画面と CLI のどの出力をどの入口で戻しても、`CHECKSUM TABLE` が元と同じになった（PHP 8.4・MariaDB 11 と PHP 7.4・MySQL 5.7）。別の接頭辞とトリガーを含むダンプは、何も書き換えずに理由を出して断る。保存先が使えないときは、黙って別の場所へ保存しない。256MB のダンプを `memory_limit=128M` で戻せる（修正前はメモリが足りずに止まった）。`snapshot_path` はグローバル設定で変えられる。
+- PHP の書き出しを複数行の `INSERT` にし（S6b）、復元の問い合わせが 20,529 回から 211 回に、時間が約 11.7 秒から約 0.38 秒になった。
+- S9（言葉と `db:backup` の改名）は、cron で呼んでいるサイトを止めるので 1.4 に回し、#1584 で行う。
+
+振り返り:
+
+- 動きを変えない段階と変える段階を別の PR にし、前者は「修正前と同じ出力」、後者は「計画どおりの違いだけ」で確かめたので、9 本の PR を続けても退行を見分けられた。
+- 往復の確かめ（すべての書き手 × すべての読み手）は、写した先の不具合（`Mysqldumper` の DROP の既定、接頭辞の推し量り）を見つけるのに効いた。名前の頭から推し量る処理は、接頭辞 `manager_`・`sys` のサイトで壊れていた。
+- 積み重ねの PR（S8 の base を S7 にした）では CI が動かなかった。手元の lint で代わりにした（exec-plan-runner の学び）。
+- 残った課題: 書く側のメモリ（大きな表の `SELECT *`）、表の有無の判定の 3 通り、ダウンロード・スナップショットの作成が管理ログに残らないこと（Decision Log と Surprises に書いた）。
 
 ## Context and Orientation
 
@@ -244,8 +258,8 @@ S9 の確かめ（`develop/1.4` の上で）: a=93 のタブとボタンが「�
 - S5: ブランチ `refactor/1561-s5-snapshot-path`（`origin/main` から作成。Issue に紐づけない）、PR #1576。マージ済み（main 4ad093602）
 - S6: ブランチ `refactor/1561-s6-backup-flow`（`origin/main` から作成。Issue に紐づけない）、PR #1578。マージ済み（main b8d24e587）
 - S6b: ブランチ `refactor/1561-s6b-multirow-insert`（`origin/main` から作成。Issue に紐づけない）、PR #1581。マージ済み（main 2fba5e352）
-- S7: ブランチ `refactor/1561-s7-restore-guard`（`origin/main` から作成。Issue に紐づけない）、PR #1583
-- S8: ブランチ `refactor/1561-s8-thin-entry`（S7 のブランチから作成。PR の base は S7 のブランチ。S7 のマージ後に main へ切り替える）、PR #1585
+- S7: ブランチ `refactor/1561-s7-restore-guard`（`origin/main` から作成。Issue に紐づけない）、PR #1583。マージ済み（main 8b452aa62）
+- S8: ブランチ `refactor/1561-s8-thin-entry`（S7 のブランチから作成。PR の base は S7 のブランチ。S7 のマージ後に main へ切り替える）、PR #1585。マージ済み（main 7ce6f4678。#1561 を閉じた）
 - S9: Issue #1584（マイルストーン 1.4。`develop/1.4` に向ける）
 - 段階ごとに PR を分ける（1 段階を 1 PR）。S1〜S7 は `Refs #1561`、S8 の PR で `Closes #1561`。S9 は 1.4 に回すので、マイルストーン「1.4」の別の Issue を起こして `develop/1.4` に向け、その Issue をこの計画の対象に書き足す。
 
