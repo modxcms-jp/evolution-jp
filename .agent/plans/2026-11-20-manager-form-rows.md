@@ -69,6 +69,7 @@
 - 2026-11-22 段階 2 の細かい決まり: 見出しのコロンは付けない（チャンク・TV・設定の表に合わせる）。モジュールの見出しは `td` から `th` にする。入力欄の下の注意書き（`span.comment` と `<br>`）は `help`（`.form-text`）にする。入力欄の幅の直書き（300px など）は欄ごとの値なので残す。JS が表示を切り替える行（新しいカテゴリ・パラメーターの表・`#inputoption`・`.sharedparams`）は `attr` で今と同じ `id`・`style` を出し、`td` に付いていた `id`（`#displayparams`）は値の中の要素に移す。見出しと値の行ではない表（プラグインのイベントの表、JS が組むパラメーターの表、権限のチェックの一覧、モジュールの依存の DataTable、テンプレートの「名前と親テンプレート」の 1 行）は触らない。段階 2 は差分が大きいので、スニペットとチャンク（2A）、プラグインとテンプレート（2B）、モジュールと TV（2C）の 3 PR に分ける。
 - 2026-11-22 段階 3 の決まり（本人の判断）: 設定の説明（`EvoSettingsForm` の `desc`）は欄の下の説明（`help`・`.form-text`）にそろえる。欄の下の説明は灰色にするが小さくはしない（`forms.css` の `.form-text` の `font-size: .875em` をやめ、本文と同じ大きさにする。文書・エレメントの画面の説明も同じになる）。設定の表（`class="settings"`）の見た目は、全幅・見出しは本文と同じ大きさ・行の間に点線、にそろえ、見出しの縦の位置も行の部品の揃え（入力欄の中の文字に合わせる）にする（サイトの書き出しとスタイルガイドの表は全幅になり、見出しが小さくなる）。`EvoSettingsForm::style()`・Web ユーザーの画面の `<style>`・グローバル設定の画面の `<style>` は共通の CSS（`theme-base.css`。層の外）にまとめて消す。公開の定数 `EvoSettingsForm::USER_TAB_KEYS` は、4 項目を設定の定義へ移したあと消す（3B で確かめたところ、`EvoSettingsForm` とこの定数は 1.3 の開発中に入ったもので、リリースに入っていないので、リリースノートは要らない）。
 - 2026-11-22 段階 3 の細かい決まり: ログイン回数・ブロックなど設定ではない行は定義に入れず、行の部品のまま「ユーザー」タブに別の節で残す。許可するリソースの欄は、ほかの設定の欄と同じ 250px にする。Web ユーザーの設定の見出しは警告色の太字（`td.warning`）をやめ、管理ユーザーと同じ見出しにする。説明が改行だけの 2 行（メールの送信方法・SMTP 認証）は説明を出さない。段階 3 は、3E（エラー報告の選択肢を 1 か所に）→ 3D（ついでの不具合）→ 3A-1（説明を help へ、`.form-text` の大きさ）→ 3A-2（設定の表の CSS を共通へ）→ 3B（ユーザーの設定の 4 項目を定義へ）→ 3C（Web ユーザーの設定を定義へ、3 画面の重複をなくす）の PR に分ける。ロールとパスワードの変更の画面、権限の一覧、Web ユーザーのパスワードの保存の方式は対象外。
+- 2026-11-22 段階 4 の決まり（本人の判断）: TV の説明は、ほかの画面と同じく入力欄の下（`help`）に出す。パスワードの欄の注意書きは、欄の下の説明と同じ灰色（`.form-text`）にする。見出しの列の幅・色（文書 120px・TV と設定の表 200px、`--mutate-field-title-color`・`--settings-th-color`）とコード用の欄の行の揃えは、別の Issue（#1739）で決める。段階 4 では TV の見出しの列の 200px を今のまま残す。段階 4 は、4A（TV の行を部品へ、tpl の場所を決める処理を 1 か所に、区切り線、説明が空の TV の ManagerManager）と 4B（文書の画面・書き出し・パスワードの欄の残りの直書き。`Closes #1631`）の 2 PR に分ける。DocManager の TV の表（`assets/modules/docmanager/tv.ajax.php`）が `.mutate-tv-*` を使うので、その CSS は消さない。
 - 2026-11-20 PR の分け方: 1 段階を 1 PR にする。段階ごとのブランチは `origin/main` から `git worktree add -b` で作り、Issue には紐づけない（紐づけると `Refs` でもマージで #1631 が閉じる）。段階 0〜3 の PR は `Refs #1631`、段階 4 の PR だけ `Closes #1631`。
 
 ## Outcomes & Retrospective
@@ -232,7 +233,17 @@
 
 期待される観測: 3 画面のプロフィールの行・パスワードの欄・メール・名前の行が、同じ HTML（値と、プロフィールの画面の通知の方法の有無だけが違う）で出る。保存・名前の変更・パスワードの変更（自動生成・指定・通知の方法）・写真の選択・生年月日の選択・入力エラーで戻したときが main と同じに動く。本体の 3 画面の設定の表に手書きの行が残っていない（見出しの規則はプラグインの手書きの行のために残す）。
 
-### 段階 4
+### 段階 4A（ブランチ `refactor/1631-stage4-document-rows`。TV の行）
+
+1. `custom_tpl_dir` から tpl を読む処理を 1 か所にまとめる。`manager/includes/helpers.php` に、既定のフォルダを引数で受け取る関数（例: `tpl_read($file, $defaultDir)`。`custom_tpl_dir` が空でなく、そこに同じ名前のファイルがあればそれ、無ければ既定のフォルダのもの）を置き、`EvoFieldRow::tpl()` と `mutate_content/functions.php` の `file_get_tpl()` がそれを使う。読んだ内容を使い回す（キャッシュ）かは、今の 2 つの動き（`EvoFieldRow` は使い回す、`file_get_tpl()` は毎回読む）を変えない形にする。
+2. `fields.php` の `fieldsTV()` の TV の行を、`tv_row.tpl` から `EvoFieldRow::render()` に替える。`field` は `tv{id}`、`label` は caption（今と同じく `hsc`）、`help` は説明（今と同じくエスケープしない。管理者が入れる値）、`body` は入力欄、`class` は `mutate-tv-row`。見出しの列の幅 200px・折り返さない・見出しの名前の色（`--mutate-field-title-color`）は、TV の行の class の規則で今のまま保つ（#1739 で見直す）。日付の TV の値のセルの `z-index:100` は、今の日付の選択の部品で重なりを防ぐのに要るかを確かめ、要るなら CSS で当てる（直書きを残さない）。区切り線の行（`renderSplit()`）の形は変えない（ManagerManager の `hideRows`・`mm_movefieldstotab` が使う）。`tv_row.tpl` を消す。
+3. 区切り線の後始末（`fields.php` の `$output[$total + 1]` の添字）を、行と行の間にだけ区切り線を入れる形に直す（表示する TV の数によって、末尾に余分な区切り線が残る・添字が範囲外になる見込み。Docker で確かめてから直す）。
+4. ManagerManager の `mm_changefieldhelp` が、説明が空の TV で説明を付けられるようにする（説明の部分 `data-field-part="help"` が無ければ、値のセルの末尾に `div.form-text` を作って入れる）。行の部品の「空の説明は出さない」の決まりは変えない。
+5. 文書: `jquery-migration.md`（`custom_tpl_dir` で差し替えられる tpl から `tv_row.tpl` を外す）、`manager-form-row.md`（使っている画面、`custom_tpl_dir`）。`tv_row.tpl` が読まれなくなることは PR 本文の「アップグレード時の注意」に書く（Decision Log 2026-11-20 の互換の判断）。
+
+期待される観測: 文書の編集画面の TV の行が `tr.field-row.mutate-tv-row[data-field="tv{id}"]` で出て、説明は入力欄の下、見出しは行の部品の揃え・200px・今と同じ色。TV のタブと本文の下（`tvs_below_content`）の両方で、保存・ManagerManager（隠す・名前を変える・説明を変える〈説明が空の TV も〉・タブへ移す・文字数の上限）・QuickManager・日付の選択が main と同じに動く。
+
+### 段階 4 の申し送り（段階 1〜3 から）
 
 段階 3C-2 で残った直書き（段階 4 の「残りの直書き」で扱う）: パスワードの行の `fieldset` の `width:300px;padding:0`・`div` の `padding-left:20px`・`span.warning` の `font-weight:normal`。
 
