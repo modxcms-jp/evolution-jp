@@ -147,7 +147,6 @@ return [
                         'label' => lang('charset_title'),
                         'options' => ['UTF-8' => 'UTF-8'],
                         'attr' => ['style' => 'display:block;width:250px;'],
-                        'br' => false,
                         'desc' => lang('charset_message'),
                     ],
                     [
@@ -417,8 +416,7 @@ return [
                         'options' => static function () {
                             return EvoSettingsForm::roles();
                         },
-                        'br' => false,
-                        'desc' => '<div>' . lang('default_role_message') . '</div>',
+                        'desc' => lang('default_role_message'),
                     ],
                     [
                         'key' => 'allow_mgr2web',
@@ -486,7 +484,6 @@ return [
                         'reload' => 'reload_captcha_words',
                         'id' => 'captcha_words_input',
                         'attr' => ['style' => 'width:400px'],
-                        'hiddenBr' => true,
                         'showIf' => ['use_captcha', '1'],
                     ],
                 ],
@@ -565,7 +562,6 @@ return [
                         'options' => ['mail' => lang('email_method_mail'), 'smtp' => lang('email_method_smtp')],
                         'default' => 'mail',
                         'inline' => true,
-                        'desc' => '<br/>',
                     ],
                     [
                         'key' => 'smtp_auth',
@@ -573,7 +569,6 @@ return [
                         'label' => lang('smtp_auth_title'),
                         'default' => '0',
                         'inline' => true,
-                        'desc' => '<br/>',
                         'showIf' => ['email_method', 'smtp'],
                     ],
                     [
@@ -582,7 +577,6 @@ return [
                         'label' => lang('smtp_host_title'),
                         'default' => 'smtp.example.com',
                         'attr' => ['style' => 'width: 250px;'],
-                        'br' => false,
                         'showIf' => ['email_method', 'smtp'],
                     ],
                     [
@@ -591,7 +585,6 @@ return [
                         'label' => lang('smtp_port_title'),
                         'default' => '25',
                         'attr' => ['style' => 'width: 250px;'],
-                        'br' => false,
                         'showIf' => ['email_method', 'smtp'],
                     ],
                     [
@@ -603,7 +596,6 @@ return [
                             return (string)($values['emailsender'] ?? '');
                         },
                         'attr' => ['style' => 'width: 250px;'],
-                        'br' => false,
                         'showIf' => ['email_method', 'smtp'],
                     ],
                     [
@@ -641,7 +633,6 @@ return [
                         'langKey' => 'emailsubject_default',
                         'reload' => 'reload_emailsubject',
                         'id' => 'emailsubject_field',
-                        'hiddenBr' => true,
                     ],
                     [
                         'key' => 'signupemail_message',
@@ -652,7 +643,6 @@ return [
                         'reload' => 'reload_signupemail_message',
                         'id' => 'signupemail_message_textarea',
                         'attr' => ['style' => 'width:100%; height: 120px;'],
-                        'hiddenBr' => true,
                     ],
                     [
                         'key' => 'websignupemail_message',
@@ -663,7 +653,6 @@ return [
                         'reload' => 'reload_websignupemail_message',
                         'id' => 'websignupemail_message_textarea',
                         'attr' => ['style' => 'width:100%; height: 120px;'],
-                        'hiddenBr' => true,
                     ],
                     [
                         'key' => 'webpwdreminder_message',
@@ -675,7 +664,6 @@ return [
                         'reloadId' => 'reload_system_email_webreminder_select',
                         'id' => 'system_email_webreminder_textarea',
                         'attr' => ['style' => 'width:100%; height: 120px;'],
-                        'hiddenBr' => true,
                     ],
                 ],
             ],
@@ -830,8 +818,7 @@ return [
                         'type' => 'text',
                         'label' => lang('manager_docs_orderby_title'),
                         'attr' => ['style' => 'width:500px;'],
-                        'br' => false,
-                        'desc' => '<p>' . lang('manager_docs_orderby_message') . '</p>',
+                        'desc' => lang('manager_docs_orderby_message'),
                     ],
                     [
                         'key' => 'limit_by_container',
