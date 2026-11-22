@@ -713,7 +713,7 @@ function init(root, entry, behaviors) {
         if (e.target.closest('input, textarea, select, [contenteditable]')) {
             return;
         }
-        if (root.querySelector('.evo-fb-overlay:not([hidden])') || contextMenu.isOpen()) {
+        if (root.querySelector('.evo-fb-overlay[open]') || contextMenu.isOpen()) {
             return;
         }
         var selection = window.getSelection();
@@ -743,7 +743,7 @@ function init(root, entry, behaviors) {
         if (!canRenameSelection() || e.target.closest('input, textarea, select, [contenteditable]')) {
             return;
         }
-        if (root.querySelector('.evo-fb-overlay:not([hidden])') || contextMenu.isOpen()) {
+        if (root.querySelector('.evo-fb-overlay[open]') || contextMenu.isOpen()) {
             return;
         }
         e.preventDefault();
@@ -760,7 +760,7 @@ function init(root, entry, behaviors) {
         if (state.selection.size !== 1 || e.target.closest('input, textarea, select, [contenteditable]')) {
             return;
         }
-        if (root.querySelector('.evo-fb-overlay:not([hidden])') || contextMenu.isOpen()) {
+        if (root.querySelector('.evo-fb-overlay[open]') || contextMenu.isOpen()) {
             return;
         }
         var name = Array.from(state.selection)[0];

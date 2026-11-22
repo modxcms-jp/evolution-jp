@@ -123,8 +123,8 @@ class BrowserView
         $markup .= '    </div>';
         $markup .= '  </div>';
         $markup .= '  <div class="evo-fb-uploads" data-role="uploads"></div>';
-        $markup .= '  <div class="evo-fb-overlay" data-role="move-overlay" hidden>';
-        $markup .= '    <div class="evo-fb-overlay-panel" role="dialog" aria-modal="true" aria-labelledby="evoFbMoveTitle" data-role="move-panel">';
+        $markup .= '  <dialog class="evo-fb-overlay" aria-labelledby="evoFbMoveTitle" data-role="move-overlay">';
+        $markup .= '    <div class="evo-fb-overlay-panel" data-role="move-panel">';
         $markup .= self::titleBar('evoFbMoveTitle', hsc(lang('fb_move_dest_title')));
         $markup .= '      <div class="evo-fb-path" data-role="move-path"></div>';
         $markup .= '      <div class="evo-fb-grid evo-fb-grid-folders" data-role="move-grid"></div>';
@@ -133,9 +133,9 @@ class BrowserView
         $markup .= '        <button type="button" class="evo-fb-btn evo-fb-btn-primary" data-role="move-confirm">' . hsc(lang('fb_move_here')) . '</button>';
         $markup .= '      </div>';
         $markup .= '    </div>';
-        $markup .= '  </div>';
-        $markup .= '  <div class="evo-fb-overlay" data-role="preview-overlay" hidden>';
-        $markup .= '    <div class="evo-fb-overlay-panel evo-fb-preview-panel" role="dialog" aria-modal="true" aria-labelledby="evoFbPreviewTitle" data-role="preview-panel">';
+        $markup .= '  </dialog>';
+        $markup .= '  <dialog class="evo-fb-overlay" aria-labelledby="evoFbPreviewTitle" data-role="preview-overlay">';
+        $markup .= '    <div class="evo-fb-overlay-panel evo-fb-preview-panel" data-role="preview-panel">';
         $markup .= self::titleBar('evoFbPreviewTitle', hsc(lang('preview')));
         $markup .= '      <img class="evo-fb-preview-img" data-role="preview-img" alt="">';
         $markup .= '      <video class="evo-fb-preview-media" data-role="preview-video" controls preload="metadata" hidden></video>';
@@ -147,9 +147,9 @@ class BrowserView
         $markup .= '        <span class="evo-fb-preview-actions" data-role="preview-actions"></span>';
         $markup .= '      </div>';
         $markup .= '    </div>';
-        $markup .= '  </div>';
-        $markup .= '  <div class="evo-fb-overlay" data-role="edit-overlay" hidden>';
-        $markup .= '    <div class="evo-fb-overlay-panel evo-fb-edit-panel" role="dialog" aria-modal="true" aria-labelledby="evoFbEditTitle" data-role="edit-panel">';
+        $markup .= '  </dialog>';
+        $markup .= '  <dialog class="evo-fb-overlay" aria-labelledby="evoFbEditTitle" data-role="edit-overlay">';
+        $markup .= '    <div class="evo-fb-overlay-panel evo-fb-edit-panel" data-role="edit-panel">';
         $markup .= self::titleBar('evoFbEditTitle', hsc(lang('fb_edit_title')) . ' <span class="evo-fb-edit-name" data-role="edit-name"></span>');
         $markup .= '      <div class="evo-fb-edit-layout">';
         $markup .= self::imageEditorStage();
@@ -175,7 +175,7 @@ class BrowserView
         $markup .= '      </div>';
         $markup .= '      </div>';
         $markup .= '    </div>';
-        $markup .= '  </div>';
+        $markup .= '  </dialog>';
         $markup .= $extras;
         $markup .= '</div>';
 
@@ -257,8 +257,8 @@ class BrowserView
     public static function manageExtras()
     {
         $html = '';
-        $html .= '  <div class="evo-fb-overlay" data-role="text-overlay" hidden>';
-        $html .= '    <div class="evo-fb-overlay-panel evo-fb-text-panel" role="dialog" aria-modal="true" aria-labelledby="evoFbTextTitle" data-role="text-panel">';
+        $html .= '  <dialog class="evo-fb-overlay" aria-labelledby="evoFbTextTitle" data-role="text-overlay">';
+        $html .= '    <div class="evo-fb-overlay-panel evo-fb-text-panel" data-role="text-panel">';
         $html .= self::titleBar('evoFbTextTitle', hsc(lang('fb_text_title')));
         $html .= '      <div class="code-editor evo-fb-text-editor">';
         $html .= '        <div class="code-editor-header">';
@@ -274,7 +274,7 @@ class BrowserView
         $html .= '        <button type="button" class="evo-fb-btn evo-fb-btn-primary" data-role="text-save" disabled>' . hsc(lang('save')) . '</button>';
         $html .= '      </div>';
         $html .= '    </div>';
-        $html .= '  </div>';
+        $html .= '  </dialog>';
 
         return $html;
     }

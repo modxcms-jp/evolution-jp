@@ -801,20 +801,31 @@
     color: rgba(255, 255, 255, 0.85);
 }
 
-/* 移動先選択・プレビューのオーバーレイ */
+/* ダイアログ(移動先・プレビュー・画像の編集・テキスト)。<dialog> を showModal() で最前面に出し、
+   ウィンドウ全体を覆う透明な入れ物にして、中のパネルを真ん中に置く(パネルは見出しの帯でウィンドウの中を動かせる) */
 
 .evo-fb-overlay {
-    position: absolute;
+    position: fixed;
     inset: 0;
-    z-index: 10;
-    display: flex;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.4);
 }
 
-.evo-fb-overlay[hidden] {
-    display: none;
+.evo-fb-overlay[open] {
+    display: flex;
+}
+
+.evo-fb-overlay::backdrop {
+    background: rgba(0, 0, 0, 0.4);
 }
 
 .evo-fb-overlay-panel {

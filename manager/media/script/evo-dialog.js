@@ -262,11 +262,11 @@
     // 見出しの帯はダイアログを開く前からシェルのモーダルなどが使うので、読み込んだときに足す
     addStyle();
 
-    // 帯をつかんでダイアログ（帯を囲む dialog か role="dialog"）を動かす。動かせるのは入れ物の中まで。
+    // 帯をつかんで、帯の親要素（ダイアログの本体）を動かす。動かせるのは、<dialog> なら画面の中、ほかは入れ物の中まで。
     // 位置は CSS の translate に持つので、同じ要素を使い回すダイアログは、開くときに style.translate を空に戻す
     document.addEventListener('pointerdown', function (e) {
         const bar = e.button === 0 && !e.target.closest('button') ? e.target.closest('.evo-titlebar') : null;
-        const box = bar && bar.closest('dialog, [role="dialog"]');
+        const box = bar && bar.parentElement;
         if (!box) {
             return;
         }

@@ -38,8 +38,8 @@
 ```
 
 - シェルのモーダル（`shell.js`）: 断片の `h1` を帯へ移して `.evo-titlebar-title` を付ける。
-- ファイルブラウザのダイアログ（`manager/media/browser/evo/`）: `BrowserView::titleBar()` で帯を出し、× は `overlay.js` の `openOverlay()` が Esc と同じ処理につなぐ。
-- 帯をつかむと、帯を囲む `dialog` か `role="dialog"` の要素を入れ物の中で動かせる（`evo-dialog.js`。位置は `style.translate`）。同じ要素を使い回すダイアログは、開くときに `style.translate` を空に戻す。
+- ファイルブラウザのダイアログ（`manager/media/browser/evo/`。画像の編集など、EvoDialog には載らない中身を持つ）: 外側を `<dialog>` にして `overlay.js` の `openOverlay()` が `showModal()` で開く。ファイルブラウザがシェルのモーダルの中にあっても、ウィンドウ全体に重なる。帯は `BrowserView::titleBar()` で出し、× は Esc と同じ処理につなぐ。
+- 帯をつかむと、帯の親要素（ダイアログの本体）を動かせる。`<dialog>` は画面の中、ほかは入れ物の中まで（`evo-dialog.js`。位置は `style.translate`）。同じ要素を使い回すダイアログは、開くときに `style.translate` を空に戻す。
 
 ## jquery.alerts の名前
 
