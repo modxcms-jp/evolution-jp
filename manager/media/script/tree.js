@@ -74,8 +74,13 @@ function loadMoreNodes(el, indent, parent, offset) {
             top.location = 'index.php';
             return;
         }
+        // 本文の文書がこの中にあるとして選んでいた行なら、読み込んだあとで選び直す
+        var wasSelected = !!moreNode.querySelector('.treeNodeSelected');
         moreNode.insertAdjacentHTML('beforebegin', response);
         moreNode.parentNode.removeChild(moreNode);
+        if (wasSelected) {
+            selectPaneDocument();
+        }
     }, function () {
         // 失敗したらもう一度押せるようにする
         moreNode.loading = false;
@@ -230,7 +235,7 @@ function revealPaneDocument() {
         });
     }, Promise.resolve(true)).then(function () {
         if (stillCurrent()) {
-            selectTreeNode(doc.id);
+            selectPaneDocument();
             return;
         }
         // 移った先の文書の処理は、ここで読み込んでいた親（読み込み中）で止まっていることがある。
@@ -240,11 +245,26 @@ function revealPaneDocument() {
 }
 
 // 親を開かずに、見えていれば選ぶ（並べ替え・すべて展開など、ツリーを描き直したとき）
+// 文書が「残り N 件を表示」で省かれているときは、開いている直接の親の中のその行を選んだ見た目にして、
+// この中にあることだけを示す（続きを読み込むかは利用者が決める。数千件のフォルダでツリーを重くしない）
 function selectPaneDocument() {
     var doc = paneDocument();
-    if (doc) {
-        selectTreeNode(doc.id);
+    if (!doc || selectTreeNode(doc.id)) {
+        return;
     }
+    var pid = doc.parents[doc.parents.length - 1];
+    var box = pid ? document.getElementById('c' + pid) : null;
+    if (!box || box.style.display !== 'block') {
+        return;
+    }
+    var more = box.querySelector(':scope > .moreNode');
+    var label = more ? more.querySelector('.emptyNode') : null;
+    if (!label) {
+        return;
+    }
+    clearTreeSelection();
+    label.classList.add('treeNodeSelected');
+    scrollTreeRowIntoView(more);
 }
 
 // フォルダの子を取るときの indent（nodes.php の getNodes() が根を 1、その子のフォルダを 2 として数える）
@@ -258,16 +278,22 @@ function treeNodeIndent(box) {
     return indent;
 }
 
-// 文書のノードを選んだ見た目にし、ツリーの中で見えていなければ縦にスクロールして見せる。
-// scrollIntoView() は使わない（上端に貼り付いたボタンの帯 .tree-toolbar の下に隠れる・横のスクロールまで動く）
+// 文書のノードを選んだ見た目にし、ツリーの中で見えていなければスクロールして見せる。ノードが無ければ false
 function selectTreeNode(id) {
     var node = document.getElementById('node' + id);
     var row = node ? node.querySelector(':scope > .tree-row') : null;
     var span = row ? row.querySelector(':scope > span') : null;
     if (!span) {
-        return;
+        return false;
     }
     setSelected(span);
+    scrollTreeRowIntoView(row);
+    return true;
+}
+
+// ツリーの行が見えていなければ、縦にスクロールして見せる。
+// scrollIntoView() は使わない（上端に貼り付いたボタンの帯 .tree-toolbar の下に隠れる・横のスクロールまで動く）
+function scrollTreeRowIntoView(row) {
     var pane = document.getElementById('treePane');
     if (!pane) {
         return;
@@ -283,17 +309,18 @@ function selectTreeNode(id) {
     }
 }
 
-function setSelected(elSel) {
-    var all = document.getElementsByTagName("SPAN");
-    var l = all.length;
-
-    for (var i = 0; i < l; i++) {
-        el = all[i];
-        cn = el.className;
-        if (cn === "treeNodeSelected") {
-            el.className = "treeNode";
+// 選んだ見た目を外す。「残り N 件を表示」の行（emptyNode）は、自分の見た目を残す
+function clearTreeSelection() {
+    document.querySelectorAll('span.treeNodeSelected').forEach(function (el) {
+        el.classList.remove('treeNodeSelected');
+        if (!el.classList.contains('emptyNode')) {
+            el.classList.add('treeNode');
         }
-    }
+    });
+}
+
+function setSelected(elSel) {
+    clearTreeSelection();
     elSel.className = "treeNodeSelected";
 }
 
