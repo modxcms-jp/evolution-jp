@@ -139,7 +139,7 @@ final class EditorInitializer
         $configJson = $this->configRepository->encode($config);
 
         $scripts = [
-            $this->scriptFactory->scriptTag($this->scriptFactory->tinymceScriptUrl($config)),
+            $this->scriptFactory->scriptTag($this->scriptFactory->tinymceScriptUrl($config), true),
         ];
 
         if ($fileBrowser === 'mcpuk') {

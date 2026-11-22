@@ -87,11 +87,14 @@ final class ScriptFactory
         );
     }
 
-    public function scriptTag(string $url): string
+    /**
+     * @param bool $shellOnce 管理画面のシェルで、一度読んだら画面を移っても読み直さない（data-shell-once。ライブラリの本体に使う。assets/docs/manager-shell.md）
+     */
+    public function scriptTag(string $url, bool $shellOnce = false): string
     {
         $escaped = hsc($url);
 
-        return '<script src="' . $escaped . '"></script>';
+        return '<script src="' . $escaped . '"' . ($shellOnce ? ' data-shell-once' : '') . '></script>';
     }
 
     public function inlineScript(string $script): string

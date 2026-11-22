@@ -24,6 +24,16 @@
         return new URL(url, window.location.href).href;
     }
 
+    // data-shell-once の付いたスクリプト（ライブラリの本体など）の、読み込み済みの URL。
+    // 画面を移っても読み直さない。全体の読み込みで読んだものは DOMContentLoaded で拾う
+    const loadedOnceScripts = new Set();
+
+    function rememberOnceScripts(root) {
+        root.querySelectorAll('script[src][data-shell-once]').forEach(function (el) {
+            loadedOnceScripts.add(resolveUrl(el.getAttribute('src')));
+        });
+    }
+
     function hasLiveScriptTag(resolvedUrl, exceptNode) {
         return Array.from(document.querySelectorAll('script[src]')).some(function (el) {
             if (el === exceptNode) {
@@ -110,6 +120,12 @@
                     runNext(index + 1);
                     return;
                 }
+                // ライブラリの本体は、一度読んだら読み直さない（作り直すと、前の本体が窓に付けたリスナーなどが残る）
+                const once = old.hasAttribute('data-shell-once');
+                if (once && loadedOnceScripts.has(resolved)) {
+                    runNext(index + 1);
+                    return;
+                }
                 const el = document.createElement('script');
                 Array.from(old.attributes).forEach(function (attr) {
                     if (attr.name === 'async' || attr.name === 'defer') {
@@ -118,7 +134,13 @@
                     el.setAttribute(attr.name, attr.value);
                 });
                 el.async = false;
-                el.onload = el.onerror = function () {
+                el.onload = function () {
+                    if (once) {
+                        loadedOnceScripts.add(resolved);
+                    }
+                    runNext(index + 1);
+                };
+                el.onerror = function () {
                     runNext(index + 1);
                 };
                 old.parentNode.replaceChild(el, old);
@@ -1223,6 +1245,8 @@
         if (!document.body.classList.contains('evo-shell')) {
             return;
         }
+
+        rememberOnceScripts(document);
 
         initTreeResizer();
 
