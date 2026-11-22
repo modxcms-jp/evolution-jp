@@ -1,7 +1,7 @@
 <?php
 
 /**
- * グローバル設定の画面の定義。EvoSettingsForm::definition() だけが読む。
+ * グローバル設定・管理ユーザーの編集・プロフィールの画面の設定の定義（行の scope で出す画面を分ける）。EvoSettingsForm::definition() だけが読む。
  * 形は assets/docs/global-settings.md の「設定画面への表示」を参照。
  * 文言は読んだときの言語の lang() で引く（言語ファイルの文言は信頼する HTML として出る）。
  */
@@ -9,6 +9,56 @@ require_once __DIR__ . '/snapshot_store.class.inc.php';
 require_once __DIR__ . '/error_reporting.class.inc.php';
 
 return [
+    // 管理ユーザーの画面だけの「ユーザー」タブ（ユーザー編集画面のログイン設定・プロフィールの次に出る）
+    [
+        'id' => 'settingsTabUser',
+        'title' => lang('settings_users'),
+        'sections' => [
+            [
+                'rows' => [
+                    [
+                        'key' => 'allow_manager_access',
+                        'scope' => ['user'],
+                        'type' => 'yesno',
+                        'default' => '1',
+                        'label' => lang('allow_mgr_access'),
+                        'desc' => lang('allow_mgr_access_message'),
+                    ],
+                    [
+                        'key' => 'allowed_parents',
+                        'scope' => ['user'],
+                        'type' => 'text',
+                        'maxlength' => 0,
+                        'label' => lang('user_allowed_parents'),
+                        'desc' => lang('user_allowed_parents_message'),
+                    ],
+                    [
+                        'key' => 'allowed_ip',
+                        'scope' => ['user'],
+                        'type' => 'text',
+                        'label' => lang('login_allowed_ip'),
+                        'desc' => lang('login_allowed_ip_message'),
+                    ],
+                    [
+                        'key' => 'allowed_days',
+                        'scope' => ['user'],
+                        'type' => 'checkboxes',
+                        'options' => [
+                            '1' => lang('sunday'),
+                            '2' => lang('monday'),
+                            '3' => lang('tuesday'),
+                            '4' => lang('wednesday'),
+                            '5' => lang('thursday'),
+                            '6' => lang('friday'),
+                            '7' => lang('saturday'),
+                        ],
+                        'label' => lang('login_allowed_days'),
+                        'desc' => lang('login_allowed_days_message'),
+                    ],
+                ],
+            ],
+        ],
+    ],
     [
         'id' => 'settingsTabSite',
         'event' => 'OnSiteSettingsRender',

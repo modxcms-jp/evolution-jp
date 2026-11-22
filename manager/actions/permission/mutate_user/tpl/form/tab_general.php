@@ -211,3 +211,73 @@
         </td>
     </tr>
 </table>
+<?php
+// ログインの状態（設定ではないので、設定の定義には入れない。編集のときだけ出る）
+if ($action === 12) {
+?>
+<table class="settings">
+    <?php
+    echo EvoFieldRow::render([
+        'label' => lang('user_logincount'),
+        'body' => (int)user('logincount'),
+    ]);
+
+    $lastlogin = !empty(user('lastlogin'))
+        ? evo()->toDateFormat(user('lastlogin') + config('server_offset_time'))
+        : '-';
+    echo EvoFieldRow::render([
+        'label' => lang('user_prevlogin'),
+        'body' => $lastlogin,
+    ]);
+
+    ob_start();
+    ?>
+    <input type="hidden" name="failedlogincount" value="<?= (int)user('failedlogincount') ?>">
+    <span id='failed'><?= (int)user('failedlogincount') ?></span>&nbsp;&nbsp;&nbsp;[<a
+        href="javascript:resetFailed()"><?= lang('reset_failedlogins') ?></a>]
+    <?php
+    echo EvoFieldRow::render([
+        'label' => lang('user_failedlogincount'),
+        'body' => ob_get_clean(),
+    ]);
+
+    $blocked = isUserBlocked($user);
+    ob_start();
+    ?>
+    <label>
+        <input
+            name="blockedcheck"
+            type="checkbox"
+            onclick="changeblockstate(document.userform.blockedmode, document.userform.blockedcheck);"
+            <?= $blocked ? 'checked' : '' ?>>
+        <input
+            type="hidden"
+            name="blocked"
+            value="<?= user('blocked') ? 1 : 0 ?>">
+    </label>
+    <?php
+    echo EvoFieldRow::render([
+        'label' => lang('user_block'),
+        'body' => ob_get_clean(),
+    ]);
+
+    // ブロックの日時と、日時を消すボタン
+    foreach (['blockedafter' => 'user_blockedafter', 'blockeduntil' => 'user_blockeduntil'] as $name => $labelKey) {
+        ob_start();
+        ?>
+        <input type="text" id="<?= $name ?>" name="<?= $name ?>" class="DatePicker"
+            value="<?= manager()->dateInputValue(user($name)) ?>"
+            onblur='documentDirty=true;' readonly="readonly">
+        <a class="clickable-label" onclick="document.userform.<?= $name ?>.value=''; return true;"><img
+                src="<?= manager_style_image_path('icons') ?>cal_nodate.gif"
+                alt="<?= lang('remove_date') ?>" /></a>
+        <?php
+        echo EvoFieldRow::render([
+            'label' => lang($labelKey),
+            'body' => ob_get_clean(),
+        ]);
+    }
+    ?>
+</table>
+<?php
+}

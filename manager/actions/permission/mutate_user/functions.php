@@ -1,15 +1,5 @@
 <?php
 
-function checkbox($name, $value, $label, $cond)
-{
-    $tpl = '<label><input type="checkbox" name="[+name+]" value="[+value+]" [+checked+] />[+label+]</label>';
-    $ph['name'] = $name;
-    $ph['value'] = $value;
-    $ph['label'] = $label;
-    $ph['checked'] = checked($cond);
-    return evo()->parseText($tpl, $ph);
-}
-
 function user($key, $default = null)
 {
     global $user;

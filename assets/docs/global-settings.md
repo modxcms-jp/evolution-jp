@@ -37,10 +37,10 @@
 ```
 
 - `key`: 設定キー。送る欄の名前になり、値は `system_settings` の同じ名前から出る
-- `type`: `text`・`textarea`・`radio`・`yesno`（はい／いいえ）・`enabled`（有効／無効）・`select` のほか、特別な行の型（`path`・`lang_text`・`content_types`・`template`・`topmenu`・`password`）
+- `type`: `text`・`textarea`・`radio`・`yesno`（はい／いいえ）・`enabled`（有効／無効）・`select` のほか、特別な行の型（`path`・`lang_text`・`content_types`・`template`・`topmenu`・`password`・`checkboxes`）。`checkboxes` は複数のチェックボックスで、`options`（値 => 表示名）の各項目を `name="<キー>[]"` で出し、値は選んだ値を「,」でつないだ文字列（`allowed_days` の `"1,3,7"`。保存の処理が `name[]` の配列を「,」でつなぐ）
 - `label`・`desc`: 見出しと説明。説明は行の部品の `help`（値の下の灰色の説明）に入る。言語ファイルとコードからだけ来る信頼する HTML として出る。説明の前に `<br/>` を置いたり、`<p>`・`<div>` で包んだりしない（間は `help` が取る）。説明の無い行は `desc` を書かない（`'<br/>'` だけの `desc` を書かない）。DB や環境の値を文に差し込むときは、`desc` に関数（`static function (array $values) { … }`）を書き、その中で `hsc()` する
 - `options`: `radio`・`select` の `[値 => 表示]`（`select` は `[グループ名 => [値 => 表示]]` で optgroup）。DB やファイルから取る一覧（テーマ・言語・ロールなど）は関数にする（`EvoSettingsForm::themes()`・`roles()`・`languages()`）。値と表示は `hsc()` される
-- `default`: 値が無い・空のときの値（文字列か関数）。`default.config.php` にあるキーには書かない（既定値の正本は `default.config.php`。画面の値はそれを下敷きにする）。`size`: `text` の maxlength（10 以下なら欄の幅を em で決める）。`attr`: 欄に足す属性 `[名前 => 値]`（値は `hsc()` される）
+- `default`: 値が無い・空のときの値（文字列か関数）。`default.config.php` にあるキーには書かない（既定値の正本は `default.config.php`。画面の値はそれを下敷きにする）。`size`: `text` の maxlength（10 以下なら欄の幅を em で決める）。`maxlength`: `text` の maxlength だけを決める（既定は `size`。`0` なら属性を出さず、長さに上限を付けない）。`attr`: 欄に足す属性 `[名前 => 値]`（値は `hsc()` される）
 - `after`: `text` の欄の後ろに出す文字列（単位など）。`toInput`・`fromInput`: 保存の形と欄の形が違う設定（`upload_maxsize` はバイトで保存し、欄は MB の数）の変換の関数。`toInput` は保存の値 → 欄の値、`fromInput` は欄の値 → 保存の値（読めない値は `null`）。変換は行だけに書く。保存処理（`save_settiongs()`・`saveUserSettings()`）は全部の名前を `EvoSettingsForm::storedValue($key, $value)` に通し（`fromInput` の無い名前はそのまま返る。null は保存せず今の値を残す）、差し戻しは `EvoSettingsForm::restoredValues($formValues)` でまとめて保存の形に戻す
 - `showIf`: `['use_browser', '1']` のように書くと、そのラジオがその値のときだけ行を出す。出し入れは `manager/actions/tool/mutate_settings/functions.js` が `data-show-if` を見て行う。プラグインが出す HTML も同じ属性を付ければ、読み込み時とラジオを切り替えたときに一緒に出し入れされる
 - タブの中を小見出しで分けるときは、`sections` の section の `title` に `lang('settings_section_…')` を書く。`<h3 class="settings-section">` の次に表が続く形で出る（`null` なら見出しなしの 1 つの表）。見た目は `manager/media/style/common/shell.css` の `.tab-page .settings-section` の 2 つの規則（小見出しの `.tab-page .settings-section` と、直前の表の下の余白の `.tab-page > :has(+ .settings-section)`）で決まり、テーマには足さない。文言は `label` と同じ信頼する HTML
@@ -68,7 +68,7 @@ user・profile の描き方（グローバル設定との違い）:
 - `select` の先頭に「システム設定に従う」（値は空）を足し、空の値を `default` で補わない。`path` 型は既定値の表示とリセットの無い文字の欄になる。`options` が `null` を返すとき、グローバル設定は欄を出さないが、ユーザー画面は `fallbackOptions`（`which_editor` は `none`）を選択肢にして欄を残す
 - 表には `class="settings user-scope"` が付く（グローバル設定の表は `class="settings"`）。文字の欄の幅（250px）は、どちらも `theme-base.css` の `.settings td input[type=text]` が決める（幅を変えたい行は `attr`・`userAttr` に `style` を書く）
 - ユーザー画面では `functions.js` を読まないので、プラグインの出力の `data-show-if` は切り替わらない。TinyMCE 7 の表は `use_editor` が「いいえ」でも出る
-- `EvoSettingsForm::names($scope)` は、その scope の画面に出す設定キー（`user` は、ユーザー編集画面の「ユーザー」タブが手書きで出す `EvoSettingsForm::USER_TAB_KEYS` を含む）。ユーザー編集画面・プロフィールの保存（`save_user.functions.php` の `allowedSettingNames()`）は、これに、画面を表示したときにプラグインのイベントの出力から取った欄の名前（セッションの `pluginSettingNames.<scope>`）を足した名前だけをユーザー設定として受ける。一覧に無い名前の行は、保存しても消さずに残す
+- `EvoSettingsForm::names($scope)` は、その scope の画面に出す設定キー（`user` は、管理ユーザーだけの「ユーザー」タブの行 `allow_manager_access`・`allowed_parents`・`allowed_ip`・`allowed_days` を含む。`scope` を `['user']` だけにした行）。ユーザー編集画面・プロフィールの保存（`save_user.functions.php` の `allowedSettingNames()`）は、これに、画面を表示したときにプラグインのイベントの出力から取った欄の名前（セッションの `pluginSettingNames.<scope>`）を足した名前だけをユーザー設定として受ける。一覧に無い名前の行は、保存しても消さずに残す
 - プラグインが JS で足した欄は、イベントの出力に無いのでユーザー設定に入らない。欄はイベントの HTML に書く
 - プラグインの欄の名前に、本体のフォームの名前（`csrf_token`・`mode`・`userid` など）を使わない。イベントの出力にある名前はそのままユーザー設定として保存される
 
@@ -87,6 +87,7 @@ user・profile の描き方（グローバル設定との違い）:
 
 | タブの id | タブ名（言語キー） | 小見出し（`settings_section_*`） | 末尾のイベント |
 | --- | --- | --- | --- |
+| `settingsTabUser` | ユーザー（`settings_users`）。管理ユーザーの新規（`a=11`）と編集（`a=12`）の画面だけ。プロフィールとグローバル設定には出ない | なし | |
 | `settingsTabSite` | サイト（`settings_site`） | 基本・URL・特別なページ・文字コードと時刻 | `OnSiteSettingsRender` |
 | `settingsTabResources` | リソース（`settings_resources`） | 新しいリソースの初期値・作成と編集 | |
 | `settingsTabCache` | キャッシュ（`settings_cache`） | なし | |

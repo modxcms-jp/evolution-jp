@@ -111,7 +111,7 @@ function sendMailMessage($email, $uid, $pwd, $ufn)
 }
 
 // Save User Settings
-// 受ける名前は allowedSettingNames()（定義の scope・USER_TAB_KEYS・画面が覚えたプラグインの欄）だけ。
+// 受ける名前は allowedSettingNames()（定義の scope・画面が覚えたプラグインの欄）だけ。
 // 一覧に無い名前のすでにある行（auth_token など）は、値を変えずに残す
 function saveUserSettings($id)
 {
