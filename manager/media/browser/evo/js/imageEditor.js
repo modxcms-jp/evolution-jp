@@ -359,6 +359,7 @@ export function createImageEditor(ctx) {
             btn.textContent = active && ratioPortrait ? pair[1] + ':' + pair[0] : pair[0] + ':' + pair[1];
             btn.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
+        saveBtn.disabled = busy || !changesImage();
         showCrop();
     }
 
@@ -695,7 +696,7 @@ export function createImageEditor(ctx) {
     }
 
     function save() {
-        if (!img || busy) {
+        if (!img || busy || !changesImage()) {
             return;
         }
         endDrag();
@@ -774,16 +775,30 @@ export function createImageEditor(ctx) {
         }
     }
 
-    // 開いたときと違う画像になる編集をしたか(回転した・範囲が画像全体でない・保存の大きさが元と違う)。
-    // 回して元の向きに戻した、ダブルクリックで画像全体に戻したなど、結果が同じなら編集していないとみなす。保存のしかたの選択は含めない
+    // 回転しておらず、範囲が画像全体か。回して元の向きに戻した、ダブルクリックで画像全体に戻したなども含む
+    function isWholeImage() {
+        var b = bounds();
+        return rot === 0 && crop.x === 0 && crop.y === 0 && crop.w === b.w && crop.h === b.h;
+    }
+
+    // 開いたときから編集したか(回転・トリミング・保存の大きさの指定)。結果が同じなら編集していないとみなす。保存のしかたの選択は含めない
     function isDirty() {
         if (!img) {
             return false;
         }
-        var b = bounds();
         var o = effectiveOut();
         var fitted = fittedOut(crop);
-        return rot !== 0 || crop.x !== 0 || crop.y !== 0 || crop.w !== b.w || crop.h !== b.h || o.w !== fitted.w || o.h !== fitted.h;
+        return !isWholeImage() || o.w !== fitted.w || o.h !== fitted.h;
+    }
+
+    // 保存すると元と違う画像になるか。同じ画像を保存すると、別名保存では中身の同じファイルが増え、どちらでも再圧縮で画質が落ちるだけになる。
+    // 長い辺の上限を超える画像は、編集しなくても上限に縮めて保存するので、違う画像になる
+    function changesImage() {
+        if (!img) {
+            return false;
+        }
+        var o = effectiveOut();
+        return !isWholeImage() || o.w !== srcW || o.h !== srcH;
     }
 
     // 保存の通信中は、閉じない(閉じても保存は進み、結果を受ける先が無くなるため)。
@@ -841,7 +856,6 @@ export function createImageEditor(ctx) {
             }
             img = loading;
             crop = wholeRect(bounds());
-            saveBtn.disabled = false;
             renderStage();
             if (typeof ResizeObserver === 'function') {
                 resizeObserver = new ResizeObserver(scheduleRender);
