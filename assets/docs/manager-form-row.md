@@ -38,7 +38,7 @@ echo EvoFieldRow::render([
 
 ## 見出しの列の幅と色
 
-- 見出しの列の幅は、全画面で変数 `--form-label-width`（200px。`theme-base.css` の `:root`）の 1 つ。テーマでは決めない。`.field-label` と、プラグインが設定の表に足す手書きの行の見出し（`.settings tr:not(.field-row) > th`）が `width` に使い、長い見出しは折り返す。画面ごとに見出しの幅や `white-space: nowrap` を足さない。
+- 見出しの列の幅は、変数 `--form-label-width` で決める。編集画面は 150px（`theme-base.css` の `:root`）、見出しの長い設定の表は 200px（`.settings` で上書き）の 2 つだけ。テーマでは決めない。`.field-label` と、プラグインが設定の表に足す手書きの行の見出し（`.settings tr:not(.field-row) > th`）が `width` に使い、長い見出しは折り返す。画面ごとに見出しの幅や `white-space: nowrap` を足さない。
 - 見出しの文字の色は、変数 `--mutate-field-title-color`（既定は `--color-warning`）の 1 つ。`.field-label`・`.field-title` に `forms.css` が当てる。
 
 ## 見出しと値の間
@@ -48,7 +48,7 @@ echo EvoFieldRow::render([
 ## 見出しの縦の揃えと見出しの無い行
 
 - 見出しの 1 行目の文字は、値の 1 行目の文字に共通の CSS（`theme-base.css`）でそろえる。値が文字・チェックボックス・ラジオの行は基準線でそろえる。文字を入れる欄（入力欄・セレクト・textarea）のある行は上揃えにし、見出しの上の余白を欄の中の文字の高さに合わせる（textarea の基準線は下端なので、基準線ではそろわない）。複数行の欄でも見出しは上に来る。画面ごとに `padding-top`・`valign` を直書きしない。「文字を入れる欄」は `forms.css` の欄の高さの規則と同じ一覧にする。
-- 設定の表（`class="settings"`）は、全幅・見出しは本文と同じ大きさ（列の幅は `--form-label-width`）・行の間に点線で、`theme-base.css` の `.settings` が決める。セルの余白は 1px に変数 `--field-row-gap`（設定の表は 4px）を足した値。ただし見出しの右は `.field-label` の `--space-3`、文字を入れる欄のある行の見出しの上は揃えの規則が決め、そこにも同じ変数が足されるので、上の揃えは崩れない。設定の表の説明（`EvoSettingsForm` の `desc`）は `help` に入る。
+- 設定の表（`class="settings"`）は、全幅・見出しは本文と同じ大きさ（列の幅は `--form-label-width` を 200px に上書きする）・行の間に点線で、`theme-base.css` の `.settings` が決める。セルの余白は 1px に変数 `--field-row-gap`（設定の表は 4px）を足した値。ただし見出しの右は `.field-label` の `--space-3`、文字を入れる欄のある行の見出しの上は揃えの規則が決め、そこにも同じ変数が足されるので、上の揃えは崩れない。設定の表の説明（`EvoSettingsForm` の `desc`）は `help` に入る。
 - 見出しの無い行（「ロックする」のチェックボックスなど）は、`label` を空にして渡し、値を入力欄の列にそろえる。部品に「見出しの無い行」の形は足さない。
 - 見出しにコロンは付けない。
 
