@@ -195,7 +195,17 @@
 
 期待される観測: グローバル設定・管理ユーザー・プロフィール・Web ユーザー・サイトの書き出し・スタイルガイドの設定の表が、全幅・本文と同じ大きさの見出し・点線・行の部品の揃えで出る。説明は欄の下に灰色で出る。保存・条件で出し分ける行・言語から読み込む select の動きは main と同じ。
 
-### 段階 3B・3C・4
+### 段階 3B（ブランチ `refactor/1631-stage3b-user-settings-definition`。ユーザーの設定の 4 項目を定義へ）
+
+1. 設定の定義（`settings_form.definition.inc.php`）に、管理ユーザーの画面だけの（scope `user`）タブ「ユーザー」を足し、手書きの 4 項目を移す: `allow_manager_access`（radio はい・いいえ、既定ははい）、`allowed_parents`（text）、`allowed_ip`（text、maxlength 255）、`allowed_days`（曜日の複数のチェックボックス。値は今と同じ `"1,2,3"` の文字列、送る name は `allowed_days[]`）。タブの位置は今の手書きの「ユーザー」タブと同じ（ログイン設定・プロフィールの次、管理画面の前）。
+2. `EvoSettingsForm` に、複数のチェックボックスの型（例: `checkboxes`）を足す。今の手書きの曜日の欄と同じ HTML・送る値・差し戻しの扱いにし、保存（`save_user.functions.php` の配列を `,` でつなぐ処理）はそのまま使う。型ごとの違いは定義の表で表し、部品の分岐を積まない。
+3. `EvoSettingsForm::USER_TAB_KEYS` を消し、`names('user')` が定義の行だけで同じ名前の集合を返すことを確かめる（`assets/docs/core-issues.md` の該当の課題の手順。移す前後の集合を比べる）。課題は解消として `core-issues.md` を直す。リリースノートに書く（PR 本文の「アップグレード時の注意」）。
+4. 設定ではない行（ログイン回数・前回のログイン・失敗回数とリセット・ブロック・ブロックの期限と日時。編集のときだけ出る）は、定義に入れず、「ログイン設定」タブの末尾に、行の部品（`EvoFieldRow`）の別の節として置く（設定とログインの状態を分ける）。JS が使う id・name（`blocked`・`blockedmode`・`blockeduntil`・`blockedafter`・`failed` など）と、`changeblockstate()`・`resetFailed()` の動きは変えない。手書きの「ユーザー」タブ（`tab_settings.php`）は無くなる。
+5. 文書: `global-settings.md`（ユーザーの画面のタブ、新しい型、scope `user` の行）、`manager-form-row.md`（使っている画面）。
+
+期待される観測: 管理ユーザーの新規・編集の「ユーザー」タブに 4 項目が設定の表（説明は欄の下）で出て、保存した値が main と同じ（`user_settings` の名前と値、空のときの削除、差し戻しの値）。ログイン回数・ブロックなどの行は「ログイン設定」タブの末尾に出て、リセット・ブロックの切り替え・日付の選択が main と同じに動く。プロフィール（scope `profile`）には 4 項目は出ない。
+
+### 段階 3C・4
 
 段階 3 の残りの PR は、3A のあとに、調査の結果（2026-11-22）をもとにこの節に手順を書き足す。3A で足した一時的な規則 `.settings tr:not(.field-row) > th { vertical-align: top }`（`theme-base.css`。行の部品を使わない手書きの設定の行の見出しを上揃えに保つ）は、3B・3C で手書きの行を部品へ移したら消す。
 
