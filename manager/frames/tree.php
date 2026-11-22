@@ -210,13 +210,15 @@ if (!sessionv('tree_sortdir')) {
             timer = setTimeout(finish, TREE_SLIDE_MS + 120);
         }
 
+        // 開いたときは、子が描けたら true で解決する Promise を返す（閉じた・取れなかったときは false）。
+        // ノードの onclick は戻り値を使わない。tree.js の revealPaneDocument() が親を順に開くのに使う
         function toggleNode(node, indent, id, expandAll, privatenode) {
             privatenode = (!privatenode || privatenode == '0') ? '0' : '1';
             var box = document.getElementById('c' + id);
             var rpcNodeText;
 
             var signImg = document.getElementById('s' + id);
-            var folderImg = document.getElementById('f' + id);
+            var opened = Promise.resolve(false);
 
             if (box.style.display === 'block' && box.dataset.closing !== '1') {
                 // collapse
@@ -244,32 +246,38 @@ if (!sessionv('tree_sortdir')) {
                         "expandAll": expandAll + folderState
                     });
                     // 失敗時は従来どおり何もしない
-                    Evo.fetch('index.php?' + params.toString())
+                    opened = Evo.fetch('index.php?' + params.toString())
                         .then(function (response) {
                             return response.ok ? response.text() : null;
                         })
                         .then(function (html) {
                             delete box.dataset.loading;
-                            if (html === null) return;
+                            if (html === null) return false;
                             // 取得中に別の操作があっても、この行へ差し込む
                             rpcLoadData(html, box);
                             // 取得中に閉じられていたら、閉じたままにする
                             if (openedArray[id] != 1) {
                                 box.style.display = 'none';
-                                return;
+                                return false;
                             }
                             slideTreeBox(box, true, true);
+                            return true;
                         })
-                        .catch(function () { delete box.dataset.loading; });
+                        .catch(function () {
+                            delete box.dataset.loading;
+                            return false;
+                        });
                     box.style.display = 'block';
                 } else {
                     slideTreeBox(box, true);
+                    opened = Promise.resolve(true);
                 }
             }
 
             Evo.fetch(
                 'index.php?a=1&f=nodes&savestateonly=1' + getFolderState()
             ).catch(function () {});
+            return opened;
         }
 
         function emptyTrash() {
@@ -510,12 +518,7 @@ if (is_array($evtOut)) {
     <script type="text/javascript">
         // Set 'treeNodeSelected' class on document node when editing via Context Menu
         function setActiveFromContextMenu(doc_id) {
-            document.querySelectorAll('.treeNodeSelected').forEach(function (el) {
-                el.classList.remove('treeNodeSelected');
-            });
-            var node = document.getElementById('node' + doc_id);
-            var span = node ? node.querySelector('span') : null;
-            if (span) span.className = 'treeNodeSelected';
+            selectTreeNode(doc_id);
         }
 
         // Context menu stuff

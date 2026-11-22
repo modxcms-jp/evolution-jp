@@ -127,6 +127,7 @@ function expandTree() {
         "expandAll": "1"
     }, function (response) {
         rpcLoadData(response, root);
+        selectPaneDocument();
         var state = root ? root.querySelector('[data-tree-opened]') : null;
         if (!state) {
             return;
@@ -168,7 +169,8 @@ function resetFolderState() {
     }
 }
 
-// セッションの開閉状態でノードを読み込む（tree.php の部品の初期化で呼ぶ）
+// セッションの開閉状態でノードを読み込む（tree.php の部品の初期化で呼ぶ）。
+// 保存のあとの読み直しもここを通るので、本文で開いている文書を選び直す
 function restoreTree() {
     rpcNode = document.getElementById('treeRoot');
     loadTreeRequest({
@@ -177,7 +179,108 @@ function restoreTree() {
         "indent": "1",
         "parent": "0",
         "expandAll": "2"
-    }, rpcLoadData);
+    }, function (response) {
+        rpcLoadData(response);
+        revealPaneDocument();
+    });
+}
+
+// 本文で開いている文書（#mainPane の [data-tree-document]。親は根から順に [data-tree-parents]）を返す
+function paneDocument() {
+    var pane = document.getElementById('mainPane');
+    var el = pane ? pane.querySelector('[data-tree-document]') : null;
+    if (!el) {
+        return null;
+    }
+    return {
+        id: parseInt(el.getAttribute('data-tree-document'), 10),
+        parents: (el.getAttribute('data-tree-parents') || '').split(',').map(function (v) {
+            return parseInt(v, 10);
+        }).filter(function (v) {
+            return v > 0;
+        })
+    };
+}
+
+// 本文で開いている文書をツリーで選ぶ。閉じている親のフォルダは根の側から順に開く（開閉状態も保存される）。
+// リソース一覧など、ツリーの外から編集画面を開いたときのため。ツリーから開いたときは、もう見えているので選ぶだけになる。
+// 親がツリーに無い（権限で見えない・「残り N 件を表示」で省略されている）ときは、そこで止める
+function revealPaneDocument() {
+    var root = document.getElementById('treeRoot');
+    var doc = paneDocument();
+    if (!doc || !root || !root.loaded) {
+        return;
+    }
+    // 親を開くのを待つ間に別の画面へ移ったら、移った先の選択を上書きしないよう打ち切る
+    function stillCurrent() {
+        var cur = paneDocument();
+        return cur !== null && cur.id === doc.id;
+    }
+    doc.parents.reduce(function (chain, pid) {
+        return chain.then(function (ok) {
+            var box = document.getElementById('c' + pid);
+            var sign = document.getElementById('s' + pid);
+            if (!ok || !stillCurrent() || !box || !sign || box.dataset.loading === '1') {
+                return false;
+            }
+            if (box.style.display === 'block' && box.dataset.closing !== '1') {
+                return true;
+            }
+            return toggleNode(sign, treeNodeIndent(box), pid, 0, 0);
+        });
+    }, Promise.resolve(true)).then(function () {
+        if (stillCurrent()) {
+            selectTreeNode(doc.id);
+            return;
+        }
+        // 移った先の文書の処理は、ここで読み込んでいた親（読み込み中）で止まっていることがある。
+        // 読み込みが済んだので、移った先の文書についてやり直す（文書の画面でなければ何もしない）
+        revealPaneDocument();
+    });
+}
+
+// 親を開かずに、見えていれば選ぶ（並べ替え・すべて展開など、ツリーを描き直したとき）
+function selectPaneDocument() {
+    var doc = paneDocument();
+    if (doc) {
+        selectTreeNode(doc.id);
+    }
+}
+
+// フォルダの子を取るときの indent（nodes.php の getNodes() が根を 1、その子のフォルダを 2 として数える）
+function treeNodeIndent(box) {
+    var indent = 2;
+    for (var el = box.parentNode; el && el.id !== 'treeRoot'; el = el.parentNode) {
+        if (el.classList && el.classList.contains('tree-children')) {
+            indent++;
+        }
+    }
+    return indent;
+}
+
+// 文書のノードを選んだ見た目にし、ツリーの中で見えていなければ縦にスクロールして見せる。
+// scrollIntoView() は使わない（上端に貼り付いたボタンの帯 .tree-toolbar の下に隠れる・横のスクロールまで動く）
+function selectTreeNode(id) {
+    var node = document.getElementById('node' + id);
+    var row = node ? node.querySelector(':scope > .tree-row') : null;
+    var span = row ? row.querySelector(':scope > span') : null;
+    if (!span) {
+        return;
+    }
+    setSelected(span);
+    var pane = document.getElementById('treePane');
+    if (!pane) {
+        return;
+    }
+    var bar = pane.querySelector('.tree-toolbar');
+    var paneRect = pane.getBoundingClientRect();
+    var rowRect = row.getBoundingClientRect();
+    var top = paneRect.top + (bar ? bar.offsetHeight : 0);
+    if (rowRect.top < top) {
+        pane.scrollTop -= top - rowRect.top;
+    } else if (rowRect.bottom > paneRect.bottom) {
+        pane.scrollTop += rowRect.bottom - paneRect.bottom;
+    }
 }
 
 function setSelected(elSel) {
@@ -209,7 +312,10 @@ function updateTree() {
         "dt": dt,
         "tree_sortby": t_sortby,
         "tree_sortdir": t_sortdir
-    }, rpcLoadData);
+    }, function (response) {
+        rpcLoadData(response);
+        selectPaneDocument();
+    });
 }
 
 function toggleDeletedNodes() {
@@ -229,7 +335,10 @@ function toggleDeletedNodes() {
         "parent": "0",
         "expandAll": "2",
         "tree_show_deleted": show ? "1" : "0"
-    }, rpcLoadData);
+    }, function (response) {
+        rpcLoadData(response);
+        selectPaneDocument();
+    });
 }
 
 //Raymond: added getFolderState,saveFolderState
@@ -289,4 +398,16 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initTreeSorterHandlers, { once: true });
 } else {
     initTreeSorterHandlers();
+}
+
+// シェルで画面を移ったとき・ページ全体を読んだときに、本文の文書をツリーで選ぶ。
+// ツリーの部品を読み直すとこのファイルも読み直されるので、登録は 1 回だけにする
+if (!window.treeRevealBound) {
+    window.treeRevealBound = true;
+    document.addEventListener('evoshell:load', function () {
+        revealPaneDocument();
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+        revealPaneDocument();
+    });
 }

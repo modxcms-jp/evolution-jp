@@ -771,6 +771,17 @@ function file_get_tpl($path)
     return file_get_contents(tpl_base_dir() . $path);
 }
 
+// ツリーでこの文書を選ぶための、文書の ID と根から順の親の ID。manager/media/script/tree.js の revealPaneDocument() が読む
+function tree_document_attr($id)
+{
+    $parents = array_reverse(array_values(evo()->getParentIds($id, 100)));
+    return sprintf(
+        ' data-tree-document="%d" data-tree-parents="%s"',
+        $id,
+        implode(',', array_map('intval', $parents))
+    );
+}
+
 function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRichTextEditorInit)
 {
     return [
@@ -786,6 +797,7 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
         'class' => (evo()->doc->mode === 'normal') ? '' : 'draft',
         '(ID:%s)' => $id ? sprintf('(ID:%s)', $id) : '',
         'page_title_attr' => ($id && doc('pagetitle') !== '') ? ' data-page-title="' . hsc_for_tpl(doc('pagetitle')) . '"' : '',
+        'tree_document_attr' => $id ? tree_document_attr($id) : '',
         'actionButtons' => getActionButtons($id),
         'OnDocFormRender' => is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '',
         'OnRichTextEditorInit' => $OnRichTextEditorInit,
