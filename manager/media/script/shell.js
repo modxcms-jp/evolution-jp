@@ -100,7 +100,10 @@
         }
     }
 
-    // 差し替えたHTML内の<script>は自動実行されないため、生成し直して順次実行する
+    // 差し替えたHTML内の<script>は自動実行されないため、生成し直して順次実行する。
+    // src のある <script> は onload を待つので、その間にブラウザが JS で整える前の HTML
+    // （タブの見出しが縦に並ぶ、全タブの中身が出ているなど）を描いてしまう。
+    // 呼び出し側は差し替える前に container へ evo-pane-pending（shell.css）を付けて隠し、done の最初で外す
     function executeScripts(container, done) {
         const scripts = Array.from(container.querySelectorAll('script'));
 
@@ -298,6 +301,7 @@
 
         teardownPane(pane);
         window.documentDirty = false;
+        pane.classList.add('evo-pane-pending');
         pane.innerHTML = html;
         pane.scrollTop = 0;
         hoistStylesheets(pane);
@@ -314,6 +318,7 @@
         }
 
         executeScripts(pane, function () {
+            pane.classList.remove('evo-pane-pending');
             // 断片内のready相当は即時実行済み。共通後処理を行う
             const preLoader = document.getElementById('preLoader');
             if (preLoader) {
@@ -416,6 +421,7 @@
             currentModalUrl = finalUrl;
         }
         teardownPane(body);
+        body.classList.add('evo-pane-pending');
         body.innerHTML = html;
         body.scrollTop = 0;
         hoistStylesheets(body);
@@ -445,6 +451,7 @@
         }
 
         executeScripts(body, function () {
+            body.classList.remove('evo-pane-pending');
             if (window.MODXSortable && typeof window.MODXSortable.init === 'function') {
                 window.MODXSortable.init(body);
             }

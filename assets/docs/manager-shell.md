@@ -13,6 +13,7 @@
 
 - `manager/actions/header.inc.php` が、メニューとツリーを部品として読み込み、本文の前に描く。`?chromeless=1` の画面と QuickManager の埋め込みでは、メニューとツリーを描かない（body に `evo-shell` が付かない）。
 - 画面の移動は `manager/media/script/shell.js`（`EvoShell`）が受け持つ。`X-Evo-Shell: 1` を付けて要求し、`#mainPane` だけを差し替える（応答は `X-Evo-Pane: 1` の断片）。
+- 差し替えた断片の `<script>` を実行し終わるまで、`#mainPane`（シェルのモーダルでは `#evoShellModalBody`）に `evo-pane-pending` を付けて隠す（`opacity: 0`）。`src` のある `<script>` の読み込みを待つ間に、タブの組み立てなど JS で整える前の HTML が一瞬描かれるのを防ぐ。非同期で後から整う部品（TinyMCE の初期化など）は待たない。
 - 断片の中の `<script>` は、画面を訪れるたびに実行し直す（ページ専用の初期化のため）。`<script src>` は、同じタグが今の文書に残っていれば読まない。
 - 1 回だけ動かしたいスクリプトは、次のどちらかにする。
   - 自前のスクリプト: スクリプト自身が確かめて、2 回目は何もしない（例: `if (!window.EvoDataTable)`。`data-table.js`・`mcpuk-picker.js`）。
