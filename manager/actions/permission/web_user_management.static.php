@@ -8,8 +8,6 @@ if (!evo()->hasPermission('edit_web_user')) {
     alert()->dumpError();
 }
 
-$icons_path = manager_style_image_path('icons');
-
 // 一覧の検索語・ページ番号・一覧モードは URL（リクエスト）だけで決め、画面状態には覚えない
 $query = get_strvar('search');
 $listmode = get_choicevar('listmode', ['0', '1'], '0');
@@ -21,14 +19,14 @@ $cm = new ContextMenu("cntxm", 150);
 $cm->addItem(
     lang("edit"),
     "js:menuAction(1)",
-    "{$icons_path}logging.gif",
-    (!evo()->hasPermission('edit_user') ? 1 : 0)
+    style('icons_edit_document'),
+    (!evo()->hasPermission('edit_web_user') ? 1 : 0)
 );
 $cm->addItem(
     lang("delete"),
     "js:menuAction(2)",
-    "{$icons_path}delete.gif",
-    (!evo()->hasPermission('delete_user') ? 1 : 0)
+    style('icons_delete'),
+    (!evo()->hasPermission('delete_web_user') ? 1 : 0)
 );
 echo $cm->render();
 
@@ -118,8 +116,10 @@ echo $cm->render();
         <div class="actionButtons">
             <table border="0" style="width:100%">
                 <tr>
-                    <td><a class="default" href="index.php?a=87"><?= lang('new_web_user') ?></a>
-                    </td>
+                    <?php if (evo()->hasPermission('new_web_user')): ?>
+                        <td><a class="default" href="index.php?a=87"><?= lang('new_web_user') ?></a>
+                        </td>
+                    <?php endif; ?>
                     <td nowrap="nowrap">
                         <table border="0" style="float:right">
                             <tr>
@@ -149,6 +149,7 @@ echo $cm->render();
 
         <?php
         include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
+        include_once(__DIR__ . '/user_list_columns.php');
         $from = evo()->getFullTableName('web_users') . ' wu'
             . ' INNER JOIN ' . evo()->getFullTableName('web_user_attributes') . ' wua ON wua.internalKey=wu.id';
         $where = '';
@@ -169,64 +170,15 @@ echo $cm->render();
         $links = new DataTableLinks('index.php', $params, $pager->page());
 
         $ds = db()->select(
-            'wu.id,wu.username,wua.fullname,wua.email,wua.gender,' . userBlockedSqlCondition('wua') . ' AS blocked',
+            'wu.id,wu.username,wua.fullname,wua.email,wua.thislogin,wua.logincount,' . userBlockedSqlCondition('wua') . ' AS blocked',
             $from,
             $where,
-            'wu.username',
+            userListOrderBy('wua'),
             $pager->limit() ? sprintf('%d,%d', $pager->offset(), $pager->limit()) : ''
         );
         $rows = db()->getRows($ds) ?: [];
 
-        $columns = [
-            [
-                'key' => 'id',
-                'label' => lang('icon'),
-                'class' => 'is-shrink is-center',
-                'html' => true,
-                'format' => function ($value) {
-                    return sprintf(
-                        '<a class="gridRowIcon" href="#" data-row-menu="%d" title="%s"><img src="%s" /></a>',
-                        (int) $value,
-                        hsc(lang('click_to_context')),
-                        hsc(style('icons_user'))
-                    );
-                },
-            ],
-            [
-                'key' => 'username',
-                'label' => lang('username'),
-                'html' => true,
-                'format' => function ($value, array $row) {
-                    return sprintf(
-                        '<a href="index.php?a=88&amp;id=%d" title="%s">%s</a>',
-                        (int) $row['id'],
-                        hsc(lang('click_to_edit_title')),
-                        hsc($value)
-                    );
-                },
-            ],
-            ['key' => 'fullname', 'label' => lang('user_full_name')],
-            ['key' => 'email', 'label' => lang('email')],
-            [
-                'key' => 'gender',
-                'label' => lang('user_gender'),
-                'class' => 'is-shrink is-center',
-                'format' => function ($value) {
-                    if ((int) $value === 1) {
-                        return lang('user_male');
-                    }
-                    return (int) $value === 2 ? lang('user_female') : '-';
-                },
-            ],
-            [
-                'key' => 'blocked',
-                'label' => lang('user_block'),
-                'class' => 'is-shrink is-center',
-                'format' => function ($value) {
-                    return $value ? lang('yes') : '-';
-                },
-            ],
-        ];
+        $columns = userListColumns(88);
         $table = new DataTable($columns, [
             'id' => 'web-users',
             'tableClass' => 'grid',

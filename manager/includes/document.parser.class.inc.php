@@ -4761,20 +4761,6 @@ class DocumentParser
 
     public function toDateFormat($timestamp = 0, $mode = '')
     {
-        if ($timestamp === null || $timestamp === '') {
-            return '';
-        }
-
-        if (!is_numeric($timestamp)) {
-            $timestamp = trim((string)$timestamp);
-        }
-
-        if ($timestamp === '' || ($timestamp == 0 && $mode === '')) {
-            return '';
-        }
-
-        $timestamp = (int)$timestamp + $this->config('server_offset_time');
-
         switch ($this->config('datetime_format', 'YYYY/mm/dd')) {
             case 'YYYY/mm/dd':
                 $dateFormat = '%Y/%m/%d';
@@ -4789,16 +4775,32 @@ class DocumentParser
                 $dateFormat = '%Y/%m/%d';
         }
 
-        if (empty($mode)) {
-            $strTime = $this->mb_strftime($dateFormat . " %H:%M:%S", $timestamp);
-        } elseif ($mode == 'dateOnly') {
-            $strTime = $this->mb_strftime($dateFormat, $timestamp);
-        } elseif ($mode == 'formatOnly') {
-            $strTime = $dateFormat;
-        } else {
-            $strTime = '';
+        // 書式だけを返すときは $timestamp を見ない
+        if ($mode == 'formatOnly') {
+            return $dateFormat;
         }
-        return $strTime;
+
+        if ($timestamp === null || $timestamp === '') {
+            return '';
+        }
+
+        if (!is_numeric($timestamp)) {
+            $timestamp = trim((string)$timestamp);
+        }
+
+        if ($timestamp === '' || ($timestamp == 0 && $mode === '')) {
+            return '';
+        }
+
+        $timestamp = (int)$timestamp + $this->config('server_offset_time');
+
+        if (empty($mode)) {
+            return $this->mb_strftime($dateFormat . " %H:%M:%S", $timestamp);
+        }
+        if ($mode == 'dateOnly') {
+            return $this->mb_strftime($dateFormat, $timestamp);
+        }
+        return '';
     }
 
     public function toTimeStamp($str, $default = '')
