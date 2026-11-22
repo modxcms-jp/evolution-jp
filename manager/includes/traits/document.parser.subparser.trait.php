@@ -378,7 +378,7 @@ trait DocumentParserSubParserTrait
                 );
             }
 
-            $requested = $context['requested'] ?? 'inherit';
+            $requested = $context['requested'] ?? EvoErrorReporting::INHERIT;
             $effective = $context['effective'] ?? 'n/a';
             $globalLevel = $context['global'] ?? 'n/a';
             $str .= $modx->parseText(
