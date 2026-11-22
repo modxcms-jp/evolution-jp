@@ -14,7 +14,8 @@
 - [x] (2026-11-22) 段階 2A: 見出しの縦の揃えを共通にし（文字を入れる欄のある行は上余白、ほかは基準線）、スニペットとチャンクの行を部品へ移した（2 画面の直書きの style の行 26 → 12）
 - [x] (2026-11-22) 段階 2B: プラグインとテンプレートの行を部品へ移し、4 画面の説明の欄の `padding:0` の直書きをやめた（4 画面の直書きの style の行 39 → 30）
 - [x] (2026-11-22) 段階 2C: モジュールと TV の行を部品へ移した（2 画面の直書きの style の行 34 → 18）。エレメントの 6 画面がすべて部品を使う
-- [ ] 段階 3: ユーザーの画面。ユーザーの設定の手書きのタブを `EvoSettingsForm` へ、Web ユーザーとプロフィールの重複をなくす。設定の説明を部品の説明の欄へ移し、`EvoSettingsForm::style()` を共通の CSS へ移す
+- [x] (2026-11-22) 段階 3E: エラー報告の段階の一覧と意味の正本を `EvoErrorReporting` に置き、スニペット・プラグインの画面・グローバル設定の定義・保存の処理・DocumentParser の実行時の判定がそこを使う。欄の下の説明を本文と同じ大きさにした
+- [ ] 段階 3（3D・3A・3B・3C）: ユーザーの画面。ユーザーの設定の手書きのタブを `EvoSettingsForm` へ、Web ユーザーとプロフィールの重複をなくす。設定の説明を部品の説明の欄へ移し、`EvoSettingsForm::style()` を共通の CSS へ移す
 - [ ] 段階 4: 文書の画面の残り（TV の行 `tv_row.tpl` を部品へ、ほかの直書き）
 
 ## Surprises & Discoveries
@@ -208,6 +209,7 @@
 - 段階 2A: ブランチ `refactor/1631-stage2-element-forms`、ワークツリー `.claude/worktrees/issue-1631-stage2`（段階 0・1 のワークツリーは外から消されたので作り直した）、PR #1718
 - 段階 2B: ブランチ `refactor/1631-stage2b-plugin-template-forms`（同じワークツリーで main から切り替えた）、PR #1721
 - 段階 2C: ブランチ `refactor/1631-stage2c-module-tv-forms`（同じワークツリーで main から切り替えた）、PR #1724
+- 段階 3E: ブランチ `refactor/1631-stage3e-error-reporting-options`（同じワークツリーで main から切り替えた）
 
 ## Interfaces and Dependencies
 
