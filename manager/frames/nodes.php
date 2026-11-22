@@ -589,7 +589,7 @@ function moreNode($indent, $parent, $offset, $remaining)
 
 function tplMoreNode()
 {
-    return '<div class="moreNode tree-row is-leaf" style="white-space:nowrap;"><img src="[+icon+]">&nbsp;<span class="emptyNode" style="cursor:pointer;" onclick="loadMoreNodes(this,[+indent+],[+parent+],[+offset+]);">[+msg+]</span></div>';
+    return '<div class="moreNode tree-row is-leaf" style="white-space:nowrap;"><img src="[+icon+]">&nbsp;<span class="emptyNode" style="cursor:pointer;" onclick="return loadMoreNodes(this,[+indent+],[+parent+],[+offset+]);">[+msg+]</span></div>';
 }
 
 function tplEmptyFolder()

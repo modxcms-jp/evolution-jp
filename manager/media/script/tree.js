@@ -55,30 +55,37 @@ function sendTreeRequest(url) {
         });
 }
 
-// 件数超過で省略したリソースの続きを読み込み、「残り N 件を表示」ノードと置き換える
+// 件数超過で省略したリソースの続きを読み込み、「残り N 件を表示」ノードと置き換える。
+// 差し込めたら true で解決する Promise を返す（読み込み中・失敗のときは false）。
+// ノードの onclick は戻り値を返すだけで使わない。revealPaneDocument() が目当ての文書まで読み進めるのに使う
 function loadMoreNodes(el, indent, parent, offset) {
     var moreNode = el.parentNode;
     if (moreNode.loading) {
-        return;
+        return Promise.resolve(false);
     }
     moreNode.loading = true;
-    loadTreeRequest({
-        "a": "1",
-        "f": "nodes",
-        "indent": indent,
-        "parent": parent,
-        "offset": offset
-    }, function (response) {
-        if (response.indexOf('mx_loginbox') !== -1) {
-            // セッション切れ
-            top.location = 'index.php';
-            return;
-        }
-        moreNode.insertAdjacentHTML('beforebegin', response);
-        moreNode.parentNode.removeChild(moreNode);
-    }, function () {
-        // 失敗したらもう一度押せるようにする
-        moreNode.loading = false;
+    return new Promise(function (resolve) {
+        loadTreeRequest({
+            "a": "1",
+            "f": "nodes",
+            "indent": indent,
+            "parent": parent,
+            "offset": offset
+        }, function (response) {
+            if (response.indexOf('mx_loginbox') !== -1) {
+                // セッション切れ
+                top.location = 'index.php';
+                resolve(false);
+                return;
+            }
+            moreNode.insertAdjacentHTML('beforebegin', response);
+            moreNode.parentNode.removeChild(moreNode);
+            resolve(true);
+        }, function () {
+            // 失敗したらもう一度押せるようにする
+            moreNode.loading = false;
+            resolve(false);
+        });
     });
 }
 
@@ -204,7 +211,8 @@ function paneDocument() {
 
 // 本文で開いている文書をツリーで選ぶ。閉じている親のフォルダは根の側から順に開く（開閉状態も保存される）。
 // リソース一覧など、ツリーの外から編集画面を開いたときのため。ツリーから開いたときは、もう見えているので選ぶだけになる。
-// 親がツリーに無い（権限で見えない・「残り N 件を表示」で省略されている）ときは、そこで止める
+// 文書が「残り N 件を表示」で省かれているときは、見つかるまでその続きを読み込む。
+// 親がツリーに無い（権限で見えない）ときは、そこで止める
 function revealPaneDocument() {
     var root = document.getElementById('treeRoot');
     var doc = paneDocument();
@@ -215,6 +223,22 @@ function revealPaneDocument() {
     function stillCurrent() {
         var cur = paneDocument();
         return cur !== null && cur.id === doc.id;
+    }
+    // 直接の親の中の「残り N 件を表示」を、文書が見つかるか、無くなるまで順に読み込む
+    function loadMoreUntilFound() {
+        var pid = doc.parents[doc.parents.length - 1];
+        var box = pid ? document.getElementById('c' + pid) : null;
+        if (!stillCurrent() || !box || document.getElementById('node' + doc.id)) {
+            return true;
+        }
+        var more = box.querySelector(':scope > .moreNode > .emptyNode');
+        var loading = more ? more.onclick() : null;
+        if (!loading || typeof loading.then !== 'function') {
+            return true;
+        }
+        return loading.then(function (loaded) {
+            return loaded ? loadMoreUntilFound() : true;
+        });
     }
     doc.parents.reduce(function (chain, pid) {
         return chain.then(function (ok) {
@@ -228,7 +252,9 @@ function revealPaneDocument() {
             }
             return toggleNode(sign, treeNodeIndent(box), pid, 0, 0);
         });
-    }, Promise.resolve(true)).then(function () {
+    }, Promise.resolve(true)).then(function (ok) {
+        return ok ? loadMoreUntilFound() : false;
+    }).then(function () {
         if (stillCurrent()) {
             selectTreeNode(doc.id);
             return;
