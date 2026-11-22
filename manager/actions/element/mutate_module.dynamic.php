@@ -156,7 +156,7 @@ function content($key, $default = null)
 
     <div class="sectionBody">
         <p><img class="icon" src="<?= style('icons_modules') ?>" alt="."
-                style="vertical-align:middle;text-align:left;" /> <?= lang('module_msg') ?></p>
+                style="vertical-align:middle;" /> <?= lang('module_msg') ?></p>
 
         <div class="tab-pane" id="modulePane">
             <!-- General -->

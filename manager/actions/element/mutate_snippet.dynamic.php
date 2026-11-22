@@ -188,7 +188,7 @@ function entity($key, $default = null)
                         ob_start();
                         ?>
                         <label>
-                            <input style="padding:0;margin:0;" name="locked"
+                            <input name="locked"
                                 type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : '' ?>
                                 class="inputBox">
                             <b><?= lang('lock_snippet') ?></b>
