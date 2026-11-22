@@ -54,7 +54,7 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
 - 入れ子の欄は名前で探す。`Evo.fieldRow('hidemenu')` はそのセルを、`Evo.fieldRow('menuindex')` は外側の行を返す。`Evo.fieldPart('menuindex', part)` は `hidemenu` の部分を返さない。
 - 要素から探すと、入れ子の欄の中の要素でも外側の行が基準になる（行を隠す・移す処理が、表の行をまるごと扱えるように）。「メニューに表示」のチェックボックス `el` では、`Evo.fieldRow(el)` は `menuindex` の行、`Evo.fieldPart(el, 'title')` は `menuindex` の見出しを返す。`hidemenu` の部分が要るときは `Evo.fieldPart('hidemenu', part)` と名前で指定する。
 - ManagerManager の `mm_hideFields` は、この違いがそのまま出る。`show_in_menu`・`hidemenu` は名前で探すので「メニューに表示」のセルだけを隠し、`hide_menu` は欄の要素から探すので `menuindex` の行ごと隠す。
-- 本文（`#content_body`）とエディターの選択（`#which_editor`）は表の行ではないので、id で探す。
+- 本文（`#content_body`）とエディターの選択（`#which_editor`、その前の「使用エディター」の文字は `#which_editor_title`。どちらも `rteContent()` が出す）は表の行ではないので、id で探す。
 - `help` があるのは、TV の行（TV の説明の文字）、`hidemenu`（説明のアイコンを囲む `span`）、値の下に書式などの説明（部品の `help`）を出す行（`pub_date`・`unpub_date` など）。ほかの標準のフィールドの説明のアイコン（`img.tooltip`）は `value` の中にある。
 - フィールドではない行（`renderFieldTr()` の第 1 引数が空。下書きの採用日時など）は `data-field` が空で、`Evo.fieldRow()` の対象にならない。
 - エレメントの編集画面（`manager/actions/element/` の `mutate_templates`・`mutate_htmlsnippet`・`mutate_snippet`・`mutate_plugin`・`mutate_module`・`mutate_tmplvars` の各 `.dynamic.php`）の、新しいカテゴリー名の行は `data-field="newcategory"`（`manager/media/script/element-category.js` が使う）。

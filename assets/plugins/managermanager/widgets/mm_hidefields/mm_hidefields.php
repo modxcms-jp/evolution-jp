@@ -41,7 +41,7 @@ function mm_hideFields($fields, $roles = '', $templates = '')
                 break;
 
             case 'which_editor':
-                $output .= 'MM.all("select#which_editor").forEach(function (el) { const p = el.previousElementSibling; if (p && p.matches("span.mutate-field-title")) { MM.hide(p); } MM.hide(el); });';
+                $output .= 'MM.hide("#which_editor_title"); MM.hide("#which_editor");';
                 break;
 
             case 'content':

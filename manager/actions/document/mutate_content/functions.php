@@ -62,7 +62,7 @@ function rteContent($htmlcontent, $editors)
         ],
         $htmlcontent
     )
-        . html_tag('<span>', ['class' => 'mutate-field-title'], lang('which_editor_title'))
+        . html_tag('<span>', ['id' => 'which_editor_title', 'class' => 'mutate-field-title'], lang('which_editor_title'))
         . getEditors($editors);
 }
 

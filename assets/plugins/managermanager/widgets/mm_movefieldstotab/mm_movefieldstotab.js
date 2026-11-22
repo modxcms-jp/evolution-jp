@@ -26,14 +26,13 @@ var mmMoveFields = {
                 r.after(t.content);
             });
         }
-        // 行を移し、後ろの区切りの行を消し、区切りを足して、見出しの列の幅を外す
+        // 行を移し、後ろの区切りの行を消し、区切りを足す
         function moveFieldRows(toMove) {
             var helps = [];
             nextRows(toMove).forEach(function (n) { helps.push.apply(helps, n.querySelectorAll('td[colspan="2"]')); });
             MM.parents(helps, "tr").forEach(function (r) { r.remove(); }); // Get rid of line after, if there is one
             var movedTV = moveRows(toMove); // Move the table row
             addRule(movedTV); // Insert a rule after
-            movedTV.forEach(function (r) { r.querySelectorAll("td[width]").forEach(function (td) { td.width = ""; }); }); // Remove widths from label column
         }
         return {
             // 本文の欄（content）

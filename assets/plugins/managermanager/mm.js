@@ -170,13 +170,10 @@
 
             // if template variables containers are empty, remove their section
             if (all('div.tmplvars input, div.tmplvars select, div.tmplvars textarea, div.tmplvars button').length === 0) {
-                all('div.tmplvars').forEach(function (el) {
-                    MM.hide(el); // Still contains an empty table and some dividers
-                    const prev = el.previousElementSibling;
-                    if (prev && prev.tagName === 'DIV') {
-                        MM.hide(prev);
-                    }
-                });
+                // 箱が有るとき（TV を本文の下に出すとき）だけ、その見出しも隠す
+                if (MM.hide('div.tmplvars').length) { // Still contains an empty table and some dividers
+                    MM.hide('#tv_header');
+                }
             }
 
             // TV のタブは、タブの中に入力が無くなったら隠す（custom_tpl_dir の以前の tab_tv.tpl には div.tmplvars が無いので、タブの中で数える）
