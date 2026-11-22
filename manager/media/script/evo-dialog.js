@@ -29,7 +29,7 @@
         + '.evo-dialog::backdrop{background:rgba(0,0,0,.25)}'
         // 見出しの帯と閉じるボタン。シェルのモーダル（shell.js）とファイルブラウザのダイアログ（overlay.js）も、このクラスで同じ見た目にする。
         // 地はテーマの主色。明るい主色でも白い文字が読めるよう、暗い色を重ねる。見出しはテーマの h1・h2 の地や枠を打ち消す
-        + '.evo-titlebar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;padding:0 8px 0 16px;box-sizing:border-box;'
+        + '.evo-titlebar{flex:none;cursor:move;user-select:none;touch-action:none;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;padding:0 8px 0 16px;box-sizing:border-box;'
         + 'background-image:linear-gradient(rgba(0,0,0,.15),rgba(0,0,0,.15)),linear-gradient(var(--color-primary-start,var(--color-primary,#375665)),var(--color-primary-end,var(--color-primary,#375665)));'
         + 'color:var(--color-text-inverse,#fff)}'
         + '.evo-titlebar-title{min-width:0;margin:0;padding:8px 0;border:0;background:none;box-shadow:none;color:inherit;font-size:1.1em;font-weight:bold;overflow-wrap:anywhere;text-shadow:0 1px 2px rgba(0,0,0,.4)}'
@@ -261,6 +261,33 @@
 
     // 見出しの帯はダイアログを開く前からシェルのモーダルなどが使うので、読み込んだときに足す
     addStyle();
+
+    // 帯をつかんでダイアログ（帯を囲む dialog か role="dialog"）を動かす。動かせるのは入れ物の中まで。
+    // 位置は CSS の translate に持つので、同じ要素を使い回すダイアログは、開くときに style.translate を空に戻す
+    document.addEventListener('pointerdown', function (e) {
+        const bar = e.button === 0 && !e.target.closest('button') ? e.target.closest('.evo-titlebar') : null;
+        const box = bar && bar.closest('dialog, [role="dialog"]');
+        if (!box) {
+            return;
+        }
+        const rect = box.getBoundingClientRect();
+        const area = box.matches('dialog') ? { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight } : box.parentElement.getBoundingClientRect();
+        const [x0, y0] = (box.style.translate || '0px 0px').split(' ').map(parseFloat);
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const clamp = (v, min, max) => Math.max(min, Math.min(v, max));
+        const move = function (ev) {
+            const dx = clamp(ev.clientX - startX, area.left - rect.left, area.right - rect.right);
+            const dy = clamp(ev.clientY - startY, area.top - rect.top, area.bottom - rect.bottom);
+            box.style.translate = (x0 + dx) + 'px ' + (y0 + dy) + 'px';
+        };
+        bar.setPointerCapture(e.pointerId);
+        bar.addEventListener('pointermove', move);
+        bar.addEventListener('lostpointercapture', function () {
+            bar.removeEventListener('pointermove', move);
+        }, { once: true });
+        e.preventDefault();
+    });
     window.EvoDialog = EvoDialog;
     window.jAlert = EvoDialog.alert;
     window.jConfirm = EvoDialog.confirm;

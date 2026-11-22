@@ -142,6 +142,7 @@ export function openOverlay(overlayEl, panelEl, initialEl, options) {
     if (closeBtn) {
         closeBtn.addEventListener('click', dismiss);
     }
+    panelEl.style.translate = '';
     overlayEl.hidden = false;
     var focusEl = initialEl || focusableIn(panelEl).filter(function (el) { return el !== closeBtn; })[0] || panelEl;
     if (focusEl === panelEl && !panelEl.hasAttribute('tabindex')) {

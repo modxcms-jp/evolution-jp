@@ -425,6 +425,9 @@
         body.innerHTML = html;
         body.scrollTop = 0;
         hoistStylesheets(body);
+        if (overlay.classList.contains('hidden')) {
+            document.getElementById('evoShellModal').style.translate = '';
+        }
         overlay.classList.remove('hidden');
 
         // #actionsはスクロールしないフッターへ、見出し(h1)は固定ヘッダーへ移す
