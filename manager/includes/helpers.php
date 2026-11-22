@@ -946,6 +946,19 @@ function serverv($key = null, $default = null)
 }
 
 /**
+ * tpl を読む。設定 custom_tpl_dir のフォルダに同じ名前のファイルがあればそれ、無ければ $defaultDir（末尾が / のフォルダ）のもの。
+ * 呼び出し側が読んだ内容を使い回すかを決める
+ */
+function tpl_read($file, $defaultDir)
+{
+    $dir = (string)config('custom_tpl_dir');
+    if ($dir !== '' && is_file(MODX_BASE_PATH . $dir . $file)) {
+        return file_get_contents(MODX_BASE_PATH . $dir . $file);
+    }
+    return file_get_contents($defaultDir . $file);
+}
+
+/**
  * 「,」で区切った設定の値（ログインを許可する IP・曜日など）に $item が含まれるか。
  * 区切りの空白は無視し、項目全体の一致で見る（管理ユーザーと Web ユーザーのログインが同じ判定を使う）
  */

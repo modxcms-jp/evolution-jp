@@ -764,11 +764,7 @@ EOT;
 
 function file_get_tpl($path)
 {
-    $dir = (string)config('custom_tpl_dir');
-    if ($dir !== '' && is_file(MODX_BASE_PATH . $dir . $path)) {
-        return file_get_contents(MODX_BASE_PATH . $dir . $path);
-    }
-    return file_get_contents(tpl_base_dir() . $path);
+    return tpl_read($path, tpl_base_dir());
 }
 
 // ツリーでこの文書を選ぶための、文書の ID と根から順の親の ID。manager/media/script/tree.js の revealPaneDocument() が読む

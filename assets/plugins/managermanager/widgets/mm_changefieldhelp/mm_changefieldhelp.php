@@ -36,11 +36,11 @@ function mm_changeFieldHelp($field, $helptext = '', $roles = '', $templates = ''
 
     //Is this TV?
     if ($mm_fields[$field]['tv']) {
-        // 行の説明
+        // 行の説明。説明が空の TV は説明の部分が無いので、値のセルの末尾に作る
         $output .= sprintf(
-            'MM.html(Evo.fieldPart(document.querySelector(%s), "help"), %s);',
-            $selector,
-            mmHtmlLiteral($helptext)
+            '(function (el) { let help = Evo.fieldPart(el, "help"); if (!help) { const value = Evo.fieldPart(el, "value"); if (!value) { return; } help = document.createElement("div"); help.className = "form-text"; help.setAttribute("data-field-part", "help"); value.appendChild(help); } MM.html(help, %s); })(document.querySelector(%s));',
+            mmHtmlLiteral($helptext),
+            $selector
         );
         //Or document field
     } else {

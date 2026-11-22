@@ -1,6 +1,6 @@
 # 管理画面のフォームの行
 
-管理画面の編集画面で、見出し（項目名）と値（入力欄など）を並べる行（`tr`）は、部品 `EvoFieldRow`（`manager/includes/field_row.class.inc.php`）と tpl `manager/media/style/common/field_row.tpl` で出す。この部品を使う行の HTML を直す場所はこの 2 つだけ（`tv_row.tpl` と手書きの行は、段階的に移すまで残る）。`manager()` と同じく、管理画面の初期化（`ex_managerapi.php`）が読み込む。
+管理画面の編集画面で、見出し（項目名）と値（入力欄など）を並べる行（`tr`）は、部品 `EvoFieldRow`（`manager/includes/field_row.class.inc.php`）と tpl `manager/media/style/common/field_row.tpl` で出す。この部品を使う行の HTML を直す場所はこの 2 つだけ（手書きの行は、段階的に移すまで残る）。`manager()` と同じく、管理画面の初期化（`ex_managerapi.php`）が読み込む。
 
 ## 使い方
 
@@ -26,7 +26,7 @@ echo EvoFieldRow::render([
 - HTML を受けるキー（`label`・`label_extra`・`body`・`help`）は、呼び出し側で出力に合わせてエスケープしてから渡す（利用者の入力・DB や環境から来る値は `hsc()`）。部品は差し込んだ値を再評価しないので、値の中の `[+…+]` はそのまま出る。部品の出力を、あとで `parseText()` などのタグ解析に通す画面（文書の編集画面は大きな tpl に差し込む）は、値を `hsc_for_tpl()` で渡す（`template-system.md`）。言語ファイルとコードの定数の HTML はそのまま渡してよい。
 - 値のセルの HTML が大きい行は、PHP の画面では `ob_start()` と `ob_get_clean()` で HTML を組んで `body` に渡す（`sprintf()` や heredoc で組まない）。
 - 種類ごとの違いは、呼び出し側が配列で表す。部品の中に画面ごとの分岐を足さない。文書の編集画面の値のセルの `.field-inline` の包みは、呼び出し側の `renderFieldTr()`（`mutate_content/functions.php`）が行う。
-- 使っている画面: 文書の編集（`renderFieldTr()` 経由）・下書きの公開・グローバル設定とユーザーの設定の表（`EvoSettingsForm`）・システム情報・スタイルガイド・管理ログの検索・サイトの書き出し・バックアップのスナップショット・スニペット・チャンク・プラグイン・テンプレート・モジュール・TV の編集（エレメントの 6 画面）・管理ユーザー・Web ユーザー・プロフィールの編集（プロフィールの行・パスワード・メール・名前・ログインの状態の行は、3 画面が共有する `manager/actions/permission/mutate_user/user_form_rows.php` の関数が部品で出す）・管理ユーザーと Web ユーザーの編集の「ユーザー」タブ（設定の定義）。
+- 使っている画面: 文書の編集（`renderFieldTr()` 経由）・下書きの公開・グローバル設定とユーザーの設定の表（`EvoSettingsForm`）・システム情報・スタイルガイド・管理ログの検索・サイトの書き出し・バックアップのスナップショット・スニペット・チャンク・プラグイン・テンプレート・モジュール・TV の編集（エレメントの 6 画面）・文書の編集画面の TV の行（`fieldsTV()`。`class` は `mutate-tv-row`）・管理ユーザー・Web ユーザー・プロフィールの編集（プロフィールの行・パスワード・メール・名前・ログインの状態の行は、3 画面が共有する `manager/actions/permission/mutate_user/user_form_rows.php` の関数が部品で出す）・管理ユーザーと Web ユーザーの編集の「ユーザー」タブ（設定の定義）。
 
 ## data-field の決まり
 
@@ -34,7 +34,7 @@ echo EvoFieldRow::render([
 
 ## custom_tpl_dir
 
-設定 `custom_tpl_dir` のフォルダに `field_row.tpl` があれば、部品はそれを読む（文書の画面だけでなく、部品を使うすべての画面に効く）。差し替える tpl には、`data-field`・`data-field-part` と、`[+class+]`・`[+attr+]` の置き場所を書く。
+設定 `custom_tpl_dir` のフォルダに `field_row.tpl` があれば、部品はそれを読む（読む処理は `tpl_read()`（`helpers.php`）。文書の編集画面の `file_get_tpl()` も同じ関数を使う）（文書の画面だけでなく、部品を使うすべての画面に効く）。差し替える tpl には、`data-field`・`data-field-part` と、`[+class+]`・`[+attr+]` の置き場所を書く。
 
 ## 見出しと値の間
 

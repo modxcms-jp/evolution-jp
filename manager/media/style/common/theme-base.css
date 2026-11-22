@@ -555,6 +555,16 @@ table[data-moved-fields]:empty {
     vertical-align: top;
 }
 
+/* 文書の編集画面の TV の行（行の部品 + .mutate-tv-row）。見出しの列は幅 200px・折り返さない */
+.mutate-tv-row > .field-label {
+    width: 200px;
+    white-space: nowrap;
+}
+
+.mutate-tv-row > .field-value {
+    position: relative;
+}
+
 form#mutate textarea.textarea {
     width: 90%;
     height: 200px;
