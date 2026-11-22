@@ -7,10 +7,10 @@
  * - title は文字列として表示する
  * - callback には、OK で true、キャンセルで false（jPrompt は入力値か null）を渡す。Esc は jAlert では OK、ほかはキャンセルと同じ
  * - 新しいダイアログを開くと、開いているダイアログは閉じる（コールバックは呼ばない）
- * - title が空文字のときは見出しを出さない
+ * - 見出しの帯の右に × を出す（Esc と同じ扱い）。title が空文字のときは帯ごと出さない
  * - 4 つ目の引数 options（jquery.alerts には無い）: { icon: 'warning' } でメッセージの左に警告アイコンを出す。
  *   okLabel で、そのダイアログだけ OK ボタンの文言を変える
- * ボタンの文言は EvoDialog.okLabel / EvoDialog.cancelLabel で変えられる（header.inc.php が言語に合わせる）
+ * ボタンの文言は EvoDialog.okLabel / EvoDialog.cancelLabel、× の読み上げは EvoDialog.closeLabel で変えられる（header.inc.php が言語に合わせる）
  * EvoDialog.form(message, fields, title, callback, options)（jquery.alerts には無い）: 入力欄を複数並べる。
  *   fields は [{name, label, type, value}]（type は text・password など。既定は text）。
  *   callback には、OK で {name: 値} のオブジェクト、キャンセルで null を渡す。Enter はどの欄でも OK（IME の確定の Enter は除く）
@@ -21,16 +21,23 @@
     const STYLE = ''
         // テーマのリセット CSS（margin:0 など）で中央からずれないよう、配置も指定する
         + '.evo-dialog{position:fixed;inset:0;margin:auto;width:fit-content;height:fit-content;max-height:calc(100vh - 32px);'
-        + 'border:1px solid #d5d9e0;border-radius:5px;padding:0;min-width:min(300px,calc(100vw - 32px));max-width:min(480px,calc(100vw - 32px));'
+        + 'border:1px solid #d5d9e0;border-radius:5px;padding:0;overflow:hidden;min-width:min(300px,calc(100vw - 32px));max-width:min(480px,calc(100vw - 32px));'
         + 'box-sizing:border-box;display:flex;flex-direction:column;'
         // 文字は管理画面（テーマ）の書体を引き継ぐ
         + 'box-shadow:0 4px 16px rgba(0,0,0,.15);color:#222;background:#fff;font-family:inherit;font-size:13px;line-height:1.6}'
         + '.evo-dialog:not([open]){display:none}'
         + '.evo-dialog::backdrop{background:rgba(0,0,0,.25)}'
-        + '.evo-dialog-title{flex:none;margin:0;padding:14px 20px 0;font-size:15px;font-weight:600}'
+        // 見出しの帯と閉じるボタン。シェルのモーダル（shell.js）とファイルブラウザのダイアログ（overlay.js）も、このクラスで同じ見た目にする。
+        // 地はテーマの主色。明るい主色でも白い文字が読めるよう、暗い色を重ねる。見出しはテーマの h1・h2 の地や枠を打ち消す
+        + '.evo-titlebar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;padding:0 8px 0 16px;box-sizing:border-box;'
+        + 'background-image:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.3)),linear-gradient(var(--color-primary-start,var(--color-primary,#375665)),var(--color-primary-end,var(--color-primary,#375665)));'
+        + 'color:var(--color-text-inverse,#fff)}'
+        + '.evo-titlebar-title{min-width:0;margin:0;padding:8px 0;border:0;background:none;box-shadow:none;color:inherit;font-size:1.1em;font-weight:bold;overflow-wrap:anywhere;text-shadow:0 1px 2px rgba(0,0,0,.4)}'
+        + '.evo-titlebar-close{flex:none;width:28px;height:28px;margin:0;padding:0;border:0;background:transparent;color:inherit;font-size:20px;line-height:26px;cursor:pointer}'
+        + '.evo-titlebar-close:hover,.evo-titlebar-close:focus-visible{background:rgba(255,255,255,.2)}'
+        + '.evo-titlebar-close:focus-visible{outline:2px solid currentColor;outline-offset:2px}'
         // 長いメッセージは、ボタンを残したままこの中でスクロールする
-        + '.evo-dialog-message{padding:10px 20px 4px;min-height:0;overflow:auto;word-break:break-word}'
-        + '.evo-dialog-untitled .evo-dialog-message{padding-top:18px}'
+        + '.evo-dialog-message{padding:16px 20px 4px;min-height:0;overflow:auto;word-break:break-word}'
         + '.evo-dialog-body{display:flex;align-items:flex-start;gap:12px}'
         + '.evo-dialog-icon{flex:none;width:24px;height:24px;margin-top:1px}'
         + '.evo-dialog-text{flex:1;min-width:0}'
@@ -87,19 +94,22 @@
             current.remove();
             current = null;
         }
-        addStyle();
 
         const dialog = document.createElement('dialog');
         dialog.className = 'evo-dialog evo-dialog-' + type;
-        if (title === '') {
-            dialog.classList.add('evo-dialog-untitled');
-        } else {
+        let closeButton = null;
+        if (title !== '') {
+            const bar = document.createElement('div');
+            bar.className = 'evo-titlebar';
             const heading = document.createElement('h2');
-            heading.className = 'evo-dialog-title';
+            heading.className = 'evo-titlebar-title';
             heading.textContent = title;
             heading.id = 'evo-dialog-title';
+            closeButton = button('\u00d7', 'evo-titlebar-close');
+            closeButton.setAttribute('aria-label', EvoDialog.closeLabel);
+            bar.append(heading, closeButton);
             dialog.setAttribute('aria-labelledby', heading.id);
-            dialog.append(heading);
+            dialog.append(bar);
         }
         const body = document.createElement('div');
         body.className = 'evo-dialog-message';
@@ -208,10 +218,17 @@
                 e.stopPropagation();
             }
         });
+        // 見出しの × は Esc と同じ
+        const dismiss = function () {
+            close(type === 'alert' ? true : cancelResult);
+        };
         dialog.addEventListener('cancel', function (e) {
             e.preventDefault();
-            close(type === 'alert' ? true : cancelResult);
+            dismiss();
         });
+        if (closeButton) {
+            closeButton.addEventListener('click', dismiss);
+        }
 
         current = dialog;
         document.body.appendChild(dialog);
@@ -227,6 +244,7 @@
     const EvoDialog = {
         okLabel: 'OK',
         cancelLabel: 'Cancel',
+        closeLabel: 'Close',
         alert: function (message, title, callback, options) {
             show('alert', message, title === undefined || title === null ? 'Alert' : title, null, callback, options);
         },
@@ -241,6 +259,8 @@
         }
     };
 
+    // 見出しの帯はダイアログを開く前からシェルのモーダルなどが使うので、読み込んだときに足す
+    addStyle();
     window.EvoDialog = EvoDialog;
     window.jAlert = EvoDialog.alert;
     window.jConfirm = EvoDialog.confirm;

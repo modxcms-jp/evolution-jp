@@ -19,12 +19,26 @@
 | `EvoDialog.prompt(message, value, title, callback)` | 1 行を入力させる | OK で入力値、キャンセル・Esc で null |
 | `EvoDialog.form(message, fields, title, callback, options)` | 欄を複数並べて入力させる | OK で `{name: 値}`、キャンセル・Esc で null |
 
-- `message` は HTML として出し、改行は `<br />` にする。利用者のデータ（ページタイトルなど）を入れるときは、呼び出し側で `Evo.escapeHtml()`（`manager/media/script/evo.js`）でエスケープする。言語ファイルの文言はエスケープしない。`title` は文字列として出す（空文字なら見出しを出さない）。
+- `message` は HTML として出し、改行は `<br />` にする。利用者のデータ（ページタイトルなど）を入れるときは、呼び出し側で `Evo.escapeHtml()`（`manager/media/script/evo.js`）でエスケープする。言語ファイルの文言はエスケープしない。`title` は文字列として出す（空文字なら見出しの帯ごと出さない）。帯の右の × は Esc と同じ扱い。
 - `options`（`alert`・`form`）: `{icon: 'warning'}` でメッセージの左に警告アイコンを出す。`okLabel` で、そのダイアログだけ OK ボタンの文言を変える。
 - `form` の `fields` は `[{name, label, type, value}]`。`type` は `text`（既定）・`password` など。Enter はどの欄でも OK（IME の確定の Enter は除く）。入力値はブラウザに保存させないよう `autocomplete` を付ける（パスワード欄は `new-password`。ブラウザによっては保存の提案を完全には止められない）。
 - ボタンの文言は `manager/actions/header.inc.php` が言語に合わせる（`EvoDialog.okLabel`・`EvoDialog.cancelLabel`）。
 - 新しいダイアログを開くと、開いているダイアログは閉じる（コールバックは呼ばない）。順に聞くときは、前のダイアログのコールバックの中で次を開く。
 - 待ちたいときは Promise で包む（例: `manager/actions/tool/export_site.static.php` の `askBasicAuth`）。
+
+## 見出しの帯
+
+ダイアログ・モーダルの見出しは、テーマの主色の帯と右端の × にそろえる。見た目は `evo-dialog.js` が読み込み時に足す `.evo-titlebar`（帯）・`.evo-titlebar-title`（見出し）・`.evo-titlebar-close`（×）の 1 か所で持ち、ほかの部品はこのクラスを付けるだけにする（見た目を自分の CSS に書き写さない）。
+
+```html
+<div class="evo-titlebar">
+  <div class="evo-titlebar-title" id="...">見出し</div>
+  <button type="button" class="evo-titlebar-close" aria-label="閉じる">&times;</button>
+</div>
+```
+
+- シェルのモーダル（`shell.js`）: 断片の `h1` を帯へ移して `.evo-titlebar-title` を付ける。
+- ファイルブラウザのダイアログ（`manager/media/browser/evo/`）: `BrowserView::titleBar()` で帯を出し、× は `overlay.js` の `openOverlay()` が Esc と同じ処理につなぐ。
 
 ## jquery.alerts の名前
 

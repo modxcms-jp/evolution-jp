@@ -1,5 +1,5 @@
 // オーバーレイ型ダイアログの共通の振る舞い: フォーカスの移動・Tab の循環・Esc でそのダイアログだけを閉じる・
-// 閉じたらフォーカスを戻す。リスナーは開いている間だけ付け、閉じたら必ず外す。
+// 閉じたらフォーカスを戻す。見出しの帯の ×(.evo-titlebar-close)は Esc と同じ処理につなぐ。リスナーは開いている間だけ付け、閉じたら必ず外す。
 // 編集・プレビュー・移動・テキストのダイアログで使う。管理画面のモーダルが閉じられたとき(evoshell:modalclose)と、
 // メインの領域が別の画面へ差し替わるとき(evoshell:unload)は、開いているダイアログを閉じる(document の keydown の受け手を残さない)。
 // プレビューの上に編集のダイアログが重なるように、複数が同時に開くことがある。
@@ -77,6 +77,9 @@ export function openOverlay(overlayEl, panelEl, initialEl, options) {
         closed = true;
         overlayEl.hidden = true;
         removeEntry(entry);
+        if (closeBtn) {
+            closeBtn.removeEventListener('click', dismiss);
+        }
         document.removeEventListener('evoshell:modalclose', onScreenGone);
         document.removeEventListener('evoshell:unload', onScreenGone);
         if (restoreFocusToOpener === true) {
@@ -93,16 +96,21 @@ export function openOverlay(overlayEl, panelEl, initialEl, options) {
         close(false);
     }
 
+    // Esc と見出しの × で閉じる
+    function dismiss() {
+        if (onEscape) {
+            onEscape();
+        } else {
+            close(true);
+        }
+    }
+
     function onKeydown(e) {
         if (e.key === 'Escape') {
             // 管理画面のモーダル(shell.js)まで閉じないよう、ここで止める
             e.preventDefault();
             e.stopPropagation();
-            if (onEscape) {
-                onEscape();
-            } else {
-                close(true);
-            }
+            dismiss();
             return;
         }
         if (e.key !== 'Tab') {
@@ -130,8 +138,12 @@ export function openOverlay(overlayEl, panelEl, initialEl, options) {
     }
 
     var entry = { onKeydown: onKeydown };
+    var closeBtn = panelEl.querySelector('.evo-titlebar-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', dismiss);
+    }
     overlayEl.hidden = false;
-    var focusEl = initialEl || focusableIn(panelEl)[0] || panelEl;
+    var focusEl = initialEl || focusableIn(panelEl).filter(function (el) { return el !== closeBtn; })[0] || panelEl;
     if (focusEl === panelEl && !panelEl.hasAttribute('tabindex')) {
         panelEl.setAttribute('tabindex', '-1');
     }

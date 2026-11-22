@@ -823,14 +823,18 @@
     gap: var(--space-2, 8px);
     width: min(560px, 92%);
     max-height: 80%;
-    padding: var(--space-4, 16px);
+    /* 見出しの帯(.evo-titlebar)は上と左右の端まで広げる */
+    --evo-fb-panel-pad: var(--space-4, 16px);
+    padding: 0 var(--evo-fb-panel-pad) var(--evo-fb-panel-pad);
+    overflow: hidden;
     background: var(--color-surface, #fff);
     border-radius: var(--radius-lg, 4px);
     box-shadow: var(--shadow-xl, 0 2px 15px rgba(0, 0, 0, 0.2));
 }
 
-.evo-fb-overlay-header {
-    font-weight: bold;
+.evo-fb-overlay-panel > .evo-titlebar {
+    align-self: stretch;
+    margin-inline: calc(-1 * var(--evo-fb-panel-pad));
 }
 
 .evo-fb-grid-folders {
@@ -964,9 +968,9 @@
     width: min(1100px, 96%);
     height: 96%;
     max-height: 96%;
-    padding: 0;
+    --evo-fb-panel-pad: 0;
+    gap: 0;
     box-sizing: border-box;
-    overflow: hidden;
     container-type: inline-size;
 }
 
@@ -975,17 +979,14 @@
     grid-template-columns: minmax(0, 1fr);
     /* 中身の高さで並べて全体をスクロールさせる(auto のままだと、高さの決まった入れ物に合わせて行が縮み、重なる)。
        中身が少ないときは、ボタンを下端に置く */
-    grid-template-rows: repeat(4, max-content) 1fr;
-    grid-template-areas: "head" "stage" "controls" "foot" "buttons";
+    grid-template-rows: repeat(3, max-content) 1fr;
+    grid-template-areas: "stage" "controls" "foot" "buttons";
     gap: var(--space-3, 12px);
-    height: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
     padding: var(--space-3, 12px) var(--space-3, 12px) 0;
     box-sizing: border-box;
     overflow: auto;
-}
-
-.evo-fb-edit-header {
-    grid-area: head;
 }
 
 .evo-fb-edit-stage {
@@ -1013,8 +1014,8 @@
 @container (min-width: 640px) {
     .evo-fb-edit-layout {
         grid-template-columns: minmax(0, 1fr) 260px;
-        grid-template-rows: auto minmax(0, 1fr) auto;
-        grid-template-areas: "head head" "stage controls" "foot buttons";
+        grid-template-rows: minmax(0, 1fr) auto;
+        grid-template-areas: "stage controls" "foot buttons";
         overflow: hidden;
         padding-bottom: var(--space-3, 12px);
     }
@@ -1036,7 +1037,6 @@
 
 .evo-fb-edit-name {
     font-weight: normal;
-    color: var(--color-text-muted, #606060);
     word-break: break-all;
 }
 
