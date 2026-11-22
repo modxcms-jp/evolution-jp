@@ -4,280 +4,59 @@
 <h2 class="tab"><?= lang('login_settings') ?></h2>
 <table class="settings">
     <?php
-    if (isUserBlocked($user)) {
-        ?>
-        <tr>
-            <td colspan="2">
-                <span id="blocked" class="warning"><b><?= lang('user_is_blocked') ?></b></span><br/>
-            </td>
-        </tr>
-    <?php } ?>
-    <?php if (user('id')) { ?>
-        <tr
-            id="showname"
-            <?php
-            if ($action === 11) {
-                echo 'style="display:none;"';
-            }
-            ?>
-        >
-            <td colspan="2">
-                <img src="<?= style('icons_user') ?>"/>
-                &nbsp;
-                <b><?= hsc(user('oldusername', user('username'))) ?></b>
-                -
-                <span class="comment">
-                <a
-                    href="#"
-                    onclick="document.getElementById('showname').style.display = 'none';document.getElementById('editname').style.display = '';return false;"
-                ><?= lang('change_name') ?></a>
-            </span>
-                <input
-                    name="oldusername"
-                    type="hidden"
-                    value="<?= hsc(user('oldusername', user('username'))) ?>"
-                />
-            </td>
-        </tr>
-    <?php } ?>
-    <tr
-        id="editname"
-        <?php
-        if ($action === 12) {
-            echo 'style="display:none;"';
+    echo userFormBlockedNotice($user, (bool) user('id'));
+
+    echo userFormNameRows([
+        'username' => user('username'),
+        'oldusername' => user('oldusername', user('username')),
+        'hasName' => (bool) user('id'),
+        'editing' => $action === 11,
+    ]);
+
+    echo userFormPasswordRow($action === 11, true);
+
+    echo userFormEmailRow($user);
+
+    // ロール。自分自身は、ロールを変える権限の有無に合うロールだけを選べる
+    if ($userid == evo()->getLoginUserID()) {
+        $where = evo()->hasPermission('save_role') ? 'save_role=1' : 'save_role=0';
+    } else {
+        $where = '';
+    }
+    $rs = db()->select(
+        'name, id',
+        '[+prefix+]user_roles',
+        $where,
+        'save_role DESC, new_role DESC, id ASC'
+    );
+    $options = [];
+    while ($row = db()->getRow($rs)) {
+        if ($action === 11) {
+            $selected = ($row['id'] == config('default_role'));
+        } else {
+            $selected = ($row['id'] == user('role'));
         }
-        ?>
-    >
-        <th>
-            <?= lang('username') ?>:
-        </th>
-        <td><input
-                name="newusername"
-                value="<?= hsc(user('username')) ?>"
-                type="text"
-                class="inputBox"
-                maxlength="100"
-                autocomplete="username"
-            /></td>
-    </tr>
-    <tr>
-        <th valign="top">
-            <?= $action === 11 ? lang('password') . ':' : lang('change_password_new') . ":" ?>
-        </th>
-        <td>
-            <?php if ($action === 12): ?>
-                <input
-                    name="newpasswordcheck"
-                    type="checkbox"
-                    onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"
-                ><br/>
-            <?php endif; ?>
-            <input
-                name="newpassword"
-                value="<?= $action === 11 ? 1 : 0 ?>"
-                type="hidden"
-            />
-            <span
-                style="display:<?= $action === 11 ? "block" : "none" ?>"
-                id="passwordBlock"
-            >
-                <fieldset style="width:300px;padding:0;">
-                    <label>
-                        <input
-                            name="passwordgenmethod"
-                            value="g"
-                            type=radio
-                            <?= post_strvar('passwordgenmethod') === "spec" ? "" : 'checked="checked"' ?>
-                        />
-                        <?= lang('password_gen_gen') ?>
-                    </label><br/>
-                    <label>
-                        <input
-                            name="passwordgenmethod"
-                            value="spec"
-                            type=radio
-                            <?= post_strvar('passwordgenmethod') === "spec" ? 'checked="checked"' : "" ?>
-                        >
-                        <?= lang('password_gen_specify') ?>
-                    </label><br/>
-                    <div style="padding-left:20px">
-                        <label for="specifiedpassword" style="width:120px">
-                            <?= lang('change_password_new') ?>:
-                        </label>
-                        <input
-                            id="specifiedpassword"
-                            name="specifiedpassword"
-                            type="password"
-                            onkeypress="document.userform.passwordgenmethod[1].checked=true;"
-                            size="20"
-                            autocomplete="new-password"
-                        /><br/>
-                        <label for="confirmpassword" style="width:120px">
-                            <?= lang('change_password_confirm') ?>:
-                        </label>
-                        <input
-                            id="confirmpassword"
-                            name="confirmpassword"
-                            type="password"
-                            onkeypress="document.userform.passwordgenmethod[1].checked=true;"
-                            size="20"
-                            autocomplete="new-password"
-                        /><br/>
-                        <span
-                            class="warning"
-                            style="font-weight:normal"
-                        ><?= lang('password_rule') ?></span>
-                    </div>
-                </fieldset>
-                <fieldset
-                    style="width:300px;padding:0;"
-                >
-                    <label>
-                        <input
-                            name="passwordnotifymethod"
-                            value="e"
-                            type="radio"
-                            <?= post_strvar('passwordnotifymethod') === "e" ? 'checked="checked"' : "" ?>
-                        /><?= lang('password_method_email') ?>
-                    </label><br/>
-                    <label>
-                        <input
-                            type="radio"
-                            name="passwordnotifymethod"
-                            value="s"
-                            <?= post_strvar('passwordnotifymethod') === 'e' ? '' : 'checked="checked"' ?>
-                        /><?= lang('password_method_screen') ?>
-                    </label>
-                </fieldset>
-            </span>
-        </td>
-    </tr>
-    <tr>
-        <th><?= lang('user_email') ?>:</th>
-        <td>
-            <input
-                name="email"
-                value="<?= hsc(user('email')) ?>"
-                type="text"
-                class="inputBox"
-                autocomplete="email"
-            />
-            <input
-                name="oldemail"
-                value="<?= hsc(user('oldemail', user('email'))) ?>"
-                type="hidden"
-            />
-        </td>
-    </tr>
-    <tr>
-        <th><?= lang('user_role') ?>:</th>
-        <td>
-            <?php
-            if ($userid == evo()->getLoginUserID()) {
-                if (evo()->hasPermission('save_role')) {
-                    $where = 'save_role=1';
-                } else {
-                    $where = 'save_role=0';
-                }
-            } else {
-                $where = '';
-            }
-            $rs = db()->select(
-                'name, id',
-                '[+prefix+]user_roles',
-                $where,
-                'save_role DESC, new_role DESC, id ASC'
-            );
-            $options = [];
-            while ($row = db()->getRow($rs)) {
-                if ($action === 11) {
-                    $selected = ($row['id'] == config('default_role'));
-                } else {
-                    $selected = ($row['id'] == user('role'));
-                }
-                $options[] = html_tag(
-                    'option',
-                    [
-                        'value' => (int) $row['id'],
-                        'selected' => $selected ? null : ''
-                    ],
-                    hsc($row['name'])
-                );
-            }
-            ?>
-            <select name="role" class="inputBox">
-                <?= implode("\n", $options) ?>
-            </select>
-        </td>
-    </tr>
+        $options[] = html_tag(
+            'option',
+            [
+                'value' => (int) $row['id'],
+                'selected' => $selected ? null : ''
+            ],
+            hsc($row['name'])
+        );
+    }
+    echo EvoFieldRow::render([
+        'label' => lang('user_role'),
+        'body' => '<select name="role" class="inputBox">' . implode("\n", $options) . '</select>',
+    ]);
+    ?>
 </table>
 <?php
 // ログインの状態（設定ではないので、設定の定義には入れない。編集のときだけ出る）
 if ($action === 12) {
-?>
-<table class="settings">
-    <?php
-    echo EvoFieldRow::render([
-        'label' => lang('user_logincount'),
-        'body' => (int)user('logincount'),
-    ]);
-
-    $lastlogin = !empty(user('lastlogin'))
-        ? evo()->toDateFormat(user('lastlogin') + config('server_offset_time'))
-        : '-';
-    echo EvoFieldRow::render([
-        'label' => lang('user_prevlogin'),
-        'body' => $lastlogin,
-    ]);
-
-    ob_start();
     ?>
-    <input type="hidden" name="failedlogincount" value="<?= (int)user('failedlogincount') ?>">
-    <span id='failed'><?= (int)user('failedlogincount') ?></span>&nbsp;&nbsp;&nbsp;[<a
-        href="javascript:resetFailed()"><?= lang('reset_failedlogins') ?></a>]
+    <table class="settings">
+        <?= userFormLoginStateRows($user) ?>
+    </table>
     <?php
-    echo EvoFieldRow::render([
-        'label' => lang('user_failedlogincount'),
-        'body' => ob_get_clean(),
-    ]);
-
-    $blocked = isUserBlocked($user);
-    ob_start();
-    ?>
-    <label>
-        <input
-            name="blockedcheck"
-            type="checkbox"
-            onclick="changeblockstate(document.userform.blockedmode, document.userform.blockedcheck);"
-            <?= $blocked ? 'checked' : '' ?>>
-        <input
-            type="hidden"
-            name="blocked"
-            value="<?= user('blocked') ? 1 : 0 ?>">
-    </label>
-    <?php
-    echo EvoFieldRow::render([
-        'label' => lang('user_block'),
-        'body' => ob_get_clean(),
-    ]);
-
-    // ブロックの日時と、日時を消すボタン
-    foreach (['blockedafter' => 'user_blockedafter', 'blockeduntil' => 'user_blockeduntil'] as $name => $labelKey) {
-        ob_start();
-        ?>
-        <input type="text" id="<?= $name ?>" name="<?= $name ?>" class="DatePicker"
-            value="<?= manager()->dateInputValue(user($name)) ?>"
-            onblur='documentDirty=true;' readonly="readonly">
-        <a class="clickable-label" onclick="document.userform.<?= $name ?>.value=''; return true;"><img
-                src="<?= manager_style_image_path('icons') ?>cal_nodate.gif"
-                alt="<?= lang('remove_date') ?>" /></a>
-        <?php
-        echo EvoFieldRow::render([
-            'label' => lang($labelKey),
-            'body' => ob_get_clean(),
-        ]);
-    }
-    ?>
-</table>
-<?php
 }

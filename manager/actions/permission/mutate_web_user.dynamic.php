@@ -5,6 +5,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 
 
 include_once __DIR__ . '/mutate_user/form_values.php';
+require_once __DIR__ . '/mutate_user/user_form_rows.php';
 require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
 
 $action = request_intvar('a');
@@ -26,8 +27,6 @@ switch ($action) {
         alert()->setError(3);
         alert()->dumpError();
 }
-
-$icons_path = manager_style_image_path('icons');
 
 $user = request_intvar('id');
 if ($action === 87) {
@@ -101,13 +100,6 @@ if (manager()->hasFormValues()) {
     $usersettings['allowed_days'] = is_array($allowedDays) ? implode(",", $allowedDays) : $allowedDays;
 }
 
-function setting($name, $default = null)
-{
-    global $usersettings;
-
-    return $usersettings[$name] ?? $default;
-}
-
 function attribute($name, $default = null)
 {
     global $userdata;
@@ -132,81 +124,12 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
 }
 
 ?>
+<?= userFormScript() ?>
 <script type="text/javascript">
-    function changestate(element) {
-        documentDirty = true;
-        currval = eval(element).value;
-        if (currval == 1) {
-            eval(element).value = 0;
-        } else {
-            eval(element).value = 1;
-        }
-    }
-
-    function changePasswordState(element) {
-        currval = eval(element).value;
-        if (currval == 1) {
-            document.getElementById("passwordBlock").style.display = "block";
-        } else {
-            document.getElementById("passwordBlock").style.display = "none";
-        }
-    }
-
-    function changeblockstate(element, checkelement) {
-        const blocked = document.getElementById('blocked');
-        currval = eval(element).value;
-        if (currval == 1) {
-            if (confirm(<?= js_literal(stripcslashes(lang('confirm_unblock'))) ?>) == true) {
-                document.userform.blocked.value = 0;
-                document.userform.blockeduntil.value = "";
-                document.userform.blockedafter.value = "";
-                document.userform.failedlogincount.value = 0;
-                blocked.replaceChildren(Object.assign(document.createElement("b"), {textContent: <?= js_literal(stripcslashes(lang('unblock_message'))) ?>}));
-                blocked.className = "TD";
-                eval(element).value = 0;
-            } else {
-                eval(checkelement).checked = true;
-            }
-        } else {
-            if (confirm(<?= js_literal(stripcslashes(lang('confirm_block'))) ?>) == true) {
-                document.userform.blocked.value = 1;
-                blocked.replaceChildren(Object.assign(document.createElement("b"), {textContent: <?= js_literal(stripcslashes(lang('block_message'))) ?>}));
-                blocked.className = "warning";
-                eval(element).value = 1;
-            } else {
-                eval(checkelement).checked = false;
-            }
-        }
-    }
-
-    function resetFailed() {
-        document.userform.failedlogincount.value = 0;
-        document.getElementById("failed").innerHTML = "0";
-    }
-
     function deleteuser() {
         if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_user'))) ?>) == true) {
             EvoCsrf.post("index.php?id=" + document.userform.id.value + "&a=90");
         }
-    }
-
-    // change name
-    function changeName() {
-        if (confirm(<?= js_literal(stripcslashes(lang('confirm_name_change'))) ?>) == true) {
-            var e1 = document.getElementById("showname");
-            var e2 = document.getElementById("editname");
-            e1.style.display = "none";
-            e2.style.display = "table-row";
-        }
-    }
-
-    function BrowseServer() {
-        window.evoOpenFilePicker(<?= js_literal(config('base_url') . 'manager/media/browser/evo/browser.php?type=images') ?>);
-    }
-
-    function SetUrl(url, width, height, alt) {
-        document.userform.photo.value = url;
-        document.images['iphoto'].src = <?= js_literal(config('base_url')) ?> + url;
     }
 </script>
 
@@ -250,152 +173,34 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
             <div class="tab-page" id="tabGeneral">
                 <h2 class="tab"><?= lang("login_settings") ?></h2>
                 <table class="settings">
-                    <tr>
-                        <td>
-                            <span id="blocked"
-                                class="warning"><?php if (isUserBlocked($userdata)) { ?>
-                                    <b><?= lang('user_is_blocked') ?></b><?php } ?></span>
-                        </td>
-                    </tr>
-                    <?php if (attribute('id')) { ?>
-                        <tr id="showname"
-                            style="display: <?= ($action === 88 && (!webuser('oldusername') || webuser('oldusername') == webuser('username'))) ? 'table-row' : 'none' ?> ">
-                            <td colspan="2">
-                                <img src="<?= style('icons_user') ?>"
-                                    alt="." />&nbsp;<b><?= hsc(webuser('oldusername') ?: webuser('username')) ?></b>
-                                - <span class="comment"><a href="#"
-                                        onclick="changeName();return false;"><?= lang("change_name") ?></a></span>
-                                <input type="hidden" name="oldusername"
-                                    value="<?= hsc(webuser('oldusername') ?: webuser('username')) ?>" />
-                            </td>
-                        </tr>
-                    <?php } ?>
-                    <tr id="editname"
-                        style="display:<?= $action === 87 || (webuser('oldusername') && webuser('oldusername') != webuser('username')) ? 'table-row' : 'none' ?>">
-                        <th><?= lang('username') ?>:</th>
-                        <td><input type="text" name="newusername" class="inputBox" autocomplete="username"
-                                value="<?= hsc(post_strvar('newusername', webuser('username'))) ?>"
-                                maxlength="100" /></td>
-                    </tr>
-                    <tr>
-                        <th valign="top"><?= $action === 87 ? lang('password') . ":" : lang('change_password_new') . ":" ?></th>
-                        <td>
-                            <?php if ($action !== 87): ?>
-                                <input name="newpasswordcheck" type="checkbox"
-                                    onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);">
-                            <?php endif; ?>
-                            <input type="hidden" name="newpassword"
-                                value="<?= $action === 87 ? 1 : 0 ?>" /><br />
-                            <div style="display:<?= $action === 87 ? "block" : "none" ?>"
-                                id="passwordBlock">
-                                <fieldset style="width:300px;padding:0;">
-                                    <label><input type=radio name="passwordgenmethod"
-                                            value="g" <?= post_strvar('passwordgenmethod') === "spec" ? "" : 'checked="checked"' ?> /><?= lang('password_gen_gen') ?>
-                                    </label><br />
-                                    <label><input type=radio name="passwordgenmethod"
-                                            value="spec" <?= post_strvar('passwordgenmethod') === "spec" ? 'checked="checked"' : "" ?>><?= lang('password_gen_specify') ?>
-                                    </label> <br />
-                                    <div style="padding-left:20px">
-                                        <label for="specifiedpassword"
-                                            style="width:120px"><?= lang('change_password_new') ?>
-                                            :</label>
-                                        <input type="password" id="specifiedpassword" name="specifiedpassword"
-                                            onkeypress="document.userform.passwordgenmethod[1].checked=true;"
-                                            size="20" autocomplete="new-password" /><br />
-                                        <label for="confirmpassword"
-                                            style="width:120px"><?= lang('change_password_confirm') ?>
-                                            :</label>
-                                        <input type="password" id="confirmpassword" name="confirmpassword"
-                                            onkeypress="document.userform.passwordgenmethod[1].checked=true;"
-                                            size="20" autocomplete="new-password" /><br />
-                                        <span class="warning"
-                                            style="font-weight:normal"><?= lang('password_rule') ?></span>
-                                    </div>
-                                </fieldset>
-                                <br />
-                                <fieldset style="width:300px;padding:0;">
-                                    <label><input type=radio name="passwordnotifymethod"
-                                            value="e" <?= post_strvar('passwordnotifymethod') === "e" ? 'checked="checked"' : "" ?> /><?= lang('password_method_email') ?>
-                                    </label><br />
-                                    <label><input type=radio name="passwordnotifymethod"
-                                            value="s" <?= post_strvar('passwordnotifymethod') === "e" ? "" : 'checked="checked"' ?> /><?= lang('password_method_screen') ?>
-                                    </label>
-                                </fieldset>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_email') ?>:</th>
-                        <td>
-                            <input type="text" name="email" class="inputBox" autocomplete="email"
-                                value="<?= hsc(post_strvar('email', attribute('email'))) ?>" />
-                            <input type="hidden" name="oldemail"
-                                value="<?= hsc(attribute('oldemail') ?: attribute('email')) ?>" />
-                        </td>
-                    </tr>
+                    <?php
+                    $oldUsername = webuser('oldusername');
+                    // 名前を変えた入力のまま差し戻したときと新規は、初めから名前の入力欄を出す
+                    $nameEditing = $action === 87 || ($oldUsername && $oldUsername != webuser('username'));
+
+                    echo userFormBlockedNotice($userdata, (bool) attribute('id'));
+
+                    echo userFormNameRows([
+                        'username' => webuser('username'),
+                        'oldusername' => $oldUsername ?: webuser('username'),
+                        'hasName' => (bool) attribute('id'),
+                        'editing' => $nameEditing,
+                        'confirmRename' => true,
+                    ]);
+
+                    echo userFormPasswordRow($action === 87, true);
+
+                    echo userFormEmailRow($userdata);
+                    ?>
                 </table>
                 <?php
                 // ログインの状態（設定ではないので、設定の定義には入れない。編集のときだけ出る）
                 if ($action === 88) {
-                ?>
+                    ?>
                     <table class="settings">
-                        <?php
-                        echo EvoFieldRow::render([
-                            'label' => lang('user_logincount'),
-                            'body' => (int) attribute('logincount'),
-                        ]);
-
-                        $lastlogin = !empty(attribute('lastlogin'))
-                            ? evo()->toDateFormat(attribute('lastlogin') + config('server_offset_time'))
-                            : '-';
-                        echo EvoFieldRow::render([
-                            'label' => lang('user_prevlogin'),
-                            'body' => $lastlogin,
-                        ]);
-
-                        ob_start();
-                        ?>
-                        <input type="hidden" name="failedlogincount"
-                            value="<?= (int) attribute('failedlogincount') ?>">
-                        <span id='failed'><?= (int) attribute('failedlogincount') ?></span>&nbsp;&nbsp;&nbsp;[<a
-                            href="javascript:resetFailed()"><?= lang('reset_failedlogins') ?></a>]
-                        <?php
-                        echo EvoFieldRow::render([
-                            'label' => lang('user_failedlogincount'),
-                            'body' => ob_get_clean(),
-                        ]);
-
-                        ob_start();
-                        ?>
-                        <input name="blockedcheck" type="checkbox"
-                            onclick="changeblockstate(document.userform.blockedmode, document.userform.blockedcheck);" <?= isUserBlocked($userdata) ? " checked='checked'" : "" ?> /><input
-                            type="hidden" name="blocked"
-                            value="<?= attribute('blocked') == 1 ? 1 : 0 ?>">
-                        <?php
-                        echo EvoFieldRow::render([
-                            'label' => lang('user_block'),
-                            'body' => ob_get_clean(),
-                        ]);
-
-                        // ブロックの期限と日時、日時を消すボタン
-                        foreach (['blockeduntil' => 'user_blockeduntil', 'blockedafter' => 'user_blockedafter'] as $name => $labelKey) {
-                            ob_start();
-                            ?>
-                            <input type="text" id="<?= $name ?>" name="<?= $name ?>" class="DatePicker"
-                                value="<?= manager()->dateInputValue(attribute($name)) ?>"
-                                onblur='documentDirty=true;' readonly="readonly">
-                            <a class="clickable-label" onclick="document.userform.<?= $name ?>.value=''; return true;"><img
-                                    src="<?= $icons_path ?>cal_nodate.gif"
-                                    alt="<?= lang('remove_date') ?>" /></a>
-                            <?php
-                            echo EvoFieldRow::render([
-                                'label' => lang($labelKey),
-                                'body' => ob_get_clean(),
-                            ]);
-                        }
-                        ?>
+                        <?= userFormLoginStateRows($userdata) ?>
                     </table>
-                <?php
+                    <?php
                 }
                 ?>
             </div>
@@ -403,125 +208,7 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
             <div class="tab-page" id="tabProfile">
                 <h2 class="tab"><?= lang("profile") ?></h2>
                 <table class="settings">
-                    <tr>
-                        <th><?= lang('user_full_name') ?>:</th>
-                        <td><input type="text" name="fullname" class="inputBox" autocomplete="name"
-                                value="<?= hsc(post_strvar('fullname', attribute('fullname'))) ?>" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_phone') ?>:</th>
-                        <td><input type="text" name="phone" class="inputBox" autocomplete="tel"
-                                value="<?= hsc(post_strvar('phone', attribute('phone'))) ?>" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_mobile') ?>:</th>
-                        <td><input type="text" name="mobilephone" class="inputBox" autocomplete="tel"
-                                value="<?= hsc(post_strvar('mobilephone', attribute('mobilephone'))) ?>" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_fax') ?>:</th>
-                        <td><input type="text" name="fax" class="inputBox" autocomplete="tel"
-                                value="<?= hsc(post_strvar('fax', attribute('fax'))) ?>" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_street') ?>:</th>
-                        <td><input type="text" name="street" class="inputBox" autocomplete="street-address"
-                                value="<?= hsc(attribute('street')) ?>"
-                                onchange="documentDirty=true;" /></td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_city') ?>:</th>
-                        <td><input type="text" name="city" class="inputBox" autocomplete="address-level2"
-                                value="<?= hsc(attribute('city')) ?>"
-                                onchange="documentDirty=true;" /></td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_state') ?>:</th>
-                        <td><input type="text" name="state" class="inputBox" autocomplete="address-level1"
-                                value="<?= hsc(post_strvar('state', attribute('state'))) ?>" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_zip') ?>:</th>
-                        <td><input type="text" name="zip" class="inputBox" autocomplete="postal-code"
-                                value="<?= hsc(post_strvar('zip', attribute('zip'))) ?>" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_country') ?>:</th>
-                        <td>
-                            <select size="1" name="country" autocomplete="country-name">
-                                <?php $chosenCountry = post_strvar('country', attribute('country')); ?>
-                                <option value="" <?php (!$chosenCountry ? ' selected' : '') ?>>&nbsp;
-                                </option>
-                                <?php
-                                foreach ($_country_lang as $key => $country) {
-                                    echo "<option value=\"$key\"" . (isset($chosenCountry) && $chosenCountry == $key ? ' selected' : '') . ">$country</option>";
-                                }
-                                ?>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_dob') ?>:</th>
-                        <td>
-                            <input type="text" id="dob" name="dob" class="DatePicker"
-                                value="<?= manager()->dateInputValue(attribute('dob'), 'dateOnly') ?>" onblur='documentDirty=true;'>
-                            <a onclick="document.userform.dob.value=''; return true;"
-                                style="cursor:pointer; cursor:hand"><img align="absmiddle"
-                                    src="<?= $icons_path ?>cal_nodate.gif"
-                                    border="0"
-                                    alt="<?= lang('remove_date') ?>"></a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_gender') ?>:</th>
-                        <td><select name="gender">
-                                <option value=""></option>
-                                <option
-                                    value="1" <?= (post_intvar('gender') === 1 || attribute('gender') == 1) ? "selected='selected'" : "" ?>><?= lang('user_male') ?></option>
-                                <option
-                                    value="2" <?= (post_intvar('gender') === 2 || attribute('gender') == 2) ? "selected='selected'" : "" ?>><?= lang('user_female') ?></option>
-                                <option
-                                    value="3" <?= (post_intvar('gender') === 3 || attribute('gender') == 3) ? "selected='selected'" : "" ?>><?= lang('user_other') ?></option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th valign="top"><?= lang('comment') ?>:</th>
-                        <td>
-                            <textarea type="text" name="comment" class="inputBox"
-                                rows="5"><?= hsc(post_strvar('comment', attribute('comment'))) ?></textarea>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td nowrap class="warning"><b><?= lang("user_photo") ?></b></td>
-                        <td><input type="text" maxlength="255" style="width: 150px;" name="photo"
-                                value="<?= hsc(post_strvar('photo') ?: attribute('photo')) ?>" />
-                            <input type="button" value="<?= lang('insert') ?>" onclick="BrowseServer();" />
-                            <div><?= lang("user_photo_message") ?></div>
-                            <div>
-                                <?php
-                                if (post_strvar('photo')) {
-                                    $photo = post_strvar('photo');
-                                } elseif (!empty(attribute('photo'))) {
-                                    $photo = attribute('photo');
-                                } else {
-                                    $photo = config('base_url') . 'manager/' . style('tx');
-                                }
-
-                                if (substr($photo, 0, 1) !== '/' && !preg_match('@^https?://@', $photo)) {
-                                    $photo = config('base_url') . $photo;
-                                }
-                                ?>
-                                <img name="iphoto" src="<?= hsc($photo) ?>" />
-                            </div>
-                        </td>
-                    </tr>
+                    <?= userFormProfileRows($userdata, $_country_lang) ?>
                 </table>
             </div>
             <!-- ログイン先・ログインを許可する IP と曜日（設定の定義の scope web） -->
