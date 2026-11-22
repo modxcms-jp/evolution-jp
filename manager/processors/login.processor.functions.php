@@ -376,11 +376,7 @@ function checkAllowedIp()
             return false;
         }
     }
-    $allowed_ip = explode(
-        ',',
-        str_replace(' ', '', user_config('allowed_ip'))
-    );
-    if (in_array(serverv('REMOTE_ADDR'), $allowed_ip)) {
+    if (list_has_item(user_config('allowed_ip'), serverv('REMOTE_ADDR'))) {
         return true;
     }
 
@@ -442,7 +438,7 @@ function checkAllowedDays()
 
     $date = getdate();
     $day = $date['wday'] + 1;
-    if (strpos(user_config('allowed_days'), (string)$day) !== false) {
+    if (list_has_item(user_config('allowed_days'), $day)) {
         return true;
     }
     jsAlert("You are not allowed to login at this time. Please try again later.");

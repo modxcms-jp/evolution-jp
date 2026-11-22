@@ -946,6 +946,16 @@ function serverv($key = null, $default = null)
 }
 
 /**
+ * 「,」で区切った設定の値（ログインを許可する IP・曜日など）に $item が含まれるか。
+ * 区切りの空白は無視し、項目全体の一致で見る（管理ユーザーと Web ユーザーのログインが同じ判定を使う）
+ */
+function list_has_item($list, $item)
+{
+    $items = explode(',', preg_replace('/\s+/', '', (string)$list));
+    return in_array((string)$item, $items, true);
+}
+
+/**
  * Check if the current request is a POST request
  *
  * @return bool

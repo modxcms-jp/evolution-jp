@@ -324,7 +324,7 @@ if (isUserBlocked(['blocked' => $blocked, 'blockeduntil' => $blockeduntildate, '
 
 // allowed ip
 if ($allowedIp !== '') {
-    if (strpos($allowedIp, serverv('REMOTE_ADDR', '')) === false) {
+    if (!list_has_item($allowedIp, serverv('REMOTE_ADDR', ''))) {
         $output = webLoginAlert('You are not allowed to login from this location.');
         return;
     }
@@ -334,7 +334,7 @@ if ($allowedIp !== '') {
 if ($allowedDays !== '') {
     $date = getdate();
     $day = $date['wday'] + 1;
-    if (strpos($allowedDays, (string)$day) === false) {
+    if (!list_has_item($allowedDays, $day)) {
         $output = webLoginAlert('You are not allowed to login at this time. Please try again later.');
         return;
     }
