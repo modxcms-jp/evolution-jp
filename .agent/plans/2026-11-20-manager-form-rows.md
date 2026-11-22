@@ -141,7 +141,14 @@
 
 期待される観測: スニペットとチャンクの編集画面の見出しと値の行が `tr.field-row` で出て、見出しは上揃え・太字・コロン無し、ロックのチェックボックスは入力欄の列にそろう。カテゴリの新規作成・パラメーターの表の表示の切り替え・保存・ロック・RTE の切り替えが main と同じに動く。
 
-### 段階 2B・2C・3・4
+### 段階 2B（ブランチ `refactor/1631-stage2b-plugin-template-forms`。プラグインとテンプレート）
+
+1. プラグイン（`element/mutate_plugin.dynamic.php`）: 名前・無効（`label` 空）・取り込み（条件付き。説明文は `help`）・プロパティ（textarea と更新ボタン）・パラメーターの表（`attr` に `id="displayparamrow"`、`#displayparams` は値の中の `div`）・カテゴリ・新しいカテゴリ（`field` を `newcategory`、`attr` に `id="newcategry"` と表示の切り替えの `style`）・説明・エラー報告（注意は `help`）・ロック（`label` 空）の行を `EvoFieldRow::render()` へ。消す: 表の `border`・`cellspacing`・`cellpadding`、`align`・`valign`・`padding-top`、見出しのコロンと `&nbsp;&nbsp;`、効かない `span style="width:300px"`。直す: 「無効」の `label` が有効のときに閉じない。残す: 欄の幅・textarea の `padding:0;height:4em`、イベントの表（見出しと値の行ではない）とその中の色、`#tabEvents` と `tp`（ManagerManager の `mm_createtab` が使う）。JS が使う id（`pluginName`・`pluginDescription`・`propertiesBox`・`categoryid`・`newcategory`・`phptextarea`・イベントのチェックボックスの id）は変えない。
+2. テンプレート（`element/mutate_templates.dynamic.php`）: 既存のカテゴリ・新しいカテゴリ・説明・ロックの行を `EvoFieldRow::render()` へ（「名前と親テンプレート」の 1 行と、利用しているリソースの一覧は触らない）。消す: `padding-top`・`valign`・見出しのコロンと `&nbsp;&nbsp;`。ついでに直す（動きは変わらない）: `compact()` を配列に、`evo()->manager->ab` を `manager()->ab` に。親テンプレートの select の `None` は、既存の言語キーがあれば使う（無ければ触らない）。`getParentValues()` の SQL は、この PR とは別の Issue と PR で直す。
+
+期待される観測: プラグインとテンプレートの編集画面の見出しと値の行が `tr.field-row` で出る。保存・カテゴリの新規作成・パラメーターの表・イベントの選択・プラグインのコードの入力から名前や説明を拾う動き（blur）・ManagerManager がプラグインの画面に足すタブが main と同じに動く。
+
+### 段階 2C・3・4
 
 段階 2A の検証で残った見出しの揃えのずれ: 1 つの行に文字を入れる欄とそれ以外が混ざる行は、上余白の側に入るので、見出しが値より少し下がる（サイトの書き出しの「出力するリソース」は、ラジオの行に JS が出し入れする許可・除外の入力欄が同居していて 4〜5px、文書の編集の「キャッシュを削除」は複数の部品が並ぶ行で 2〜3px）。CSS の分岐を増やさず受け入れた。書き出しの行は、入力欄を別の行に分けると直る（段階 4 の文書の画面と合わせて見る）。
 
