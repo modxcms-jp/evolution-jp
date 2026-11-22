@@ -31,10 +31,7 @@ $settingsForm = new EvoSettingsForm(
             <div class="tab-page" id="tabProfile">
                 <?php include __DIR__ . '/form/tab_profile.php'; ?>
             </div>
-            <div class="tab-page" id="tabSettings">
-                <?php include __DIR__ . '/form/tab_settings.php'; ?>
-            </div>
-            <!-- 管理画面・エディター・ファイルの設定 -->
+            <!-- ユーザー・管理画面・エディター・ファイルの設定 -->
             <?= $settingsForm->render() ?>
             <?php
             if (config('use_udperms') == 1) {

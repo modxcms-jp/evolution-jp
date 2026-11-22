@@ -17,12 +17,6 @@ final class EvoSettingsForm
     const PASSWORD_MASK = '********************';
 
     /**
-     * ユーザー編集画面の「ユーザー」タブ（mutate_user/tpl/form/tab_settings.php）が手書きで出す設定。
-     * 欄を足したらここにも足す（ユーザー設定として保存してよい名前に含める）
-     */
-    const USER_TAB_KEYS = ['allow_manager_access', 'allowed_parents', 'allowed_ip', 'allowed_days'];
-
-    /**
      * メールの文面の設定名 => 言語キー（SSOT）。設定画面の定義と、インストーラー・アップデーターが
      * 行の無いときに言語ファイルの文面を入れる処理（install/instprocessor.php）の両方がこれを使う
      */
@@ -167,7 +161,6 @@ final class EvoSettingsForm
     /**
      * その scope の画面に出す設定キー（topmenu の欄も含む）。
      * ユーザー設定として保存してよい本体の名前で、プラグインの欄は含まない。
-     * user には、ユーザー編集画面の「ユーザー」タブが手書きで出す USER_TAB_KEYS を含む
      */
     public static function names(string $scope): array
     {
@@ -179,7 +172,7 @@ final class EvoSettingsForm
                 $names[] = $row['key'];
             }
         }
-        return $scope === 'user' ? array_merge($names, self::USER_TAB_KEYS) : $names;
+        return $names;
     }
 
     /**
@@ -496,6 +489,8 @@ final class EvoSettingsForm
                 return $this->radio($row);
             case 'radio':
                 return $this->radio($row);
+            case 'checkboxes':
+                return $this->checkboxes($row);
         }
         return '';
     }
@@ -596,6 +591,29 @@ final class EvoSettingsForm
             );
         }
         return implode(!empty($row['inline']) ? "\n" : "<br/>\n", $items) . "\n";
+    }
+
+    /**
+     * 複数のチェックボックス。値は選んだ値を「,」でつないだ文字列（保存の処理が name[] の配列を「,」でつなぐ）
+     */
+    private function checkboxes(array $row): string
+    {
+        $options = $this->resolve($row['options'] ?? []);
+        if (!is_array($options)) {
+            return '';
+        }
+        $checked = explode(',', $this->value($row['key'], $row));
+        $items = [];
+        foreach ($options as $value => $label) {
+            $items[] = sprintf(
+                '<label><input type="checkbox" name="%s[]" value="%s"%s />%s</label>',
+                hsc($row['key']),
+                hsc((string)$value),
+                in_array((string)$value, $checked, true) ? ' checked="checked"' : '',
+                $label
+            );
+        }
+        return implode("\n", $items);
     }
 
     /**

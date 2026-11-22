@@ -9,6 +9,55 @@ require_once __DIR__ . '/snapshot_store.class.inc.php';
 require_once __DIR__ . '/error_reporting.class.inc.php';
 
 return [
+    // 管理ユーザーの画面だけの「ユーザー」タブ（ユーザー編集画面のログイン設定・プロフィールの次に出る）
+    [
+        'id' => 'settingsTabUser',
+        'title' => lang('settings_users'),
+        'sections' => [
+            [
+                'rows' => [
+                    [
+                        'key' => 'allow_manager_access',
+                        'scope' => ['user'],
+                        'type' => 'yesno',
+                        'default' => '1',
+                        'label' => lang('allow_mgr_access'),
+                        'desc' => lang('allow_mgr_access_message'),
+                    ],
+                    [
+                        'key' => 'allowed_parents',
+                        'scope' => ['user'],
+                        'type' => 'text',
+                        'label' => lang('user_allowed_parents'),
+                        'desc' => lang('user_allowed_parents_message'),
+                    ],
+                    [
+                        'key' => 'allowed_ip',
+                        'scope' => ['user'],
+                        'type' => 'text',
+                        'label' => lang('login_allowed_ip'),
+                        'desc' => lang('login_allowed_ip_message'),
+                    ],
+                    [
+                        'key' => 'allowed_days',
+                        'scope' => ['user'],
+                        'type' => 'checkboxes',
+                        'options' => [
+                            '1' => lang('sunday'),
+                            '2' => lang('monday'),
+                            '3' => lang('tuesday'),
+                            '4' => lang('wednesday'),
+                            '5' => lang('thursday'),
+                            '6' => lang('friday'),
+                            '7' => lang('saturday'),
+                        ],
+                        'label' => lang('login_allowed_days'),
+                        'desc' => lang('login_allowed_days_message'),
+                    ],
+                ],
+            ],
+        ],
+    ],
     [
         'id' => 'settingsTabSite',
         'event' => 'OnSiteSettingsRender',
