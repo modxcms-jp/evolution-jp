@@ -55,6 +55,12 @@ body.evo-shell > #mainPane {
     box-sizing: border-box;
 }
 
+/* 差し替えた画面のスクリプトを実行し終わるまで隠す（shell.js の executeScripts()）。
+   visibility: hidden だと、その間に画面のスクリプトが呼ぶ focus() が効かないので opacity で隠す */
+.evo-pane-pending {
+    opacity: 0;
+}
+
 /* シェルの3ペイン以外のbody直下要素(ライブラリが追加するオーバーレイ等)が
    グリッドのセルを占有してレイアウトを崩さないよう、ゼロサイズのアンカーとして
    メイン領域に重ねる。TinyMCE等の補助コンテナが透明レイヤー化して入力を奪うのを防ぐ。
