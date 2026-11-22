@@ -427,18 +427,12 @@ function get_tree_orderby()
 
 /**
  * allowed_parents があるとき、表示を許可されたリソースだけに絞る条件
- * 非コンテナは parseNode() の isContainAllowed() と同じ判定になる
+ * 非コンテナは parseNode() の isContainAllowed() と同じ判定になる。0 を含む設定では SQL では絞らず、表示は isContainAllowed() が決める
  */
 function allowed_docs_condition()
 {
-    if (!evo()->conf_var('allowed_parents')) {
-        return '';
-    }
-    if (!isset(evo()->user_allowed_docs)) {
-        evo()->user_allowed_docs = manager()->getUserAllowedDocs();
-    }
-    $ids = array_filter(array_map('intval', (array)evo()->user_allowed_docs));
-    return sprintf('AND sc.id IN (%s)', $ids ? implode(',', $ids) : '0');
+    $cond = manager()->allowedDocsCondition('sc');
+    return $cond === '' ? '' : 'AND ' . $cond;
 }
 
 function getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder)

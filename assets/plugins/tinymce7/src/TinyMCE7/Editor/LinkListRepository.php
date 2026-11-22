@@ -6,7 +6,7 @@ namespace TinyMCE7\Editor;
 /**
  * リンクのダイアログ（TinyMCE の link_list）に並べる、サイト内の文書の木を作る。
  *
- * 利用者が管理画面で見られる文書だけを、メニュー名（無ければページタイトル）と ID で並べる。
+ * 利用者が管理画面で見られる文書（文書グループと allowed_parents の範囲の中）だけを、メニュー名（無ければページタイトル）と ID で並べる。
  * 値は文書を移してもリンクが切れない `[~id~]`。未公開は表示名に添え、削除済みは出さない。
  * 件数が MAX_ITEMS を超えるときは、MAX_ITEMS 件に収まる深さまでで打ち切る（最上位だけで超えるときは先頭の MAX_ITEMS 件）。
  */
@@ -31,7 +31,7 @@ final class LinkListRepository
         $rows = db()->getRows(db()->select(
             'sc.id,sc.pagetitle,sc.menutitle,sc.parent,sc.published',
             '[+prefix+]site_content AS sc',
-            'sc.deleted=0' . $this->accessCondition(),
+            'sc.deleted=0' . $this->accessCondition() . $this->allowedParentsCondition(),
             'sc.menuindex ASC, sc.id ASC'
         )) ?: [];
 
@@ -43,7 +43,7 @@ final class LinkListRepository
         $children = [];
         foreach ($rows as $row) {
             $parent = (int)$row['parent'];
-            // 親が見えない（削除済み・権限なし）文書は最上位に置く
+            // 親が見えない（削除済み・権限なし・allowed_parents の範囲外）文書は最上位に置く
             $children[isset($byId[$parent]) ? $parent : 0][] = $row;
         }
 
@@ -79,6 +79,17 @@ final class LinkListRepository
             db()->getFullTableName('document_groups'),
             implode(',', $groups)
         );
+    }
+
+    /**
+     * allowed_parents の範囲で絞る条件。文書グループとは別の軸で、管理者でも設定があれば絞る（ツリーと同じ）。
+     * 範囲の祖先は出さない。
+     */
+    private function allowedParentsCondition(): string
+    {
+        $cond = manager()->allowedDocsCondition('sc');
+
+        return $cond === '' ? '' : ' AND ' . $cond;
     }
 
     /**
