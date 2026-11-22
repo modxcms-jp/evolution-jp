@@ -125,6 +125,8 @@ DB の `time_zone` は `+14:00` を受け付けない（MariaDB の上限は `+1
 - **セーフモードのログイン画面の見分け方**: `manager/media/style/common/login.tpl` はテーマの `style.css` を読み込まない。`.loginLicense` は両方にあるので目印にならない（`lib.js` の `isSafeModeLogin()`）
 - **jAlert / jConfirm は `<dialog>`**: `dialog.evo-dialog[open]` の `.evo-dialog-ok` / `.evo-dialog-cancel` を押す（`lib.js` の `clickAlertOk()`）。本文は `.evo-dialog-message`
 - **シェルの断片かどうかは応答ヘッダーで見る**: shell.js は `X-Evo-Pane: 1` の有無だけで、断片として差し込むかを決める。fetch の応答を記録して確かめる（`lib.js` の `watchFetch()`）
+- **フォームの欄は `form.elements.<名前>` で取らない**: フォームに `name="elements"` の欄（テンプレート変数の編集画面の選択肢の欄）があると、`form.elements` がその欄を指し、ほかの欄を取れない。`form.querySelector('[name="locked"]')` のように名前で探す
+- **2 枚目以降のタブの中身は、タブを押してから測る**: 編集画面を開いた直後は、最初のタブ以外の中身は表示されていない。`isVisible()` は false になり、`getBoundingClientRect()` も 0 を返す。DOM の中身（文言・属性）は表示に関係なく取れる
 
 ## 後片付け
 
