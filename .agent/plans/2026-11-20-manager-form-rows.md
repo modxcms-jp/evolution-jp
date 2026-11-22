@@ -223,7 +223,7 @@
 - 段階 2B: ブランチ `refactor/1631-stage2b-plugin-template-forms`（同じワークツリーで main から切り替えた）、PR #1721
 - 段階 2C: ブランチ `refactor/1631-stage2c-module-tv-forms`（同じワークツリーで main から切り替えた）、PR #1724
 - 段階 3E: ブランチ `refactor/1631-stage3e-error-reporting-options`（同じワークツリーで main から切り替えた）、PR #1730
-- 段階 3D: ブランチ `refactor/1631-stage3d-user-screen-fixes`（同じワークツリーで main から切り替えた）
+- 段階 3D: ブランチ `refactor/1631-stage3d-user-screen-fixes`（同じワークツリーで main から切り替えた）、PR #1731
 
 ## Interfaces and Dependencies
 
