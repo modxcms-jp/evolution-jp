@@ -979,7 +979,7 @@
    狭いとき: 上から プレビュー・操作欄・保存のしかた の順に並べて全体をスクロールさせ、キャンセル・保存のボタンは下に留める */
 .evo-fb-edit-panel {
     width: min(1100px, 96%);
-    height: 96%;
+    /* 高さは中身に合わせる(上限はウィンドウの 96%。超えるときは .evo-fb-edit-layout の中でスクロールする) */
     max-height: 96%;
     --evo-fb-panel-pad: 0;
     gap: 0;
@@ -1033,8 +1033,14 @@
         padding-bottom: var(--space-3, 12px);
     }
 
+    /* 表示の枠の高さは、画像(回転後)の縦横比から決める(--evo-fb-edit-ratio は JS が入れる)。横長の画像で上下が余らない。
+       行の高さは、この枠と右の操作欄の高いほうになり、枠は行いっぱいに伸ばす(操作欄より低くならず、操作欄にスクロールバーが出ない) */
     .evo-fb-edit-stage {
+        box-sizing: border-box;
+        width: 100%;
         height: auto;
+        aspect-ratio: var(--evo-fb-edit-ratio, 4 / 3);
+        align-self: stretch;
     }
 
     .evo-fb-edit-controls {
