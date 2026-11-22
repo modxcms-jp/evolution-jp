@@ -76,11 +76,25 @@ function loadMoreNodes(el, indent, parent, offset) {
         }
         // 本文の文書がこの中にあるとして選んでいた行なら、読み込んだあとで選び直す
         var wasSelected = !!moreNode.querySelector('.treeNodeSelected');
-        moreNode.insertAdjacentHTML('beforebegin', response);
-        moreNode.parentNode.removeChild(moreNode);
-        if (wasSelected) {
-            selectPaneDocument();
-        }
+        // 続きの行をいったん 1 つの箱に入れ、フォルダを開くときと同じ動きで広げる。
+        // 動き終わったら箱を外し、行をフォルダの箱の直下へ戻す（「残り」のノードを :scope > .moreNode で探すため）
+        var batch = document.createElement('div');
+        batch.innerHTML = response;
+        moreNode.parentNode.replaceChild(batch, moreNode);
+        slideTreeBox(batch, true, true, function () {
+            var parent = batch.parentNode;
+            if (!parent) {
+                // 動いている間にツリーが描き直された
+                return;
+            }
+            while (batch.firstChild) {
+                parent.insertBefore(batch.firstChild, batch);
+            }
+            parent.removeChild(batch);
+            if (wasSelected) {
+                selectPaneDocument();
+            }
+        });
     }, function () {
         // 失敗したらもう一度押せるようにする
         moreNode.loading = false;

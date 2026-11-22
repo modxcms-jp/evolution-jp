@@ -151,8 +151,9 @@ if (!sessionv('tree_sortdir')) {
 
         // 子の行の入れ物(#c<id>)を高さ 0 との間で短く広げ縮めする。
         // 終わったら height / opacity / overflow を外し、今までと同じ素の状態に戻す。
+        // onDone: 動き終わったら呼ぶ（動かさないときもすぐ呼ぶ。途中で別の動きに切り替わったときは呼ばない）
         var TREE_SLIDE_MS = 180;
-        function slideTreeBox(box, open, fromEmpty) {
+        function slideTreeBox(box, open, fromEmpty, onDone) {
             var reduce = window.matchMedia
                 && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             // 途中から向きを変えるので、動いている最中の値を先に測ってから止める
@@ -173,6 +174,7 @@ if (!sessionv('tree_sortdir')) {
                 if (box.slideCancel) box.slideCancel();
                 if (!open) box.style.display = 'none';
                 delete box.dataset.closing;
+                if (onDone) onDone();
             }
 
             if (open) {
