@@ -1045,6 +1045,7 @@ return [
     "user_prevlogin" => 'Last login',
     "user_role" => 'User\'s role',
     "user_state" => 'State',
+    "user_thislogin" => 'Last login',
     "user_title" => 'Create/Edit User',
     "user_upload_message" => ' To stop this user from uploading files of this category, make sure that the \'Use System Configuration Setting\' checkbox is not ticked and leave the field blank. Then the File Picker rejects uploads into this folder.',
     "user_use_config" => 'Use System Configuration Setting',
