@@ -266,7 +266,7 @@ if (isset($content['which_editor'])) {
                     ?>
                     <textarea
                         name="description"
-                        style="padding:0;height:4em;width:300px;"><?= hsc(entity('description')) ?></textarea>
+                        style="height:4em;width:300px;"><?= hsc(entity('description')) ?></textarea>
                     <?php
                     echo EvoFieldRow::render([
                         'label' => lang('htmlsnippet_desc'),
