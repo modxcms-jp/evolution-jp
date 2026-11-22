@@ -151,7 +151,14 @@
 
 期待される観測: プラグインとテンプレートの編集画面の見出しと値の行が `tr.field-row` で出る。保存・カテゴリの新規作成・パラメーターの表・イベントの選択・プラグインのコードの入力から名前や説明を拾う動き（blur）・ManagerManager がプラグインの画面に足すタブが main と同じに動く。
 
-### 段階 2C・3・4
+### 段階 2C（ブランチ `refactor/1631-stage2c-module-tv-forms`。モジュールと TV）
+
+1. モジュール（`element/mutate_module.dynamic.php`）: 名前・無効（`label` 空）・既存のカテゴリ・新しいカテゴリ（`field` を `newcategory`、`attr` に `id="newcategry"` と表示の切り替えの `style`）・説明・アイコン・外部ファイル（JS からも使われず静的に隠れた行。送る値 `enable_resource`・`resourcefile` が保存されるので、`attr` の `style="display:none"` で今のまま隠して残す）・ロック（`label` 空）・プロパティ・パラメーターの表（`attr` に `id="displayparamrow"`、`#displayparams` は値の中の `div`）・依存のタブの共有の行（`label` 空）・guid の行（`attr` に `class="sharedparams"` と、JS が切り替える表示の `style`）を `EvoFieldRow::render()` へ。見出しは `td` から `th`（太字）に。消す: `align`・`valign`・`padding-top`・見出しのコロン、`cursor:pointer` の直書き（`.clickable-label` に）、`p.actionButtons` の `float:none;overflow:hidden;zoom:1`、説明の textarea の `padding:0`（高さと幅は残す）。残す: 欄の幅、プロパティの textarea の `display:block`、「パラメーターを更新」ボタン（onclick が無く、押しても何も起きない。直すと動きが変わるので別の Issue）とその `style`、依存の DataTable・権限のチェックの一覧・`div.sharedparams`。JS が使う name（`disabled`・`locked`・`enable_resource`・`enable_sharedparams`・`icon`・`post`・`user_groups[]`・`chkallgroups`・`makePublic`・`docid`）は変えない。
+2. TV（`element/mutate_tmplvars.dynamic.php`）: 名前・caption・type・elements（`attr` に `id="inputoption"` と、JS が切り替える表示の `style`）・default・widget・パラメーター（見出しを `th` に、`attr` に `id="displayparamrow"`、`#displayparams` は値の中の要素）・カテゴリ・新しいカテゴリ・説明・ロック（`label` 空）・ランクの行を `EvoFieldRow::render()` へ。TV のインラインの JS が `#inputoption th`（visibility）と `#inputoption textarea` を使うので、見出しのセルが `th` のままであることを確かめる。消す: `align`・`valign`・`nowrap`・`padding-top`、tooltip の `style="cursor:help"`（`forms.css` の `img.tooltip` と同じ）、パラメーターの行の `div` の `padding-top:8px`、textarea の無効な `type="text"`、説明の textarea の `padding:0`（高さは残す）。残す: 欄の幅（300px・400px）、名前の `[*` `*]` の囲み、`#tmplvarsPane label` の `<style>`（権限の一覧の label に効く）、権限・アクセスの一覧、TV のインラインの JS が組むパラメーターの表（`element-properties.js` と同じ処理の重複は別の Issue）。type の select を組む処理は、`entity('type')` に `'text'` を入れる順序を変えない。
+
+期待される観測: モジュールと TV の編集画面の見出しと値の行が `tr.field-row` で出る。保存・カテゴリの新規作成・ロック・パラメーターの表・モジュールの共有の切り替え・アイコンの選択・TV の type を変えたときの elements の行の出し入れ・widget のパラメーターの表が main と同じに動く。
+
+### 段階 3・4
 
 段階 2B で見つかった重複: エラー報告のラジオの組（inherit・0・1・2・99 と言語キー、注意書き）が、スニペットとプラグインの画面に同じ HTML で 2 か所あり、グローバル設定の定義（`settings_form.definition.inc.php`）にも同じ選択肢がある。選択肢を 1 か所に置き、2 画面はそれを使う形にまとめる（2C か段階 3 のついでに）。TV の説明の textarea の `padding:0` も 2C で消す。
 
