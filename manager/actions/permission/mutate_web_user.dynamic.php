@@ -71,12 +71,12 @@ if ($action === 88) {
         exit;
     }
     $usernamedata = db()->getRow($rs);
-    $_SESSION['itemname'] = webuser('username');
+    sessionv('*itemname', webuser('username'));
 } else {
     $userdata = [];
     $usersettings = [];
     $usernamedata = [];
-    $_SESSION['itemname'] = "New web user";
+    sessionv('*itemname', "New web user");
 }
 
 // restore saved form
@@ -502,7 +502,7 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                             <th><?= lang('user_prevlogin') ?>:</th>
                             <?php
                             if (!empty(attribute('lastlogin'))) {
-                                $lastlogin = $modx->toDateFormat(attribute('lastlogin') + config('server_offset_time'));
+                                $lastlogin = evo()->toDateFormat(attribute('lastlogin') + config('server_offset_time'));
                             } else {
                                 $lastlogin = '-';
                             }

@@ -2,13 +2,12 @@
 
 function checkbox($name, $value, $label, $cond)
 {
-    global $modx;
     $tpl = '<label><input type="checkbox" name="[+name+]" value="[+value+]" [+checked+] />[+label+]</label>';
     $ph['name'] = $name;
     $ph['value'] = $value;
     $ph['label'] = $label;
     $ph['checked'] = checked($cond);
-    return $modx->parseText($tpl, $ph);
+    return evo()->parseText($tpl, $ph);
 }
 
 function user($key, $default = null)

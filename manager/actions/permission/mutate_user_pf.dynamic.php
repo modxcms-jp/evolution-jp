@@ -44,7 +44,7 @@ if ($total > 1) {
 
 $usernamedata = db()->getRow($rs);
 
-$_SESSION['itemname'] = $usernamedata['username'];
+sessionv('*itemname', $usernamedata['username']);
 
 // restore saved form
 $formRestored = false;
@@ -100,16 +100,6 @@ if (config('manager_language') != "english" && is_file($lang_path)) {
             document.getElementById("passwordBlock").style.display = "block";
         } else {
             document.getElementById("passwordBlock").style.display = "none";
-        }
-    }
-
-    // change name
-    function changeName() {
-        if (confirm(<?= js_literal(stripcslashes(lang('confirm_name_change'))) ?>) == true) {
-            var e1 = document.getElementById("showname");
-            var e2 = document.getElementById("editname");
-            e1.style.display = "none";
-            e2.style.display = "table-row";
         }
     }
 
@@ -345,13 +335,12 @@ if (config('manager_language') != "english" && is_file($lang_path)) {
 
 function checkbox($name, $value, $label, $cond)
 {
-    global $modx;
     $tpl = '<label><input type="checkbox" name="[+name+]" value="[+value+]" [+checked+] />[+label+]</label>';
     $ph['name'] = $name;
     $ph['value'] = $value;
     $ph['label'] = $label;
     $ph['checked'] = checked($cond);
-    return $modx->parseText($tpl, $ph);
+    return evo()->parseText($tpl, $ph);
 }
 
 function checked($cond)

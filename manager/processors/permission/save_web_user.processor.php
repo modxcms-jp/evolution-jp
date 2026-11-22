@@ -46,7 +46,7 @@ if ($passwordgenmethod === 'spec' && $specifiedpassword !== post_strvar('confirm
 
 // verify email
 if (config('required_email_wuser') === null) {
-    $modx->config['required_email_wuser'] = 1;
+    evo()->setConfig('required_email_wuser', 1);
 }
 
 if (config('required_email_wuser')) {
@@ -134,27 +134,27 @@ switch ($mode) {
             exit;
         }
 
-        $fields = compact(
-            'internalKey',
-            'fullname',
-            'role',
-            'email',
-            'phone',
-            'mobilephone',
-            'fax',
-            'zip',
-            'street',
-            'city',
-            'state',
-            'country',
-            'gender',
-            'dob',
-            'photo',
-            'comment',
-            'blocked',
-            'blockeduntil',
-            'blockedafter'
-        );
+        $fields = [
+            'internalKey' => $internalKey,
+            'fullname' => $fullname,
+            'role' => $role,
+            'email' => $email,
+            'phone' => $phone,
+            'mobilephone' => $mobilephone,
+            'fax' => $fax,
+            'zip' => $zip,
+            'street' => $street,
+            'city' => $city,
+            'state' => $state,
+            'country' => $country,
+            'gender' => $gender,
+            'dob' => $dob,
+            'photo' => $photo,
+            'comment' => $comment,
+            'blocked' => $blocked,
+            'blockeduntil' => $blockeduntil,
+            'blockedafter' => $blockedafter
+        ];
         $rs = db()->insert(
             db()->escape($fields),
             '[+prefix+]web_user_attributes'
@@ -330,27 +330,27 @@ switch ($mode) {
             exit;
         }
 
-        $fields = compact(
-            'fullname',
-            'role',
-            'email',
-            'phone',
-            'mobilephone',
-            'fax',
-            'zip',
-            'street',
-            'city',
-            'state',
-            'country',
-            'gender',
-            'dob',
-            'photo',
-            'comment',
-            'failedlogincount',
-            'blocked',
-            'blockeduntil',
-            'blockedafter'
-        );
+        $fields = [
+            'fullname' => $fullname,
+            'role' => $role,
+            'email' => $email,
+            'phone' => $phone,
+            'mobilephone' => $mobilephone,
+            'fax' => $fax,
+            'zip' => $zip,
+            'street' => $street,
+            'city' => $city,
+            'state' => $state,
+            'country' => $country,
+            'gender' => $gender,
+            'dob' => $dob,
+            'photo' => $photo,
+            'comment' => $comment,
+            'failedlogincount' => $failedlogincount,
+            'blocked' => $blocked,
+            'blockeduntil' => $blockeduntil,
+            'blockedafter' => $blockedafter
+        ];
         $rs = db()->update(
             db()->escape($fields),
             evo()->getFullTableName('web_user_attributes'),

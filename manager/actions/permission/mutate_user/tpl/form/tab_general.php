@@ -17,7 +17,7 @@
             id="showname"
             <?php
             if ($action === 11) {
-                echo 'style="display:none";';
+                echo 'style="display:none;"';
             }
             ?>
         >
@@ -44,7 +44,7 @@
         id="editname"
         <?php
         if ($action === 12) {
-            echo 'style="display:none";';
+            echo 'style="display:none;"';
         }
         ?>
     >
