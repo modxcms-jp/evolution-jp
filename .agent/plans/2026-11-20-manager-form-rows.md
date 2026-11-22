@@ -206,7 +206,19 @@
 
 期待される観測: 管理ユーザーの新規・編集の「ユーザー」タブに 4 項目が設定の表（説明は欄の下）で出て、保存した値が main と同じ（`user_settings` の名前と値、空のときの削除、差し戻しの値）。ログイン回数・ブロックなどの行は「ログイン設定」タブの末尾に出て、リセット・ブロックの切り替え・日付の選択が main と同じに動く。プロフィール（scope `profile`）には 4 項目は出ない。
 
-### 段階 3C・4
+### 段階 3C-1（ブランチ `refactor/1631-stage3c1-web-user-settings`。Web ユーザーの設定を定義へ）
+
+段階 3C は、3C-1（Web ユーザーの設定とログインの判定）と 3C-2（3 画面の重複と一時的な規則）の 2 PR に分ける。
+
+1. 設定の定義に scope `web`（Web ユーザーの画面）を足す。`allowed_ip`・`allowed_days` の行は scope を `['user', 'web']` に、ログイン先 `login_home`（text、maxlength 50）は scope `['web']` の行として、同じ「セキュリティ」のタブ（`settingsTabUser`）に足す。`EvoSettingsForm` は scope `web` の値を Web ユーザーの設定（`web_user_settings`）から受け取る形にする（値の読み書きの仕組みはユーザーの設定と同じ形で、テーブルだけが違う）。
+2. Web ユーザーの画面（`mutate_web_user.dynamic.php`）の手書きの「セキュリティ」タブ（`tabSettings`）を、`EvoSettingsForm` の scope `web` の描画に替える。ログイン回数・失敗回数・ブロックなどの設定ではない行は、3B と同じく「ログイン設定」タブの末尾に行の部品で置く（編集のときだけ）。見出しの警告色の太字（`td.warning`）はやめる（Decision Log 2026-11-22 段階 3 の細かい決まり）。文字の欄の幅の直書きもやめ、設定の表の 250px にそろえる。
+3. Web ユーザーの保存（`save_web_user.processor.php`）の固定の名前のリスト（3 つ）を、`EvoSettingsForm::names('web')` から作る。保存の形（`web_user_settings` の名前と値、空のときの削除、曜日の `"1,3,7"`）は変えない。
+4. ログインのときの曜日と許可 IP の判定を、1 つの関数にまとめ、管理ユーザーのログイン（`login.processor.functions.php`）と Web ユーザーのログイン（`assets/snippets/weblogin/weblogin.processor.inc.php`）がそれを使う。判定は、設定の値を `,` で分けて（空白を除き）一致するかを見る形にそろえる（今は管理ユーザーの IP だけがこの形で、曜日と Web ユーザーの IP は文字列に含まれるかを見ている）。保存の処理が作る値では結果は変わらない。`,` の無い古い値（例 `"135"`）が保存されうるか（古い版の保存の形）を確かめ、ありうるなら読み方を決めて報告する。
+5. 文書: `global-settings.md`（scope `web`）、`manager-form-row.md`（使っている画面）。
+
+期待される観測: Web ユーザーの新規・編集の「セキュリティ」タブが設定の表（説明は欄の下、欄は 250px、見出しは普通の太字）で出て、保存した値が main と同じ。ログイン回数などの行は「ログイン設定」タブの末尾に出て、リセット・ブロックの切り替え・日付が main と同じに動く。管理ユーザーと Web ユーザーのログインの曜日・IP の制限が、保存の処理が作る値で main と同じ結果になる。
+
+### 段階 3C-2・4
 
 段階 3 の残りの PR は、3B のあとに、調査の結果（2026-11-22）をもとにこの節に手順を書き足す。3C で一緒に扱うこと（3B の自己レビューより）: (1) 3A で足した一時的な規則 `.settings tr:not(.field-row) > th { vertical-align: top }`（`theme-base.css`）は、Web ユーザーの画面の 3 つの表と、スタイルガイドの手書きの見本「ユーザー編集の表」（`styleguide_sample.static.php`）を行の部品へ移したあとで消す。(2) 曜日の「選ばれているか」の判定が、画面（`EvoSettingsForm` の `checkboxes` 型。`,` で分けて一致を見る）とログインの処理（`login.processor.functions.php` の `strpos`）で違う。Web ユーザーの曜日の欄を同じ型へ移すときに、管理ユーザーと Web ユーザーのログインの処理も同じ判定にそろえる（`,` の無い古い値があるかも確かめる）。(3) プロフィールの画面（`mutate_user_pf.dynamic.php`）の使われない `checkbox()` を消す。
 
