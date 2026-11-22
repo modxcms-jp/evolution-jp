@@ -282,7 +282,7 @@ $email = $row['email'];
 if ($internalKey) {
     $rs = db()->select('setting_name, setting_value', $tbl_web_user_settings, 'webuser=' . (int)$internalKey);
     while ($row = db()->getRow($rs, 'both')) {
-        $modx->config[$row[0]] = $row[1];
+        evo()->setConfig($row[0], $row[1]);
     }
 }
 
@@ -324,7 +324,7 @@ if (isUserBlocked(['blocked' => $blocked, 'blockeduntil' => $blockeduntildate, '
 
 // allowed ip
 if ($allowedIp !== '') {
-    if (strpos($allowedIp, serverv('REMOTE_ADDR', '')) === false) {
+    if (!list_has_item($allowedIp, serverv('REMOTE_ADDR', ''))) {
         $output = webLoginAlert('You are not allowed to login from this location.');
         return;
     }
@@ -334,7 +334,7 @@ if ($allowedIp !== '') {
 if ($allowedDays !== '') {
     $date = getdate();
     $day = $date['wday'] + 1;
-    if (strpos($allowedDays, (string)$day) === false) {
+    if (!list_has_item($allowedDays, $day)) {
         $output = webLoginAlert('You are not allowed to login at this time. Please try again later.');
         return;
     }

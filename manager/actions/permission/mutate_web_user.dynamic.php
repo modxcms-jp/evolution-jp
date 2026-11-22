@@ -5,6 +5,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 
 
 include_once __DIR__ . '/mutate_user/form_values.php';
+require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
 
 $action = request_intvar('a');
 
@@ -333,6 +334,70 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                         </td>
                     </tr>
                 </table>
+                <?php
+                // ログインの状態（設定ではないので、設定の定義には入れない。編集のときだけ出る）
+                if ($action === 88) {
+                ?>
+                    <table class="settings">
+                        <?php
+                        echo EvoFieldRow::render([
+                            'label' => lang('user_logincount'),
+                            'body' => (int) attribute('logincount'),
+                        ]);
+
+                        $lastlogin = !empty(attribute('lastlogin'))
+                            ? evo()->toDateFormat(attribute('lastlogin') + config('server_offset_time'))
+                            : '-';
+                        echo EvoFieldRow::render([
+                            'label' => lang('user_prevlogin'),
+                            'body' => $lastlogin,
+                        ]);
+
+                        ob_start();
+                        ?>
+                        <input type="hidden" name="failedlogincount"
+                            value="<?= (int) attribute('failedlogincount') ?>">
+                        <span id='failed'><?= (int) attribute('failedlogincount') ?></span>&nbsp;&nbsp;&nbsp;[<a
+                            href="javascript:resetFailed()"><?= lang('reset_failedlogins') ?></a>]
+                        <?php
+                        echo EvoFieldRow::render([
+                            'label' => lang('user_failedlogincount'),
+                            'body' => ob_get_clean(),
+                        ]);
+
+                        ob_start();
+                        ?>
+                        <input name="blockedcheck" type="checkbox"
+                            onclick="changeblockstate(document.userform.blockedmode, document.userform.blockedcheck);" <?= isUserBlocked($userdata) ? " checked='checked'" : "" ?> /><input
+                            type="hidden" name="blocked"
+                            value="<?= attribute('blocked') == 1 ? 1 : 0 ?>">
+                        <?php
+                        echo EvoFieldRow::render([
+                            'label' => lang('user_block'),
+                            'body' => ob_get_clean(),
+                        ]);
+
+                        // ブロックの期限と日時、日時を消すボタン
+                        foreach (['blockeduntil' => 'user_blockeduntil', 'blockedafter' => 'user_blockedafter'] as $name => $labelKey) {
+                            ob_start();
+                            ?>
+                            <input type="text" id="<?= $name ?>" name="<?= $name ?>" class="DatePicker"
+                                value="<?= manager()->dateInputValue(attribute($name)) ?>"
+                                onblur='documentDirty=true;' readonly="readonly">
+                            <a class="clickable-label" onclick="document.userform.<?= $name ?>.value=''; return true;"><img
+                                    src="<?= $icons_path ?>cal_nodate.gif"
+                                    alt="<?= lang('remove_date') ?>" /></a>
+                            <?php
+                            echo EvoFieldRow::render([
+                                'label' => lang($labelKey),
+                                'body' => ob_get_clean(),
+                            ]);
+                        }
+                        ?>
+                    </table>
+                <?php
+                }
+                ?>
             </div>
             <!-- Profile -->
             <div class="tab-page" id="tabProfile">
@@ -459,138 +524,13 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                     </tr>
                 </table>
             </div>
-            <!-- Settings -->
-            <div class="tab-page" id="tabSettings">
-                <h2 class="tab"><?= lang("settings_users") ?></h2>
-                <table class="settings">
-                    <tr>
-                        <td nowrap class="warning"><b><?= lang("login_homepage") ?></b></td>
-                        <td>
-                            <input type='text' maxlength='50' style="width: 100px;" name="login_home"
-                                value="<?= hsc(post_strvar('login_home', setting('login_home'))) ?>">
-                            <div><?= lang("login_homepage_message") ?></div>
-                        </td>
-                    </tr>
-                    <?php if ($action === 88): ?>
-                        <tr>
-                            <th><?= lang('user_logincount') ?>:</th>
-                            <td><?= (int) attribute('logincount') ?></td>
-                        </tr>
-                        <tr>
-                            <th><?= lang('user_prevlogin') ?>:</th>
-                            <?php
-                            if (!empty(attribute('lastlogin'))) {
-                                $lastlogin = evo()->toDateFormat(attribute('lastlogin') + config('server_offset_time'));
-                            } else {
-                                $lastlogin = '-';
-                            }
-                            ?>
-                            <td><?= $lastlogin ?></td>
-                        </tr>
-                        <tr>
-                            <th><?= lang('user_failedlogincount') ?>:</th>
-                            <td>
-                                <input type="hidden" name="failedlogincount"
-                                    value="<?= (int) attribute('failedlogincount') ?>">
-                                <span id='failed'><?= (int) attribute('failedlogincount') ?></span>&nbsp;&nbsp;&nbsp;[<a
-                                    href="javascript:resetFailed()"><?= lang('reset_failedlogins') ?></a>]
-                            </td>
-                        </tr>
-                        <tr>
-                            <th><?= lang('user_block') ?>:</th>
-                            <td><input name="blockedcheck" type="checkbox"
-                                    onclick="changeblockstate(document.userform.blockedmode, document.userform.blockedcheck);" <?= isUserBlocked($userdata) ? " checked='checked'" : "" ?> /><input
-                                    type="hidden" name="blocked"
-                                    value="<?= attribute('blocked') == 1 ? 1 : 0 ?>">
-                            </td>
-                        </tr>
-                        <tr>
-                            <th><?= lang('user_blockeduntil') ?>:</th>
-                            <td>
-                                <input type="text" id="blockeduntil" name="blockeduntil" class="DatePicker"
-                                    value="<?= manager()->dateInputValue(attribute('blockeduntil')) ?>"
-                                    onblur='documentDirty=true;' readonly="readonly">
-                                <a onclick="document.userform.blockeduntil.value=''; return true;"
-                                    style="cursor:pointer; cursor:hand"><img align="absmiddle"
-                                        src="<?= $icons_path ?>cal_nodate.gif"
-                                        border="0"
-                                        alt="<?= lang('remove_date') ?>" /></a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th><?= lang('user_blockedafter') ?>:</th>
-                            <td>
-                                <input type="text" id="blockedafter" name="blockedafter" class="DatePicker"
-                                    value="<?= manager()->dateInputValue(attribute('blockedafter')) ?>"
-                                    onblur='documentDirty=true;' readonly="readonly">
-                                <a onclick="document.userform.blockedafter.value=''; return true;"
-                                    style="cursor:pointer; cursor:hand"><img align="absmiddle"
-                                        src="<?= $icons_path ?>cal_nodate.gif"
-                                        border="0"
-                                        alt="<?= lang('remove_date') ?>" /></a>
-                            </td>
-                        </tr>
-                    <?php endif; ?>
-                    <tr>
-                        <td nowrap class="warning" valign="top"><b><?= lang("login_allowed_ip") ?></b></td>
-                        <td>
-                            <input type="text" maxlength='255' style="width: 300px;" name="allowed_ip"
-                                value="<?= hsc(post_strvar('allowed_ip', setting('allowed_ip'))) ?>" />
-                            <div><?= lang("login_allowed_ip_message") ?></div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td nowrap class="warning" valign="top"><b><?= lang("login_allowed_days") ?></b>
-                        </td>
-                        <td>
-                            <?php $allowedDays = (string)setting('allowed_days', ''); ?>
-                            <label><input type="checkbox" name="allowed_days[]"
-                                    value="1" <?= strpos(
-                                                    $allowedDays,
-                                                    '1'
-                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= lang('sunday') ?>
-                            </label>
-                            <label><input type="checkbox" name="allowed_days[]"
-                                    value="2" <?= strpos(
-                                                    $allowedDays,
-                                                    '2'
-                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= lang('monday') ?>
-                            </label>
-                            <label><input type="checkbox" name="allowed_days[]"
-                                    value="3" <?= strpos(
-                                                    $allowedDays,
-                                                    '3'
-                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= lang('tuesday') ?>
-                            </label>
-                            <label><input type="checkbox" name="allowed_days[]"
-                                    value="4" <?= strpos(
-                                                    $allowedDays,
-                                                    '4'
-                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= lang('wednesday') ?>
-                            </label>
-                            <label><input type="checkbox" name="allowed_days[]"
-                                    value="5" <?= strpos(
-                                                    $allowedDays,
-                                                    '5'
-                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= lang('thursday') ?>
-                            </label>
-                            <label><input type="checkbox" name="allowed_days[]"
-                                    value="6" <?= strpos(
-                                                    $allowedDays,
-                                                    '6'
-                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= lang('friday') ?>
-                            </label>
-                            <label><input type="checkbox" name="allowed_days[]"
-                                    value="7" <?= strpos(
-                                                    $allowedDays,
-                                                    '7'
-                                                ) !== false ? "checked='checked'" : ""; ?> /> <?= lang('saturday') ?>
-                            </label>
-                            <div><?= lang("login_allowed_days_message") ?></div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+            <!-- ログイン先・ログインを許可する IP と曜日（設定の定義の scope web） -->
+            <?= (new EvoSettingsForm(
+                EvoSettingsForm::definition(),
+                $usersettings,
+                EvoSettingsForm::storedValues(),
+                'web'
+            ))->render() ?>
             <?php
             if (config('use_udperms') == 1) {
                 $groupsarray = [];

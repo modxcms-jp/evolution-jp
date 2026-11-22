@@ -54,7 +54,7 @@
 
 行の項目:
 
-- `scope`: その行を出す画面の配列（`system`・`user`・`profile`。既定は `['system']`）。ユーザーに変えさせる行に `user`・`profile` を足す。ユーザーにしか無い設定（`manager_login_startup`）は `['user', 'profile']` だけにする
+- `scope`: その行を出す画面の配列（`system`・`user`・`profile`・`web`。既定は `['system']`）。ユーザーに変えさせる行に `user`・`profile` を足す。ユーザーにしか無い設定（`manager_login_startup`）は `['user', 'profile']` だけにする。`web` は Web ユーザーの編集画面（`a=87`・`a=88`）で、値は Web ユーザーの設定（`web_user_settings`）。`new EvoSettingsForm(EvoSettingsForm::definition(), <その Web ユーザーの設定>, EvoSettingsForm::storedValues(), 'web')` で描き、描き方は user・profile と同じ（system 以外の描き方）。Web ユーザーの保存（`save_web_user.processor.php`）は `EvoSettingsForm::names('web')` の名前だけを `web_user_settings` に保存する（空の値は行を消す）。`login_home` は `['web']` だけ、`allowed_ip`・`allowed_days` は `['user', 'web']`
 - `userDefault`: `true` にすると、「システム設定に従う」のチェックボックス `default_<キー>` を付ける。ユーザーの値が無いときにチェックが付き、差し戻した画面では送ったときのチェックを優先する。保存の処理（`save_user.functions.php`）は `EvoSettingsForm::userDefaultNames()` でこの行を読み、`default_<キー>` を受ける
 - `userAttr`: user・profile のときだけ欄に足す属性（`attr` に重なる）
 - `userValue`: user・profile の欄の値を決める関数 `function (array $values, array $stored): string`（`$values` はそのユーザーの値、`$stored` はシステム設定）。ユーザーの値が無いときにシステム設定の値を見せたいときに使う
@@ -87,7 +87,7 @@ user・profile の描き方（グローバル設定との違い）:
 
 | タブの id | タブ名（言語キー） | 小見出し（`settings_section_*`） | 末尾のイベント |
 | --- | --- | --- | --- |
-| `settingsTabUser` | ユーザー（`settings_users`）。管理ユーザーの新規（`a=11`）と編集（`a=12`）の画面だけ。プロフィールとグローバル設定には出ない | なし | |
+| `settingsTabUser` | ユーザー（`settings_users`）。管理ユーザーの新規（`a=11`）と編集（`a=12`）、Web ユーザーの新規（`a=87`）と編集（`a=88`）の画面だけ。プロフィールとグローバル設定には出ない | なし | |
 | `settingsTabSite` | サイト（`settings_site`） | 基本・URL・特別なページ・文字コードと時刻 | `OnSiteSettingsRender` |
 | `settingsTabResources` | リソース（`settings_resources`） | 新しいリソースの初期値・作成と編集 | |
 | `settingsTabCache` | キャッシュ（`settings_cache`） | なし | |

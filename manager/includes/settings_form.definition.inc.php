@@ -9,7 +9,7 @@ require_once __DIR__ . '/snapshot_store.class.inc.php';
 require_once __DIR__ . '/error_reporting.class.inc.php';
 
 return [
-    // 管理ユーザーの画面だけの「ユーザー」タブ（ユーザー編集画面のログイン設定・プロフィールの次に出る）
+    // 管理ユーザー（user）と Web ユーザー（web）の画面だけの「ユーザー」タブ（ログイン設定・プロフィールの次に出る）
     [
         'id' => 'settingsTabUser',
         'title' => lang('settings_users'),
@@ -33,15 +33,23 @@ return [
                         'desc' => lang('user_allowed_parents_message'),
                     ],
                     [
+                        'key' => 'login_home',
+                        'scope' => ['web'],
+                        'type' => 'text',
+                        'size' => 50,
+                        'label' => lang('login_homepage'),
+                        'desc' => lang('login_homepage_message'),
+                    ],
+                    [
                         'key' => 'allowed_ip',
-                        'scope' => ['user'],
+                        'scope' => ['user', 'web'],
                         'type' => 'text',
                         'label' => lang('login_allowed_ip'),
                         'desc' => lang('login_allowed_ip_message'),
                     ],
                     [
                         'key' => 'allowed_days',
-                        'scope' => ['user'],
+                        'scope' => ['user', 'web'],
                         'type' => 'checkboxes',
                         'options' => [
                             '1' => lang('sunday'),

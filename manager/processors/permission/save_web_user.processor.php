@@ -6,6 +6,7 @@ if (!evo()->hasPermission('save_web_user')) {
     alert()->setError(3);
     alert()->dumpError();
 }
+require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
 $id = post_intvar('id');
 $oldusername = post_strvar('oldusername');
 $newusername = trim(post_strvar('newusername'));
@@ -490,13 +491,8 @@ function sendMailMessage($email, $uid, $pwd, $ufn)
 // Save User Settings
 function saveUserSettings($id)
 {
-    $settings = [
-        'login_home',
-        'allowed_ip',
-        'allowed_days'
-    ];
-
-    foreach ($settings as $name) {
+    // 保存してよい名前は、設定の定義の scope web の行
+    foreach (EvoSettingsForm::names('web') as $name) {
         db()->delete('[+prefix+]web_user_settings', "webuser='" . $id . "' and setting_name='" . $name . "'");
         $value = postv($name);
         if (is_array($value)) {

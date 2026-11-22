@@ -18,7 +18,8 @@
 - [x] (2026-11-22) 段階 3D: ユーザーの画面の `style` 属性の書き間違い、`$_SESSION`・`$modx`・`compact()` の直接の使用、呼ばれない JS を直した（動きは変えない）
 - [x] (2026-11-22) 段階 3A: 設定の説明を欄の下の説明（help）に、設定の表の CSS を共通（theme-base.css）にまとめ、EvoSettingsForm::style() と画面の style を消した
 - [x] (2026-11-22) 段階 3B: ユーザーの設定の手書きの 4 項目を設定の定義の「ユーザー」タブへ（曜日は新しい `checkboxes` 型）、`USER_TAB_KEYS` を消し、ログインの状態の行を「ログイン設定」タブへ移した
-- [ ] 段階 3C: Web ユーザーの設定を定義へ、3 画面の重複（パスワードの欄・プロフィールの行）をなくす
+- [x] (2026-11-22) 段階 3C-1: Web ユーザーの設定を設定の定義（scope `web`）へ移し、ログインの曜日・許可 IP の判定を `list_has_item()` の 1 つにそろえた（管理ユーザーと Web ユーザー）
+- [ ] 段階 3C-2: 3 画面の重複（パスワードの欄・プロフィールの行）をなくし、手書きの行のための一時的な規則を消す
 - [ ] 段階 4: 文書の画面の残り（TV の行 `tv_row.tpl` を部品へ、ほかの直書き）
 
 ## Surprises & Discoveries
@@ -31,6 +32,7 @@
 - `custom_tpl_dir` は設定の定義に無い隠れた設定で、読むのは文書の編集画面の `file_get_tpl()`（`manager/actions/document/mutate_content/functions.php`）だけ。
 - コード用の textarea（`class="phptextarea"`。プロパティ・TV の elements と default）の行は、共通の規則（`theme-base.css` の `.phptextarea` の等幅のフォント）で文字の上下の広さが本文と違うため、見出しの 1 行目との差が +5px ほど残る（文字の矩形の上端で測った値）。直書きが原因ではなく、見出しの列の見た目をそろえる後回しの判断に含める。
 - 段階 3A: 設定の表の見出しの右の余白が、`EvoSettingsForm::style()` の 5px から共通の 12px（`.field-label`）になり、値のセルが 7px 狭くなった。そのため折り返しの境目にあった説明が 1 行増え、グローバル設定の `use_udperms` の行が 22px 高くなった（ほかの説明のある行は、欄の下の説明の上の余白の分の 4px）。画面の幅しだいで起きる差なので受け入れた。
+- 段階 3C-1: 曜日制限（`allowed_days`）は、このリポジトリの最初のコミット（1d5bd0bae）から、管理ユーザーの保存も Web ユーザーの保存も `implode(",", …)` で保存している。`"135"` のような `,` の無い値は本体の保存からは作れないので、ログインの判定を項目ごとの一致にしても読み方の手当ては足さない（DB を直接書き換えた値だけが影響を受ける）。
 - エラー報告の段階の一覧（`['0','1','2','99']` と `'inherit'`）と、段階からエラーのマスクを決める処理は、`DocumentParser`（`resolveErrorReportingLevel()`・`mapErrorReportingLevelToMask()`）にも同じ形であった。3E で `EvoErrorReporting`（`error_reporting.class.inc.php`）に集め、`DocumentParser` はそれを呼ぶ形にした。`cache_sync.class.php` と `traits/document.parser.subparser.trait.php` の既定値の `'inherit'` も `EvoErrorReporting::INHERIT` にそろえた（どちらも DocumentParser のファイルがクラスを読み込んだあとで動く）。
 - 段階 1: 見出しのセルの縦の揃えは、画面ごとに上揃え（設定の表、システム情報の詳細の表、サイトの書き出しの `td.head`）と中央（文書の行、th の既定）に分かれている。共通で上揃えにすると、文書の行の見出しが入力欄の文字とずれる（そろえるには `foundation-proposal.css` のように上の余白の計算と組みにする）。これは先送りした「見出しの列の幅・色をそろえる」判断に含めて決め、段階 1 では移した表の見出しは th の既定（中央）のままにした。システム情報の詳細の表で値が 2 行になる数項目は、見出しが縦の中央に出る。
 
@@ -206,7 +208,19 @@
 
 期待される観測: 管理ユーザーの新規・編集の「ユーザー」タブに 4 項目が設定の表（説明は欄の下）で出て、保存した値が main と同じ（`user_settings` の名前と値、空のときの削除、差し戻しの値）。ログイン回数・ブロックなどの行は「ログイン設定」タブの末尾に出て、リセット・ブロックの切り替え・日付の選択が main と同じに動く。プロフィール（scope `profile`）には 4 項目は出ない。
 
-### 段階 3C・4
+### 段階 3C-1（ブランチ `refactor/1631-stage3c1-web-user-settings`。Web ユーザーの設定を定義へ）
+
+段階 3C は、3C-1（Web ユーザーの設定とログインの判定）と 3C-2（3 画面の重複と一時的な規則）の 2 PR に分ける。
+
+1. 設定の定義に scope `web`（Web ユーザーの画面）を足す。`allowed_ip`・`allowed_days` の行は scope を `['user', 'web']` に、ログイン先 `login_home`（text、maxlength 50）は scope `['web']` の行として、同じ「セキュリティ」のタブ（`settingsTabUser`）に足す。`EvoSettingsForm` は scope `web` の値を Web ユーザーの設定（`web_user_settings`）から受け取る形にする（値の読み書きの仕組みはユーザーの設定と同じ形で、テーブルだけが違う）。
+2. Web ユーザーの画面（`mutate_web_user.dynamic.php`）の手書きの「セキュリティ」タブ（`tabSettings`）を、`EvoSettingsForm` の scope `web` の描画に替える。ログイン回数・失敗回数・ブロックなどの設定ではない行は、3B と同じく「ログイン設定」タブの末尾に行の部品で置く（編集のときだけ）。見出しの警告色の太字（`td.warning`）はやめる（Decision Log 2026-11-22 段階 3 の細かい決まり）。文字の欄の幅の直書きもやめ、設定の表の 250px にそろえる。
+3. Web ユーザーの保存（`save_web_user.processor.php`）の固定の名前のリスト（3 つ）を、`EvoSettingsForm::names('web')` から作る。保存の形（`web_user_settings` の名前と値、空のときの削除、曜日の `"1,3,7"`）は変えない。
+4. ログインのときの曜日と許可 IP の判定を、1 つの関数にまとめ、管理ユーザーのログイン（`login.processor.functions.php`）と Web ユーザーのログイン（`assets/snippets/weblogin/weblogin.processor.inc.php`）がそれを使う。判定は、設定の値を `,` で分けて（空白を除き）一致するかを見る形にそろえる（今は管理ユーザーの IP だけがこの形で、曜日と Web ユーザーの IP は文字列に含まれるかを見ている）。管理ユーザーの IP と曜日、Web ユーザーの曜日は、保存の処理が作る値では結果が変わらない。Web ユーザーの IP は、接続元の文字列を一部に含むが一致しない値で許可していたものが、拒否になる（計画どおりの変化。PR に中立的に書く）。
+5. 文書: `global-settings.md`（scope `web`）、`manager-form-row.md`（使っている画面）。
+
+期待される観測: Web ユーザーの新規・編集の「セキュリティ」タブが設定の表（説明は欄の下、欄は 250px、見出しは普通の太字）で出て、保存した値が main と同じ。ログイン回数などの行は「ログイン設定」タブの末尾に出て、リセット・ブロックの切り替え・日付が main と同じに動く。管理ユーザーと Web ユーザーのログインの曜日・IP の制限が、保存の処理が作る値で main と同じ結果になる。
+
+### 段階 3C-2・4
 
 段階 3 の残りの PR は、3B のあとに、調査の結果（2026-11-22）をもとにこの節に手順を書き足す。3C で一緒に扱うこと（3B の自己レビューより）: (1) 3A で足した一時的な規則 `.settings tr:not(.field-row) > th { vertical-align: top }`（`theme-base.css`）は、Web ユーザーの画面の 3 つの表と、スタイルガイドの手書きの見本「ユーザー編集の表」（`styleguide_sample.static.php`）を行の部品へ移したあとで消す。(2) 曜日の「選ばれているか」の判定が、画面（`EvoSettingsForm` の `checkboxes` 型。`,` で分けて一致を見る）とログインの処理（`login.processor.functions.php` の `strpos`）で違う。Web ユーザーの曜日の欄を同じ型へ移すときに、管理ユーザーと Web ユーザーのログインの処理も同じ判定にそろえる（`,` の無い古い値があるかも確かめる）。(3) プロフィールの画面（`mutate_user_pf.dynamic.php`）の使われない `checkbox()` を消す。
 
@@ -249,6 +263,7 @@
 - 段階 3D: ブランチ `refactor/1631-stage3d-user-screen-fixes`（同じワークツリーで main から切り替えた）、PR #1731
 - 段階 3A: ブランチ `refactor/1631-stage3a-settings-table`（同じワークツリーで main から切り替えた）、PR #1733
 - 段階 3B: ブランチ `refactor/1631-stage3b-user-settings-definition`（同じワークツリーで main から切り替えた）、PR #1736
+- 段階 3C-1: ブランチ `refactor/1631-stage3c1-web-user-settings`（同じワークツリーで main から切り替えた）、PR #1737
 
 ## Interfaces and Dependencies
 
