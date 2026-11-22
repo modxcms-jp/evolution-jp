@@ -1,0 +1,44 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-22-manager-form-rows",
+    "run_id": "2026-11-22-manager-form-rows-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-22T21:45:00+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "success_with_rework",
+    "findings": [
+        {
+            "id": "finding-001",
+            "kind": "validation_gap",
+            "summary": "見た目の整理では、main と計算後のスタイルを比べる検証は「計画外の違いが無い」ことしか確かめない。元から画面ごとにばらばらだった形（見出しの無いチェックボックスの行、説明の字の大きさ、セクションの見出しの二重線）は違いとして出ず、本人の目視で見つかって計画を直した。整理の対象の画面では、同じ役割の部品が画面ごとにどう違うかの一覧を tester に作らせ、そろえ方を本人に選択肢で聞いてから進める",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-002",
+            "kind": "bad_assumption",
+            "summary": "内部の定数や private の関数（USER_TAB_KEYS など）を消すことを、互換に関わる変更として本人に聞き、breaking change のラベルも付けた。外から呼ばれうるもの（public の API・tpl・イベント・設定キー・DB）と、ファイルの中だけで使うものを先に分け、内部のものは自分で決めて一覧で伝える",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_skill",
+            "target": "SKILL.md",
+            "confidence": "high"
+        },
+        {
+            "id": "finding-003",
+            "kind": "validation_gap",
+            "summary": "Playwright の確認のスクリプトで、form.elements.<名前> がフォームの中の name=\"elements\" の欄（TV の選択肢の欄）に隠され、欄を取れなかった。フォームの欄は querySelector('[name=…]') で取る。管理画面の URL を直に開くと、2 枚目以降のタブの中身は表示されず、isVisible が false になる",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "update_reference",
+            "target": ".claude/skills/adaptive-validation-runner/SKILL.md",
+            "confidence": "medium"
+        }
+    ]
+}
