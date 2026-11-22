@@ -247,6 +247,16 @@
 
 期待される観測: 文書の編集画面の TV の行が `tr.field-row.mutate-tv-row[data-field="tv{id}"]` で出て、説明は入力欄の下、見出しは行の部品の揃え・200px・今と同じ色。TV のタブと本文の下（`tvs_below_content`）の両方で、保存・ManagerManager（隠す・名前を変える・説明を変える〈説明が空の TV も〉・タブへ移す・文字数の上限）・QuickManager・日付の選択が main と同じに動く。
 
+### 段階 4B（ブランチ `refactor/1631-stage4b-remaining-styles`。残りの直書き。`Closes #1631`）
+
+1. 文書の画面（`manager/actions/document/`）: クリックできる画像・文字の `cursor:pointer` の直書き（`fields.php` のウェブリンクの鍵のアイコン、`field_parent_form.tpl`）を `.clickable-label` に。下書きの公開の画面（`publish_draft.dynamic.php`）の `<style>` を共通の CSS へ、日時の表の `width`・`cellspacing`・`cellpadding` の属性を共通の余白へ。TV の表（`fields.php` の `fieldsTV()`）の `border`・`cellspacing`・`cellpadding="3"` を行の部品の余白（`--field-row-gap` など）へ。欄ごとの幅と高さ（alias・menuindex・introtext・RTE・テンプレートの欄など）と、JS が切り替える表示（`#pubdate` など）は残す。
+2. サイトの書き出し（`tool/export_site.static.php`）: 「出力するリソース」の行の、ラジオの行に同居している許可・除外の入力欄（`#allow_ids`・`#ignore_ids`）を、見出しの無い別の行（`label` 空。説明は `help`）に分ける。JS（`show()`）は行（`tr`）の表示を切り替える形にし、表の行に `display:block` を入れない（表示は `''`）。
+3. パスワードの欄（`permission/mutate_user/user_form_rows.php` の `userFormPasswordRow()`）: 注意書きの `span.warning style="font-weight:normal"` を、欄の下の説明と同じ灰色（`.form-text`）に（Decision Log 2026-11-22 段階 4）。`fieldset` の `padding:0`・`div` の `padding-left:20px` は、共通の規則か余白の変数で表せるなら置き換え、表せないなら残して理由をコードで分かる形にする。`fieldset` の `width:300px` は欄の幅なので残す。
+4. DocManager の TV の一括変更の表は、モジュールの画面で 4B の範囲の外なので、#1739（見出しの列の幅をそろえる）で TV の見出しの列の規則と一緒に扱う。
+5. ExecPlan の Outcomes & Retrospective を書き、Issue #1631 の到達条件（行を描く部品が 1 つ、残る直書きは理由のあるものだけ）を満たしたかを確かめる。`git grep -c 'style="' -- manager/actions` の数と、残る直書きの種類（欄の幅と高さ、JS が切り替える表示）を PR に書く。
+
+期待される観測: 文書の編集画面・下書きの公開・サイトの書き出し・3 つのユーザーの画面のパスワードの欄の見た目が、計画どおりの変化（書き出しの入力欄が別の行に、パスワードの注意書きが灰色に）のほかは main と同じ。書き出しの許可・除外の切り替えと書き出しの実行、下書きの公開、パスワードの変更が main と同じに動く。
+
 ### 段階 4 の申し送り（段階 1〜3 から）
 
 段階 4A の自己レビューから 4B へ: (1) TV の表の開始タグ（`fields.php` の `fieldsTV()`）の `border`・`cellspacing`・`cellpadding="3"` を、行の部品の余白（`--field-row-gap` など）に置き換える。(2) DocManager の TV の一括変更の表（`assets/modules/docmanager/tv.ajax.php`）は手書きの `.mutate-tv-label`・`.mutate-tv-value` の行で、`theme-base.css` に文書の編集画面の TV の行と同じ値の規則が 2 組ある（お互いをコメントに書いた）。DocManager の表も `EvoFieldRow::render()` に移せば古い規則を消せる。4B の範囲に入れるか、#1739 で見出しの列の幅を見直すときに一緒に扱う。
