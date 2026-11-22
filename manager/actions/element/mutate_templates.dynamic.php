@@ -142,6 +142,25 @@ template('id');
                     <h2 class="tab"><?= lang('settings_properties') ?></h2>
                     <table>
                         <?php
+                        // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
+                        if (evo()->hasPermission('save_template') == 1) {
+                            ob_start();
+                            ?>
+                            <label>
+                                <input
+                                    id="locked" name="locked"
+                                    type="checkbox" class="inputBox"
+                                    <?= checked(template('locked') == 1) ?>
+                                > <?= lang('lock_template') ?>
+                            </label>
+                            <?php
+                            echo EvoFieldRow::render([
+                                'label' => '',
+                                'body' => ob_get_clean(),
+                                'help' => lang('lock_template_msg'),
+                            ]);
+                        }
+
                         ob_start();
                         ?>
                         <select id="categoryid" name="categoryid" style="width:300px;">
@@ -178,25 +197,6 @@ template('id');
                             'label' => lang('template_desc'),
                             'body' => ob_get_clean(),
                         ]);
-
-                        // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
-                        if (evo()->hasPermission('save_template') == 1) {
-                            ob_start();
-                            ?>
-                            <label>
-                                <input
-                                    id="locked" name="locked"
-                                    type="checkbox" class="inputBox"
-                                    <?= checked(template('locked') == 1) ?>
-                                > <?= lang('lock_template') ?>
-                            </label>
-                            <?php
-                            echo EvoFieldRow::render([
-                                'label' => '',
-                                'body' => ob_get_clean(),
-                                'help' => lang('lock_template_msg'),
-                            ]);
-                        }
                         ?>
                     </table>
                 </div>

@@ -287,19 +287,6 @@ function entity($key, $default = null)
                         'label' => lang('plugin_name'),
                         'body' => '<input id="pluginName" name="name" type="text" maxlength="100" value="' . hsc(entity('name')) . '" class="inputBox" style="width:300px;">',
                     ]);
-
-                    // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
-                    ob_start();
-                    ?>
-                    <label><input name="disabled"
-                            type="checkbox" <?= entity('disabled') == 1 ? "checked='checked'" : "" ?>
-                            value="on"
-                            class="inputBox"> <?= entity('disabled') == 1 ? "<span class='warning'>" . lang('plugin_disabled') . "</span>" : lang('plugin_disabled') ?></label>
-                    <?php
-                    echo EvoFieldRow::render([
-                        'label' => '',
-                        'body' => ob_get_clean(),
-                    ]);
                     ?>
                 </table>
                 <!-- PHP text editor start -->
@@ -464,6 +451,33 @@ function entity($key, $default = null)
                 <h2 class="tab"><?= lang('settings_properties') ?></h2>
                 <table>
                     <?php
+                    // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
+                    ob_start();
+                    ?>
+                    <label><input name="disabled"
+                            type="checkbox" <?= entity('disabled') == 1 ? "checked='checked'" : "" ?>
+                            value="on"
+                            class="inputBox"> <?= entity('disabled') == 1 ? "<span class='warning'>" . lang('plugin_disabled') . "</span>" : lang('plugin_disabled') ?></label>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => '',
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    if (evo()->hasPermission('save_plugin') == 1) {
+                        ob_start();
+                        ?>
+                        <label><input name="locked"
+                                type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : "" ?>
+                                value="on" class="inputBox"> <?= lang('lock_plugin') ?></label>
+                        <?php
+                        echo EvoFieldRow::render([
+                            'label' => '',
+                            'body' => ob_get_clean(),
+                            'help' => lang('lock_plugin_msg'),
+                        ]);
+                    }
+
                     ob_start();
                     ?>
                     <select name="categoryid" id="categoryid" style="width:300px;">
@@ -507,21 +521,6 @@ function entity($key, $default = null)
                         'body' => EvoErrorReporting::radios((string)$pluginErrorReporting),
                         'help' => lang('a17_error_reporting_msg'),
                     ]);
-
-                    // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
-                    if (evo()->hasPermission('save_plugin') == 1) {
-                        ob_start();
-                        ?>
-                        <label><input name="locked"
-                                type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : "" ?>
-                                value="on" class="inputBox"> <?= lang('lock_plugin') ?></label>
-                        <?php
-                        echo EvoFieldRow::render([
-                            'label' => '',
-                            'body' => ob_get_clean(),
-                            'help' => lang('lock_plugin_msg'),
-                        ]);
-                    }
                     ?>
                 </table>
             </div>

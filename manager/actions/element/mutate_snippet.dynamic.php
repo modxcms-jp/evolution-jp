@@ -140,6 +140,21 @@ function entity($key, $default = null)
                 <h2 class="tab"><?= lang('settings_properties') ?></h2>
                 <table>
                     <?php
+                    // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
+                    if (evo()->hasPermission('save_snippet') == 1) {
+                        ob_start();
+                        ?>
+                        <label><input name="locked"
+                                type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : '' ?>
+                                class="inputBox"> <?= lang('lock_snippet') ?></label>
+                        <?php
+                        echo EvoFieldRow::render([
+                            'label' => '',
+                            'body' => ob_get_clean(),
+                            'help' => lang('lock_snippet_msg'),
+                        ]);
+                    }
+
                     ob_start();
                     ?>
                     <select name="categoryid" style="width:300px;">
@@ -182,21 +197,6 @@ function entity($key, $default = null)
                         'body' => EvoErrorReporting::radios((string)$snippetErrorReporting),
                         'help' => lang('a17_error_reporting_msg'),
                     ]);
-
-                    // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
-                    if (evo()->hasPermission('save_snippet') == 1) {
-                        ob_start();
-                        ?>
-                        <label><input name="locked"
-                                type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : '' ?>
-                                class="inputBox"> <?= lang('lock_snippet') ?></label>
-                        <?php
-                        echo EvoFieldRow::render([
-                            'label' => '',
-                            'body' => ob_get_clean(),
-                            'help' => lang('lock_snippet_msg'),
-                        ]);
-                    }
 
                     $from = "[+prefix+]site_modules AS sm " .
                         "INNER JOIN [+prefix+]site_module_depobj AS smd ON smd.module=sm.id AND smd.type=40 " .
