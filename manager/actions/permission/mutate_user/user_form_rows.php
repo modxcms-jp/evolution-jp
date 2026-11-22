@@ -117,15 +117,15 @@ function userFormProfileRows(array $data, array $countries): string
 
 /**
  * パスワードの行（変更のチェックと、自動生成・指定の欄と、通知の方法）。
+ * 初めは自動生成（g）・画面に表示（s）を選んでおく。
  *
  * @param bool $isNew  新規（見出しは「パスワード」で、チェックは無く欄を初めから出す）
  * @param bool $notify 通知の方法を選ばせる。false は通知の方法を画面に出さず、画面で見せる（s）を送る
- * @param array $values 選んでおく値（passwordgenmethod: g 自動生成・spec 指定、passwordnotifymethod: s 画面に表示・e メール）。無ければ g と s
  */
-function userFormPasswordRow(bool $isNew, bool $notify, array $values = []): string
+function userFormPasswordRow(bool $isNew, bool $notify): string
 {
-    $genMethod = $values['passwordgenmethod'] ?? 'g';
-    $notifyMethod = $values['passwordnotifymethod'] ?? 's';
+    $genMethod = 'g';
+    $notifyMethod = 's';
     ob_start();
     if (!$isNew) {
         ?>
