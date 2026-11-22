@@ -544,6 +544,7 @@ table[data-moved-fields]:empty {
     height: 24px;
 }
 
+/* DocManager の TV の一括変更の表（手書きの行）。見出しの列の値は、下の文書の編集画面の TV の行と同じ */
 .mutate-tv-label {
     width: 200px;
     vertical-align: top;
@@ -553,6 +554,16 @@ table[data-moved-fields]:empty {
 .mutate-tv-value {
     position: relative;
     vertical-align: top;
+}
+
+/* 文書の編集画面の TV の行（行の部品 + .mutate-tv-row）。見出しの列は幅 200px・折り返さない（上の DocManager の .mutate-tv-label と同じ値） */
+.mutate-tv-row > .field-label {
+    width: 200px;
+    white-space: nowrap;
+}
+
+.mutate-tv-row > .field-value {
+    position: relative;
 }
 
 form#mutate textarea.textarea {

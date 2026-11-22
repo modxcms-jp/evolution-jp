@@ -332,11 +332,8 @@ function fieldsTV()
     // GET で差し戻されたときは、送信されないと空になる種類の TV は、差し戻しに無ければ空として出す
     // （保存の処理の扱いと同じ。POST の開き直しはテンプレートの切り替えを含むので従来どおり）
     $isRestoredGet = $form_v && !postv();
-    $i = 0;
-    $output = [];
+    $rows = [];
     $hidden = [];
-    $output[] = '<table class="mutate-tv-table" border="0" cellspacing="0" cellpadding="3">';
-    $splitLine = renderSplit();
     foreach ($tmplVars as $tv) {
         $tvid = 'tv' . $tv['id'];
         // Go through and display all Template Variables
@@ -371,12 +368,7 @@ function fieldsTV()
             );
             $hidden[] = $formElement;
         } else {
-            $ph = [];
-            $ph['field'] = $tvid;
-            $ph['caption'] = evo()->hsc($tv['caption']);
-            $ph['description'] = tv_input_description_html($tv['description']);
-            $ph['zindex'] = ($tv['type'] === 'date') ? 'z-index:100;' : '';
-            $ph['FormElement'] = evo()->renderFormElement(
+            $formElement = evo()->renderFormElement(
                 $tv['type'],
                 $tv['id'],
                 $tv['default_text'],
@@ -385,23 +377,22 @@ function fieldsTV()
                 '',
                 $tv
             );
-            if ($ph['FormElement'] !== '') {
-                $output[] = parseText(file_get_tpl('tv_row.tpl'), $ph);
-                if ($i < $total) {
-                    $output[] = $splitLine;
-                }
+            if ($formElement !== '') {
+                $rows[] = EvoFieldRow::render([
+                    'field' => $tvid,
+                    'label' => evo()->hsc($tv['caption']),
+                    'body' => $formElement,
+                    'help' => tv_input_description_html($tv['description']),
+                    'class' => 'mutate-tv-row',
+                ]);
             }
         }
-        $i++;
     }
 
-    if ($output && $output[$total + 1] === $splitLine) {
-        array_pop($output);
-    }
-
-    $output[] = '</table>';
-
-    return implode("\n", $output) . implode("\n", $hidden);
+    // 区切り線は行と行の間にだけ入れる
+    return '<table class="mutate-tv-table" border="0" cellspacing="0" cellpadding="3">'
+        . "\n" . implode("\n" . renderSplit() . "\n", $rows) . "\n</table>"
+        . "\n" . implode("\n", $hidden);
 }
 
 function fieldPublished()

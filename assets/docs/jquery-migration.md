@@ -46,7 +46,7 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
 | `Evo.fieldPart(nameOrEl, part)` | `Evo.fieldRow(nameOrEl)` の行の中の、`data-field-part` が `part` の要素（入れ子の欄の部分は含めない）。無ければ `null` |
 | `Evo.hideEmptyFieldGroups(root)` | `root`（省略時は `document`）の中の、見えている入力欄が無い `data-field-group` のまとまりを隠す（`style.display` で隠れているかを見る）。返り値なし |
 
-- 文書の編集画面では、属性を行の部品の tpl `manager/media/style/common/field_row.tpl`（標準のフィールド。`manager-form-row.md`）と `manager/actions/document/mutate_content/tv_row.tpl`（TV）に書いている。名前は `fields.php` の各関数が `renderFieldTr()` を通して部品に渡す。
+- 文書の編集画面では、属性を行の部品の tpl `manager/media/style/common/field_row.tpl`（標準のフィールド。`manager-form-row.md`）に書いている（TV の行も同じ部品。`fieldsTV()` が `tv{id}` の名前と `class` `mutate-tv-row` を渡す）。名前は `fields.php` の各関数が `renderFieldTr()` を通して部品に渡す。
 - 標準のフィールドの名前は `site_content` の列名にそろえる（`pagetitle`・`pub_date`・`contentType` など）。例外は 3 つ。ウェブリンクの URL の行は `weblink`（列は `content`）、「更新時にキャッシュを削除」の行は `syncsite`（列が無いので欄の name）、「メニューに表示」の `hidemenu` は行ではなく `menuindex` の行の中の入れ子。名前の正本は `fields.php`（`renderFieldTr()` の第 1 引数）と `field_menuindex.tpl`。
 - `EvoFieldRow` を使う設定の表（グローバル設定・ユーザーの設定）の行は、設定のキー（例 `site_name`）。
 - TV の行は `tv{id}`（例: `tv12`）。
@@ -62,7 +62,7 @@ Evo.post('index.php?a=118', { action: 'setsetting', key: k, value: v })
 - 欄が 1 つも無いまとまりと、中身の無い `data-moved-fields` の表は、CSS（`manager/media/style/common/theme-base.css`）で出さない。欄をすべて隠した・移したまとまりは、`Evo.hideEmptyFieldGroups()`（`manager/media/script/evo.js`。見えている入力欄が無いまとまりを隠す）で隠す。ManagerManager はルールの実行後の後始末（`assets/plugins/managermanager/mm.js` の `MM.tidyUp()`）で、QuickManager は欄を隠したあと（`assets/plugins/qm/js/qm-edit.js` の `QMEdit.init()`）で呼ぶ。
 - ManagerManager の `mm_moveFieldsToTab` は、移し先のタブの直下の `data-moved-fields` の表へ入れる。無ければタブの直下の最初の表（`mm_createTab` のタブなど）。TV のタブ（`'TVs'`）の直下には表が無いので、TV のタブへは移せない。
 - TV は、グローバル設定の「リソース」タブの「テンプレート変数の表示位置」（`tvs_below_content`。既定は `manager/includes/default.config.php` の 0）が 0 なら TV のタブ（`tab_tv.tpl`。`#tabTVs` の中の `div.tmplvars#tv_body`）に、1 ならメインタブの本文の下（`section_tv.tpl` の `#tv_header`・`#tv_body`）に出す。判定は `manager/actions/document/mutate_content/functions.php` の `tvsBelowContent()`。ManagerManager の TV の指定（`mm_hideSections('tvs')`・`mm_renameSection('tvs')`・`mm_hideTabs('tv')`・`mm_renameTab('tv')`、TV をほかのタブへ移す `mm_moveFieldsToTab`）と QuickManager の `hidesections=tvs`・`hidetabs=tv` は、どちらの置き場所でも同じに効く（タブの指定は本文の下の見出しと本体にも、セクションの指定は TV のタブにも効く）。
-- `custom_tpl_dir` で `field_row.tpl`・`tv_row.tpl`・`field_menuindex.tpl` を差し替えているサイトは、自分の tpl にも同じ属性を書く。属性が無いと、ManagerManager・QuickManager の欄の操作（隠す・名前を変える・タブへ移すなど）が効かない。`tab_general.tpl`・`tab_settings.tpl`・`tab_tv.tpl` を差し替えているサイトは、以前の並びのまま出る（プレースホルダーは以前のものも出す）。新しい並びに合わせるときは、まとまりに `data-field-group`、移した欄を入れる表に `data-moved-fields`、TV のタブの中身に `div.tmplvars#tv_body` を書く。
+- `custom_tpl_dir` で差し替えられる行の tpl は、`field_row.tpl`（標準のフィールドと TV の行）と `field_menuindex.tpl`。差し替えているサイトは、自分の tpl にも同じ属性を書く。属性が無いと、ManagerManager・QuickManager の欄の操作（隠す・名前を変える・タブへ移すなど）が効かない。`tab_general.tpl`・`tab_settings.tpl`・`tab_tv.tpl` を差し替えているサイトは、以前の並びのまま出る（プレースホルダーは以前のものも出す）。新しい並びに合わせるときは、まとまりに `data-field-group`、移した欄を入れる表に `data-moved-fields`、TV のタブの中身に `div.tmplvars#tv_body` を書く。
 
 ## 画面の JS から別の画面へ移る
 

@@ -20,7 +20,8 @@
 - [x] (2026-11-22) 段階 3B: ユーザーの設定の手書きの 4 項目を設定の定義の「ユーザー」タブへ（曜日は新しい `checkboxes` 型）、`USER_TAB_KEYS` を消し、ログインの状態の行を「ログイン設定」タブへ移した
 - [x] (2026-11-22) 段階 3C-1: Web ユーザーの設定を設定の定義（scope `web`）へ移し、ログインの曜日・許可 IP の判定を `list_has_item()` の 1 つにそろえた（管理ユーザーと Web ユーザー）
 - [x] (2026-11-22) 段階 3C-2: 3 画面の重複（パスワードの欄・プロフィールの行）をなくした。3 画面の行と JS を共通の関数（`mutate_user/user_form_rows.php`）から出す（見出しの規則はプラグインが足す手書きの行のために残す。Surprises 参照）
-- [ ] 段階 4: 文書の画面の残り（TV の行 `tv_row.tpl` を部品へ、ほかの直書き）
+- [x] (2026-11-22) 段階 4A: TV の行（`tv_row.tpl` を消した）を部品へ移し、tpl を読む処理を `tpl_read()` に、区切り線の添字のずれを直した
+- [ ] 段階 4B: 文書の画面・書き出し・パスワードの欄の残りの直書き（`Closes #1631`）
 
 ## Surprises & Discoveries
 
@@ -35,6 +36,9 @@
 - 段階 3C-1: 曜日制限（`allowed_days`）は、このリポジトリの最初のコミット（1d5bd0bae）から、管理ユーザーの保存も Web ユーザーの保存も `implode(",", …)` で保存している。`"135"` のような `,` の無い値は本体の保存からは作れないので、ログインの判定を項目ごとの一致にしても読み方の手当ては足さない（DB を直接書き換えた値だけが影響を受ける）。
 - 段階 3C-2: 3 画面（管理ユーザー・Web ユーザー・プロフィール）の同じ行と JS を `manager/actions/permission/mutate_user/user_form_rows.php` に集めた（行は `EvoFieldRow`、JS は `userFormScript()`。lang の文言を PHP で渡すので、`manager/media/script/` の JS ファイルにはしなかった）。画面ごとの違いは引数で表した（パスワードの新規と通知の方法の有無、名前の変更の確認の有無）。名前の変更は、管理ユーザーが確認なし・Web ユーザーが確認ありだったので、`changeName(confirmFirst)` の引数で今の動きを保った。細かな差は管理ユーザーの画面に合わせた（枠の見出しを出さない・`<small>` をやめる・`td.warning` の見出しをやめる・性別の空の選択肢の値を `0` に・ブロックの日時は日時の後・ブロックの知らせはすでにあるユーザーなら常に出す）。
 - 段階 3C-2: 一時的な規則 `.settings tr:not(.field-row) > th { vertical-align: top }`（`theme-base.css`）は消せなかった。`class="settings"` の表に手書きの `<tr><th>` が残っているのは TinyMCE 7 のプラグイン（`assets/plugins/tinymce7/src/TinyMCE7/Settings/SystemSettingsRenderer.php`）の設定の表だけで、消すとその見出しが上揃えでなくなる。本体の 3 画面とスタイルガイドの見本は部品に移した。プラグインはイベント（`OnInterfaceSettingsRender` など）で設定の表に自分の手書きの行を足せるので、この規則は一時的なものではなく、プラグインが足す手書きの行の見出しを上揃えに保つ規則として残す（コメントもそう直した）。
+- 段階 4A: 文書の TV の区切り線は、`fieldsTV()` の添字の後始末（`$output[$total + 1]`）が合わず、TV が 2 つ以上のとき末尾に余分な区切り線が残り、表示しない TV（hidden・入力欄が空）があると未定義の添字の警告が出ていた（7.4 で TV の数と表示しない TV の組み合わせを試して確かめた）。行を集めて、行と行の間にだけ区切り線を入れる形に直した。
+- 段階 4A: 日付の TV の値のセルの `z-index:100` は要らないと判断して消した。カレンダー（`manager/media/script/datepicker/datepicker.js`）は入力欄の直後に作る `position:absolute; z-index:1000` の要素で、値のセルは `position:relative` のまま（`z-index` を付けても付けなくても、カレンダーは親の積み重ねの文脈の中で 1000 になり、あとの行より前に出る）。
+- 段階 4A: 行の部品になって、TV の値の入力欄の HTML は `parseText()` を通らなくなった（値の中の `[+…+]` が置き換わらない）。TV の説明は、見出しの下から入力欄の下（`help`）へ移った。説明が空の TV は説明の部分が無くなるので、ManagerManager の `mm_changefieldhelp` が値のセルの末尾に作る形にした。
 - エラー報告の段階の一覧（`['0','1','2','99']` と `'inherit'`）と、段階からエラーのマスクを決める処理は、`DocumentParser`（`resolveErrorReportingLevel()`・`mapErrorReportingLevelToMask()`）にも同じ形であった。3E で `EvoErrorReporting`（`error_reporting.class.inc.php`）に集め、`DocumentParser` はそれを呼ぶ形にした。`cache_sync.class.php` と `traits/document.parser.subparser.trait.php` の既定値の `'inherit'` も `EvoErrorReporting::INHERIT` にそろえた（どちらも DocumentParser のファイルがクラスを読み込んだあとで動く）。
 - 段階 1: 見出しのセルの縦の揃えは、画面ごとに上揃え（設定の表、システム情報の詳細の表、サイトの書き出しの `td.head`）と中央（文書の行、th の既定）に分かれている。共通で上揃えにすると、文書の行の見出しが入力欄の文字とずれる（そろえるには `foundation-proposal.css` のように上の余白の計算と組みにする）。これは先送りした「見出しの列の幅・色をそろえる」判断に含めて決め、段階 1 では移した表の見出しは th の既定（中央）のままにした。システム情報の詳細の表で値が 2 行になる数項目は、見出しが縦の中央に出る。
 
@@ -69,6 +73,7 @@
 - 2026-11-22 段階 2 の細かい決まり: 見出しのコロンは付けない（チャンク・TV・設定の表に合わせる）。モジュールの見出しは `td` から `th` にする。入力欄の下の注意書き（`span.comment` と `<br>`）は `help`（`.form-text`）にする。入力欄の幅の直書き（300px など）は欄ごとの値なので残す。JS が表示を切り替える行（新しいカテゴリ・パラメーターの表・`#inputoption`・`.sharedparams`）は `attr` で今と同じ `id`・`style` を出し、`td` に付いていた `id`（`#displayparams`）は値の中の要素に移す。見出しと値の行ではない表（プラグインのイベントの表、JS が組むパラメーターの表、権限のチェックの一覧、モジュールの依存の DataTable、テンプレートの「名前と親テンプレート」の 1 行）は触らない。段階 2 は差分が大きいので、スニペットとチャンク（2A）、プラグインとテンプレート（2B）、モジュールと TV（2C）の 3 PR に分ける。
 - 2026-11-22 段階 3 の決まり（本人の判断）: 設定の説明（`EvoSettingsForm` の `desc`）は欄の下の説明（`help`・`.form-text`）にそろえる。欄の下の説明は灰色にするが小さくはしない（`forms.css` の `.form-text` の `font-size: .875em` をやめ、本文と同じ大きさにする。文書・エレメントの画面の説明も同じになる）。設定の表（`class="settings"`）の見た目は、全幅・見出しは本文と同じ大きさ・行の間に点線、にそろえ、見出しの縦の位置も行の部品の揃え（入力欄の中の文字に合わせる）にする（サイトの書き出しとスタイルガイドの表は全幅になり、見出しが小さくなる）。`EvoSettingsForm::style()`・Web ユーザーの画面の `<style>`・グローバル設定の画面の `<style>` は共通の CSS（`theme-base.css`。層の外）にまとめて消す。公開の定数 `EvoSettingsForm::USER_TAB_KEYS` は、4 項目を設定の定義へ移したあと消す（3B で確かめたところ、`EvoSettingsForm` とこの定数は 1.3 の開発中に入ったもので、リリースに入っていないので、リリースノートは要らない）。
 - 2026-11-22 段階 3 の細かい決まり: ログイン回数・ブロックなど設定ではない行は定義に入れず、行の部品のまま「ユーザー」タブに別の節で残す。許可するリソースの欄は、ほかの設定の欄と同じ 250px にする。Web ユーザーの設定の見出しは警告色の太字（`td.warning`）をやめ、管理ユーザーと同じ見出しにする。説明が改行だけの 2 行（メールの送信方法・SMTP 認証）は説明を出さない。段階 3 は、3E（エラー報告の選択肢を 1 か所に）→ 3D（ついでの不具合）→ 3A-1（説明を help へ、`.form-text` の大きさ）→ 3A-2（設定の表の CSS を共通へ）→ 3B（ユーザーの設定の 4 項目を定義へ）→ 3C（Web ユーザーの設定を定義へ、3 画面の重複をなくす）の PR に分ける。ロールとパスワードの変更の画面、権限の一覧、Web ユーザーのパスワードの保存の方式は対象外。
+- 2026-11-22 段階 4 の決まり（本人の判断）: TV の説明は、ほかの画面と同じく入力欄の下（`help`）に出す。パスワードの欄の注意書きは、欄の下の説明と同じ灰色（`.form-text`）にする。見出しの列の幅・色（文書 120px・TV と設定の表 200px、`--mutate-field-title-color`・`--settings-th-color`）とコード用の欄の行の揃えは、別の Issue（#1739）で決める。段階 4 では TV の見出しの列の 200px を今のまま残す。段階 4 は、4A（TV の行を部品へ、tpl の場所を決める処理を 1 か所に、区切り線、説明が空の TV の ManagerManager）と 4B（文書の画面・書き出し・パスワードの欄の残りの直書き。`Closes #1631`）の 2 PR に分ける。DocManager の TV の表（`assets/modules/docmanager/tv.ajax.php`）が `.mutate-tv-*` を使うので、その CSS は消さない。
 - 2026-11-20 PR の分け方: 1 段階を 1 PR にする。段階ごとのブランチは `origin/main` から `git worktree add -b` で作り、Issue には紐づけない（紐づけると `Refs` でもマージで #1631 が閉じる）。段階 0〜3 の PR は `Refs #1631`、段階 4 の PR だけ `Closes #1631`。
 
 ## Outcomes & Retrospective
@@ -232,7 +237,19 @@
 
 期待される観測: 3 画面のプロフィールの行・パスワードの欄・メール・名前の行が、同じ HTML（値と、プロフィールの画面の通知の方法の有無だけが違う）で出る。保存・名前の変更・パスワードの変更（自動生成・指定・通知の方法）・写真の選択・生年月日の選択・入力エラーで戻したときが main と同じに動く。本体の 3 画面の設定の表に手書きの行が残っていない（見出しの規則はプラグインの手書きの行のために残す）。
 
-### 段階 4
+### 段階 4A（ブランチ `refactor/1631-stage4a-tv-rows`。TV の行）
+
+1. `custom_tpl_dir` から tpl を読む処理を 1 か所にまとめる。`manager/includes/helpers.php` に、既定のフォルダを引数で受け取る関数（例: `tpl_read($file, $defaultDir)`。`custom_tpl_dir` が空でなく、そこに同じ名前のファイルがあればそれ、無ければ既定のフォルダのもの）を置き、`EvoFieldRow::tpl()` と `mutate_content/functions.php` の `file_get_tpl()` がそれを使う。読んだ内容を使い回す（キャッシュ）かは、今の 2 つの動き（`EvoFieldRow` は使い回す、`file_get_tpl()` は毎回読む）を変えない形にする。
+2. `fields.php` の `fieldsTV()` の TV の行を、`tv_row.tpl` から `EvoFieldRow::render()` に替える。`field` は `tv{id}`、`label` は caption（今と同じく `hsc`）、`help` は説明（今と同じくエスケープしない。管理者が入れる値）、`body` は入力欄、`class` は `mutate-tv-row`。見出しの列の幅 200px・折り返さない・見出しの名前の色（`--mutate-field-title-color`）は、TV の行の class の規則で今のまま保つ（#1739 で見直す）。日付の TV の値のセルの `z-index:100` は、今の日付の選択の部品で重なりを防ぐのに要るかを確かめ、要るなら CSS で当てる（直書きを残さない）。区切り線の行（`renderSplit()`）の形は変えない（ManagerManager の `hideRows`・`mm_movefieldstotab` が使う）。`tv_row.tpl` を消す。
+3. 区切り線の後始末（`fields.php` の `$output[$total + 1]` の添字）を、行と行の間にだけ区切り線を入れる形に直す（表示する TV の数によって、末尾に余分な区切り線が残る・添字が範囲外になる見込み。Docker で確かめてから直す）。
+4. ManagerManager の `mm_changefieldhelp` が、説明が空の TV で説明を付けられるようにする（説明の部分 `data-field-part="help"` が無ければ、値のセルの末尾に `div.form-text` を作って入れる）。行の部品の「空の説明は出さない」の決まりは変えない。
+5. 文書: `jquery-migration.md`（`custom_tpl_dir` で差し替えられる tpl から `tv_row.tpl` を外す）、`manager-form-row.md`（使っている画面、`custom_tpl_dir`）。`tv_row.tpl` が読まれなくなることは PR 本文の「アップグレード時の注意」に書く（Decision Log 2026-11-20 の互換の判断）。
+
+期待される観測: 文書の編集画面の TV の行が `tr.field-row.mutate-tv-row[data-field="tv{id}"]` で出て、説明は入力欄の下、見出しは行の部品の揃え・200px・今と同じ色。TV のタブと本文の下（`tvs_below_content`）の両方で、保存・ManagerManager（隠す・名前を変える・説明を変える〈説明が空の TV も〉・タブへ移す・文字数の上限）・QuickManager・日付の選択が main と同じに動く。
+
+### 段階 4 の申し送り（段階 1〜3 から）
+
+段階 4A の自己レビューから 4B へ: (1) TV の表の開始タグ（`fields.php` の `fieldsTV()`）の `border`・`cellspacing`・`cellpadding="3"` を、行の部品の余白（`--field-row-gap` など）に置き換える。(2) DocManager の TV の一括変更の表（`assets/modules/docmanager/tv.ajax.php`）は手書きの `.mutate-tv-label`・`.mutate-tv-value` の行で、`theme-base.css` に文書の編集画面の TV の行と同じ値の規則が 2 組ある（お互いをコメントに書いた）。DocManager の表も `EvoFieldRow::render()` に移せば古い規則を消せる。4B の範囲に入れるか、#1739 で見出しの列の幅を見直すときに一緒に扱う。
 
 段階 3C-2 で残った直書き（段階 4 の「残りの直書き」で扱う）: パスワードの行の `fieldset` の `width:300px;padding:0`・`div` の `padding-left:20px`・`span.warning` の `font-weight:normal`。
 
@@ -279,6 +296,7 @@
 - 段階 3B: ブランチ `refactor/1631-stage3b-user-settings-definition`（同じワークツリーで main から切り替えた）、PR #1736
 - 段階 3C-1: ブランチ `refactor/1631-stage3c1-web-user-settings`（同じワークツリーで main から切り替えた）、PR #1737
 - 段階 3C-2: ブランチ `refactor/1631-stage3c2-user-form-rows`（同じワークツリーで main から切り替えた）、PR #1738
+- 段階 4A: ブランチ `refactor/1631-stage4a-tv-rows`（同じワークツリーで main から切り替えた）、PR #1740
 
 ## Interfaces and Dependencies
 
