@@ -840,7 +840,9 @@
     overflow: hidden;
     background: var(--color-surface, #fff);
     border-radius: var(--radius-lg, 4px);
-    box-shadow: var(--shadow-xl, 0 2px 15px rgba(0, 0, 0, 0.2));
+    /* 暗い背景の上に出すので、シェルのモーダル(shell.css の #evoShellModal)と同じ暗い影にする。
+       テーマの --shadow-xl は明るい画面に浮かべる要素向けで、明るい色のテーマでは白く光って見える */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, .35);
 }
 
 .evo-fb-overlay-panel > .evo-titlebar {

@@ -21,10 +21,10 @@
     const STYLE = ''
         // テーマのリセット CSS（margin:0 など）で中央からずれないよう、配置も指定する
         + '.evo-dialog{position:fixed;inset:0;margin:auto;width:fit-content;height:fit-content;max-height:calc(100vh - 32px);'
-        + 'border:1px solid #d5d9e0;border-radius:5px;padding:0;overflow:hidden;min-width:min(300px,calc(100vw - 32px));max-width:min(480px,calc(100vw - 32px));'
+        + 'border:0;border-radius:5px;padding:0;overflow:hidden;min-width:min(300px,calc(100vw - 32px));max-width:min(480px,calc(100vw - 32px));'
         + 'box-sizing:border-box;display:flex;flex-direction:column;'
         // 文字は管理画面（テーマ）の書体を引き継ぐ
-        + 'box-shadow:0 4px 16px rgba(0,0,0,.15);color:#222;background:#fff;font-family:inherit;font-size:13px;line-height:1.6}'
+        + 'box-shadow:0 10px 40px rgba(0,0,0,.35);color:#222;background:#fff;font-family:inherit;font-size:13px;line-height:1.6}'
         + '.evo-dialog:not([open]){display:none}'
         + '.evo-dialog::backdrop{background:rgba(0,0,0,.25)}'
         // 見出しの帯と閉じるボタン。シェルのモーダル（shell.js）とファイルブラウザのダイアログ（overlay.js）も、このクラスで同じ見た目にする。
