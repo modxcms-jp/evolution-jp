@@ -255,8 +255,9 @@ optgroup option {
     padding-top: calc(var(--field-row-gap, 0px) + (var(--control-height, 32px) - var(--line-box, 18px)) / 2);
 }
 
-/* 設定の表（.settings）。全幅で、行の間は点線。行の上下・左右の余白は 1px（表のセルの既定）に --field-row-gap を足した値。
-   見出しの上の余白は、同じ --field-row-gap を揃えの規則（上の .field-label）が足すので、行の部品の揃えは崩れない。
+/* 設定の表（.settings）。全幅で、行の間は点線。セルの余白は 1px（表のセルの既定）に --field-row-gap を足した値。
+   ただし見出しの右は .field-label の --space-3、文字を入れる欄のある行の見出しの上は揃えの規則（上の .field-label）が決め、
+   そこにも同じ --field-row-gap が足されるので、行の部品の揃えは崩れない。
    見出しの文字の大きさは本文と同じ。見出しの列の幅は 200px */
 .settings {
     --field-row-gap: 4px;
@@ -279,7 +280,6 @@ optgroup option {
 }
 
 .settings tr {
-    width: 100% !important;
     border-bottom: 1px dotted var(--color-border-default, #ccc);
 }
 

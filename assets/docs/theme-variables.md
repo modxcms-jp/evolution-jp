@@ -25,7 +25,7 @@
 | `--color-section-bg` | セクションの箱（`.sectionBody`）の地の色 | sections.css（`--section-body-bg` の既定） |
 | `--color-text-primary` | 本文の文字の色 | shell.css（設定画面の小見出し `.settings-section`、表の選択の帯 `.data-table-selection-body`）、selection-dock.css（操作の帯 `.selection-dock` の文字と背景の color-mix）、filebrowser.css、datepicker.css |
 | `--color-text-muted` | 補助的な文字の色 | shell.css（検索画面 `.search-*`）、filebrowser.css、datepicker.css |
-| `--color-border-default` | 通常の枠の色 | sections.css（箱の中の `legend` の枠）、filebrowser.css、datepicker.css |
+| `--color-border-default` | 通常の枠の色 | sections.css（箱の中の `legend` の枠）、theme-base.css（設定の表 `.settings` の行の間の点線）、filebrowser.css、datepicker.css |
 | `--color-border-light` | 薄い枠・区切り線の色 | shell.css（設定画面の小見出しの下線、表の選択の帯の枠、検索画面の区切り線）、selection-dock.css（操作の帯 `.selection-dock` の枠）、filebrowser.css、datepicker.css |
 | `--color-link` | リンクの色 | filebrowser.css、datepicker.css |
 | `--color-error` | エラー・削除の色 | selection-dock.css（操作の帯 `.selection-dock` の削除ボタン）、filebrowser.css、datepicker.css |
