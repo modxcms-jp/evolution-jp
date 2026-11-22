@@ -24,14 +24,21 @@
         return new URL(url, window.location.href).href;
     }
 
-    // data-shell-once の付いたスクリプト（ライブラリの本体など）の、読み込み済みの URL。
-    // 画面を移っても読み直さない。全体の読み込みで読んだものは DOMContentLoaded で拾う
-    const loadedOnceScripts = new Set();
+    // data-shell-once="<グローバル変数の名前>" の付いたスクリプト（外部のライブラリの本体）の、読めた URL と、そのとき出来た変数の値。
+    // 変数が出来ていれば読めたとみなす。変数が覚えた値のままのあいだは、画面を移っても読み直さない
+    // （別のスクリプトが同じ名前の変数を作り直していたら読み直す）。全体の読み込みで読んだものは DOMContentLoaded で拾う
+    const loadedOnceScripts = new Map();
 
-    function rememberOnceScripts(root) {
-        root.querySelectorAll('script[src][data-shell-once]').forEach(function (el) {
-            loadedOnceScripts.add(resolveUrl(el.getAttribute('src')));
-        });
+    function rememberOnceScript(el, resolvedUrl) {
+        const name = el.getAttribute('data-shell-once');
+        if (name && window[name]) {
+            loadedOnceScripts.set(resolvedUrl, window[name]);
+        }
+    }
+
+    function isLoadedOnce(el, resolvedUrl) {
+        const name = el.getAttribute('data-shell-once');
+        return !!name && loadedOnceScripts.has(resolvedUrl) && window[name] === loadedOnceScripts.get(resolvedUrl);
     }
 
     function hasLiveScriptTag(resolvedUrl, exceptNode) {
@@ -121,8 +128,7 @@
                     return;
                 }
                 // ライブラリの本体は、一度読んだら読み直さない（作り直すと、前の本体が窓に付けたリスナーなどが残る）
-                const once = old.hasAttribute('data-shell-once');
-                if (once && loadedOnceScripts.has(resolved)) {
+                if (isLoadedOnce(old, resolved)) {
                     runNext(index + 1);
                     return;
                 }
@@ -135,9 +141,7 @@
                 });
                 el.async = false;
                 el.onload = function () {
-                    if (once) {
-                        loadedOnceScripts.add(resolved);
-                    }
+                    rememberOnceScript(el, resolved);
                     runNext(index + 1);
                 };
                 el.onerror = function () {
@@ -1246,7 +1250,9 @@
             return;
         }
 
-        rememberOnceScripts(document);
+        document.querySelectorAll('script[src][data-shell-once]').forEach(function (el) {
+            rememberOnceScript(el, resolveUrl(el.getAttribute('src')));
+        });
 
         initTreeResizer();
 

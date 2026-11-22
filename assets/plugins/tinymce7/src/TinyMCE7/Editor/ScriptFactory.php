@@ -88,13 +88,14 @@ final class ScriptFactory
     }
 
     /**
-     * @param bool $shellOnce 管理画面のシェルで、一度読んだら画面を移っても読み直さない（data-shell-once。ライブラリの本体に使う。assets/docs/manager-shell.md）
+     * @param string $shellOnceGlobal 外部のライブラリの本体が作るグローバル変数の名前。渡すと、管理画面のシェルで一度読めたら画面を移っても読み直さない（data-shell-once。assets/docs/manager-shell.md）
      */
-    public function scriptTag(string $url, bool $shellOnce = false): string
+    public function scriptTag(string $url, string $shellOnceGlobal = ''): string
     {
         $escaped = hsc($url);
+        $once = $shellOnceGlobal !== '' ? ' data-shell-once="' . hsc($shellOnceGlobal) . '"' : '';
 
-        return '<script src="' . $escaped . '"' . ($shellOnce ? ' data-shell-once' : '') . '></script>';
+        return '<script src="' . $escaped . '"' . $once . '></script>';
     }
 
     public function inlineScript(string $script): string
