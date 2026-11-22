@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/user_form_rows.php';
+
 function user($key, $default = null)
 {
     global $user;

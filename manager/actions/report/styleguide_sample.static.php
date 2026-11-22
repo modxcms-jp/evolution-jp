@@ -186,14 +186,14 @@ $font = get_choicevar('font', ['12', '13', '14'], '');
     <div class="sectionHeader">ユーザー編集の表（table.settings）</div>
     <div class="sectionBody">
         <table class="settings">
-            <tr>
-                <th>ユーザー名:</th>
-                <td><input type="text" class="inputBox" value="admin"></td>
-            </tr>
-            <tr>
-                <th>メールアドレス:</th>
-                <td><input type="text" class="inputBox" value="admin@example.com"></td>
-            </tr>
+            <?= EvoFieldRow::render([
+                'label' => 'ユーザー名',
+                'body' => '<input type="text" class="inputBox" value="admin">',
+            ]) ?>
+            <?= EvoFieldRow::render([
+                'label' => 'メールアドレス',
+                'body' => '<input type="text" class="inputBox" value="admin@example.com">',
+            ]) ?>
         </table>
     </div>
 </div>
