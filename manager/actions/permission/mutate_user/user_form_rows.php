@@ -135,6 +135,7 @@ function userFormPasswordRow(bool $isNew, bool $notify): string
     }
     ?>
     <input name="newpassword" value="<?= $isNew ? 1 : 0 ?>" type="hidden" />
+    <?php // 枠は欄の幅 300px で、枠の中の余白は付けない。指定の欄（div）は、ラジオの文字の下に 20px 字下げする（欄ごとの値） ?>
     <div id="passwordBlock" style="display:<?= $isNew ? 'block' : 'none' ?>">
         <fieldset style="width:300px;padding:0;">
             <label>
@@ -156,7 +157,7 @@ function userFormPasswordRow(bool $isNew, bool $notify): string
                 <input id="confirmpassword" name="confirmpassword" type="password"
                     onkeypress="document.userform.passwordgenmethod[1].checked=true;"
                     size="20" autocomplete="new-password" /><br/>
-                <span class="warning" style="font-weight:normal"><?= lang('password_rule') ?></span>
+                <div class="form-text"><?= lang('password_rule') ?></div>
             </div>
         </fieldset>
         <?php if ($notify) { ?>

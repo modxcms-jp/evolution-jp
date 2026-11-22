@@ -115,7 +115,7 @@ function fieldWeblink()
                     'src' => style('tree_folder'),
                     'alt' => 'tree_folder',
                     'onclick' => 'enableLinkSelection(!allowLinkSelection);',
-                    'style' => 'cursor:pointer;'
+                    'class' => 'clickable-label'
                 ]
             )
         ],
@@ -390,7 +390,7 @@ function fieldsTV()
     }
 
     // 区切り線は行と行の間にだけ入れる
-    return '<table class="mutate-tv-table" border="0" cellspacing="0" cellpadding="3">'
+    return '<table class="mutate-tv-table">'
         . "\n" . implode("\n" . renderSplit() . "\n", $rows) . "\n</table>"
         . "\n" . implode("\n", $hidden);
 }

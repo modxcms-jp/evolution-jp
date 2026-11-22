@@ -536,8 +536,15 @@ table[data-moved-fields]:empty {
 }
 
 .mutate-tv-table {
+    --field-row-gap: 2px;
     position: relative;
     width: 96%;
+    border-spacing: 0;
+}
+
+/* TV の表のセルの余白は 1px に --field-row-gap を足した値（見出しの上の余白にも同じ変数が足される）。この表のセルだけに当てる */
+:where(.mutate-tv-table > tbody > tr) > :is(th, td) {
+    padding: calc(1px + var(--field-row-gap));
 }
 
 .mutate-tv-row {

@@ -38,7 +38,7 @@ echo EvoFieldRow::render([
 
 ## 見出しと値の間
 
-見出しのセルの右の間（`--space-3`）は、共通の CSS（`theme-base.css` の `.field-label`）が決める。画面ごとに `padding-right` を直書きしない。
+見出しのセルの右の間（`--space-3`）は、共通の CSS（`theme-base.css` の `.field-label`）が決める。画面ごとに `padding-right` を直書きしない。表のセルの上下・左右の余白は、1px（表のセルの既定）に変数 `--field-row-gap` を足した値（設定の表は 4px、TV の表 `.mutate-tv-table` は 2px）。画面ごとに `cellpadding`・`cellspacing` の属性や `padding` を直書きしない。
 
 ## 見出しの縦の揃えと見出しの無い行
 

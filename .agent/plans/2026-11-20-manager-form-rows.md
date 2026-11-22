@@ -36,6 +36,7 @@
 - 段階 3C-1: 曜日制限（`allowed_days`）は、このリポジトリの最初のコミット（1d5bd0bae）から、管理ユーザーの保存も Web ユーザーの保存も `implode(",", …)` で保存している。`"135"` のような `,` の無い値は本体の保存からは作れないので、ログインの判定を項目ごとの一致にしても読み方の手当ては足さない（DB を直接書き換えた値だけが影響を受ける）。
 - 段階 3C-2: 3 画面（管理ユーザー・Web ユーザー・プロフィール）の同じ行と JS を `manager/actions/permission/mutate_user/user_form_rows.php` に集めた（行は `EvoFieldRow`、JS は `userFormScript()`。lang の文言を PHP で渡すので、`manager/media/script/` の JS ファイルにはしなかった）。画面ごとの違いは引数で表した（パスワードの新規と通知の方法の有無、名前の変更の確認の有無）。名前の変更は、管理ユーザーが確認なし・Web ユーザーが確認ありだったので、`changeName(confirmFirst)` の引数で今の動きを保った。細かな差は管理ユーザーの画面に合わせた（枠の見出しを出さない・`<small>` をやめる・`td.warning` の見出しをやめる・性別の空の選択肢の値を `0` に・ブロックの日時は日時の後・ブロックの知らせはすでにあるユーザーなら常に出す）。
 - 段階 3C-2: 一時的な規則 `.settings tr:not(.field-row) > th { vertical-align: top }`（`theme-base.css`）は消せなかった。`class="settings"` の表に手書きの `<tr><th>` が残っているのは TinyMCE 7 のプラグイン（`assets/plugins/tinymce7/src/TinyMCE7/Settings/SystemSettingsRenderer.php`）の設定の表だけで、消すとその見出しが上揃えでなくなる。本体の 3 画面とスタイルガイドの見本は部品に移した。プラグインはイベント（`OnInterfaceSettingsRender` など）で設定の表に自分の手書きの行を足せるので、この規則は一時的なものではなく、プラグインが足す手書きの行の見出しを上揃えに保つ規則として残す（コメントもそう直した）。
+- 段階 4B: 下書きの公開の画面の `<style>`（`.draft-publish-options label {display:block}`）は、共通の CSS へ移さず、ラジオのラベルを `<br />` でつなぐ形にして消した（画面専用の class が要らなくなる）。TV の表の `border`・`cellspacing`・`cellpadding="3"` は、`.mutate-tv-table` の `border-spacing: 0` と `--field-row-gap: 2px`（セルの余白 1px + 2px = 3px。見出しの上の余白にも同じ変数が足される）にした。セルの余白の規則は、入れ子の表のセルに効かないよう `.mutate-tv-table > tbody > tr` の子だけに当てる。サイトの書き出しの許可・除外の欄は、見出しの無い別の行（`#allow_ids`・`#ignore_ids` は行の `id`、JS は行の `display` を `''` と `none` で切り替える）にした。
 - 段階 4A: 文書の TV の区切り線は、`fieldsTV()` の添字の後始末（`$output[$total + 1]`）が合わず、TV が 2 つ以上のとき末尾に余分な区切り線が残り、表示しない TV（hidden・入力欄が空）があると未定義の添字の警告が出ていた（7.4 で TV の数と表示しない TV の組み合わせを試して確かめた）。行を集めて、行と行の間にだけ区切り線を入れる形に直した。
 - 段階 4A: 日付の TV の値のセルの `z-index:100` は要らないと判断して消した。カレンダー（`manager/media/script/datepicker/datepicker.js`）は入力欄の直後に作る `position:absolute; z-index:1000` の要素で、値のセルは `position:relative` のまま（`z-index` を付けても付けなくても、カレンダーは親の積み重ねの文脈の中で 1000 になり、あとの行より前に出る）。
 - 段階 4A: 行の部品になって、TV の値の入力欄の HTML は `parseText()` を通らなくなった（値の中の `[+…+]` が置き換わらない）。TV の説明は、見出しの下から入力欄の下（`help`）へ移った。説明が空の TV は説明の部分が無くなるので、ManagerManager の `mm_changefieldhelp` が値のセルの末尾に作る形にした。
@@ -77,6 +78,18 @@
 - 2026-11-20 PR の分け方: 1 段階を 1 PR にする。段階ごとのブランチは `origin/main` から `git worktree add -b` で作り、Issue には紐づけない（紐づけると `Refs` でもマージで #1631 が閉じる）。段階 0〜3 の PR は `Refs #1631`、段階 4 の PR だけ `Closes #1631`。
 
 ## Outcomes & Retrospective
+
+結果（段階 0〜4B。Issue #1631 の到達条件「行を描く部品が 1 つ、残る直書きは理由のあるものだけ」）:
+
+- 行を描く部品は `EvoFieldRow`（`manager/includes/field_row.class.inc.php` と `common/field_row.tpl`）の 1 つになった。使っている画面: 文書の編集（標準のフィールドと TV）・下書きの公開・グローバル設定とユーザーの設定・システム情報・スタイルガイド・管理ログの検索・サイトの書き出し・バックアップ・エレメントの 6 画面・管理ユーザー/Web ユーザー/プロフィール。残る手書きの行は、DocManager の TV の一括変更の表（`assets/modules/docmanager/tv.ajax.php`。モジュールの画面。#1739 で見出しの列の規則と一緒に扱う）、TinyMCE 7 のプラグインが足す設定の表（`class="settings"` の手書きの `<tr><th>`。`theme-base.css` の `.settings tr:not(.field-row) > th` を残した理由）、一覧表（#1204）、見出しと値の行ではない表（イベントの表・権限の一覧・依存の表など）。
+- `git grep -c 'style="' -- manager/actions`（行数・ファイル数）: 当初（段階 0 の起点 ff1c12dfd）191 行（193 か所）・34 ファイル → 段階 4A の後（faf88bfa7）91 行（93 か所）・22 ファイル → 4B の後 85 行（87 か所）・21 ファイル。
+- 残る 87 か所の内訳: 欄ごとの幅と高さ 58（入力欄 300px・240px・400px、textarea の高さ、コード欄の幅と高さ）、JS が切り替える表示 7（下書きの公開の `#pubdate`、モジュールの `.sharedparams`、パスワードの `#passwordBlock`、並べ替えの画面の `#updating` とフォーム 4）、残りは画面ごとの個別の値（リソース選択の画面の余白と float 5、ユーザー一覧の検索フォームの `float:right` 2、パスワード変更の画面の `float:right`、パスワードの字下げと枠の余白、プラグインの区切り線の余白 2・イベントの行の色、テンプレートの親テンプレートの枠の `style`（動的）2、モジュール関係の細かな値 4、ヘルプ画面の `cursor:default` 2、システム情報の右揃え）。これらは行の部品の外の画面（一覧・ポップアップ・並べ替え）か、欄ごとの値。画面専用の class に移し替えるだけになるので残した。
+
+振り返り:
+
+- 場当たりの整理は「部品を 1 つにして、共通の CSS とテーマの変数に寄せる」順でうまく進んだ。画面専用の class を作らず、同じ値の直書きを `.clickable-label`・`.form-text`・`--field-row-gap`・`class="hidden"` にそろえた。
+- 見出しの列の幅・色・コード欄の行の揃えは #1739 に残した。
+- 並べ替えの画面・ユーザー一覧・リソース選択のポップアップの直書きは、一覧とポップアップの整理（#1204 など）のときに扱う。
 
 ## Context and Orientation
 
