@@ -180,7 +180,8 @@ function userFormPasswordRow(bool $isNew, bool $notify): string
 }
 
 /**
- * メールの行（oldemail は変更前の値）
+ * メールの行（oldemail は変更前の値）。
+ * 入力エラーで戻したときは送られた oldemail をそのまま使う（新規なら空のまま）。開いたときは今のメール
  */
 function userFormEmailRow(array $data): string
 {
@@ -190,7 +191,7 @@ function userFormEmailRow(array $data): string
             '<input type="text" name="email" value="%s" class="inputBox" autocomplete="email" />'
             . '<input type="hidden" name="oldemail" value="%s" />',
             hsc($data['email'] ?? ''),
-            hsc(($data['oldemail'] ?? '') ?: ($data['email'] ?? ''))
+            hsc($data['oldemail'] ?? ($data['email'] ?? ''))
         ),
     ]);
 }
