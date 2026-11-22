@@ -170,9 +170,21 @@
 3. 見た目と保存は変えない。2 画面のラジオの HTML（name・value・checked・言語の文言・並び・注意書き）が main と同じこと、グローバル設定の選択肢が同じこと、保存で受け付ける値と、許さない値を送ったときの扱いが同じことを確かめる。
 4. ついでに、`forms.css` の `.form-text` の `font-size: .875em` をやめる（Decision Log 2026-11-22 段階 3 の決まり。欄の下の説明を本文と同じ大きさにする）。行の部品を使う全画面の説明の大きさが変わるので、検証に入れる。
 
-### 段階 3D・3A・3B・3C・4
+### 段階 3D（ブランチ `refactor/1631-stage3d-user-screen-fixes`。ユーザーの画面のついでの不具合）
 
-段階 3 の残りの PR は、3E のあとに、調査の結果（2026-11-22）をもとにこの節に手順を書き足す。
+動きを変えずに直せるものだけを直す（行の部品への移し替えと重複の整理は 3B・3C で行う）。
+
+1. `permission/mutate_user/tpl/form/tab_general.php` の `echo 'style="display:none";'`（2 か所。`;` が属性の外に出ている）を正しい属性にする。
+2. スーパーグローバルの直接の使用を、AGENTS.md の決まりのヘルパーにする: `mutate_user.dynamic.php`・`mutate_user_pf.dynamic.php`・`mutate_web_user.dynamic.php` の `$_SESSION`（`sessionv()`）。
+3. `$modx` の直接の使用を、ヘルパーにする: `mutate_user/tpl/form/tab_settings.php`・`tab_access.php`・`mutate_user/functions.php`・`mutate_web_user.dynamic.php`・`processors/permission/save_web_user.processor.php`（`config` の直接の書き込みは、同じ動きのヘルパーか API があればそれに。無ければ残して理由を報告）。
+4. `save_web_user.processor.php` の `compact()` を配列に。
+5. `mutate_user_pf.dynamic.php` の呼ばれない JS（`changeName()`。プロフィールの画面には `#showname` が無い）を消す。
+
+期待される観測: 管理ユーザー・Web ユーザー・プロフィールの画面の表示と、保存・名前の変更・パスワードの変更・ブロックの切り替えの動きが main と同じ。
+
+### 段階 3A・3B・3C・4
+
+段階 3 の残りの PR は、3D のあとに、調査の結果（2026-11-22）をもとにこの節に手順を書き足す。
 
 段階 2B で見つかった重複: エラー報告のラジオの組（inherit・0・1・2・99 と言語キー、注意書き）が、スニペットとプラグインの画面に同じ HTML で 2 か所あり、グローバル設定の定義（`settings_form.definition.inc.php`）にも同じ選択肢がある。選択肢を 1 か所に置き、2 画面はそれを使う形にまとめる（2C か段階 3 のついでに）。TV の説明の textarea の `padding:0` も 2C で消す。
 
