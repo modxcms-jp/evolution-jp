@@ -211,11 +211,16 @@ function revealPaneDocument() {
     if (!doc || !root || !root.loaded) {
         return;
     }
+    // 親を開くのを待つ間に別の画面へ移ったら、移った先の選択を上書きしないよう打ち切る
+    function stillCurrent() {
+        var cur = paneDocument();
+        return cur !== null && cur.id === doc.id;
+    }
     doc.parents.reduce(function (chain, pid) {
         return chain.then(function (ok) {
             var box = document.getElementById('c' + pid);
             var sign = document.getElementById('s' + pid);
-            if (!ok || !box || !sign || box.dataset.loading === '1') {
+            if (!ok || !stillCurrent() || !box || !sign || box.dataset.loading === '1') {
                 return false;
             }
             if (box.style.display === 'block' && box.dataset.closing !== '1') {
@@ -224,7 +229,9 @@ function revealPaneDocument() {
             return toggleNode(sign, treeNodeIndent(box), pid, 0, 0);
         });
     }, Promise.resolve(true)).then(function () {
-        selectTreeNode(doc.id);
+        if (stillCurrent()) {
+            selectTreeNode(doc.id);
+        }
     });
 }
 
@@ -247,7 +254,8 @@ function treeNodeIndent(box) {
     return indent;
 }
 
-// 文書のノードを選んだ見た目にし、ツリーの中で見えていなければスクロールして見せる
+// 文書のノードを選んだ見た目にし、ツリーの中で見えていなければ縦にスクロールして見せる。
+// scrollIntoView() は使わない（上端に貼り付いたボタンの帯 .tree-toolbar の下に隠れる・横のスクロールまで動く）
 function selectTreeNode(id) {
     var node = document.getElementById('node' + id);
     var row = node ? node.querySelector(':scope > .tree-row') : null;
@@ -256,7 +264,19 @@ function selectTreeNode(id) {
         return;
     }
     setSelected(span);
-    row.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    var pane = document.getElementById('treePane');
+    if (!pane) {
+        return;
+    }
+    var bar = pane.querySelector('.tree-toolbar');
+    var paneRect = pane.getBoundingClientRect();
+    var rowRect = row.getBoundingClientRect();
+    var top = paneRect.top + (bar ? bar.offsetHeight : 0);
+    if (rowRect.top < top) {
+        pane.scrollTop -= top - rowRect.top;
+    } else if (rowRect.bottom > paneRect.bottom) {
+        pane.scrollTop += rowRect.bottom - paneRect.bottom;
+    }
 }
 
 function setSelected(elSel) {
