@@ -275,6 +275,7 @@ optgroup option {
     text-align: start;
 }
 
+/* プラグインが設定の表に足す手書きの行（行の部品を使わない th）の見出しは上揃え */
 .settings tr:not(.field-row) > th {
     vertical-align: top;
 }
