@@ -56,22 +56,25 @@ function sendTreeRequest(url) {
 }
 
 // 件数超過で省略したリソースの続きを読み込み、「残り N 件を表示」ノードと置き換える。
-// 差し込めたら true で解決する Promise を返す（読み込み中・失敗のときは false）。
-// ノードの onclick は戻り値を返すだけで使わない。revealPaneDocument() が目当ての文書まで読み進めるのに使う
-function loadMoreNodes(el, indent, parent, offset) {
+// 差し込めたら true で解決する Promise を返す（失敗のときは false。読み込み中なら、その読み込みの Promise）。
+// until を渡すと、その文書を含むページまでをまとめて読む（revealPaneDocument() が使う。ノードの onclick は渡さない）
+function loadMoreNodes(el, indent, parent, offset, until) {
     var moreNode = el.parentNode;
     if (moreNode.loading) {
-        return Promise.resolve(false);
+        return moreNode.loading;
     }
-    moreNode.loading = true;
-    return new Promise(function (resolve) {
-        loadTreeRequest({
-            "a": "1",
-            "f": "nodes",
-            "indent": indent,
-            "parent": parent,
-            "offset": offset
-        }, function (response) {
+    var params = {
+        "a": "1",
+        "f": "nodes",
+        "indent": indent,
+        "parent": parent,
+        "offset": offset
+    };
+    if (until) {
+        params.until = until;
+    }
+    moreNode.loading = new Promise(function (resolve) {
+        loadTreeRequest(params, function (response) {
             if (response.indexOf('mx_loginbox') !== -1) {
                 // セッション切れ
                 top.location = 'index.php';
@@ -83,10 +86,11 @@ function loadMoreNodes(el, indent, parent, offset) {
             resolve(true);
         }, function () {
             // 失敗したらもう一度押せるようにする
-            moreNode.loading = false;
+            moreNode.loading = null;
             resolve(false);
         });
     });
+    return moreNode.loading;
 }
 
 // node: 差し込み先。省略時は直前に指定された rpcNode（子の取得中に別の読み込みが重なっても取り違えないよう、子の取得は node を渡す）
@@ -211,7 +215,7 @@ function paneDocument() {
 
 // 本文で開いている文書をツリーで選ぶ。閉じている親のフォルダは根の側から順に開く（開閉状態も保存される）。
 // リソース一覧など、ツリーの外から編集画面を開いたときのため。ツリーから開いたときは、もう見えているので選ぶだけになる。
-// 文書が「残り N 件を表示」で省かれているときは、見つかるまでその続きを読み込む。
+// 文書が「残り N 件を表示」で省かれているときは、その文書を含むページまでの続きを 1 回で読み込む。
 // 親がツリーに無い（権限で見えない）ときは、そこで止める
 function revealPaneDocument() {
     var root = document.getElementById('treeRoot');
@@ -224,20 +228,31 @@ function revealPaneDocument() {
         var cur = paneDocument();
         return cur !== null && cur.id === doc.id;
     }
-    // 直接の親の中の「残り N 件を表示」を、文書が見つかるか、無くなるまで順に読み込む
-    function loadMoreUntilFound() {
+    // 文書が直接の親の中の「残り N 件を表示」で省かれていれば、その文書を含むページまでを 1 回で読み込む。
+    // 読み込んでも無ければ（ツリーに出ない文書）、それ以上は読まない。読み込む前に親が閉じられたら読まない
+    function loadMoreIfHidden() {
         var pid = doc.parents[doc.parents.length - 1];
         var box = pid ? document.getElementById('c' + pid) : null;
         if (!stillCurrent() || !box || document.getElementById('node' + doc.id)) {
             return true;
         }
-        var more = box.querySelector(':scope > .moreNode > .emptyNode');
-        var loading = more ? more.onclick() : null;
-        if (!loading || typeof loading.then !== 'function') {
+        if (box.style.display !== 'block' || box.dataset.closing === '1') {
+            return false;
+        }
+        var more = box.querySelector(':scope > .moreNode');
+        var label = more ? more.querySelector('.emptyNode') : null;
+        if (!label) {
             return true;
         }
-        return loading.then(function (loaded) {
-            return loaded ? loadMoreUntilFound() : true;
+        return loadMoreNodes(
+            label,
+            more.getAttribute('data-indent'),
+            more.getAttribute('data-parent'),
+            more.getAttribute('data-offset'),
+            doc.id
+        ).then(function () {
+            // 読み込む間に親が閉じられたら、見えない行を選ばない
+            return box.style.display === 'block' && box.dataset.closing !== '1';
         });
     }
     doc.parents.reduce(function (chain, pid) {
@@ -253,10 +268,12 @@ function revealPaneDocument() {
             return toggleNode(sign, treeNodeIndent(box), pid, 0, 0);
         });
     }, Promise.resolve(true)).then(function (ok) {
-        return ok ? loadMoreUntilFound() : false;
-    }).then(function () {
+        return ok ? loadMoreIfHidden() : false;
+    }).then(function (ok) {
         if (stillCurrent()) {
-            selectTreeNode(doc.id);
+            if (ok !== false) {
+                selectTreeNode(doc.id);
+            }
             return;
         }
         // 移った先の文書の処理は、ここで読み込んでいた親（読み込み中）で止まっていることがある。

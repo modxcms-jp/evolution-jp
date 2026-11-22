@@ -56,8 +56,8 @@ $opened2 = [];
 $expandAll = get_intvar('expandAll');
 
 if (get_strvar('offset') !== '') {
-    // 件数超過で省略したリソースの続き
-    echo getNodes(get_intvar('indent'), get_intvar('parent'), 0, '', get_intvar('offset'));
+    // 件数超過で省略したリソースの続き。until は、その文書を含むページまでをまとめて返すときの文書の ID
+    echo getNodes(get_intvar('indent'), get_intvar('parent'), 0, '', get_intvar('offset'), get_intvar('until'));
     exit;
 }
 
@@ -82,7 +82,7 @@ if (get_intvar('parent') === 0) {
 
 echo $output;
 
-function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset = null)
+function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset = null, $until = 0)
 {
     global $modx;
     global $modx_textdir, $opened, $opened2;
@@ -122,7 +122,22 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
             return '';
         }
         $where = sprintf('isfolder=0 %s AND %s', allowed_docs_condition(), $where);
-        $remaining = db()->count(db()->select('sc.id', $from, $where)) - $offset - $limit;
+        $total = db()->count(db()->select('sc.id', $from, $where));
+        if ($until > 0) {
+            // その文書を含むページまでを 1 回で返す（tree.js の revealPaneDocument() が使う）。無ければふだんの 1 ページ
+            $ids = array_map('intval', db()->getColumn('id', db()->select(
+                'sc.id',
+                $from,
+                $where,
+                $tree_orderby,
+                sprintf('%d,%d', $offset, max($total - $offset, 0))
+            )));
+            $pos = array_search((int)$until, $ids, true);
+            if ($pos !== false) {
+                $limit = (int)ceil(($pos + 1) / $limit) * $limit;
+            }
+        }
+        $remaining = $total - $offset - $limit;
         $result = db()->select(
             implode(',', $field),
             $from,
@@ -589,7 +604,7 @@ function moreNode($indent, $parent, $offset, $remaining)
 
 function tplMoreNode()
 {
-    return '<div class="moreNode tree-row is-leaf" style="white-space:nowrap;"><img src="[+icon+]">&nbsp;<span class="emptyNode" style="cursor:pointer;" onclick="return loadMoreNodes(this,[+indent+],[+parent+],[+offset+]);">[+msg+]</span></div>';
+    return '<div class="moreNode tree-row is-leaf" style="white-space:nowrap;" data-indent="[+indent+]" data-parent="[+parent+]" data-offset="[+offset+]"><img src="[+icon+]">&nbsp;<span class="emptyNode" style="cursor:pointer;" onclick="loadMoreNodes(this,[+indent+],[+parent+],[+offset+]);">[+msg+]</span></div>';
 }
 
 function tplEmptyFolder()
