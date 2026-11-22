@@ -54,19 +54,19 @@ template('id');
                 <?php
                 if (request_intvar('a') === 16) {
                     if (evo()->hasPermission('new_template')) {
-                        echo evo()->manager->ab([
+                        echo manager()->ab([
                             'onclick' => 'duplicaterecord();',
                             'label' => lang('duplicate')
                         ]);
                     }
                     if (evo()->hasPermission('delete_template')) {
-                        echo evo()->manager->ab([
+                        echo manager()->ab([
                             'onclick' => 'deletedocument();',
                             'label' => lang('delete')
                         ]);
                     }
                 }
-                echo evo()->manager->ab([
+                echo manager()->ab([
                     'onclick' => "EvoShell.go('index.php?a=76');",
                     'label' => lang('cancel')
                 ]);
@@ -109,7 +109,7 @@ template('id');
                         echo lang('template_parent');
                         ?>
                         <select name="parent">
-                            <option value="0">None</option>
+                            <option value="0"><?= lang('none') ?></option>
                             <?= implode("\n", $option) ?>
                         </select>
                     </div>
@@ -141,45 +141,63 @@ template('id');
                 <div class="tab-page" id="tabProp">
                     <h2 class="tab"><?= lang('settings_properties') ?></h2>
                     <table>
-                        <tr>
-                            <th><?= lang('existing_category') ?>:</th>
-                            <td><select id="categoryid" name="categoryid" style="width:300px;">
-                                    <?= manager()->elementCategoryOptions(template('category')) ?>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr id="newcategry" data-field="newcategory" style="display:none;">
-                            <th valign="top" style="padding-top:5px;">
-                                <?= lang('new_category') ?>:
-                            </th>
-                            <td valign="top" style="padding-top:5px;">
-                                <input name="newcategory"
-                                    type="text"
-                                    maxlength="45"
-                                    value="<?= hsc(template('newcategory', '')) ?>"
-                                    class="inputBox" style="width:300px;">
-                            </td>
-                        </tr>
-                        <tr>
-                            <th><?= lang('template_desc') ?>:&nbsp;&nbsp;</th>
-                            <td><textarea name="description"
-                                    style="padding:0;height:4em;"><?= evo()->hsc(template('description')) ?></textarea>
-                            </td>
-                        </tr>
-                        <?php if (evo()->hasPermission('save_template') == 1) { ?>
-                            <tr>
-                                <td colspan="2">
-                                    <label>
-                                        <input
-                                            id="locked" name="locked"
-                                            type="checkbox" class="inputBox"
-                                            <?= checked(template('locked') == 1) ?>
-                                        > <?= lang('lock_template') ?>
-                                        <span class="comment"><?= lang('lock_template_msg') ?></span>
-                                    </label>
-                                </td>
-                            </tr>
-                        <?php } ?>
+                        <?php
+                        ob_start();
+                        ?>
+                        <select id="categoryid" name="categoryid" style="width:300px;">
+                            <?= manager()->elementCategoryOptions(template('category')) ?>
+                        </select>
+                        <?php
+                        echo EvoFieldRow::render([
+                            'label' => lang('existing_category'),
+                            'body' => ob_get_clean(),
+                        ]);
+
+                        // 新しいカテゴリの行は、element-category.js が表示を切り替える
+                        ob_start();
+                        ?>
+                        <input name="newcategory"
+                            type="text"
+                            maxlength="45"
+                            value="<?= hsc(template('newcategory', '')) ?>"
+                            class="inputBox" style="width:300px;">
+                        <?php
+                        echo EvoFieldRow::render([
+                            'field' => 'newcategory',
+                            'label' => lang('new_category'),
+                            'body' => ob_get_clean(),
+                            'attr' => ['id' => 'newcategry', 'style' => 'display:none;'],
+                        ]);
+
+                        ob_start();
+                        ?>
+                        <textarea name="description"
+                            style="padding:0;height:4em;"><?= evo()->hsc(template('description')) ?></textarea>
+                        <?php
+                        echo EvoFieldRow::render([
+                            'label' => lang('template_desc'),
+                            'body' => ob_get_clean(),
+                        ]);
+
+                        // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
+                        if (evo()->hasPermission('save_template') == 1) {
+                            ob_start();
+                            ?>
+                            <label>
+                                <input
+                                    id="locked" name="locked"
+                                    type="checkbox" class="inputBox"
+                                    <?= checked(template('locked') == 1) ?>
+                                > <?= lang('lock_template') ?>
+                                <span class="comment"><?= lang('lock_template_msg') ?></span>
+                            </label>
+                            <?php
+                            echo EvoFieldRow::render([
+                                'label' => '',
+                                'body' => ob_get_clean(),
+                            ]);
+                        }
+                        ?>
                     </table>
                 </div>
 
@@ -328,7 +346,7 @@ function getParentValues($parent)
         $prestyle,
         evo()->hsc(trim($content[1]))
     );
-    return compact('head', 'foot');
+    return ['head' => $head, 'foot' => $foot];
 }
 
 function template($key, $default = null)
