@@ -156,7 +156,7 @@ function content($key, $default = null)
 
     <div class="sectionBody">
         <p><img class="icon" src="<?= style('icons_modules') ?>" alt="."
-                style="vertical-align:middle;text-align:left;" /> <?= lang('module_msg') ?></p>
+                style="vertical-align:middle;" /> <?= lang('module_msg') ?></p>
 
         <div class="tab-pane" id="modulePane">
             <!-- General -->
@@ -167,20 +167,6 @@ function content($key, $default = null)
                     echo EvoFieldRow::render([
                         'label' => lang('module_name'),
                         'body' => '<input name="name" type="text" maxlength="100" value="' . hsc(content('name')) . '" class="inputBox">',
-                    ]);
-
-                    // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
-                    ob_start();
-                    ?>
-                    <input name="disabled"
-                        type="checkbox" <?= content('disabled') == 1 ? 'checked="checked"' : '' ?>
-                        value="on" class="inputBox" />
-                    <span class="clickable-label"
-                        onclick="document.mutate.disabled.click();"><?= content('disabled') == 1 ? '<span class="mutate-field-title">' . lang('module_disabled') . '</span>' : lang('module_disabled') ?></span>
-                    <?php
-                    echo EvoFieldRow::render([
-                        'label' => '',
-                        'body' => ob_get_clean(),
                     ]);
                     ?>
                 </table>
@@ -205,6 +191,31 @@ function content($key, $default = null)
                 <h2 class="tab"><?= lang('settings_config') ?></h2>
                 <table>
                     <?php
+                    ob_start();
+                    ?>
+                    <input name="disabled"
+                        type="checkbox" <?= content('disabled') == 1 ? 'checked="checked"' : '' ?>
+                        value="on" class="inputBox" />
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => content('disabled') == 1 ? "<span class='warning'>" . lang('module_disabled') . "</span>" : lang('module_disabled'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    if (evo()->hasPermission('save_module') == 1) {
+                        ob_start();
+                        ?>
+                        <input name="locked"
+                            type="checkbox" <?= content('locked') == 1 ? ' checked="checked"' : '' ?>
+                            class="inputBox" />
+                        <?php
+                        echo EvoFieldRow::render([
+                            'label' => lang('lock_module'),
+                            'body' => ob_get_clean(),
+                            'help' => lang('lock_module_msg'),
+                        ]);
+                    }
+
                     ob_start();
                     ?>
                     <select name="categoryid">
@@ -267,23 +278,6 @@ function content($key, $default = null)
                         'body' => ob_get_clean(),
                         'attr' => ['style' => 'display:none;'],
                     ]);
-
-                    // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
-                    if (evo()->hasPermission('save_module') == 1) {
-                        ob_start();
-                        ?>
-                        <input name="locked"
-                            type="checkbox" <?= content('locked') == 1 ? ' checked="checked"' : '' ?>
-                            class="inputBox" />
-                        <span class="clickable-label"
-                            onclick="document.mutate.locked.click();"><?= lang('lock_module') ?></span>
-                        <span class="comment"><?= lang('lock_module_msg') ?></span>
-                        <?php
-                        echo EvoFieldRow::render([
-                            'label' => '',
-                            'body' => ob_get_clean(),
-                        ]);
-                    }
 
                     ob_start();
                     ?>

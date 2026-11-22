@@ -235,6 +235,22 @@ if (isset($content['which_editor'])) {
                         ]);
                     }
 
+                    if (evo()->hasPermission('save_chunk') == 1) {
+                        ob_start();
+                        ?>
+                        <input
+                                name="locked"
+                                type="checkbox"
+                                <?= entity('locked') == 1 || entity('locked') === 'on' ? ' checked="checked"' : '' ?>
+                                class="inputBox" value="on" />
+                        <?php
+                        echo EvoFieldRow::render([
+                            'label' => lang('lock_htmlsnippet'),
+                            'body' => ob_get_clean(),
+                            'help' => lang('lock_htmlsnippet_msg'),
+                        ]);
+                    }
+
                     ob_start();
                     ?>
                     <select name="categoryid" style="width:300px;">
@@ -285,23 +301,6 @@ if (isset($content['which_editor'])) {
                         'label' => lang('resource_opt_richtext'),
                         'body' => ob_get_clean(),
                     ]);
-
-                    // 見出しの無い行は、見出しを空にして値を入力欄の列にそろえる
-                    if (evo()->hasPermission('save_chunk') == 1) {
-                        ob_start();
-                        ?>
-                        <label><input
-                                name="locked"
-                                type="checkbox"
-                                <?= entity('locked') == 1 || entity('locked') === 'on' ? ' checked="checked"' : '' ?>
-                                class="inputBox" value="on" /> <?= lang('lock_htmlsnippet') ?>
-                            <span class="comment"><?= lang('lock_htmlsnippet_msg') ?></span></label>
-                        <?php
-                        echo EvoFieldRow::render([
-                            'label' => '',
-                            'body' => ob_get_clean(),
-                        ]);
-                    }
                     ?>
                 </table>
             </div>

@@ -71,9 +71,6 @@ function fieldDraftPub_date($docid, $restored = [])
 function getTplDraft()
 {
     $tpl = <<< EOT
-<style>
-	.draft-publish-options label {display:block;}
-</style>
 <script src="[+script_src+]"></script>
 <form name="mutate" id="mutate" method="post" enctype="multipart/form-data" action="index.php" onsubmit="documentDirty=false;">
 	<input type="hidden" name="a" value="129" />
@@ -94,13 +91,13 @@ function getTplDraft()
 	<p class="okmsg">
 	下書きを保存しました。
 	</p>
-		<div class="draft-publish-options">
-			<label><input name="publishoption" type="radio" value="now"[+checked_now+] /> 今すぐ採用する</label>
-			<label><input name="publishoption" type="radio" value="reserve"[+checked_reserve+] /> 採用日時を指定する</label>
+		<div>
+			<label><input name="publishoption" type="radio" value="now"[+checked_now+] /> 今すぐ採用する</label><br />
+			<label><input name="publishoption" type="radio" value="reserve"[+checked_reserve+] /> 採用日時を指定する</label><br />
 			<label class="label-disabled"><input name="publishoption" type="radio" value="approve" disabled /> 承認を申請する</label>
 		</div>
 		<div id="pubdate" style="display:[+pubdate_display+];">
-			<table width="99%" border="0" cellspacing="5" cellpadding="0">
+			<table>
 				[+fieldDraftPub_date+]
 			</table>
 		</div>

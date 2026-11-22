@@ -176,37 +176,30 @@ foreach ($exportJsKeys as $key) {
                         ><?= lang('export_site_target_ignore') ?>
                     </label>
                     <?php
-                    // 許可の欄は成功の色、除外の欄はエラーの色の薄い地にする（テーマの変数。画面専用の class は作らない）
-                    ?>
-                    <div
-                        id="allow_ids"
-                        style="display:<?= $exportTarget === 'allow_ids' ? 'block' : 'none' ?>"
-                    >
-                        <input
-                            type="text"
-                            name="allow_ids"
-                            value="<?= hsc(sessionv('export_allow_ids', '')) ?>"
-                            style="width:300px;background-color:var(--color-success-bg, #edffee);"
-                        /><br/>
-                        <?= lang('export_site_target_allow_hint') ?>
-                    </div>
-                    <div
-                        id="ignore_ids"
-                        style="display:<?= $exportTarget === 'ignore_ids' ? 'block' : 'none' ?>"
-                    >
-                        <input
-                            type="text"
-                            name="ignore_ids"
-                            value="<?= hsc(sessionv('export_ignore_ids', '')) ?>"
-                            style="width:300px;background-color:color-mix(in srgb, var(--color-error, #c62828) 6%, var(--color-surface, #fff));"
-                        /><br/>
-                        <?= lang('export_site_target_ignore_hint') ?>
-                    </div>
-                    <?php
                     echo EvoFieldRow::render([
                         'label' => lang('export_site_target'),
                         'body' => ob_get_clean(),
                     ]);
+
+                    // 許可・除外の ID の欄は、出力する範囲に合わせて JS が行ごと出し入れする（見出しの無い行）。
+                    // 欄の地は、許可は成功の色、除外はエラーの色の薄い色（テーマの変数。画面専用の class は作らない）
+                    $targetInputs = [
+                        'allow_ids' => ['background-color:var(--color-success-bg, #edffee);', 'export_site_target_allow_hint'],
+                        'ignore_ids' => ['background-color:color-mix(in srgb, var(--color-error, #c62828) 6%, var(--color-surface, #fff));', 'export_site_target_ignore_hint'],
+                    ];
+                    foreach ($targetInputs as $name => [$background, $hintKey]) {
+                        echo EvoFieldRow::render([
+                            'label' => '',
+                            'body' => sprintf(
+                                '<input type="text" name="%s" value="%s" style="width:300px;%s" />',
+                                $name,
+                                hsc(sessionv('export_' . $name, '')),
+                                $background
+                            ),
+                            'help' => lang($hintKey),
+                            'attr' => ['id' => $name] + ($exportTarget === $name ? [] : ['style' => 'display:none']),
+                        ]);
+                    }
 
                     ob_start();
                     ?>
@@ -1006,7 +999,7 @@ foreach ($exportJsKeys as $key) {
         const show = function (id, visible) {
             const el = $(id);
             if (el) {
-                el.style.display = visible ? 'block' : 'none';
+                el.style.display = visible ? '' : 'none';
             }
         };
         form.querySelectorAll('input[type="radio"][name="target"]').forEach(function (radio) {
