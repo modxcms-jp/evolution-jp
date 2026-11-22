@@ -231,8 +231,9 @@
         // ただし全インスタンスを無条件にremove()すると、モーダルを閉じただけで
         // 背後の#mainPane側のエディタまで消えてしまう(モーダル内にエディタを含まない
         // 操作でも発生する重大な副作用だった)。paneの外側にあるエディタは対象外にする
-        if (window.tinymce && Array.isArray(window.tinymce.editors)) {
-            window.tinymce.editors.slice().forEach(function (editor) {
+        // 全インスタンスは tinymce.get() で得る（TinyMCE 6 以降は tinymce.editors が無い）
+        if (window.tinymce && typeof window.tinymce.get === 'function') {
+            window.tinymce.get().slice().forEach(function (editor) {
                 const el = typeof editor.getElement === 'function' ? editor.getElement() : null;
                 if (el && pane.contains(el)) {
                     editor.remove();

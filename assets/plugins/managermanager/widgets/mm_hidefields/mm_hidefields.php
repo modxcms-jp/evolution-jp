@@ -45,8 +45,7 @@ function mm_hideFields($fields, $roles = '', $templates = '')
                 break;
 
             case 'content':
-                // For 1.0.1
-                $output .= 'MM.all("#ta").forEach(function (el) { const p = el.parentElement; const d = p && p.matches("div") ? p.parentElement : null; if (d && d.matches("div")) { MM.hide(d); const prev = d.previousElementSibling; if (prev && prev.matches("div")) { MM.hide(prev); } } });';
+                mm_hideSections('content', $roles, $templates);
                 break;
 
             case 'weblink':

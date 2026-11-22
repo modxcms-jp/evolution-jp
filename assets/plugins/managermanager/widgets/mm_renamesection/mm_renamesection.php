@@ -26,7 +26,8 @@ function mm_renameSection($section, $newname, $roles = '', $templates = '')
 
     switch ($section) {
         case 'content':
-            $output .= 'MM.html("div#content_header", ' . mmHtmlLiteral($newname) . ');' . "\n";
+            // 本文の見出しは既定では隠れている。名前を変えたら出す
+            $output .= 'MM.html("div#content_header", ' . mmHtmlLiteral($newname) . ').forEach(function (el) { el.hidden = false; });' . "\n";
             break;
 
         case 'tvs':
