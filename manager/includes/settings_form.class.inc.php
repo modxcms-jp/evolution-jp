@@ -292,40 +292,6 @@ final class EvoSettingsForm
     }
 
     /**
-     * table.settings の表の共通の見た目（設定画面・ユーザー編集画面・プロフィールで同じものを出す）
-     */
-    public static function style(): string
-    {
-        return <<<'HTML'
-<style type="text/css">
-    table.settings {
-        border-collapse: collapse;
-        width: 100%;
-    }
-
-    table.settings tr {
-        border-bottom: 1px dotted #ccc;
-    }
-
-    table.settings th {
-        font-size: inherit;
-        vertical-align: top;
-        text-align: left;
-    }
-
-    table.settings th, table.settings td {
-        padding: 5px;
-    }
-
-    table.settings.user-scope td input[type=text] {
-        width: 250px;
-    }
-</style>
-
-HTML;
-    }
-
-    /**
      * 言語キーを自分のファイルに持つ言語 [言語名 => 表示名]
      */
     public static function languagesHavingKey(string $key): array
@@ -459,6 +425,7 @@ HTML;
             'label' => $this->resolve($row['label'] ?? ''),
             'label_extra' => $this->renderLabelExtra($row),
             'body' => $this->renderCell($row),
+            'help' => $this->desc($row),
             'attr' => $attr,
         ]) . "\n";
     }
@@ -498,21 +465,13 @@ HTML;
                 return $this->resolve($row['before'] ?? '')
                     . $this->textInput($row)
                     . $this->resolve($row['after'] ?? '')
-                    . $this->userDefaultBox($row)
-                    . (($row['br'] ?? true) ? '<br/>' : '') . $this->desc($row);
+                    . $this->userDefaultBox($row);
             case 'textarea':
                 return $this->textarea($row)
-                    . ($this->userDefaultBox($row) !== '' ? '<br />' . $this->userDefaultBox($row) : '')
-                    . $this->desc($row);
+                    . ($this->userDefaultBox($row) !== '' ? '<br />' . $this->userDefaultBox($row) : '');
             case 'select':
-                $field = $this->select($row);
-                if ($field === '') {
-                    // 選択肢が無い（options が null）ときは、欄を出さず説明だけを出す
-                    return $this->desc($row);
-                }
-                return $field
-                    . (($row['br'] ?? true) ? '<br/>' : '')
-                    . $this->desc($row);
+                // 選択肢が無い（options が null）ときは、欄を出さず説明だけが出る（空の文字）
+                return $this->select($row);
             case 'password':
                 return $this->password($row);
             case 'topmenu':
@@ -520,7 +479,7 @@ HTML;
             case 'path':
                 if (!$this->isSystem()) {
                     // 既定値の表示とリセットは、グローバル設定だけ（空は「システム設定に従う」）
-                    return $this->textInput($row) . '<br/>' . $this->desc($row);
+                    return $this->textInput($row);
                 }
                 return $this->path($row);
             case 'lang_text':
@@ -625,18 +584,18 @@ HTML;
         if (!array_key_exists($current, $options) && isset($row['default'])) {
             $current = (string)$this->resolve($row['default']);
         }
-        $html = '';
+        $items = [];
         foreach ($options as $value => $label) {
-            $html .= sprintf(
-                '<label><input type="radio" name="%s" value="%s"%s%s /> %s</label>' . (!empty($row['inline']) ? '' : '<br/>'),
+            $items[] = sprintf(
+                '<label><input type="radio" name="%s" value="%s"%s%s /> %s</label>',
                 hsc($row['key']),
                 hsc((string)$value),
                 (string)$value === $current ? ' checked="checked"' : '',
                 !empty($row['disabled']) ? ' disabled' : '',
                 $label
-            ) . "\n";
+            );
         }
-        return $html . $this->desc($row);
+        return implode(!empty($row['inline']) ? "\n" : "<br/>\n", $items) . "\n";
     }
 
     /**
@@ -653,7 +612,7 @@ HTML;
         $attr = $this->attributes(['id' => $row['id']] + ($row['attr'] ?? []));
         if (($row['field'] ?? 'textarea') === 'text') {
             $field = sprintf(
-                '<input type="text" name="%s" value="%s" maxlength="255"%s /><br/>',
+                '<input type="text" name="%s" value="%s" maxlength="255"%s />',
                 hsc($key),
                 hsc($value),
                 $attr
@@ -667,9 +626,7 @@ HTML;
                 hsc($hiddenName),
                 hsc($langKey),
                 hsc(lang($langKey))
-            ) . "\n"
-            . (!empty($row['hiddenBr']) ? '<br/>' : '')
-            . $this->desc($row);
+            ) . "\n";
     }
 
     /**
@@ -682,7 +639,7 @@ HTML;
             hsc($row['key']),
             self::PASSWORD_MASK,
             $this->attributes($row['attr'] ?? ['style' => 'width: 250px;'])
-        ) . "\n" . $this->desc($row);
+        ) . "\n";
     }
 
     /**
@@ -696,7 +653,7 @@ HTML;
                 . $this->textInput(['key' => $key, 'attr' => ['style' => 'width:350px;']])
                 . "</td></tr>\n";
         }
-        return $html . '</table><div>' . $this->desc($row) . '</div>';
+        return $html . '</table>';
     }
 
     /**
@@ -719,8 +676,7 @@ HTML;
                 '&nbsp;<input name="removecontenttype" type="button" value="%s" onclick="removeContentType()" />',
                 hsc(lang('remove'))
             )
-            . "</td></tr></table>\n<br />\n"
-            . $this->desc($row);
+            . "</td></tr></table>\n";
     }
 
     /**
@@ -787,7 +743,7 @@ HTML;
             $changed && $reset === '2' ? ' checked' : '',
             sprintf(lang('template_reset_specific'), hsc($savedName)),
             (int)$savedId
-        ) . $this->desc($row);
+        );
     }
 
     /**
@@ -809,13 +765,12 @@ HTML;
         return lang('default') . sprintf(' <span id="default_%s">%s</span>%s<br/>', hsc($key), hsc($default), $hint) . "\n"
             . sprintf(
                 '<input type="text" name="%1$s" value="%2$s" maxlength="255" id="%1$s" />' . "\n"
-                . '<input type="button" onclick="%3$s" value="%4$s" name="reset_%1$s"><br/>',
+                . '<input type="button" onclick="%3$s" value="%4$s" name="reset_%1$s">',
                 hsc($key),
                 hsc($this->value($key, $row)),
                 hsc($reset),
                 hsc(lang('reset'))
-            ) . "\n"
-            . $this->desc($row);
+            ) . "\n";
     }
 
     /**

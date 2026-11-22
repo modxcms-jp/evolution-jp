@@ -7,7 +7,6 @@ $settingsForm = new EvoSettingsForm(
     EvoSettingsForm::storedValues(),
     'user'
 );
-echo EvoSettingsForm::style();
 ?>
 <form action="index.php?a=32" method="post" name="userform" enctype="multipart/form-data">
     <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('user')) ?>">

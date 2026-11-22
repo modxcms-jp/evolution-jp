@@ -16,7 +16,8 @@
 - [x] (2026-11-22) 段階 2C: モジュールと TV の行を部品へ移した（2 画面の直書きの style の行 34 → 18）。エレメントの 6 画面がすべて部品を使う
 - [x] (2026-11-22) 段階 3E: エラー報告の段階の一覧と意味の正本を `EvoErrorReporting` に置き、スニペット・プラグインの画面・グローバル設定の定義・保存の処理・DocumentParser の実行時の判定がそこを使う。欄の下の説明を本文と同じ大きさにした
 - [x] (2026-11-22) 段階 3D: ユーザーの画面の `style` 属性の書き間違い、`$_SESSION`・`$modx`・`compact()` の直接の使用、呼ばれない JS を直した（動きは変えない）
-- [ ] 段階 3（3A・3B・3C）: ユーザーの画面。ユーザーの設定の手書きのタブを `EvoSettingsForm` へ、Web ユーザーとプロフィールの重複をなくす。設定の説明を部品の説明の欄へ移し、`EvoSettingsForm::style()` を共通の CSS へ移す
+- [x] (2026-11-22) 段階 3A: 設定の説明を欄の下の説明（help）に、設定の表の CSS を共通（theme-base.css）にまとめ、EvoSettingsForm::style() と画面の style を消した
+- [ ] 段階 3（3B・3C）: ユーザーの画面。ユーザーの設定の手書きの 4 項目を設定の定義へ（`USER_TAB_KEYS` を消す）、Web ユーザーの設定を定義へ、3 画面の重複（パスワードの欄・プロフィールの行）をなくす
 - [ ] 段階 4: 文書の画面の残り（TV の行 `tv_row.tpl` を部品へ、ほかの直書き）
 
 ## Surprises & Discoveries
@@ -28,6 +29,7 @@
 - `EvoSettingsForm::style()` は画面に `<style>` を直に出している。`table.settings`（詳細度 0,1,1）の `width: 100%` が `theme-base.css` の `.settings`（0,1,0）の 600px に勝つので、`style()` を出す画面（グローバル設定・ユーザー・プロフィール）では 600px が効かず、出さない Web ユーザーの画面では効く（推測。段階 3 で計算後のスタイルで確かめる）。
 - `custom_tpl_dir` は設定の定義に無い隠れた設定で、読むのは文書の編集画面の `file_get_tpl()`（`manager/actions/document/mutate_content/functions.php`）だけ。
 - コード用の textarea（`class="phptextarea"`。プロパティ・TV の elements と default）の行は、共通の規則（`theme-base.css` の `.phptextarea` の等幅のフォント）で文字の上下の広さが本文と違うため、見出しの 1 行目との差が +5px ほど残る（文字の矩形の上端で測った値）。直書きが原因ではなく、見出しの列の見た目をそろえる後回しの判断に含める。
+- 段階 3A: 設定の表の見出しの右の余白が、`EvoSettingsForm::style()` の 5px から共通の 12px（`.field-label`）になり、値のセルが 7px 狭くなった。そのため折り返しの境目にあった説明が 1 行増え、グローバル設定の `use_udperms` の行が 22px 高くなった（ほかの説明のある行は、欄の下の説明の上の余白の分の 4px）。画面の幅しだいで起きる差なので受け入れた。
 - エラー報告の段階の一覧（`['0','1','2','99']` と `'inherit'`）と、段階からエラーのマスクを決める処理は、`DocumentParser`（`resolveErrorReportingLevel()`・`mapErrorReportingLevelToMask()`）にも同じ形であった。3E で `EvoErrorReporting`（`error_reporting.class.inc.php`）に集め、`DocumentParser` はそれを呼ぶ形にした。`cache_sync.class.php` と `traits/document.parser.subparser.trait.php` の既定値の `'inherit'` も `EvoErrorReporting::INHERIT` にそろえた（どちらも DocumentParser のファイルがクラスを読み込んだあとで動く）。
 - 段階 1: 見出しのセルの縦の揃えは、画面ごとに上揃え（設定の表、システム情報の詳細の表、サイトの書き出しの `td.head`）と中央（文書の行、th の既定）に分かれている。共通で上揃えにすると、文書の行の見出しが入力欄の文字とずれる（そろえるには `foundation-proposal.css` のように上の余白の計算と組みにする）。これは先送りした「見出しの列の幅・色をそろえる」判断に含めて決め、段階 1 では移した表の見出しは th の既定（中央）のままにした。システム情報の詳細の表で値が 2 行になる数項目は、見出しが縦の中央に出る。
 
@@ -183,9 +185,19 @@
 
 期待される観測: 管理ユーザー・Web ユーザー・プロフィールの画面の表示と、保存・名前の変更・パスワードの変更・ブロックの切り替えの動きが main と同じ。
 
-### 段階 3A・3B・3C・4
+### 段階 3A（ブランチ `refactor/1631-stage3a-settings-table`。設定の説明と設定の表の CSS）
 
-段階 3 の残りの PR は、3D のあとに、調査の結果（2026-11-22）をもとにこの節に手順を書き足す。
+3A-1（説明を help へ）と 3A-2（設定の表の CSS を共通へ）は、同じ設定の表の見た目を変えるので 1 PR にまとめる。
+
+1. `EvoSettingsForm`: 説明（`desc()`。user・profile は `userDesc`）を `renderCell()` から外し、`renderRow()` が部品の `help` に渡す。型ごとに説明の前に置いていた `<br/>`（`br` のオプション・`hiddenBr` を含む）は消す（`help` の上の余白で間を取る）。説明が改行だけの 2 行（`email_method`・`smtp_auth`）は説明を出さない。説明に `<p>` などのブロックを持つ定義（`manager_docs_orderby` など）は、`help` の中で余白が増えない形にする。`topmenu` など値のセルに表を出す型も、説明は表の後ろの `help` に。
+2. 設定の表の CSS を `theme-base.css`（層の外）にまとめ、`EvoSettingsForm::style()`（とその呼び出し 3 か所）、Web ユーザーの画面の `<style>`、グローバル設定の画面の `<style>` を消す。`EvoSettingsForm` は 1.3 の開発中に入ったクラスでリリースに入っていないので、`style()` は互換を気にせず消す。決まり（Decision Log 2026-11-22 段階 3）: 全幅、見出しは本文と同じ大きさ（`.settings th` の `font-size: 1.2em` をやめる）、行の間に点線（色はテーマの変数から選び、無ければ今の `#ccc` を既定値に）、見出しの縦の位置は行の部品の揃え（`table.settings th` の上揃え・5px をやめる）。見出しの列の幅（200px）は対象外なので残す。設定の表の行の上下の余白（今は 5px）は、行の部品の揃えを崩さない形で残す（例: 行の部品のセルの上下の余白を変数にし、設定の表だけその値を変える。画面専用の class や打ち消しを積まない）。文字の欄の幅は、設定の表ではどれも 250px にそろえる（user-scope の 250px とグローバル設定の 250px を 1 つに。設定の表の中に出るプラグインの文字の欄にも効く。Web ユーザーの画面の欄は幅の直書きがあるので 3C で行の部品へ移すときにそろえる）。
+3. 文書: `manager-form-row.md`（設定の表の説明は `help`、設定の表の見た目の決まり）、`theme-variables.md`（`.settings` の変数の既定値が変わる場合）、`global-settings.md`（`desc` が欄の下の説明になること、`br` のオプションの扱い）。
+
+期待される観測: グローバル設定・管理ユーザー・プロフィール・Web ユーザー・サイトの書き出し・スタイルガイドの設定の表が、全幅・本文と同じ大きさの見出し・点線・行の部品の揃えで出る。説明は欄の下に灰色で出る。保存・条件で出し分ける行・言語から読み込む select の動きは main と同じ。
+
+### 段階 3B・3C・4
+
+段階 3 の残りの PR は、3A のあとに、調査の結果（2026-11-22）をもとにこの節に手順を書き足す。3A で足した一時的な規則 `.settings tr:not(.field-row) > th { vertical-align: top }`（`theme-base.css`。行の部品を使わない手書きの設定の行の見出しを上揃えに保つ）は、3B・3C で手書きの行を部品へ移したら消す。
 
 段階 2B で見つかった重複（エラー報告の選択肢）は段階 3E で、TV の説明の textarea の `padding:0` は段階 2C で対応済み。
 
@@ -224,6 +236,7 @@
 - 段階 2C: ブランチ `refactor/1631-stage2c-module-tv-forms`（同じワークツリーで main から切り替えた）、PR #1724
 - 段階 3E: ブランチ `refactor/1631-stage3e-error-reporting-options`（同じワークツリーで main から切り替えた）、PR #1730
 - 段階 3D: ブランチ `refactor/1631-stage3d-user-screen-fixes`（同じワークツリーで main から切り替えた）、PR #1731
+- 段階 3A: ブランチ `refactor/1631-stage3a-settings-table`（同じワークツリーで main から切り替えた）、PR #1733
 
 ## Interfaces and Dependencies
 

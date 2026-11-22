@@ -38,7 +38,7 @@
 
 - `key`: 設定キー。送る欄の名前になり、値は `system_settings` の同じ名前から出る
 - `type`: `text`・`textarea`・`radio`・`yesno`（はい／いいえ）・`enabled`（有効／無効）・`select` のほか、特別な行の型（`path`・`lang_text`・`content_types`・`template`・`topmenu`・`password`）
-- `label`・`desc`: 見出しと説明。言語ファイルとコードからだけ来る信頼する HTML として出る。DB や環境の値を文に差し込むときは、`desc` に関数（`static function (array $values) { … }`）を書き、その中で `hsc()` する
+- `label`・`desc`: 見出しと説明。説明は行の部品の `help`（値の下の灰色の説明）に入る。言語ファイルとコードからだけ来る信頼する HTML として出る。説明の前に `<br/>` を置いたり、`<p>`・`<div>` で包んだりしない（間は `help` が取る）。説明の無い行は `desc` を書かない（`'<br/>'` だけの `desc` を書かない）。DB や環境の値を文に差し込むときは、`desc` に関数（`static function (array $values) { … }`）を書き、その中で `hsc()` する
 - `options`: `radio`・`select` の `[値 => 表示]`（`select` は `[グループ名 => [値 => 表示]]` で optgroup）。DB やファイルから取る一覧（テーマ・言語・ロールなど）は関数にする（`EvoSettingsForm::themes()`・`roles()`・`languages()`）。値と表示は `hsc()` される
 - `default`: 値が無い・空のときの値（文字列か関数）。`default.config.php` にあるキーには書かない（既定値の正本は `default.config.php`。画面の値はそれを下敷きにする）。`size`: `text` の maxlength（10 以下なら欄の幅を em で決める）。`attr`: 欄に足す属性 `[名前 => 値]`（値は `hsc()` される）
 - `after`: `text` の欄の後ろに出す文字列（単位など）。`toInput`・`fromInput`: 保存の形と欄の形が違う設定（`upload_maxsize` はバイトで保存し、欄は MB の数）の変換の関数。`toInput` は保存の値 → 欄の値、`fromInput` は欄の値 → 保存の値（読めない値は `null`）。変換は行だけに書く。保存処理（`save_settiongs()`・`saveUserSettings()`）は全部の名前を `EvoSettingsForm::storedValue($key, $value)` に通し（`fromInput` の無い名前はそのまま返る。null は保存せず今の値を残す）、差し戻しは `EvoSettingsForm::restoredValues($formValues)` でまとめて保存の形に戻す
@@ -50,7 +50,7 @@
 
 ### ユーザー編集画面・プロフィールにも出す行
 
-ユーザーごとに変えられる設定（`user_settings` に入る）は、同じ行をユーザー編集画面（`a=11`・`a=12`）とプロフィール（`a=74`）でも描く。画面側は手書きせず、`new EvoSettingsForm(EvoSettingsForm::definition(), <そのユーザーの値>, EvoSettingsForm::storedValues(), 'user')`（プロフィールは `'profile'`）の `render()` を出す。`<そのユーザーの値>` は差し戻し込みの値、`storedValues()` はシステム設定の値（条件の判定と「システム設定に従う」の先の値）。`table.settings` の共通の見た目は `EvoSettingsForm::style()` を出す。
+ユーザーごとに変えられる設定（`user_settings` に入る）は、同じ行をユーザー編集画面（`a=11`・`a=12`）とプロフィール（`a=74`）でも描く。画面側は手書きせず、`new EvoSettingsForm(EvoSettingsForm::definition(), <そのユーザーの値>, EvoSettingsForm::storedValues(), 'user')`（プロフィールは `'profile'`）の `render()` を出す。`<そのユーザーの値>` は差し戻し込みの値、`storedValues()` はシステム設定の値（条件の判定と「システム設定に従う」の先の値）。`table.settings` の見た目は共通の CSS（`theme-base.css` の `.settings`）が決めるので、画面で `<style>` を出さない。
 
 行の項目:
 
@@ -66,7 +66,7 @@ user・profile の描き方（グローバル設定との違い）:
 - その scope の行だけを、グローバル設定と同じタブ名・小見出し・順で出す。行の無い小見出しとタブは出さない
 - 条件の行（`showIf`）は、システム設定の値で初めから出すか隠すかだけを決め、切り替えはしない。小見出しの行がすべて隠れるときは小見出しと表も隠し、タブの中がすべて隠れるときはタブの見出しも隠す。行は送るために残す（JS が動かず `changed_settings` が届かないときは、保存は送られた値から作り直すので、送らないと設定が消える）
 - `select` の先頭に「システム設定に従う」（値は空）を足し、空の値を `default` で補わない。`path` 型は既定値の表示とリセットの無い文字の欄になる。`options` が `null` を返すとき、グローバル設定は欄を出さないが、ユーザー画面は `fallbackOptions`（`which_editor` は `none`）を選択肢にして欄を残す
-- 表には `class="settings user-scope"` が付き、`style()` の `table.settings.user-scope td input[type=text]` の規則で文字の欄が 250px になる（幅を変えたい行は `userAttr` に `style` を書く）。グローバル設定の表にはこのクラスが付かない
+- 表には `class="settings user-scope"` が付く（グローバル設定の表は `class="settings"`）。文字の欄の幅（250px）は、どちらも `theme-base.css` の `.settings td input[type=text]` が決める（幅を変えたい行は `attr`・`userAttr` に `style` を書く）
 - ユーザー画面では `functions.js` を読まないので、プラグインの出力の `data-show-if` は切り替わらない。TinyMCE 7 の表は `use_editor` が「いいえ」でも出る
 - `EvoSettingsForm::names($scope)` は、その scope の画面に出す設定キー（`user` は、ユーザー編集画面の「ユーザー」タブが手書きで出す `EvoSettingsForm::USER_TAB_KEYS` を含む）。ユーザー編集画面・プロフィールの保存（`save_user.functions.php` の `allowedSettingNames()`）は、これに、画面を表示したときにプラグインのイベントの出力から取った欄の名前（セッションの `pluginSettingNames.<scope>`）を足した名前だけをユーザー設定として受ける。一覧に無い名前の行は、保存しても消さずに残す
 - プラグインが JS で足した欄は、イベントの出力に無いのでユーザー設定に入らない。欄はイベントの HTML に書く
