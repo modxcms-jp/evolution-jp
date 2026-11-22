@@ -87,7 +87,7 @@ user・profile の描き方（グローバル設定との違い）:
 
 | タブの id | タブ名（言語キー） | 小見出し（`settings_section_*`） | 末尾のイベント |
 | --- | --- | --- | --- |
-| `settingsTabUser` | ユーザー（`settings_users`）。管理ユーザーの画面（`a=12`）だけ | なし | |
+| `settingsTabUser` | ユーザー（`settings_users`）。管理ユーザーの新規（`a=11`）と編集（`a=12`）の画面だけ。プロフィールとグローバル設定には出ない | なし | |
 | `settingsTabSite` | サイト（`settings_site`） | 基本・URL・特別なページ・文字コードと時刻 | `OnSiteSettingsRender` |
 | `settingsTabResources` | リソース（`settings_resources`） | 新しいリソースの初期値・作成と編集 | |
 | `settingsTabCache` | キャッシュ（`settings_cache`） | なし | |

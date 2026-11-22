@@ -17,7 +17,8 @@
 - [x] (2026-11-22) 段階 3E: エラー報告の段階の一覧と意味の正本を `EvoErrorReporting` に置き、スニペット・プラグインの画面・グローバル設定の定義・保存の処理・DocumentParser の実行時の判定がそこを使う。欄の下の説明を本文と同じ大きさにした
 - [x] (2026-11-22) 段階 3D: ユーザーの画面の `style` 属性の書き間違い、`$_SESSION`・`$modx`・`compact()` の直接の使用、呼ばれない JS を直した（動きは変えない）
 - [x] (2026-11-22) 段階 3A: 設定の説明を欄の下の説明（help）に、設定の表の CSS を共通（theme-base.css）にまとめ、EvoSettingsForm::style() と画面の style を消した
-- [ ] 段階 3（3B・3C）: ユーザーの画面。ユーザーの設定の手書きの 4 項目を設定の定義へ（`USER_TAB_KEYS` を消す）、Web ユーザーの設定を定義へ、3 画面の重複（パスワードの欄・プロフィールの行）をなくす
+- [x] (2026-11-22) 段階 3B: ユーザーの設定の手書きの 4 項目を設定の定義の「ユーザー」タブへ（曜日は新しい `checkboxes` 型）、`USER_TAB_KEYS` を消し、ログインの状態の行を「ログイン設定」タブへ移した
+- [ ] 段階 3C: Web ユーザーの設定を定義へ、3 画面の重複（パスワードの欄・プロフィールの行）をなくす
 - [ ] 段階 4: 文書の画面の残り（TV の行 `tv_row.tpl` を部品へ、ほかの直書き）
 
 ## Surprises & Discoveries
@@ -207,7 +208,7 @@
 
 ### 段階 3C・4
 
-段階 3 の残りの PR は、3A のあとに、調査の結果（2026-11-22）をもとにこの節に手順を書き足す。3A で足した一時的な規則 `.settings tr:not(.field-row) > th { vertical-align: top }`（`theme-base.css`。行の部品を使わない手書きの設定の行の見出しを上揃えに保つ）は、3B・3C で手書きの行を部品へ移したら消す。
+段階 3 の残りの PR は、3B のあとに、調査の結果（2026-11-22）をもとにこの節に手順を書き足す。3C で一緒に扱うこと（3B の自己レビューより）: (1) 3A で足した一時的な規則 `.settings tr:not(.field-row) > th { vertical-align: top }`（`theme-base.css`）は、Web ユーザーの画面の 3 つの表と、スタイルガイドの手書きの見本「ユーザー編集の表」（`styleguide_sample.static.php`）を行の部品へ移したあとで消す。(2) 曜日の「選ばれているか」の判定が、画面（`EvoSettingsForm` の `checkboxes` 型。`,` で分けて一致を見る）とログインの処理（`login.processor.functions.php` の `strpos`）で違う。Web ユーザーの曜日の欄を同じ型へ移すときに、管理ユーザーと Web ユーザーのログインの処理も同じ判定にそろえる（`,` の無い古い値があるかも確かめる）。(3) プロフィールの画面（`mutate_user_pf.dynamic.php`）の使われない `checkbox()` を消す。
 
 段階 2B で見つかった重複（エラー報告の選択肢）は段階 3E で、TV の説明の textarea の `padding:0` は段階 2C で対応済み。
 
@@ -247,6 +248,7 @@
 - 段階 3E: ブランチ `refactor/1631-stage3e-error-reporting-options`（同じワークツリーで main から切り替えた）、PR #1730
 - 段階 3D: ブランチ `refactor/1631-stage3d-user-screen-fixes`（同じワークツリーで main から切り替えた）、PR #1731
 - 段階 3A: ブランチ `refactor/1631-stage3a-settings-table`（同じワークツリーで main から切り替えた）、PR #1733
+- 段階 3B: ブランチ `refactor/1631-stage3b-user-settings-definition`（同じワークツリーで main から切り替えた）
 
 ## Interfaces and Dependencies
 

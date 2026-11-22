@@ -1,7 +1,7 @@
 <?php
 
 /**
- * グローバル設定の画面の定義。EvoSettingsForm::definition() だけが読む。
+ * グローバル設定・管理ユーザーの編集・プロフィールの画面の設定の定義（行の scope で出す画面を分ける）。EvoSettingsForm::definition() だけが読む。
  * 形は assets/docs/global-settings.md の「設定画面への表示」を参照。
  * 文言は読んだときの言語の lang() で引く（言語ファイルの文言は信頼する HTML として出る）。
  */
