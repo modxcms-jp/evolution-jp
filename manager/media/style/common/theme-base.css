@@ -228,6 +228,33 @@ optgroup option {
     padding-inline-end: var(--space-3, 12px);
 }
 
+/* 見出しの 1 行目の文字を、値の 1 行目の文字にそろえる。
+   値が文字・チェックボックス・ラジオの行は、基準線でそろえる。
+   文字を入れる欄のある行は上揃えにし、見出しの上の余白で欄の中の文字の高さに合わせる（欄は中の文字が縦の中央に来る。
+   textarea の基準線は下端なので、基準線ではそろわない）。「文字を入れる欄」は forms.css の欄の高さの規則と同じ一覧。
+   詳細度は低くし、設定の表の見出し（EvoSettingsForm::style() の table.settings th）はその指定が勝つ。値のセルはこの揃えになる */
+:where(.field-row) > :is(.field-label, .field-value) {
+    vertical-align: baseline;
+}
+
+:where(.field-row:has(> .field-value :is(
+    input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"], [type="range"], [type="color"],
+        [type="submit"], [type="button"], [type="reset"], [type="image"]),
+    select,
+    textarea
+))) > :is(.field-label, .field-value) {
+    vertical-align: top;
+}
+
+:where(.field-row:has(> .field-value :is(
+    input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"], [type="range"], [type="color"],
+        [type="submit"], [type="button"], [type="reset"], [type="image"]),
+    select,
+    textarea
+))) > .field-label {
+    padding-top: calc((var(--control-height, 32px) - var(--line-box, 18px)) / 2);
+}
+
 /* 設定の表（.settings）の見出しの列 */
 .settings th {
     width: 200px !important;
