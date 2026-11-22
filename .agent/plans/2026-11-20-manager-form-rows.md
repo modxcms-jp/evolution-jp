@@ -19,7 +19,7 @@
 - [x] (2026-11-22) 段階 3A: 設定の説明を欄の下の説明（help）に、設定の表の CSS を共通（theme-base.css）にまとめ、EvoSettingsForm::style() と画面の style を消した
 - [x] (2026-11-22) 段階 3B: ユーザーの設定の手書きの 4 項目を設定の定義の「ユーザー」タブへ（曜日は新しい `checkboxes` 型）、`USER_TAB_KEYS` を消し、ログインの状態の行を「ログイン設定」タブへ移した
 - [x] (2026-11-22) 段階 3C-1: Web ユーザーの設定を設定の定義（scope `web`）へ移し、ログインの曜日・許可 IP の判定を `list_has_item()` の 1 つにそろえた（管理ユーザーと Web ユーザー）
-- [ ] 段階 3C-2: 3 画面の重複（パスワードの欄・プロフィールの行）をなくす（見出しの規則はプラグインが足す手書きの行のために残す。Surprises 参照）
+- [x] (2026-11-22) 段階 3C-2: 3 画面の重複（パスワードの欄・プロフィールの行）をなくした。3 画面の行と JS を共通の関数（`mutate_user/user_form_rows.php`）から出す（見出しの規則はプラグインが足す手書きの行のために残す。Surprises 参照）
 - [ ] 段階 4: 文書の画面の残り（TV の行 `tv_row.tpl` を部品へ、ほかの直書き）
 
 ## Surprises & Discoveries
@@ -278,6 +278,7 @@
 - 段階 3A: ブランチ `refactor/1631-stage3a-settings-table`（同じワークツリーで main から切り替えた）、PR #1733
 - 段階 3B: ブランチ `refactor/1631-stage3b-user-settings-definition`（同じワークツリーで main から切り替えた）、PR #1736
 - 段階 3C-1: ブランチ `refactor/1631-stage3c1-web-user-settings`（同じワークツリーで main から切り替えた）、PR #1737
+- 段階 3C-2: ブランチ `refactor/1631-stage3c2-user-form-rows`（同じワークツリーで main から切り替えた）
 
 ## Interfaces and Dependencies
 
