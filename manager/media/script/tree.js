@@ -55,42 +55,36 @@ function sendTreeRequest(url) {
         });
 }
 
-// 件数超過で省略したリソースの続きを読み込み、「残り N 件を表示」ノードと置き換える。
-// 差し込めたら true で解決する Promise を返す（失敗のときは false。読み込み中なら、その読み込みの Promise）。
-// until を渡すと、その文書を含むページまでをまとめて読む（revealPaneDocument() が使う。ノードの onclick は渡さない）
-function loadMoreNodes(el, indent, parent, offset, until) {
+// 件数超過で省略したリソースの続きを読み込み、「残り N 件を表示」ノードと置き換える
+function loadMoreNodes(el, indent, parent, offset) {
     var moreNode = el.parentNode;
     if (moreNode.loading) {
-        return moreNode.loading;
+        return;
     }
-    var params = {
+    moreNode.loading = true;
+    loadTreeRequest({
         "a": "1",
         "f": "nodes",
         "indent": indent,
         "parent": parent,
         "offset": offset
-    };
-    if (until) {
-        params.until = until;
-    }
-    moreNode.loading = new Promise(function (resolve) {
-        loadTreeRequest(params, function (response) {
-            if (response.indexOf('mx_loginbox') !== -1) {
-                // セッション切れ
-                top.location = 'index.php';
-                resolve(false);
-                return;
-            }
-            moreNode.insertAdjacentHTML('beforebegin', response);
-            moreNode.parentNode.removeChild(moreNode);
-            resolve(true);
-        }, function () {
-            // 失敗したらもう一度押せるようにする
-            moreNode.loading = null;
-            resolve(false);
-        });
+    }, function (response) {
+        if (response.indexOf('mx_loginbox') !== -1) {
+            // セッション切れ
+            top.location = 'index.php';
+            return;
+        }
+        // 本文の文書がこの中にあるとして選んでいた行なら、読み込んだあとで選び直す
+        var wasSelected = !!moreNode.querySelector('.treeNodeSelected');
+        moreNode.insertAdjacentHTML('beforebegin', response);
+        moreNode.parentNode.removeChild(moreNode);
+        if (wasSelected) {
+            selectPaneDocument();
+        }
+    }, function () {
+        // 失敗したらもう一度押せるようにする
+        moreNode.loading = false;
     });
-    return moreNode.loading;
 }
 
 // node: 差し込み先。省略時は直前に指定された rpcNode（子の取得中に別の読み込みが重なっても取り違えないよう、子の取得は node を渡す）
@@ -215,8 +209,7 @@ function paneDocument() {
 
 // 本文で開いている文書をツリーで選ぶ。閉じている親のフォルダは根の側から順に開く（開閉状態も保存される）。
 // リソース一覧など、ツリーの外から編集画面を開いたときのため。ツリーから開いたときは、もう見えているので選ぶだけになる。
-// 文書が「残り N 件を表示」で省かれているときは、その文書を含むページまでの続きを 1 回で読み込む。
-// 親がツリーに無い（権限で見えない）ときは、そこで止める
+// 親がツリーに無い（権限で見えない・「残り N 件を表示」で省略されている）ときは、そこで止める
 function revealPaneDocument() {
     var root = document.getElementById('treeRoot');
     var doc = paneDocument();
@@ -227,39 +220,6 @@ function revealPaneDocument() {
     function stillCurrent() {
         var cur = paneDocument();
         return cur !== null && cur.id === doc.id;
-    }
-    // 文書が直接の親の中の「残り N 件を表示」で省かれていれば、その文書を含むページまでを 1 回で読み込む。
-    // 読み込んでも無ければ（ツリーに出ない文書）、それ以上は読まない。読み込む前に親が閉じられたら読まない
-    function loadMoreIfHidden() {
-        var pid = doc.parents[doc.parents.length - 1];
-        var box = pid ? document.getElementById('c' + pid) : null;
-        if (!stillCurrent() || !box || document.getElementById('node' + doc.id)) {
-            return true;
-        }
-        if (box.style.display !== 'block' || box.dataset.closing === '1') {
-            return false;
-        }
-        var more = box.querySelector(':scope > .moreNode');
-        var label = more ? more.querySelector('.emptyNode') : null;
-        if (!label) {
-            return true;
-        }
-        // 手で押した読み込み（until なし。次の 1 ページだけ）の途中なら、それを待つことになる
-        var joined = !!more.loading;
-        return loadMoreNodes(
-            label,
-            more.getAttribute('data-indent'),
-            more.getAttribute('data-parent'),
-            more.getAttribute('data-offset'),
-            doc.id
-        ).then(function () {
-            // 読み込む間に親が閉じられたら、見えない行を選ばない
-            if (box.style.display !== 'block' || box.dataset.closing === '1') {
-                return false;
-            }
-            // 手で押した分では届かなかったら、新しい「残り」から文書を含むページまで読み直す
-            return joined ? loadMoreIfHidden() : true;
-        });
     }
     doc.parents.reduce(function (chain, pid) {
         return chain.then(function (ok) {
@@ -273,13 +233,9 @@ function revealPaneDocument() {
             }
             return toggleNode(sign, treeNodeIndent(box), pid, 0, 0);
         });
-    }, Promise.resolve(true)).then(function (ok) {
-        return ok ? loadMoreIfHidden() : false;
-    }).then(function (ok) {
+    }, Promise.resolve(true)).then(function () {
         if (stillCurrent()) {
-            if (ok !== false) {
-                selectTreeNode(doc.id);
-            }
+            selectPaneDocument();
             return;
         }
         // 移った先の文書の処理は、ここで読み込んでいた親（読み込み中）で止まっていることがある。
@@ -289,11 +245,26 @@ function revealPaneDocument() {
 }
 
 // 親を開かずに、見えていれば選ぶ（並べ替え・すべて展開など、ツリーを描き直したとき）
+// 文書が「残り N 件を表示」で省かれているときは、開いている直接の親の中のその行を選んだ見た目にして、
+// この中にあることだけを示す（続きを読み込むかは利用者が決める。数千件のフォルダでツリーを重くしない）
 function selectPaneDocument() {
     var doc = paneDocument();
-    if (doc) {
-        selectTreeNode(doc.id);
+    if (!doc || selectTreeNode(doc.id)) {
+        return;
     }
+    var pid = doc.parents[doc.parents.length - 1];
+    var box = pid ? document.getElementById('c' + pid) : null;
+    if (!box || box.style.display !== 'block') {
+        return;
+    }
+    var more = box.querySelector(':scope > .moreNode');
+    var label = more ? more.querySelector('.emptyNode') : null;
+    if (!label) {
+        return;
+    }
+    clearTreeSelection();
+    label.classList.add('treeNodeSelected');
+    scrollTreeRowIntoView(more);
 }
 
 // フォルダの子を取るときの indent（nodes.php の getNodes() が根を 1、その子のフォルダを 2 として数える）
@@ -307,16 +278,22 @@ function treeNodeIndent(box) {
     return indent;
 }
 
-// 文書のノードを選んだ見た目にし、ツリーの中で見えていなければ縦にスクロールして見せる。
-// scrollIntoView() は使わない（上端に貼り付いたボタンの帯 .tree-toolbar の下に隠れる・横のスクロールまで動く）
+// 文書のノードを選んだ見た目にし、ツリーの中で見えていなければスクロールして見せる。ノードが無ければ false
 function selectTreeNode(id) {
     var node = document.getElementById('node' + id);
     var row = node ? node.querySelector(':scope > .tree-row') : null;
     var span = row ? row.querySelector(':scope > span') : null;
     if (!span) {
-        return;
+        return false;
     }
     setSelected(span);
+    scrollTreeRowIntoView(row);
+    return true;
+}
+
+// ツリーの行が見えていなければ、縦にスクロールして見せる。
+// scrollIntoView() は使わない（上端に貼り付いたボタンの帯 .tree-toolbar の下に隠れる・横のスクロールまで動く）
+function scrollTreeRowIntoView(row) {
     var pane = document.getElementById('treePane');
     if (!pane) {
         return;
@@ -332,17 +309,18 @@ function selectTreeNode(id) {
     }
 }
 
-function setSelected(elSel) {
-    var all = document.getElementsByTagName("SPAN");
-    var l = all.length;
-
-    for (var i = 0; i < l; i++) {
-        el = all[i];
-        cn = el.className;
-        if (cn === "treeNodeSelected") {
-            el.className = "treeNode";
+// 選んだ見た目を外す。「残り N 件を表示」の行（emptyNode）は、自分の見た目を残す
+function clearTreeSelection() {
+    document.querySelectorAll('span.treeNodeSelected').forEach(function (el) {
+        el.classList.remove('treeNodeSelected');
+        if (!el.classList.contains('emptyNode')) {
+            el.classList.add('treeNode');
         }
-    }
+    });
+}
+
+function setSelected(elSel) {
+    clearTreeSelection();
     elSel.className = "treeNodeSelected";
 }
 
