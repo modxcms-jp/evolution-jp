@@ -209,28 +209,6 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
     }
 </script>
 
-<style type="text/css">
-    table.settings {
-        border-collapse: collapse;
-        width: 100%;
-    }
-
-    table.settings tr {
-        border-bottom: 1px dotted #ccc;
-    }
-
-    table.settings th {
-        font-size: inherit;
-        vertical-align: top;
-        text-align: left;
-    }
-
-    table.settings th,
-    table.settings td {
-        padding: 5px;
-    }
-</style>
-
 <form action="index.php?a=89" method="post" name="userform" enctype="multipart/form-data">
     <?php
     // invoke OnWUsrFormPrerender event

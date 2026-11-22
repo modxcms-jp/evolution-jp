@@ -146,7 +146,6 @@ if (config('manager_language') != "english" && is_file($lang_path)) {
     </div>
     <!-- Tab Start -->
     <div class="sectionBody">
-        <?= EvoSettingsForm::style() ?>
         <div class="tab-pane" id="userPane">
             <!-- Profile -->
             <div class="tab-page" id="tabProfile">

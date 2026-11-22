@@ -232,7 +232,7 @@ optgroup option {
    値が文字・チェックボックス・ラジオの行は、基準線でそろえる。
    文字を入れる欄のある行は上揃えにし、見出しの上の余白で欄の中の文字の高さに合わせる（欄は中の文字が縦の中央に来る。
    textarea の基準線は下端なので、基準線ではそろわない）。「文字を入れる欄」は forms.css の欄の高さの規則と同じ一覧。
-   詳細度は低くし、設定の表の見出し（EvoSettingsForm::style() の table.settings th）はその指定が勝つ。値のセルはこの揃えになる */
+   詳細度は低くし、行の部品を使わない手書きの行は、その行の規則で上書きできる */
 :where(.field-row) > :is(.field-label, .field-value) {
     vertical-align: baseline;
 }
@@ -252,19 +252,39 @@ optgroup option {
     select,
     textarea
 ))) > .field-label {
-    padding-top: calc((var(--control-height, 32px) - var(--line-box, 18px)) / 2);
+    padding-top: calc(var(--field-row-gap, 0px) + (var(--control-height, 32px) - var(--line-box, 18px)) / 2);
 }
 
-/* 設定の表（.settings）の見出しの列 */
+/* 設定の表（.settings）。全幅で、行の間は点線。行の上下・左右の余白は 1px（表のセルの既定）に --field-row-gap を足した値。
+   見出しの上の余白は、同じ --field-row-gap を揃えの規則（上の .field-label）が足すので、行の部品の揃えは崩れない。
+   見出しの文字の大きさは本文と同じ。見出しの列の幅は 200px */
+.settings {
+    --field-row-gap: 4px;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+:where(.settings) :is(th, td) {
+    padding: calc(1px + var(--field-row-gap));
+}
+
 .settings th {
     width: 200px !important;
     color: var(--settings-th-color, #555);
-    font-size: 1.2em;
     text-align: start;
+}
+
+.settings tr:not(.field-row) > th {
+    vertical-align: top;
 }
 
 .settings tr {
     width: 100% !important;
+    border-bottom: 1px dotted var(--color-border-default, #ccc);
+}
+
+.settings td input[type=text] {
+    width: 250px;
 }
 
 fieldset.tab-page {
@@ -578,11 +598,6 @@ form#mutate fieldset#settings_page_settings select {
 .sectionBody input.inputBox[type=password],
 .sectionBody select.inputBox {
     width: 350px;
-}
-
-/* ユーザー・ウェブユーザーの編集とエクスポートの設定の表 */
-.settings {
-    width: 600px;
 }
 
 /* ダッシュボードのアイコンのボタン（welcome.tpl）。行ごとに折り返して並べ、ボタンの中はアイコンと名前を縦に並べる。

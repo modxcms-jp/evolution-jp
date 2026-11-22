@@ -41,12 +41,6 @@ $values = EvoSettingsForm::systemValues($stored);
             </li>
         </ul>
     </div>
-    <?= EvoSettingsForm::style() ?>
-    <style type="text/css">
-        table.settings td input[type=text] {
-            width: 250px;
-        }
-    </style>
     <div class="sectionBody">
         <input type="hidden" name="site_id" value="<?= hsc($values['site_id'] ?? '') ?>"/>
         <?php

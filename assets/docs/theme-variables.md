@@ -281,7 +281,7 @@
 | `--statusbar-text-color` | 上のメニューの右の状態表示（`#buildText`・`#workText`）の文字の色 | `#fff` |
 | `--preloader-radius` / `--preloader-border-color` | 読み込み中の表示の角・枠の色 | `12px` / `--gray-500` |
 | `--searchbar-bg` / `--searchbar-border-color` / `--searchbar-radius` | リソースの選択の検索の帯の地・枠の色・角 | `#dbdbdb` / `silver` / `0` |
-| `--settings-th-color` / `--fieldset-tab-page-border-color` | 設定の表の見出しの列の文字の色・`fieldset.tab-page` の枠の色 | `#555` / `--gray-200` |
+| `--settings-th-color` / `--fieldset-tab-page-border-color` | 設定の表の見出しの列の文字の色・`fieldset.tab-page` の枠の色。設定の表の行の間の点線は `--color-border-default` | `#555` / `--gray-200` |
 | `--split-display` | 編集画面の区切りの線を見せるか（見せないテーマは `none`） | `block` |
 | `--okmsg-border-color` | 成功のメッセージ（`.okmsg`）の枠の色（地は `--color-success-bg`） | `--color-success-light` |
 | `--overhead-warning-color` / `--access-private-color` / `--label-disabled-color` / `--resource-description-color` / `--tree-protected-color` / `--disabled-plugin-color` | 状態を色で示す文字の色 | `#990033` / `#821517` / `#ccc` / `#777` / `#77d` / `#aaa` |
