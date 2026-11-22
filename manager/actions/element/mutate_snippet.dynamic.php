@@ -169,7 +169,7 @@ function entity($key, $default = null)
                     ob_start();
                     ?>
                     <textarea name="description"
-                        style="padding:0;height:4em;"><?= hsc(entity('description')) ?></textarea>
+                        style="height:4em;"><?= hsc(entity('description')) ?></textarea>
                     <?php
                     echo EvoFieldRow::render([
                         'label' => lang('snippet_desc'),

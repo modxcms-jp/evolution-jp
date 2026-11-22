@@ -81,7 +81,7 @@ template('id');
                     <div>
                         <b><?= lang('template_name') ?></b>
                         <input name="templatename" type="text" maxlength="100"
-                            value="<?= evo()->hsc(template('templatename')) ?>"
+                            value="<?= hsc(template('templatename')) ?>"
                             class="inputBox"
                             style="width:200px;">
                         <?php
@@ -97,7 +97,7 @@ template('id');
                             }
                             $parent[] = [
                                 'id' => $row['id'],
-                                'templatename' => evo()->hsc($row['templatename'])
+                                'templatename' => hsc($row['templatename'])
                             ];
                         }
                         $tpl = '<option value="[+id+]" [+selected+]>[+templatename+]([+id+])</option>';
@@ -130,7 +130,7 @@ template('id');
                             echo $head;
                         } ?>
                         <textarea dir="ltr" name="content" class="phptextarea"
-                            style="width:100%; height: 370px;"><?= evo()->hsc(template('content')) ?></textarea>
+                            style="width:100%; height: 370px;"><?= hsc(template('content')) ?></textarea>
                         <?php if (isset($foot)) {
                             echo $foot;
                         } ?>
@@ -172,7 +172,7 @@ template('id');
                         ob_start();
                         ?>
                         <textarea name="description"
-                            style="padding:0;height:4em;"><?= evo()->hsc(template('description')) ?></textarea>
+                            style="height:4em;"><?= hsc(template('description')) ?></textarea>
                         <?php
                         echo EvoFieldRow::render([
                             'label' => lang('template_desc'),
@@ -338,13 +338,13 @@ function getParentValues($parent)
         '<div style="%s border-bottom:none;"><pre style="%s">%s</pre></div>',
         $divstyle,
         $prestyle,
-        evo()->hsc(trim($content[0]))
+        hsc(trim($content[0]))
     );
     $foot = sprintf(
         '<div style="%s border-top:none;"><pre style="%s">%s</pre></div>',
         $divstyle,
         $prestyle,
-        evo()->hsc(trim($content[1]))
+        hsc(trim($content[1]))
     );
     return ['head' => $head, 'foot' => $foot];
 }
