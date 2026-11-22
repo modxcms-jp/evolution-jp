@@ -28,7 +28,7 @@ $description = post_strvar('description');
 $locked = postv('locked') === 'on' ? 1 : 0;
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
 
-$errorReporting = post_choicevar('error_reporting', ['inherit', '0', '1', '2', '99'], 'inherit');
+$errorReporting = post_choicevar('error_reporting', EvoErrorReporting::elementValues(), 'inherit');
 
 // strip out PHP tags from snippets
 if (strncmp($snippet, '<?', 2) == 0) {

@@ -31,7 +31,7 @@ $disabled = postv('disabled') === 'on' ? '1' : '0';
 $moduleguid = post_strvar('moduleguid');
 // 不正な値は読み捨てる。選ばれていなければ OnWebPageInit（90）にする
 $sysevents = post_idsvar('sysevents') ?: [90];
-$pluginErrorReporting = post_choicevar('error_reporting', ['inherit', '0', '1', '2', '99'], 'inherit');
+$pluginErrorReporting = post_choicevar('error_reporting', EvoErrorReporting::elementValues(), 'inherit');
 
 $isNew = $mode === 'new';
 // 差し戻し先と、名前の重複から除く id（新規は 0）

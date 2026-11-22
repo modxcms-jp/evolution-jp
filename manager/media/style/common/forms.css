@@ -168,7 +168,6 @@
     .form-text {
         margin-top: var(--space-1, 4px);
         color: var(--color-text-muted, #666);
-        font-size: .875em;
     }
 
     /* 説明のアイコン（mutate_content/functions.php の tooltip()） */

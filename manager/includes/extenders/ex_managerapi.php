@@ -1,6 +1,7 @@
 <?php
 require_once MODX_CORE_PATH . 'form_flow.class.inc.php';
 require_once MODX_CORE_PATH . 'field_row.class.inc.php';
+require_once MODX_CORE_PATH . 'error_reporting_options.class.inc.php';
 require_once MODX_CORE_PATH . 'element_types.class.inc.php';
 
 $this->manager = new ManagerAPI;
