@@ -100,11 +100,11 @@
 
 `input[type=submit|button|reset]` も、`.button` と同じ部品として、この変数で描く（主ボタンの `.primary` は付けない）。テーマは `input` のボタンだけの規則を書かない。
 
-編集画面の欄の名前（文書の行は `.mutate-field-row .field-title`。RTE の見出しなどの `.mutate-field-title` も同じ）・説明（`.comment`・`p.comment`）・テキスト欄（`form textarea`）の大きさは `forms.css`（層の中）が、日付の欄（`input.DatePicker`）・TV の欄の地（`#tv_body`）・読み取り専用の欄（`[readonly]`・`.readonly`）は `theme-base.css`（層の外。テーマの入力欄の規則と詳細度で張り合うため）が決める。テーマは下の変数で色とアイコンを決め、これらの規則を書かない。
+編集画面の欄の名前（行の部品の `.field-label`・`.field-title`。RTE の見出しなどの `.mutate-field-title` も同じ）・説明（`.comment`・`p.comment`）・テキスト欄（`form textarea`）の大きさは `forms.css`（層の中）が、日付の欄（`input.DatePicker`）・TV の欄の地（`#tv_body`）・読み取り専用の欄（`[readonly]`・`.readonly`）は `theme-base.css`（層の外。テーマの入力欄の規則と詳細度で張り合うため）が決める。テーマは下の変数で色とアイコンを決め、これらの規則を書かない。
 
 | 変数 | 意味 | 既定値 |
 | --- | --- | --- |
-| `--mutate-field-title-color` | 欄の名前の文字の色（太さは `bold`） | `--color-warning` |
+| `--mutate-field-title-color` | 欄の名前の文字の色（太さは `bold`）。全画面の見出し（文書・設定・ユーザーなど）で同じ | `--color-warning` |
 | `--comment-color` / `--comment-p-color` | 説明の文字の色（`p.comment` は `.9em`） | `--gray-500` / `--comment-color` |
 | `--datepicker-icon` / `--datepicker-icon-focus` | 日付の欄のカレンダーのアイコン（`url()`）。ふだんと入力中 | `common/images/misc/date-icon.png` / `date-icon-focus.png` |
 | `--readonly-bg` | 読み取り専用の欄の地 | `#eee` |
@@ -281,7 +281,7 @@
 | `--statusbar-text-color` | 上のメニューの右の状態表示（`#buildText`・`#workText`）の文字の色 | `#fff` |
 | `--preloader-radius` / `--preloader-border-color` | 読み込み中の表示の角・枠の色 | `12px` / `--gray-500` |
 | `--searchbar-bg` / `--searchbar-border-color` / `--searchbar-radius` | リソースの選択の検索の帯の地・枠の色・角 | `#dbdbdb` / `silver` / `0` |
-| `--settings-th-color` / `--fieldset-tab-page-border-color` | 設定の表の見出しの列の文字の色・`fieldset.tab-page` の枠の色。設定の表の行の間の点線は `--color-border-default` | `#555` / `--gray-200` |
+| `--fieldset-tab-page-border-color` | `fieldset.tab-page` の枠の色。設定の表の行の間の点線は `--color-border-default` | `--gray-200` |
 | `--split-display` | 編集画面の区切りの線を見せるか（見せないテーマは `none`） | `block` |
 | `--okmsg-border-color` | 成功のメッセージ（`.okmsg`）の枠の色（地は `--color-success-bg`） | `--color-success-light` |
 | `--overhead-warning-color` / `--access-private-color` / `--label-disabled-color` / `--resource-description-color` / `--tree-protected-color` / `--disabled-plugin-color` | 状態を色で示す文字の色 | `#990033` / `#821517` / `#ccc` / `#777` / `#77d` / `#aaa` |
