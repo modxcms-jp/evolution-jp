@@ -62,30 +62,74 @@ export function createUpload(ctx) {
         sendFiles(files, ctx.state.folder, false);
     }
 
+    // 1 回の要求には 1 ファイルだけ載せる。まとめて送ると合計が post_max_size や max_file_uploads を超え、
+    // 1 枚ずつは上限内でも全部が失敗する。並べて送るのは UPLOAD_CONCURRENCY 件まで
+    var UPLOAD_CONCURRENCY = 3;
+
     // folder は送る時点のフォルダ(送り直しの間に移っても同じ所へ送る)。overwrite が true なら同じ名前の上書きまで許す
     function sendFiles(files, folder, overwrite) {
+        var jobs = files.map(function (file) {
+            return { file: file, row: addUploadRow(file.name) };
+        });
+        var conflicts = [];
+        var next = 0;
+        var running = 0;
+
+        function finishAll() {
+            if (conflicts.length > 0 && ctx.confirmOverwrite(conflicts.map(function (c) { return c.targetName; }))) {
+                conflicts.forEach(function (c) { c.row.dismiss(); });
+                sendFiles(conflicts.map(function (c) { return c.file; }), folder, true);
+            } else {
+                conflicts.forEach(function (c) { c.row.done(false, c.message); });
+            }
+            ctx.onDone();
+        }
+
+        function pump() {
+            while (running < UPLOAD_CONCURRENCY && next < jobs.length) {
+                running++;
+                sendOne(jobs[next++], folder, overwrite, function (conflict) {
+                    if (conflict) {
+                        conflicts.push(conflict);
+                    }
+                    running--;
+                    if (next < jobs.length) {
+                        pump();
+                    } else if (running === 0) {
+                        finishAll();
+                    }
+                });
+            }
+        }
+
+        pump();
+    }
+
+    // 1 ファイルを送り、行を仕上げる。同じ名前で上書きの確認が要るときだけ、行を残したまま conflict を渡す
+    function sendOne(job, folder, overwrite, callback) {
+        var file = job.file;
+        var row = job.row;
+
+        // maxUploadSize が null のときは、本体では制限しない(サーバーの PHP の上限だけが効く)
+        if (ctx.config.maxUploadSize != null && file.size > ctx.config.maxUploadSize) {
+            row.done(false, t('fb_err_too_large'));
+            callback(null);
+            return;
+        }
+
         var formData = withApiParams(ctx.config, new FormData());
         formData.set('action', 'upload');
         formData.set('folder', folder);
         if (overwrite) {
             formData.set('overwrite', '1');
         }
-        files.forEach(function (file) {
-            formData.append('files[]', file, file.name);
-        });
-
-        var rows = files.map(function (file) {
-            return addUploadRow(file.name);
-        });
+        formData.append('files[]', file, file.name);
 
         var xhr = new XMLHttpRequest();
         xhr.open('POST', postUrl(ctx.config), true);
         xhr.upload.addEventListener('progress', function (e) {
             if (e.lengthComputable) {
-                var percent = Math.round((e.loaded / e.total) * 100);
-                rows.forEach(function (row) {
-                    row.setProgress(percent);
-                });
+                row.setProgress(Math.round((e.loaded / e.total) * 100));
             }
         });
         xhr.addEventListener('load', function () {
@@ -97,41 +141,23 @@ export function createUpload(ctx) {
                 result = null;
             }
 
-            if (ok && result) {
-                // サーバーは受けた順番(index)で結果を返す。名前では照らさない(名前に " や \ があると一致しない)
-                var errorByIndex = {};
-                (result.errors || []).forEach(function (err) {
-                    errorByIndex[err.index] = err;
-                });
-                var conflicts = [];
-                files.forEach(function (file, i) {
-                    var err = errorByIndex[i];
-                    if (err && err.code === 'exists' && !overwrite) {
-                        conflicts.push({ file: file, targetName: err.targetName || file.name, row: rows[i], message: err.message });
-                        return;
-                    }
-                    rows[i].done(!err, err && err.message);
-                });
-                if (conflicts.length > 0 && ctx.confirmOverwrite(conflicts.map(function (c) { return c.targetName; }))) {
-                    conflicts.forEach(function (c) { c.row.dismiss(); });
-                    sendFiles(conflicts.map(function (c) { return c.file; }), folder, true);
-                    ctx.onDone();
-                    return;
-                }
-                conflicts.forEach(function (c) { c.row.done(false, c.message); });
-            } else {
+            if (!ok || !result) {
                 // API の理由があればそれを、JSON でない応答は通信エラーとして出す
-                var reason = responseError(result).message;
-                rows.forEach(function (row) {
-                    row.done(false, reason);
-                });
+                row.done(false, responseError(result).message);
+                callback(null);
+                return;
             }
-            ctx.onDone();
+            var err = (result.errors || [])[0];
+            if (err && err.code === 'exists' && !overwrite) {
+                callback({ file: file, targetName: err.targetName || file.name, row: row, message: err.message });
+                return;
+            }
+            row.done(!err, err && err.message);
+            callback(null);
         });
         xhr.addEventListener('error', function () {
-            rows.forEach(function (row) {
-                row.done(false, t('fb_network_error'));
-            });
+            row.done(false, t('fb_network_error'));
+            callback(null);
         });
         xhr.send(formData);
     }
