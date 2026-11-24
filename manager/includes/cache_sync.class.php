@@ -14,6 +14,7 @@ class synccache
     public $cacheRefreshTime;
 
     private $current_time;
+    private $session_name = '';
 
     public function __construct()
     {
@@ -96,6 +97,9 @@ class synccache
         // サイトキャッシュ（config.siteCache.idx.php）を作る前に更新時刻を進める。
         // 後にすると、キャッシュに 1 回前の時刻が残り、条件付き GET（ETag / Last-Modified）が古い内容に 304 を返す
         $this->recent_update();
+
+        // sitecache の削除で basicConfig.php も消えるので、書き直すときに引き継ぐ値を先に読んでおく
+        $this->session_name = $this->getSessionName();
 
         if (strpos($this->target, 'pagecache') !== false) {
             $result = $this->purgeCacheFiles();
@@ -203,8 +207,6 @@ class synccache
 
     public function publishBasicConfig()
     {
-        global $site_sessionname;
-
         $this->recent_update();
         $config = $this->_get_settings();
 
@@ -222,15 +224,19 @@ class synccache
             (int) $cacheRefreshTime,
             date('Y-m-d H:i:s', (int) $cacheRefreshTime)
         );
-        $content[] = sprintf(
-            '$cache_type = %s;',
-            (int) config('cache_type', 1)
-        );
-        if (isset($site_sessionname) && $site_sessionname) {
-            $content[] = sprintf(
-                '$site_sessionname = %s;',
-                var_export((string) $site_sessionname, true)
-            );
+
+        // index.php の早い返し（フルページキャッシュと条件付き GET）は、セッション名が無いとログイン中の人を見分けられない。
+        // 名前が分からないときは早い返しを使う設定を書かず、通常の処理に回す
+        $session_name = $this->session_name ?: $this->getSessionName();
+        if ($session_name !== '') {
+            $content[] = sprintf('$site_sessionname = %s;', var_export($session_name, true));
+            $content[] = sprintf('$cache_type = %s;', (int) config('cache_type', 1));
+            if (config('conditional_get')) {
+                $content[] = sprintf(
+                    '$conditional_get = %s;',
+                    var_export((string) config('conditional_get'), true)
+                );
+            }
         }
 
         $content[] = sprintf(
@@ -266,16 +272,32 @@ class synccache
             );
         }
 
-        if (config('conditional_get')) {
-            $content[] = sprintf(
-                '$conditional_get = %s;',
-                var_export((string) config('conditional_get'), true)
-            );
-        }
-
         if (!evo()->saveToFile($this->cachePath . 'basicConfig.php', implode("\n", $content))) {
             exit(sprintf('Cannot open file (%sbasicConfig.php)', $this->cachePath));
         }
+    }
+
+    /**
+     * セッション名。セッションを始めない CLI では、今ある basicConfig.php の値を引き継ぐ。分からなければ空文字。
+     * 名前は Web サーバーから見たパスで決まるため、CLI では計算しない（コンテナの中と外などでパスが違うことがある）
+     */
+    private function getSessionName()
+    {
+        global $site_sessionname;
+
+        if (!empty($site_sessionname)) {
+            return (string) $site_sessionname;
+        }
+
+        // include すると、あとの include_once が読み込まなくなるので、該当の行だけを読む
+        $path = $this->cachePath . 'basicConfig.php';
+        if (
+            is_file($path)
+            && preg_match('/^\$site_sessionname = \'([^\'\\\\]+)\';$/m', (string) file_get_contents($path), $m)
+        ) {
+            return $m[1];
+        }
+        return '';
     }
 
     public function setCacheRefreshTime($unixtime)
