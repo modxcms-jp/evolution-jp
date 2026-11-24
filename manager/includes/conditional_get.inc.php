@@ -6,7 +6,7 @@ if (!isset($recent_update) || !$recent_update) {
 if (!isset($conditional_get) || !$conditional_get) {
     return;
 }
-if ($_POST || defined('MODX_API_MODE')) {
+if (!in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET', 'HEAD'], true) || $_POST || defined('MODX_API_MODE')) {
     return;
 }
 
