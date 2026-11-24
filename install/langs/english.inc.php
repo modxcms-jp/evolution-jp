@@ -32,7 +32,7 @@ $_lang["checking_if_cache_writable"] = 'Checking if <span class="mono">/temp/cac
 $_lang["checking_if_config_exist_and_writable"] = 'Checking if <span class="mono">/manager/includes/config.inc.php</span> exists and is writable: ';
 $_lang["checking_if_export_exists"] = 'Checking if <span class="mono">/temp/export</span> directory exists: ';
 $_lang["checking_if_export_writable"] = 'Checking if <span class="mono">/temp/export</span> directory is writable: ';
-$_lang["checking_if_images_exist"] = 'Checking if <span class="mono">/content/images</span>, <span class="mono">/content/files</span> and <span class="mono">/content/media</span> directories exists: ';
+$_lang["checking_if_images_exist"] = 'Checking if <span class="mono">/content/images</span>, <span class="mono">/content/files</span> and <span class="mono">/content/media</span> directories exist: ';
 $_lang["checking_if_images_writable"] = 'Checking if <span class="mono">/content/images</span>, <span class="mono">/content/files</span> and <span class="mono">/content/media</span> directories are writable: ';
 $_lang["checking_sql_version"] = 'Checking SQL version: ';
 $_lang["upgrade_old_db_title"] = 'Cannot upgrade from this version';
@@ -109,7 +109,7 @@ $_lang["ok"] = 'OK!';
 $_lang["optional_items"] = 'Optional Items';
 $_lang["optional_items_update"] = 'Select Update Options';
 $_lang["optional_items_new_note"] = '<b>Select the options to install.</b><br />If this is your first time using MODX, check all of them.';
-$_lang["optional_items_upd_note"] = 'This is update. Optional Items';
+$_lang["optional_items_upd_note"] = '<b>Select the options to update.</b><br /><b>Note:</b> When a plugin is updated, the existing plugin with the same name is disabled and the new version is installed.';
 $_lang["please_correct_error"] = '. Please correct the error';
 $_lang["please_correct_errors"] = '. Please correct the errors';
 $_lang["plugins"] = 'Plugins';
