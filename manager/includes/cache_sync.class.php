@@ -237,6 +237,14 @@ class synccache
                     var_export((string) config('conditional_get'), true)
                 );
             }
+        } elseif (config('cache_type', 1) == 2 || config('conditional_get')) {
+            evo()->logEvent(
+                0,
+                2,
+                'The session name is unknown, so the full page cache and the conditional GET are disabled'
+                . ' until the cache is rebuilt from the web (e.g. "Refresh site" in the manager).',
+                'Cache'
+            );
         }
 
         $content[] = sprintf(
@@ -278,15 +286,13 @@ class synccache
     }
 
     /**
-     * セッション名。セッションを始めない CLI では、今ある basicConfig.php の値を引き継ぐ。分からなければ空文字。
+     * セッション名。CLI では、今ある basicConfig.php の値を引き継ぐ。分からなければ空文字。
      * 名前は Web サーバーから見たパスで決まるため、CLI では計算しない（コンテナの中と外などでパスが違うことがある）
      */
     private function getSessionName()
     {
-        global $site_sessionname;
-
-        if (!empty($site_sessionname)) {
-            return (string) $site_sessionname;
+        if (PHP_SAPI !== 'cli') {
+            return cms_session_name();
         }
 
         // include すると、あとの include_once が読み込まなくなるので、該当の行だけを読む
