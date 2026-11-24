@@ -1,12 +1,15 @@
 <?php
+// セッション名。Web サーバーから見た設置パスで決まる（CLI から見たパスとは違うことがある）
+function cms_session_name()
+{
+    return 'evo' . substr(easy_hash(__FILE__), 0, 7);
+}
+
 // start cms session
 function startCMSSession()
 {
-    global $site_sessionname;
-
     if (session_status() == PHP_SESSION_NONE) {
-        $site_sessionname = 'evo' . substr(easy_hash(__FILE__), 0, 7);
-        session_name($site_sessionname);
+        session_name(cms_session_name());
         init::session_set_cookie_params();
         session_start();
     }

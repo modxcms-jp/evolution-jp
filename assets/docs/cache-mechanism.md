@@ -20,6 +20,13 @@
 - `DocumentParser::clearCache()` はドキュメント ID や `full`、`['target' => 'pagecache']` のようなオプションを受け取り、対象ページのキャッシュをユーザーエージェントバケット横断で削除します。その後 `synccache::emptyCache()` を呼び出してサイトキャッシュを再生成します。
 - コンテンツや設定を変更する際は手動でファイルを削除せず、`evo()->clearCache()` を利用してください。
 
+## basicConfig.php とセッション名
+
+- `index.php` の早い返し（フルページキャッシュと条件付き GET）は、`temp/cache/basicConfig.php` の `$site_sessionname` でセッションを始め、ログイン中の人を見分けます。早い返しを軽く保つため、`index.php` の側で名前を計算しません。
+- 名前は Web サーバーから見た設置パスで決まります（`cms_session_name()`）。Web で書き出すときはこの名前を書き、CLI（`php evo.php cache:clear` など）ではパスが違うことがあるので計算せず、今ある `basicConfig.php` の名前を引き継ぎます。
+- 設置パスを変えたサイトで CLI だけで作り直すと、前のパスの名前が残ります。Web 側で一度作り直してください（リソースの保存や「サイトをリフレッシュ」など）。
+- `basicConfig.php` が無い状態で CLI が書き出すと名前が分からないので、`$cache_type` と `$conditional_get` を書かず、早い返しを使いません。`cache_type=2` では毎回ページを生成します。次に Web 側でキャッシュを作り直したときに元に戻ります（早い返しを使う設定のときは、システムログに警告を残します）。デプロイなどで `temp/cache/` を消してから CLI で作り直さないでください。
+
 ## TTL と失効
 
 - `config('cache_ttl')` が設定されている場合、`getCache()` がファイルの更新時刻を比較し、期限切れのキャッシュを自動削除します。次のアクセスで再生成が行われます。
