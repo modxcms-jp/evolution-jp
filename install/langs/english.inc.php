@@ -30,10 +30,10 @@ $_lang["checking_if_cache_file_writable"] = 'Checking if <span class="mono">/tem
 $_lang["checking_if_cache_file2_writable"] = 'Checking if <span class="mono">/temp/cache/basicConfig.php</span> file is writable: ';
 $_lang["checking_if_cache_writable"] = 'Checking if <span class="mono">/temp/cache</span> and <span class="mono">/temp/cache/rss</span> directories are writable: ';
 $_lang["checking_if_config_exist_and_writable"] = 'Checking if <span class="mono">/manager/includes/config.inc.php</span> exists and is writable: ';
-$_lang["checking_if_export_exists"] = 'Checking if <span class="mono">/assets/export</span> directory exists: ';
-$_lang["checking_if_export_writable"] = 'Checking if <span class="mono">/assets/export</span> directory is writable: ';
-$_lang["checking_if_images_exist"] = 'Checking if <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span> and <span class="mono">/assets/media</span> directories exists: ';
-$_lang["checking_if_images_writable"] = 'Checking if <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span> and <span class="mono">/assets/media</span> directories are writable: ';
+$_lang["checking_if_export_exists"] = 'Checking if <span class="mono">/temp/export</span> directory exists: ';
+$_lang["checking_if_export_writable"] = 'Checking if <span class="mono">/temp/export</span> directory is writable: ';
+$_lang["checking_if_images_exist"] = 'Checking if <span class="mono">/content/images</span>, <span class="mono">/content/files</span> and <span class="mono">/content/media</span> directories exist: ';
+$_lang["checking_if_images_writable"] = 'Checking if <span class="mono">/content/images</span>, <span class="mono">/content/files</span> and <span class="mono">/content/media</span> directories are writable: ';
 $_lang["checking_sql_version"] = 'Checking SQL version: ';
 $_lang["upgrade_old_db_title"] = 'Cannot upgrade from this version';
 $_lang["upgrade_old_db_not_supported"] = 'This database is from a version older than 1.0.0J and cannot be upgraded directly to this version. The database has not been changed. Please restore the previous site files.';
@@ -108,7 +108,8 @@ $_lang["not_found"] = 'not found';
 $_lang["ok"] = 'OK!';
 $_lang["optional_items"] = 'Optional Items';
 $_lang["optional_items_update"] = 'Select Update Options';
-$_lang["optional_items_upd_note"] = 'This is update. Optional Items';
+$_lang["optional_items_new_note"] = '<b>Select the options to install.</b><br />If this is your first time using MODX, check all of them.';
+$_lang["optional_items_upd_note"] = '<b>Select the options to update.</b><br /><b>Note:</b> When a plugin is updated, the existing plugin with the same name is disabled and the new version is installed.';
 $_lang["please_correct_error"] = '. Please correct the error';
 $_lang["please_correct_errors"] = '. Please correct the errors';
 $_lang["plugins"] = 'Plugins';
@@ -171,6 +172,15 @@ $_lang['utf8mb4_conversion_enable'] = 'Convert existing utf8 tables to utf8mb4 d
 $_lang['utf8mb4_conversion_skip'] = 'Skip conversion and keep existing utf8 tables';
 $_lang['utf8mb4_conversion_tables_intro'] = 'Tables targeted for conversion:';
 $_lang['utf8mb4_conversion_tables_none'] = 'No tables require conversion.';
+
+$_lang['checking_if_content_exists'] = 'Checking if <span class="mono">/content</span> directory exists: ';
+$_lang['checking_if_content_writable'] = 'Checking if <span class="mono">/content</span> directory is writable: ';
+
+$_lang['checking_if_temp_exists'] = 'Checking if <span class="mono">/temp</span> directory exists: ';
+$_lang['checking_if_temp_writable'] = 'Checking if <span class="mono">/temp</span> directory is writable: ';
+
+$_lang["welcome_message_upd_text"] = 'This program will guide you through the rest of the upgrade.';
+$_lang["welcome_message_upd_welcome"] = 'Welcome to the MODX upgrade program.';
 $_lang["install_config_title"] = 'Installer access control';
 $_lang["install_config_missing_message"] = 'Installation cannot continue because <span class="mono">install-config.php</span> is missing.';
 $_lang["install_config_ip_message"] = 'Installation cannot continue because access from your IP address is not allowed. Please update <span class="mono">allowed_ips</span> in <span class="mono">install-config.php</span>.';

@@ -35,8 +35,10 @@ include_once MODX_SETUP_PATH . 'setup.info.php';
 $ph['is_upgradeable'] = sessionv('is_upgradeable');
 if ($ph['is_upgradeable']) {
     $ph['optional_items'] = lang('optional_items_update');
+    $ph['optional_items_note'] = lang('optional_items_upd_note');
 } else {
     $ph['optional_items'] = lang('optional_items');
+    $ph['optional_items_note'] = lang('optional_items_new_note');
 }
 
 if (sessionv('is_upgradeable')) {
@@ -80,7 +82,7 @@ function show_object_list($ph)
     }
 
     $tpl = <<< TPL
-<p>[+optional_items_upd_note+]</p>
+<p>[+optional_items_note+]</p>
 <p class="actions">
     <button type="button" id="toggle_check_all" class="action-button" data-action="all">[+all+]</button>
     <button type="button" id="toggle_check_none" class="action-button" data-action="none">[+none+]</button>
