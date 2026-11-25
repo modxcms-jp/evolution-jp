@@ -109,7 +109,7 @@ final class SystemSettingsRenderer
         $html[] = '    </td>';
         $html[] = '  </tr>';
 
-        // サイト共通の設定なのでシステム設定画面だけに出す。ユーザー設定画面に出すと、
+        // CSSスタイルセレクタとひな形はサイト共通の設定なので、システム設定画面だけに出す。ユーザー設定画面に出すと、
         // 表示中の管理者の値がそのユーザーの個別設定として保存されてしまう
         if ($this->isSystemSettingsScreen()) {
             $html[] = '  <tr class="row1">';
@@ -119,23 +119,23 @@ final class SystemSettingsRenderer
             $html[] = '      <div>' . hsc($this->t('tinymce7_css_selectors_description', 'Classes offered in the Formats list, as "Display name=class;Display name 2=class2".')) . '</div>';
             $html[] = '    </td>';
             $html[] = '  </tr>';
+            $html[] = '  <tr class="row1">';
+            $html[] = '    <th>' . hsc($this->t('tinymce7_template_label', 'Templates')) . '</th>';
+            $html[] = '    <td>';
+            $templateFields = [
+                'tinymce7_template_docs' => [$this->t('tinymce7_template_docs', 'Resource IDs'), implode(',', $this->preferences->detectTemplateDocIds())],
+                'tinymce7_template_chunks' => [$this->t('tinymce7_template_chunks', 'Chunk names'), implode(',', $this->preferences->detectTemplateChunkNames())],
+                'tinymce7_template_category' => [$this->t('tinymce7_template_category', 'Chunk category'), $this->preferences->detectTemplateCategory()],
+            ];
+            foreach ($templateFields as $name => [$label, $value]) {
+                $html[] = '      <div class="tinymce7-settings__template"><label><span>' . hsc($label) . '</span>'
+                    . '<input type="text" class="inputBox" name="' . $name . '" value="' . hsc($value) . '"></label></div>';
+            }
+            $html[] = '      <div>' . hsc($this->t('tinymce7_template_description', 'Content registered here can be inserted from the "Insert template" button or the Insert menu. Separate multiple IDs or names with commas. When a category is specified, all chunks in that category are listed.')) . '</div>';
+            $html[] = '    </td>';
+            $html[] = '  </tr>';
         }
 
-        $html[] = '  <tr class="row1">';
-        $html[] = '    <th>' . hsc($this->t('tinymce7_template_label', 'Templates')) . '</th>';
-        $html[] = '    <td>';
-        $templateFields = [
-            'tinymce7_template_docs' => [$this->t('tinymce7_template_docs', 'Resource IDs'), implode(',', $this->preferences->detectTemplateDocIds())],
-            'tinymce7_template_chunks' => [$this->t('tinymce7_template_chunks', 'Chunk names'), implode(',', $this->preferences->detectTemplateChunkNames())],
-            'tinymce7_template_category' => [$this->t('tinymce7_template_category', 'Chunk category'), $this->preferences->detectTemplateCategory()],
-        ];
-        foreach ($templateFields as $name => [$label, $value]) {
-            $html[] = '      <div class="tinymce7-settings__template"><label><span>' . hsc($label) . '</span>'
-                . '<input type="text" class="inputBox" name="' . $name . '" value="' . hsc($value) . '"></label></div>';
-        }
-        $html[] = '      <div>' . hsc($this->t('tinymce7_template_description', 'Content registered here can be inserted from the "Insert template" button or the Insert menu. Separate multiple IDs or names with commas. When a category is specified, all chunks in that category are listed.')) . '</div>';
-        $html[] = '    </td>';
-        $html[] = '  </tr>';
         $html[] = '</table>';
 
         return implode("\n", $html);
