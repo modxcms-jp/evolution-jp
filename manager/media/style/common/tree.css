@@ -106,6 +106,10 @@
         background: var(--tree-button-hover-bg, var(--color-surface, #fff));
     }
 
+    .treeButton[hidden] {
+        display: none;
+    }
+
     .treeButtonDisabled {
         color: var(--tree-button-disabled-color, var(--gray-700, #777));
         cursor: default;

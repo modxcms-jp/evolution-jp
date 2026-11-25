@@ -214,22 +214,28 @@ if (!sessionv('tree_sortdir')) {
 
         // 開いたときは、子が描けたら true で解決する Promise を返す（閉じた・取れなかったときは false）。
         // ノードの onclick は戻り値を使わない。tree.js の revealPaneDocument() が親を順に開くのに使う
+        function setTreeSign(id, open) {
+            var signImg = document.getElementById('s' + id);
+            if (signImg) {
+                signImg.src = open ? <?= js_literal(style('tree_minusnode')) ?> : <?= js_literal(style('tree_plusnode')) ?>;
+            }
+        }
+
         function toggleNode(node, indent, id, expandAll, privatenode) {
             privatenode = (!privatenode || privatenode == '0') ? '0' : '1';
             var box = document.getElementById('c' + id);
             var rpcNodeText;
 
-            var signImg = document.getElementById('s' + id);
             var opened = Promise.resolve(false);
 
             if (box.style.display === 'block' && box.dataset.closing !== '1') {
                 // collapse
-                signImg.src = <?= js_literal(style('tree_plusnode')) ?>;
+                setTreeSign(id, false);
                 openedArray[id] = 0;
                 slideTreeBox(box, false);
             } else {
                 // expand
-                signImg.src = <?= js_literal(style('tree_minusnode')) ?>;
+                setTreeSign(id, true);
 
                 rpcNodeText = box.innerHTML;
                 openedArray[id] = 1;
@@ -279,6 +285,7 @@ if (!sessionv('tree_sortdir')) {
             Evo.fetch(
                 'index.php?a=1&f=nodes&savestateonly=1' + getFolderState()
             ).catch(function () {});
+            syncTreeToggleAll();
             return opened;
         }
 
@@ -375,11 +382,15 @@ if (is_array($evtOut)) {
                 <td>
                     <table cellpadding="0" cellspacing="0" border="0">
                         <tr>
-                            <td><a href="#" class="treeButton" id="treeExpand" onclick="expandTree();"
+                            <td><a href="#" class="treeButton" id="treeExpand" onclick="expandTree();return false;"
                                     title="<?= lang('expand_tree') ?>"><?= style('expand_tree') ?></a>
-                            </td>
-                            <td><a href="#" class="treeButton" id="treeCollapse" onclick="collapseTree();"
+                                <a href="#" class="treeButton" id="treeCollapse" onclick="collapseTree();return false;" hidden
                                     title="<?= lang('collapse_tree') ?>"><?= style('collapse_tree') ?></a>
+                            </td>
+                            <td><a href="#" role="button" class="treeButton" id="treeAutoCollapse" aria-pressed="false"
+                                    onclick="toggleTreeAutoCollapse();return false;"
+                                    title="<?= lang('tree_auto_collapse') ?>"><?= style('auto_collapse_tree') ?></a>
+                                <script>syncTreeAutoCollapse();</script>
                             </td>
                             <?php if (evo()->hasPermission('new_document') && manager()->isAllowroot()) { ?>
                                 <td><a href="#" class="treeButton" id="treeNewResource"
