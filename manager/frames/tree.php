@@ -3,7 +3,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-$esc_request = db()->escape(anyv());
+$esc_request = anyv() ? db()->escape(anyv()) : [];
 
 $resourceTreeNodeName = config('resource_tree_node_name', '');
 $fieldtype = is_string($resourceTreeNodeName) && strpos($resourceTreeNodeName, 'edon') !== false
