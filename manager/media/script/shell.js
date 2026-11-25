@@ -272,10 +272,14 @@
         document.write(html);
         document.close();
         // document.open() で window のリスナー（シェルの popstate）が消えている。
-        // 戻る・進むでは、その URL の画面を読み直す（管理画面ならシェルが戻る。モジュールは 1 回だけ動く）
+        // 戻る・進むで別の URL になったら、その URL の画面を読み直す（管理画面ならシェルが戻る。モジュールは 1 回だけ動く）。
+        // ページ内リンクのハッシュだけの移動では読み直さない
+        const shownUrl = window.location.href.split('#')[0];
         window.addEventListener('popstate', function () {
-            window.location.reload();
-        }, { once: true });
+            if (window.location.href.split('#')[0] !== shownUrl) {
+                window.location.reload();
+            }
+        });
     }
 
     // 前ページが残したグローバルなUI部品を破棄する(差し替え前のクリーンアップ)

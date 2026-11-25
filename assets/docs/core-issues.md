@@ -72,7 +72,7 @@
 - **解決日**: 2026-07-07 に断片と完全 HTML を判定する形で対応し、#1824 で「戻る」と `target="main"` を直した
 - **ファイル**: `manager/processors/module/execute_module.processor.php`、`manager/media/script/shell.js`
 - **課題**: モジュールは独自の完全 HTML を出すことがある。シェルが応答を `document.write` で文書ごと差し替えるため、アドレスバーだけが変わって「戻る」が効かなかった。モジュールの `target="main"` のリンク・フォームも、frameset 時代の名前の `main` が無く、新しいタブを開いていた。
-- **対応**: `replaceDocument()` が、GET の移動では `pushState` で応答先の URL を積み、差し替えたあとの `popstate` で `location.reload()` する（戻るで管理画面に戻り、モジュールは 1 回だけ動く）。`target="main"` は `target` の無いものと同じに扱い、`window.name = 'main'` で、差し替えた画面からも同じタブへ届く。`top.mainMenu.reloadPane()`・`doRefresh()` は戻さない。詳細は `manager-shell.md`。
+- **対応**: `replaceDocument()` が、GET の移動では `pushState` で応答先の URL を積み、差し替えたあとの `popstate` で（ハッシュだけの移動を除いて）`location.reload()` する（戻るで管理画面に戻り、モジュールは 1 回だけ動く）。`target="main"` は `target` の無いものと同じに扱い、`window.name = 'main'` で、差し替えた画面からも同じタブへ届く。`top.mainMenu.reloadPane()`・`doRefresh()` は戻さない。詳細は `manager-shell.md`。
 - **関連ロードマップ**: frame要素廃止（完了）
 
 ## アップデーターの要素の入れ直しで、利用者の紐付けが戻る
