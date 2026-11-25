@@ -151,7 +151,7 @@
     color: var(--color-text-primary, #333);
 }
 
-/* 見た目（地色・枠・ボタンの並べ方・無効・削除の警告色）は子リソースの一覧の操作の帯と共通の .selection-dock
+/* 見た目（地色・枠・ボタンの並べ方・削除の警告色）は子リソースの一覧の操作の帯と共通の .selection-dock
    （style/common/selection-dock.css）。ここには、このブラウザでの出し方だけを書く */
 .evo-fb-selectionbar.selection-dock {
     /* 一覧(.evo-fb-main)の下に置き、場所は常に取っておく。選択が無いときは is-hidden で見えなくするだけなので、
