@@ -80,15 +80,6 @@
     line-height: inherit;
     cursor: pointer;
 }
-/* 押せないボタンは薄くして、押せないと分かるようにする（テーマの .actionButtons には無効の見た目が無い）。
-   hover・active でテーマの色が変わらないよう、ボタン自身はポインターを受けず、cursor は包む li に付ける */
-.selection-dock ul.actionButtons > li:has(> button:disabled) {
-    cursor: not-allowed;
-}
-.selection-dock ul.actionButtons button:disabled {
-    opacity: .5;
-    pointer-events: none;
-}
 /* 削除は区別のため警告色（文字と枠）にして右端へ寄せる */
 .selection-dock ul.actionButtons > li.is-danger {
     margin-left: auto;

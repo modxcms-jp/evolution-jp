@@ -15,7 +15,6 @@ import { createMarquee } from './marquee.js';
  * @param {object} ctx.state
  * @param {object} ctx.config
  * @param {(path: string) => void} ctx.onNavigate - フォルダへ移動(joinPath済みのpathを渡す)
- * @param {(name: string) => void} ctx.openPreview
  * @param {Array<{kind: string, label: string, icon: string}>} ctx.itemActions - ファイルの行に並べる操作(入口ごとの内訳は filebrowser.js が決める。ここでは入口を判定しない)
  * @param {(kind: string, name: string) => void} ctx.runItemAction
  * @param {(name: string) => void} ctx.openFile - ダブルクリックで開く(入口の behaviors.openFile が決める)
@@ -123,21 +122,24 @@ export function createGrid(ctx) {
             : fileIcon(40);
         var meta = listMetaHtml(file, false);
         var formatBadge = '';
+        var nameDescription = '';
         if (file.contentFormat) {
             var ext = (file.name.split('.').pop() || '').toUpperCase();
             var formatTitle = escapeHtml(t('fb_content_format_title', ext, String(file.contentFormat).toUpperCase()));
             formatBadge = '<span class="evo-fb-format-badge" role="img" title="' + formatTitle + '" aria-label="' + formatTitle + '">!</span>';
+            // サムネイルのボタンの名前は、中の印の名前を読み上げに出さない(aria-label が勝つ)。Tab が止まる名前のボタンに注意を足す
+            nameDescription = ' aria-description="' + formatTitle + '"';
         }
 
         return '' +
             '<div class="evo-fb-item evo-fb-item-file' + (state.selection.has(file.name) ? ' is-checked' : '') + (ctx.isCut(file.name) ? ' is-cut' : '') + '" draggable="true" data-name="' + escapeHtml(file.name) + '" data-kind="file">' +
-            '  <button type="button" class="evo-fb-item-thumb-btn" data-role="thumb">' +
+            '  <button type="button" class="evo-fb-item-thumb-btn" data-role="thumb" tabindex="-1" aria-label="' + escapeHtml(file.name) + '">' +
             '    <span class="evo-fb-thumb-wrap">' +
             '      <span class="evo-fb-thumb" aria-hidden="true">' + thumb + '</span>' +
             formatBadge +
             '    </span>' +
             '  </button>' +
-            '  <button type="button" class="evo-fb-item-name-btn" data-role="name">' +
+            '  <button type="button" class="evo-fb-item-name-btn" data-role="name"' + nameDescription + '>' +
             '    <span class="evo-fb-name">' + escapeHtml(file.name) + '</span>' +
             meta +
             '  </button>' +
@@ -163,25 +165,6 @@ export function createGrid(ctx) {
         for (var i = start; i <= end; i++) {
             state.selection.add(visible[i]);
         }
-    }
-
-    // サムネイルクリック→プレビューも、ダブルクリック検知のため一呼吸おく
-    var pendingPreviewTimer = null;
-
-    function cancelPendingPreview() {
-        if (pendingPreviewTimer) {
-            clearTimeout(pendingPreviewTimer);
-            pendingPreviewTimer = null;
-        }
-    }
-
-    function schedulePendingPreview(name) {
-        // dblclick の前に click が 2 回続くため、1 回目の予約を残すと、ファイルを開いたあとにプレビューが重なって開く
-        cancelPendingPreview();
-        pendingPreviewTimer = setTimeout(function () {
-            pendingPreviewTimer = null;
-            ctx.openPreview(name);
-        }, 250);
     }
 
     // --- インライン名前変更(エクスプローラの「選択済みをもう一度クリック」相当) ---
@@ -316,28 +299,10 @@ export function createGrid(ctx) {
                 var thumbBtn = item.querySelector('[data-role="thumb"]');
                 var nameBtn = item.querySelector('[data-role="name"]');
 
-                // サムネイルは選択に関与せず、常にプレビュー(拡大と、入口の JS が足すボタン)を開く。
-                // ダブルクリックはファイルを開くショートカット(ピッカーなら選択の確定)。プレビューは即座に開くと
-                // オーバーレイが2回目のクリックを奪いdblclickが成立しなくなるため、
-                // 一呼吸おいてから開く(ダブルクリック時はcancelPendingPreviewで打ち消す)
-                thumbBtn.addEventListener('click', function () {
-                    cancelPendingRename();
-                    schedulePendingPreview(name);
-                });
-                thumbBtn.addEventListener('dblclick', function () {
-                    cancelPendingRename();
-                    cancelPendingPreview();
-                    ctx.openFile(name);
-                });
-
-                // エクスプローラ準拠: ファイル名クリック=選択、Ctrl/Cmd+クリック=追加選択、
-                // Shift+クリック=直前の選択位置から範囲選択、ダブルクリック=ファイルを開く、
-                // 単独選択中の項目を修飾キーなしでもう一度クリック=名前をインライン編集
-                nameBtn.addEventListener('click', function (e) {
-                    cancelPendingRename();
-                    var wasSoleSelected = !e.shiftKey && !e.ctrlKey && !e.metaKey
-                        && state.selection.size === 1 && state.selection.has(name);
-
+                // クリックで選択する(名前と同じ。Ctrl・Shift も同じ)。プレビューは虫めがね・帯・右クリックから開く。
+                // サムネイルのクリックでは名前の変更を始めない(始めるのは名前のクリックだけ)。ダブルクリックはファイルを開く
+                // (ピッカーなら選択の確定)。サムネイルのボタンは Tab の止まりに入れず(tabindex="-1")、名前のボタンだけに止まる
+                function selectByClick(e) {
                     if (e.shiftKey && lastClickedFile) {
                         selectRange(lastClickedFile, name);
                     } else if (e.ctrlKey || e.metaKey) {
@@ -352,6 +317,25 @@ export function createGrid(ctx) {
                     }
                     lastClickedFile = name;
                     updateSelectionDom();
+                }
+
+                thumbBtn.addEventListener('click', function (e) {
+                    cancelPendingRename();
+                    selectByClick(e);
+                });
+                thumbBtn.addEventListener('dblclick', function () {
+                    cancelPendingRename();
+                    ctx.openFile(name);
+                });
+
+                // エクスプローラ準拠: ファイル名クリック=選択、Ctrl/Cmd+クリック=追加選択、
+                // Shift+クリック=直前の選択位置から範囲選択、ダブルクリック=ファイルを開く、
+                // 単独選択中の項目を修飾キーなしでもう一度クリック=名前をインライン編集
+                nameBtn.addEventListener('click', function (e) {
+                    cancelPendingRename();
+                    var wasSoleSelected = !e.shiftKey && !e.ctrlKey && !e.metaKey
+                        && state.selection.size === 1 && state.selection.has(name);
+                    selectByClick(e);
 
                     if (wasSoleSelected) {
                         // ダブルクリックと区別するため、一呼吸おく

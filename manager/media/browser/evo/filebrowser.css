@@ -151,7 +151,7 @@
     color: var(--color-text-primary, #333);
 }
 
-/* 見た目（地色・枠・ボタンの並べ方・無効・削除の警告色）は子リソースの一覧の操作の帯と共通の .selection-dock
+/* 見た目（地色・枠・ボタンの並べ方・削除の警告色）は子リソースの一覧の操作の帯と共通の .selection-dock
    （style/common/selection-dock.css）。ここには、このブラウザでの出し方だけを書く */
 .evo-fb-selectionbar.selection-dock {
     /* 一覧(.evo-fb-main)の下に置き、場所は常に取っておく。選択が無いときは is-hidden で見えなくするだけなので、
@@ -163,6 +163,9 @@
     overflow-y: hidden;
     scrollbar-width: thin;
     margin: var(--space-2, 8px) var(--space-3, 12px);
+    /* 高さの予約(filebrowser.js の reserveSelectionBarHeight)を、枠・余白を含む値で指定する */
+    box-sizing: border-box;
+    position: relative;
 }
 
 /* display: none にしない(場所が消えて一覧の高さが変わる)。visibility なら中のボタンにも Tab で止まらない。
@@ -189,6 +192,17 @@
 .evo-fb-selectionbar [data-role="selection-count"] {
     min-width: 7em;
     font-variant-numeric: tabular-nums;
+}
+
+/* 1 件のときは件数を見せない。読み上げ(role="status")には残すので display: none にしない */
+.evo-fb-selectionbar.is-single [data-role="selection-count"] {
+    position: absolute;
+    width: 1px;
+    min-width: 0;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
 }
 
 /* 開いているフォルダに書き込めないときの注意(一覧の上) */
@@ -494,7 +508,7 @@
     text-align: center;
 }
 
-/* ファイル項目はサムネイル(クリック=プレビュー)とファイル名(クリック=選択/リネーム)を
+/* ファイル項目はサムネイル(クリック=選択。マウス・タッチ用で Tab の止まりには入れない)とファイル名(クリック=選択/リネーム)を
    別ボタンに分ける。見た目は従来のevo-fb-item-main(縦積み)と同じになるよう
    paddingを上下に分割する */
 .evo-fb-item-thumb-btn {
