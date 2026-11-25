@@ -1312,17 +1312,21 @@ trait DocumentParserSubParserTrait
             case '@DIR' :
                 $files = [];
                 $param = trim($param, '/');
-                $path = MODX_BASE_PATH . $param;
-                if (!is_dir($path)) {
-                    exit($path);
+                // @FILE・@INCLUDE と同じ場所の決まり。無い・許されない場所は空にする
+                $path = $this->resolveBindDirPath(MODX_BASE_PATH . $param);
+                if ($path === false) {
+                    $output = '';
+                    break;
                 }
 
+                $prefix = $param === '' ? '' : "{$param}/";
                 $dir = dir($path);
                 while (($file = $dir->read()) !== false) {
                     if (strpos($file, '.') !== 0) {
-                        $files[] = "{$file}=={$param}{$file}";
+                        $files[] = "{$file}=={$prefix}{$file}";
                     }
                 }
+                $dir->close();
                 asort($files);
                 $output = implode('||', $files);
                 break;
@@ -2676,7 +2680,7 @@ trait DocumentParserSubParserTrait
      * - ほかのホストの URL は扱わない
      * ファイルブラウザが返す値は名前を URL エンコードしているため、まずそのままの値で探し、
      * 無ければ rawurldecode() した値で探す（% を含む昔の名前を壊さないよう、そのままの値を先にする）。
-     * 場所の確かめは resolveBindFilePath() / resolveBindDirPath() と同じ（サイトのルートの下で、管理画面の下・読まない場所ではない）。
+     * 場所の確かめは resolveBindFilePath() / resolveBindDirPath() と同じ（読んでよいルートの下で、管理画面の下・読まない場所ではない）。
      */
     function resolveSitePath($value, $isDir = false)
     {
@@ -2715,7 +2719,7 @@ trait DocumentParserSubParserTrait
 
     /*
      * バインドで読むファイルの場所の判定。
-     * 実パスがサイトのルートの下で、管理画面の下ではないときだけ実パスを返す。
+     * 実パスが読んでよいルート（getBindRoots()）の下で、管理画面の下・読まない場所ではないときだけ実パスを返す。
      */
     function resolveBindFilePath($path)
     {
@@ -2725,14 +2729,12 @@ trait DocumentParserSubParserTrait
         }
 
         $real = realpath($path);
-        $base = realpath(MODX_BASE_PATH);
-        if ($real === false || $base === false || !is_file($real)) {
+        if ($real === false || !is_file($real)) {
             return false;
         }
 
         $real = str_replace('\\', '/', $real);
-        $base = rtrim(str_replace('\\', '/', $base), '/') . '/';
-        if (strpos($real, $base) !== 0) {
+        if ($this->bindRootOf($real) === false) {
             return false;
         }
 
@@ -2756,7 +2758,7 @@ trait DocumentParserSubParserTrait
 
     /*
      * resolveBindFilePath() のディレクトリ版。
-     * 実パスがサイトのルートの下で、管理画面の下・読まない場所ではないときだけ、末尾に / を付けた実パスを返す。
+     * 実パスが読んでよいルート（getBindRoots()）の下で、管理画面の下・読まない場所ではないときだけ、末尾に / を付けた実パスを返す。
      */
     function resolveBindDirPath($path)
     {
@@ -2766,14 +2768,12 @@ trait DocumentParserSubParserTrait
         }
 
         $real = realpath($path);
-        $base = realpath(MODX_BASE_PATH);
-        if ($real === false || $base === false || !is_dir($real)) {
+        if ($real === false || !is_dir($real)) {
             return false;
         }
 
         $real = rtrim(str_replace('\\', '/', $real), '/') . '/';
-        $base = rtrim(str_replace('\\', '/', $base), '/') . '/';
-        if (strpos($real, $base) !== 0) {
+        if ($this->bindRootOf($real) === false) {
             return false;
         }
 
@@ -2820,23 +2820,60 @@ trait DocumentParserSubParserTrait
     }
 
     /*
-     * サイトのルートの下の実パスのうち、バインドで読まない場所かどうか。
-     * . で始まる区切りを含む場所と、バックアップ・スナップショットの置き場所が対象。
+     * バインドで読んでよい置き場所のルートの実パス（末尾に / を付ける）の一覧。
+     * サイトのルートと、ファイルの置き場所 rb_base_dir の実体。content/ をシンボリックリンクにして
+     * サイトの外へ置く構成では、実体がサイトのルートの外になるため、運用者が選んだルートとして rb_base_dir の実体も認める
+     * （assets/docs/file-storage.md の決まり 1）。rb_base_dir がサイトのルートの外のとき、次は認めない:
+     * 存在しない・空、サイトのルートを含む場所（/ やサイトの親など）。ルートの中のリンクが外を指すなら、どちらのルートの下でもないので読まない
+     */
+    function getBindRoots()
+    {
+        $roots = [];
+        $base = realpath(MODX_BASE_PATH);
+        if ($base === false) {
+            return $roots;
+        }
+        $base = rtrim(str_replace('\\', '/', $base), '/') . '/';
+        $roots[] = $base;
+
+        // 設定の読み込みの前は [(base_path)] のままのことがある
+        $rb = trim(str_replace('[(base_path)]', MODX_BASE_PATH, (string) evo()->config('rb_base_dir')));
+        $rb = $rb === '' ? false : realpath($rb);
+        if ($rb === false || !is_dir($rb)) {
+            return $roots;
+        }
+        $rb = rtrim(str_replace('\\', '/', $rb), '/') . '/';
+        if ($rb !== $base && strpos($base, $rb) !== 0) {
+            $roots[] = $rb;
+        }
+        return $roots;
+    }
+
+    // 実パス $real を含む、読んでよいルート（getBindRoots()）。どこにも入らなければ false
+    function bindRootOf($real)
+    {
+        foreach ($this->getBindRoots() as $root) {
+            if (strpos($real, $root) === 0) {
+                return $root;
+            }
+        }
+        return false;
+    }
+
+    /*
+     * バインドで読んでよいルートの下の実パスのうち、バインドで読まない場所かどうか（ルートの外は読まない場所とみなす）。
+     * . で始まる区切りを含む場所（ルートからの相対で見る）と、バックアップ・スナップショットの置き場所が対象。
      * 管理画面の下かどうかは、呼び出し側が判断する。
      */
     function isBindDeniedPath($real)
     {
         $real = str_replace('\\', '/', (string) $real);
-        $base = realpath(MODX_BASE_PATH);
-        if ($base === false) {
-            return true;
-        }
-        $base = rtrim(str_replace('\\', '/', $base), '/') . '/';
-        if (strpos($real, $base) !== 0) {
+        $root = $this->bindRootOf($real);
+        if ($root === false) {
             return true;
         }
 
-        $relative = substr($real, strlen($base));
+        $relative = substr($real, strlen($root));
         foreach (explode('/', $relative) as $segment) {
             if (strpos($segment, '.') === 0) {
                 return true;
