@@ -54,6 +54,11 @@ if ($mode === 'new') { // new user
         webAlert('Email is already in use!');
         exit;
     }
+    // 新規はロールを選んでいること（空・存在しないロールは、ロール 0 の権限なしのユーザーになってしまう）
+    if (!roleExists(userformv_int('role'))) {
+        webAlert(lang('user_role_required'));
+        exit;
+    }
     if (post_strvar('passwordgenmethod') === 'spec') {
         if (!post_strvar('specifiedpassword')) {
             webAlert("You didn't specify a password for this user!");

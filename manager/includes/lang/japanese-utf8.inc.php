@@ -1060,6 +1060,7 @@ return [
     "user_prevlogin" => '前回のログイン日時',
     "user_role" => 'ロール（役割）',
     "user_role_choose" => 'ロールを選んでください',
+    "user_role_required" => 'ロールを選んでください。',
     "user_state" => '都道府県',
     "user_thislogin" => 'ログイン日時',
     "user_title" => 'ユーザーの作成/編集',

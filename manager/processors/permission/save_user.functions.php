@@ -401,6 +401,16 @@ function validRole()
     return userformv_int('role') > 0;
 }
 
+// ロールの id が user_roles にあるか
+function roleExists($roleId)
+{
+    $roleId = (int)$roleId;
+    if ($roleId <= 0) {
+        return false;
+    }
+    return (bool)db()->getValue(db()->select('id', '[+prefix+]user_roles', where('id', '=', $roleId)));
+}
+
 // 日付の欄（生年月日・ブロックの日時）がすべて解釈できて、整数の列に入るか
 function validDates()
 {

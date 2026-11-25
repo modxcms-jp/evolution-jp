@@ -1058,6 +1058,7 @@ return [
     "user_prevlogin" => 'Last login',
     "user_role" => 'User\'s role',
     "user_role_choose" => 'Select a role',
+    "user_role_required" => 'Select a role.',
     "user_state" => 'State',
     "user_thislogin" => 'Last login',
     "user_title" => 'Create/Edit User',
