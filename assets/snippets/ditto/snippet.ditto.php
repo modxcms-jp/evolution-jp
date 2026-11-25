@@ -479,9 +479,9 @@ if ($count > 0) {
 
     if ($save) {
         evo()->setPlaceholder($dittoID . "ditto_object", $ditto);
-        evo()->setPlaceholder($dittoID . "ditto_resource", ($save == "1") ? array_slice($resource, $display) : $resource);
+        evo()->setPlaceholder($dittoID . "ditto_resource", ($save == "1") ? array_slice($resource ?: [], $display) : $resource);
         if ($save == 3) {
-            return '';
+            return is_array($resource) ? $resource : '';
         }
     }
 } else {
