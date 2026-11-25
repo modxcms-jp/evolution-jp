@@ -58,9 +58,9 @@ if (!defined('MODX_API_MODE')
         session_start();
     }
     if (!isset($_SESSION['mgrValidated']) && !isset($_SESSION['webValidated'])) {
-        session_write_close();
         $target = MODX_CACHE_PATH . 'pages/' . hash('crc32b', $_SERVER['REQUEST_URI'] ?? '') . '.pageCache.php';
         if (is_file($target)) {
+            session_write_close();
             $handle = fopen($target, 'rb');
             $output = fread($handle, filesize($target));
             unset($handle);
