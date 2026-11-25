@@ -51,10 +51,11 @@
 - このサイトの表でない表を含むダンプ（別のサイトのダンプなど）。このサイトの接頭辞で始まらない表と、本体の表の名前（`system_settings` など）で終わるのに「このサイトの接頭辞 + 本体の表の名前」でない表（`modx_` のサイトへの `modx_old_` のダンプなど）を見る。ダンプの接頭辞とこのサイトの接頭辞を示す。接頭辞を置き換えて取り込む機能は無い
 - 同じ DB に、接頭辞が重なる 2 つのサイト（`modx_` と `modx_old_` など）があると、`modx_` のサイトの書き出しには `modx_old_` の表も入るので、そのサイトは自分のスナップショットも戻せない（断る）。接頭辞は大文字小文字を問わず比べる
 - 表の名前を拾う文は `INSERT`・`REPLACE`・`CREATE TABLE`・`DROP TABLE`・`TRUNCATE`・`LOCK TABLES`・`ALTER TABLE`（`EvoSqlDump::tableOf()`）。ビューやルーチンの定義の中の表は見ない
+- このサイトの DB 以外の DB を指すダンプ（`USE`・`CREATE DATABASE`・`` `db`.`table` `` の形の表。`EvoSqlDump::databaseOf()`）。`DROP DATABASE`・`ALTER DATABASE` は DB 名にかかわらず断る。このサイトの DB 名と同じ名前（`mysqldump --databases` でこのサイトの DB だけを書き出したダンプ）は、別の DB へ向かわないので許す。DB 名は大文字小文字を区別して比べる。DB 名の違うサーバーへ移すときは、`USE` などを含まない書き出し（`db:export`・スナップショット）を使う
 - `DELIMITER` を含むダンプ（トリガー・ストアドプロシージャー。`db:export` の既定の出力など）。`mysql` コマンドで戻すよう知らせる
 
 ## 復元で残すもの
 
 - 環境ごとの設定（`site_url`・`base_url`・`filemanager_path`・`rb_base_dir`・`fixed_site_url`）は、取り込み先の値を残す（`assets/docs/site-url.md`）
 - `system_cache` の表への文は飛ばし、最後にキャッシュを作り直す
-- 途中の文で失敗したときは、設定だけ戻し、復元の前の控えの名前を知らせる
+- 途中の文で失敗したときは、`UNLOCK TABLES` を送ってから（`mysqldump` 形式の `LOCK TABLES` が残ると、ほかの表を更新できない）設定だけ戻し、復元の前の控えの名前を知らせる

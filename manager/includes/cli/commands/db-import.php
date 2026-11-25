@@ -49,6 +49,14 @@ if ($result['read_failed']) {
 if ($result['refused'] === 'delimiter') {
     cli_usage('Error: the dump contains DELIMITER (triggers or stored routines) and cannot be restored here; nothing was changed. Restore it with the mysql command.');
 }
+if ($result['refused'] === 'database') {
+    $databases = array_slice($result['foreign_databases'], 0, 5);
+    cli_usage(sprintf(
+        'Error: the dump refers to a database other than this site\'s (this site: %s, found: %s); nothing was changed. Restore a dump of this site\'s tables only (without USE, CREATE DATABASE or database-qualified names).',
+        "'" . db()->dbname . "'",
+        implode(', ', $databases) . (count($result['foreign_databases']) > 5 ? ', ...' : '')
+    ));
+}
 if ($result['refused'] === 'prefix') {
     $tables = array_slice($result['foreign_tables'], 0, 5);
     cli_usage(sprintf(

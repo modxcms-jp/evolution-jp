@@ -1342,6 +1342,7 @@ return [
     "bkmgr_restore_too_large" => 'The file could not be uploaded because it is too large. The server limits are upload_max_filesize [+upload_max_filesize+] and post_max_size [+post_max_size+].',
     "bkmgr_restore_upload_failed" => 'The file could not be uploaded. Please try again.',
     "bkmgr_restore_has_delimiter" => 'A dump that contains triggers or stored routines (DELIMITER) cannot be restored here. Please restore it with the mysql command. The database was not changed.',
+    "bkmgr_restore_database_mismatch" => 'The restore was not run because the dump refers to a database other than this site\'s ([+site_database+]) (found: [+databases+]). Please restore a dump that contains only this site\'s tables, without USE, CREATE DATABASE or database-qualified table names. The database was not changed.',
     "bkmgr_restore_prefix_mismatch" => 'The restore was not run because the dump has tables that do not start with this site\'s prefix ([+site_prefix+]) (dump prefix: [+dump_prefix+], tables: [+tables+]). The database was not changed.',
     "bkmgr_restore_invalid_file" => 'The selected snapshot was not found or could not be read.',
     "delete_resource_complete" => 'Delete complete',

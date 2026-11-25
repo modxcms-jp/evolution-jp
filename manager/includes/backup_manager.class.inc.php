@@ -145,7 +145,8 @@ class EvoBackupManager
      * 既定は createSnapshot() と同じ PHP の書き手）。環境ごとの設定（site_url など）は取り込み先の値を残し、
      * 最後にキャッシュを作り直す。ファイルを開けなければ、何もせずに read_failed を true にして返す。
      * 書き換える前にファイルを下読みし、このサイトの接頭辞で始まらない表を含むダンプ（refused = 'prefix'）と、
-     * DELIMITER を含むダンプ（refused = 'delimiter'）は、控えも作らず何も書き換えずに断る
+     * DELIMITER を含むダンプ（refused = 'delimiter'）、このサイトの DB 以外の DB を指すダンプ（refused = 'database'）は、
+     * 控えも作らず何も書き換えずに断る
      */
     public function restoreFile($path, $preRestore = null)
     {
@@ -161,6 +162,7 @@ class EvoBackupManager
             'refused'            => '',
             'dump_prefix'        => null,
             'foreign_tables'     => [],
+            'foreign_databases'  => [],
         ];
 
         // 控えを作る前に開く（世代の整理が、戻すファイルそのもの（古い控えなど）を消しても読めるように）
@@ -175,6 +177,13 @@ class EvoBackupManager
         if ($inspected['delimiter']) {
             fclose($stream);
             $result['refused'] = 'delimiter';
+            return $result;
+        }
+        $foreignDatabases = self::foreignDatabases($inspected['databases']);
+        if ($foreignDatabases) {
+            fclose($stream);
+            $result['refused'] = 'database';
+            $result['foreign_databases'] = $foreignDatabases;
             return $result;
         }
         $foreign = self::foreignTables($inspected['tables']);
@@ -223,6 +232,8 @@ class EvoBackupManager
                 $result['error'] = db()->getLastError();
                 $result['failed_at'] = $number;
                 // 途中で止まった DB ではキャッシュの再生成が止まりうるので、設定だけ戻す
+                // （LOCK TABLES が残っていると、ロックしていない表に触れない）
+                db()->query('UNLOCK TABLES');
                 if (EvoDbTables::exists(EvoDbTables::name('system_settings'))) {
                     $this->restoreSettings($keep);
                 }
@@ -232,12 +243,25 @@ class EvoBackupManager
             $result['executed']++;
         }
         fclose($stream);
+        db()->query('UNLOCK TABLES');
 
         if (!$this->finish($keep)) {
             $result['error'] = 'system_settings or system_cache is missing; cache was not rebuilt';
         }
         $result['ok'] = true;
         return $result;
+    }
+
+    /**
+     * このサイトの DB 以外の DB を指す名前（USE・DB 名付きの表など）。このサイトの DB 名と同じものは、
+     * 別の DB へ向かわないので許す（mysqldump --databases でこのサイトだけを書き出したダンプ）。DB 名は大文字小文字を区別して比べる
+     */
+    private static function foreignDatabases(array $databases): array
+    {
+        $own = (string) db()->dbname;
+        return array_values(array_filter($databases, function ($database) use ($own) {
+            return $database !== $own;
+        }));
     }
 
     // 本体の表の名前（接頭辞を除いたもの）。ダンプの接頭辞を見分けるのに使う
