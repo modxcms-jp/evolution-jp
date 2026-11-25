@@ -1649,17 +1649,16 @@ function logDeprecated($name, $message)
     }
     $logged[$name] = true;
 
-    $skip = [
-        str_replace('\\', '/', __FILE__),
-        str_replace('\\', '/', MODX_CORE_PATH . 'document.parser.class.inc.php'),
-    ];
+    // logDeprecated() 自身と、これを呼んだ（非推奨の機能を定義している）ファイルを飛ばし、その機能を使った側を探す
+    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+    $skip = [__FILE__, $trace[0]['file'] ?? ''];
     $context = ['deprecated' => $name];
-    foreach (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS) as $frame) {
-        $file = str_replace('\\', '/', $frame['file'] ?? '');
+    foreach ($trace as $frame) {
+        $file = $frame['file'] ?? '';
         if ($file === '' || in_array($file, $skip, true)) {
             continue;
         }
-        $context['file'] = $file;
+        $context['file'] = str_replace('\\', '/', $file);
         $context['line'] = $frame['line'] ?? 0;
         break;
     }

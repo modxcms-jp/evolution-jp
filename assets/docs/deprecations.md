@@ -14,10 +14,12 @@
 
 | 機能 | 非推奨にした版 | 消す版 | 代わり |
 | --- | --- | --- | --- |
-| `loadExtension('documentapi')` と `Document` クラス（`manager/includes/extenders/ex_documentapi.php`） | 1.3 | 1.4 | `evo()->doc`（`loadExtension('DocAPI')` の DocAPI） |
+| `Document` クラス（`manager/includes/extenders/ex_documentapi.php`） | 1.3 | 1.4 | `evo()->doc`（`loadExtension('DocAPI')` の DocAPI） |
 
 ### Document クラス
 
-`new Document($id)` は本体から使われていない。`loadExtension('documentapi')` を呼ぶと警告が残る。動き（`Document` の中身と戻り値）は 1.4 まで変えない。
+`new Document($id)` は本体から使われていない。`Document` クラスはパーサーの起動時に読み込まれるので、`loadExtension('documentapi')` を呼ばなくても使える。警告は `Document::__construct()` で残すため、`Document` を使ったときだけ出る（`loadExtension('documentapi')` を呼ぶだけでは出ない）。動き（`Document` の中身と戻り値）は 1.4 まで変えない。
+
+静的メソッド（`documentExist()`・`chPublish()`・`chDelete()`・`erase()`）はコンストラクタを通らないので、警告は出ない。
 
 1 件の文書を作る・更新する・削除するときは、DocAPI の `create()`・`update()`・`delete()`・`saveTV()` を使う（#1085）。

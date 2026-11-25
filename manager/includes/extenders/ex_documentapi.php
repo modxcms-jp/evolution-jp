@@ -82,6 +82,10 @@ class Document
      */
     public function __construct($id = '', $status = self::ST_RELEASED, $level = '')
     {
+        logDeprecated(
+            'Document',
+            'The Document class is deprecated and will be removed in 1.4. Use evo()->doc (DocAPI) instead.'
+        );
         if (self::isInt($level, 1)) {
             $this->logLevel = $level;
         }

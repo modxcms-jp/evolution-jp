@@ -182,7 +182,7 @@ class DocumentParser
         }
         mb_internal_encoding('utf-8');
         $this->loadExtension('DBAPI'); // load DBAPI class
-        include_once(MODX_CORE_PATH . 'extenders/ex_documentapi.php');
+        $this->loadExtension('DocumentAPI');
         if ($this->isBackend()) {
             $this->loadExtension('ManagerAPI');
         }
@@ -245,10 +245,6 @@ class DocumentParser
                 require_once(MODX_CORE_PATH . "extenders/ex_" . $extname . ".php");
                 return true;
             case 'documentapi': // Document API
-                logDeprecated(
-                    'loadExtension(documentapi)',
-                    "loadExtension('documentapi') and the Document class are deprecated and will be removed in 1.4. Use evo()->doc (DocAPI) instead."
-                );
                 include_once(MODX_CORE_PATH . "extenders/ex_" . $extname . ".php");
                 return true;
             case 'subparser':
