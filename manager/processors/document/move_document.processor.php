@@ -101,6 +101,20 @@ if ($duplicates) {
     exit;
 }
 
+// 移動先を先にフォルダーにしておく（あとの更新が途中で止まっても、子が入った親が isfolder=0 のままにならない）
+$rs = db()->update(
+    'isfolder=1',
+    '[+prefix+]site_content',
+    "id='" . $new_parent . "'"
+);
+if (!$rs) {
+    alertAndQuit(
+        'An error occured while attempting to change the new parent to a folder.',
+        $doc_id
+    );
+    exit;
+}
+
 // 移動する文書の元の親（移動の後に、子が残らない親の isfolder を直す）
 $old_parents = [];
 $rs = db()->select(
@@ -108,6 +122,13 @@ $rs = db()->select(
     '[+prefix+]site_content',
     sprintf('id IN (%s)', implode(',', $doc_ids))
 );
+if (!$rs) {
+    alertAndQuit(
+        "An error occured while attempting to find the resources' current parents.",
+        $doc_id
+    );
+    exit;
+}
 while ($row = db()->getRow($rs)) {
     $old_parents[] = (int) $row['parent'];
 }
@@ -129,19 +150,6 @@ $user_id = evo()->getLoginUserID();
 foreach ($doc_ids as $v) {
     update_parentid($v, $new_parent, $user_id, $menuindex);
     $menuindex++;
-}
-
-$rs = db()->update(
-    'isfolder=1',
-    '[+prefix+]site_content',
-    "id='" . $new_parent . "'"
-);
-if (!$rs) {
-    alertAndQuit(
-        'An error occured while attempting to change the new parent to a folder.',
-        $doc_id
-    );
-    exit;
 }
 
 // finished moving the resource, now check to see if the old_parent should no longer be a folder.
@@ -221,6 +229,7 @@ function alertAndQuit($string, $docid)
 // 移動先で同じエイリアスになる文書を返す（移動先に既にある文書との重なりと、移動する文書どうしの重なり）
 function findDuplicateAliases($doc_ids, $new_parent)
 {
+    $moving_ids = implode(',', $doc_ids);
     if (evo()->config('allow_duplicate_alias')) {
         return [];
     }
@@ -231,7 +240,7 @@ function findDuplicateAliases($doc_ids, $new_parent)
         $alias = (string) db()->getValue($rs);
         $alias_sql = db()->escape($alias);
         $rs = db()->select('id', '[+prefix+]site_content',
-            "parent='{$new_parent}' AND (alias='{$alias_sql}' OR (alias='' AND id='{$alias_sql}'))");
+            "parent='{$new_parent}' AND id NOT IN ({$moving_ids}) AND (alias='{$alias_sql}' OR (alias='' AND id='{$alias_sql}'))");
         if (0 < db()->count($rs)) {
             $duplicates[] = ['doc_id' => $doc_id, 'target_id' => db()->getValue($rs), 'alias' => $alias];
             continue;
