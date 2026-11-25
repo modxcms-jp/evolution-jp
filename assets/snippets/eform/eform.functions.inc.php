@@ -151,6 +151,10 @@ function eForm($modx, $params)
 
         $nestedFields = []; // 入れ子の配列が送られた項目（不正な値として扱う）
         foreach (postv() as $name => $value) {
+            // eForm が組み立てる項目は、送られた値で上書きさせない
+            if (in_array($name, ['validationmessage', 'debug', 'disclaimer'], true)) {
+                continue;
+            }
             // 単一の値と配列の各値に同じ処理を通す（allowhtml と html 書式のときだけタグを許す）
             $cleanValue = function ($v) use ($allowhtml, $formats, $name, $modx) {
                 if (!$allowhtml || ($formats[$name][2] ?? '') != 'html') {
@@ -703,6 +707,21 @@ function efHtmlFields($fields)
     return $fields;
 }
 
+# 選択肢が、送られた値（単一の値か配列）の中にあるか。エスケープの有無にかかわらず元の文字で比べる
+function efIsChosen($choice, $posted)
+{
+    $decode = function ($v) {
+        return is_string($v) ? html_entity_decode($v, ENT_QUOTES | ENT_HTML5) : $v;
+    };
+    $choice = $decode($choice);
+    foreach ((array)$posted as $v) {
+        if ($choice == $decode($v)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 # Form Merge
 function formMerge($docText, $docFields, $vClasses = '')
 {
@@ -733,52 +752,9 @@ function formMerge($docText, $docFields, $vClasses = '')
             $listName = substr($name, 0, $colonPost);
             $listValue = substr($name, $colonPost + 1);
             $datatype = isset($formats[$listName][2]) ? $formats[$listName][2] : '';
-            if (isset($docFields[$listName]) && is_array($docFields[$listName])) {
-                if ($datatype === 'listbox' && in_array($listValue, $docFields[$listName])) {
-                    $docText = str_replace(
-                        sprintf(
-                            '[+%s:%s+]',
-                            $listName,
-                            $listValue
-                        ),
-                        "selected='selected'",
-                        $docText
-                    );
-                }
-                if (in_array($datatype, ['checkbox', 'radio']) && in_array($listValue, $docFields[$listName])) {
-                    $docText = str_replace(
-                        sprintf(
-                            '[+%s:%s+]',
-                            $listName,
-                            $listValue
-                        ),
-                        "checked='checked'",
-                        $docText
-                    );
-                }
-            } else {
-                if ($datatype === 'listbox' && isset($docFields[$listName]) && $listValue == $docFields[$listName]) {
-                    $docText = str_replace(
-                        sprintf(
-                            '[+%s:%s+]',
-                            $listName,
-                            $listValue
-                        ),
-                        "selected='selected'",
-                        $docText
-                    );
-                }
-                if (in_array($datatype, ['checkbox', 'radio']) && isset($docFields[$listName]) && $listValue == $docFields[$listName]) {
-                    $docText = str_replace(
-                        sprintf(
-                            '[+%s:%s+]',
-                            $listName,
-                            $listValue
-                        ),
-                        "checked='checked'",
-                        $docText
-                    );
-                }
+            $mark = ['listbox' => "selected='selected'", 'checkbox' => "checked='checked'", 'radio' => "checked='checked'"][$datatype] ?? '';
+            if ($mark && isset($docFields[$listName]) && efIsChosen($listValue, $docFields[$listName])) {
+                $docText = str_replace(sprintf('[+%s:%s+]', $listName, $listValue), $mark, $docText);
             }
         }
 
@@ -1054,6 +1030,23 @@ function buildTagPlaceholder($tag, $attributes, $name)
                     }
                 //else pass on to next
                 case 'password':
+                    return "<input$t value=\"[+$name+]\" />";
+                case 'email':
+                case 'tel':
+                case 'url':
+                case 'number':
+                case 'search':
+                case 'date':
+                case 'time':
+                case 'month':
+                case 'week':
+                case 'datetime-local':
+                case 'color':
+                case 'range':
+                    // 複数欄（name に [ がある）には 1 つの値を戻せないので、書いた value のまま
+                    if (strpos($attributes['name'] ?? '', '[') !== false) {
+                        return "<input$t$valueAttr />";
+                    }
                     return "<input$t value=\"[+$name+]\" />";
                 default: //leave as is - no placeholder
                     return "<input$t$valueAttr />";

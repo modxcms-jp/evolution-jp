@@ -28,7 +28,9 @@ class ManageScope implements BrowserScope
         if (!sessionv('mgrValidated') || sessionv('usertype') !== 'manager') {
             return ['code' => 'unauthorized', 'lang' => 'fb_err_unauthorized', 'status' => 403];
         }
-        manager()->refreshMgrPermissions();
+        if (!manager()->refreshMgrPermissions()) {
+            return ['code' => 'unauthorized', 'lang' => 'fb_err_unauthorized', 'status' => 403];
+        }
         if (!$modx->hasPermission('file_manager')) {
             return ['code' => 'forbidden', 'lang' => 'fb_err_manage_forbidden', 'status' => 403];
         }
