@@ -131,6 +131,45 @@ function rpcLoadData(response, node) {
         target.innerHTML = '';
         top.location = 'index.php';
     }
+    syncTreeToggleAll();
+}
+
+// 開いているフォルダの箱か（閉じる動きの途中のものは閉じている扱い）
+function isTreeBoxOpen(box) {
+    return box.style.display === 'block' && box.dataset.closing !== '1';
+}
+
+// 箱が見えているか（開いていて、外側の箱もすべて開いている）
+function isTreeBoxVisible(box) {
+    for (var el = box; el && el.id !== 'treeRoot'; el = el.parentNode) {
+        if (el.classList && el.classList.contains('tree-children') && !isTreeBoxOpen(el)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// 「すべて展開」と「すべて折りたたむ」は 1 つ分の場所で出し分ける。1 つでも開いていれば折りたたむ、全部閉じていれば展開。
+// 開閉のたびに呼ぶ（toggleNode・rpcLoadData・自動の折りたたみ）。押して隠れるボタンにフォーカスがあれば、残るほうへ移す
+function syncTreeToggleAll() {
+    var expand = document.getElementById('treeExpand');
+    var collapse = document.getElementById('treeCollapse');
+    var root = document.getElementById('treeRoot');
+    if (!expand || !collapse || !root) {
+        return;
+    }
+    var anyOpen = Array.prototype.some.call(root.querySelectorAll('.tree-children'), function (box) {
+        return isTreeBoxOpen(box) && isTreeBoxVisible(box);
+    });
+    var focused = document.activeElement;
+    // 出し分けは <td> で行う（<a> の display をテーマが決めていても、両方出てしまわないように）
+    collapse.parentNode.hidden = !anyOpen;
+    expand.parentNode.hidden = anyOpen;
+    if (focused === expand && anyOpen) {
+        collapse.focus();
+    } else if (focused === collapse && !anyOpen) {
+        expand.focus();
+    }
 }
 
 // すべて展開・折りたたむ: 描き直したあと、開閉状態（openedArray）をそろえてセッションへ保存する。
@@ -242,13 +281,16 @@ function revealPaneDocument() {
             if (!ok || !stillCurrent() || !box || !sign || box.dataset.loading === '1') {
                 return false;
             }
-            if (box.style.display === 'block' && box.dataset.closing !== '1') {
+            if (isTreeBoxOpen(box)) {
                 return true;
             }
             return toggleNode(sign, treeNodeIndent(box), pid, 0, 0);
         });
-    }, Promise.resolve(true)).then(function () {
+    }, Promise.resolve(true)).then(function (ok) {
         if (stillCurrent()) {
+            if (ok && treeAutoCollapseOn()) {
+                collapseTreeToDocument(doc);
+            }
             selectPaneDocument();
             return;
         }
@@ -256,6 +298,114 @@ function revealPaneDocument() {
         // 読み込みが済んだので、移った先の文書についてやり直す（文書の画面でなければ何もしない）
         revealPaneDocument();
     });
+}
+
+var TREE_AUTO_COLLAPSE_KEY = 'evo.tree.autoCollapse';
+
+// 開いているリソースのフォルダだけを開く切り替え。状態はボタンの aria-pressed を正とし、
+// ブラウザーの保存領域（ブラウザーごと）は、ツリーを描いたときにボタンへ戻すためだけに使う
+function treeAutoCollapseOn() {
+    var button = document.getElementById('treeAutoCollapse');
+    return !!button && button.getAttribute('aria-pressed') === 'true';
+}
+
+function setTreeAutoCollapseButton(on) {
+    var button = document.getElementById('treeAutoCollapse');
+    if (!button) {
+        return;
+    }
+    button.setAttribute('aria-pressed', on ? 'true' : 'false');
+    button.classList.toggle('is-active', on);
+}
+
+// ツリーを描いたとき（tree.php の部品の初期化）に、覚えている切り替えをボタンへ戻す
+function syncTreeAutoCollapse() {
+    var on = false;
+    try {
+        on = window.localStorage.getItem(TREE_AUTO_COLLAPSE_KEY) === '1';
+    } catch (e) {
+        // 保存領域が使えなくても、切り替えはツリーを読み直すまで効く
+    }
+    setTreeAutoCollapseButton(on);
+}
+
+// オンにした瞬間に、今のリソースに合わせて閉じる（親を開き直すところから revealPaneDocument() に任せる）。オフにしても開閉は変えない
+function toggleTreeAutoCollapse() {
+    var on = !treeAutoCollapseOn();
+    setTreeAutoCollapseButton(on);
+    try {
+        if (on) {
+            window.localStorage.setItem(TREE_AUTO_COLLAPSE_KEY, '1');
+        } else {
+            window.localStorage.removeItem(TREE_AUTO_COLLAPSE_KEY);
+        }
+    } catch (e) {
+        // 保存領域が使えなくても、切り替えはツリーを読み直すまで効く
+    }
+    if (on) {
+        revealPaneDocument();
+    }
+}
+
+// 開いている文書の親（根まで）と、文書自身がフォルダならそれを残し、ほかの開いているフォルダを閉じる。
+// 親がすべて開いていて、親が 1 つ以上ある（根直下の文書は、その行がある）ときだけ行う。
+// 親がツリーに無い（権限で見えない）・根直下の文書の行が無いときは、今いる場所が分からないので閉じない。
+// 文書の行が「残り N 件を表示」で省かれていても、親が開けていれば閉じる（閉じたあとは省略の行を見せる）。
+// 見えているいちばん外側のフォルダだけを動かして閉じ、中のフォルダは動かさず閉じた状態にする。開閉の状態は 1 回だけ保存する
+function collapseTreeToDocument(doc) {
+    var root = document.getElementById('treeRoot');
+    if (!root || (!doc.parents.length && !document.getElementById('node' + doc.id))) {
+        return;
+    }
+    var keep = {};
+    keep[doc.id] = true;
+    var pathOpen = doc.parents.every(function (pid) {
+        var box = document.getElementById('c' + pid);
+        keep[pid] = true;
+        return !!box && isTreeBoxOpen(box);
+    });
+    if (!pathOpen) {
+        return;
+    }
+    var outer = [];
+    var inner = [];
+    root.querySelectorAll('.tree-children').forEach(function (box) {
+        var id = parseInt(box.id.slice(1), 10);
+        if (keep[id] || !isTreeBoxOpen(box)) {
+            return;
+        }
+        var parentBox = box.parentNode.closest('.tree-children');
+        if (!parentBox || keep[parseInt(parentBox.id.slice(1), 10)]) {
+            outer.push(box);
+        } else {
+            inner.push(box);
+        }
+    });
+    if (!outer.length && !inner.length) {
+        return;
+    }
+    inner.forEach(function (box) {
+        var id = parseInt(box.id.slice(1), 10);
+        box.style.display = 'none';
+        markTreeFolderClosed(id);
+    });
+    var rest = outer.length;
+    outer.forEach(function (box) {
+        var id = parseInt(box.id.slice(1), 10);
+        markTreeFolderClosed(id);
+        slideTreeBox(box, false, false, function () {
+            // 閉じ終えると行の位置がずれるので、今選ばれている行を見せ直す（選び直しはしない）
+            if (--rest === 0) {
+                var selected = document.querySelector('#treeRoot span.treeNodeSelected');
+                var row = selected ? selected.closest('.tree-row') : null;
+                if (row) {
+                    scrollTreeRowIntoView(row);
+                }
+            }
+        });
+    });
+    saveFolderState();
+    syncTreeToggleAll();
 }
 
 // 親を開かずに、見えていれば選ぶ（並べ替え・すべて展開など、ツリーを描き直したとき）
