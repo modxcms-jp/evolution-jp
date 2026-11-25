@@ -15,7 +15,7 @@ class EvoRetiredFiles
     public static function groups(): array
     {
         return [
-            // 旧ファイルブラウザ。1.0.0J〜1.2.6J の全リリースが配布したファイル（179 件。全タグの和集合）（後継は manager/media/browser/evo/）
+            // 旧ファイルブラウザ。1.0.0J〜1.2.6J の全リリースが配布したファイル（全タグの和集合の 179 件。後継は manager/media/browser/evo/）
             'mcpuk' => [
                 'dir' => 'manager/media/browser/mcpuk/',
                 'files' => [
@@ -240,7 +240,7 @@ class EvoRetiredFiles
         clearstatcache();
         foreach ($dirs as $d) {
             $path = MODX_BASE_PATH . $def['dir'] . $d;
-            if (!is_dir($path) || is_link(rtrim($path, '/'))) {
+            if (!is_dir($path) || self::viaLink($def, $d)) {
                 continue;
             }
             if (!@rmdir($path)) {
@@ -276,28 +276,38 @@ class EvoRetiredFiles
     {
         clearstatcache();
         $root = MODX_BASE_PATH . $def['dir'];
-        if (!is_dir($root) || is_link(rtrim($root, '/'))) {
+        if (!is_dir($root)) {
             return [];
         }
-        $isLinkDir = [];
         $found = [];
         foreach ($def['files'] as $file) {
-            $parts = explode('/', $file);
-            array_pop($parts);
-            $dir = '';
-            foreach ($parts as $part) {
-                $dir .= $part . '/';
-                if (!isset($isLinkDir[$dir])) {
-                    $isLinkDir[$dir] = is_link($root . rtrim($dir, '/'));
-                }
-                if ($isLinkDir[$dir]) {
-                    continue 2;
-                }
+            $dir = dirname($file);
+            if (self::viaLink($def, $dir === '.' ? '' : $dir)) {
+                continue;
             }
             if (is_file($root . $file) && !is_link($root . $file)) {
                 $found[] = $file;
             }
         }
         return $found;
+    }
+
+    /**
+     * グループのフォルダーの下の相対のフォルダー（空なら、グループのフォルダー自身）が、シンボリックリンクか、
+     * リンクの下にあるか。ファイルの対象と空フォルダーの削除が、この 1 つの判定を使う
+     */
+    private static function viaLink(array $def, string $relDir): bool
+    {
+        $path = rtrim(MODX_BASE_PATH . $def['dir'], '/');
+        if (is_link($path)) {
+            return true;
+        }
+        foreach ($relDir === '' ? [] : explode('/', $relDir) as $part) {
+            $path .= '/' . $part;
+            if (is_link($path)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
