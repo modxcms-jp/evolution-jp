@@ -180,6 +180,110 @@
     editor.on('paste drop', notify);
   }
 
+  // 保存すると本文から失われる・変わるものがあるとき、開いた時点で 1 回だけ知らせる（操作は止めず、閉じるまで残す）。
+  // 元の欄(textarea)の値と、エディターが保存するときの値(getContent())を、実行も読み込みもされない文書(DOMParser)で比べ、
+  // 要素と属性の数の差を調べる。設定ごとの条件は書かない（TinyMCE が残す設定なら差が出ない）。
+  // 通知はエディターの上に置く帯で、文は textContent で入れる（本文の断片は混ぜず、件数と言語ファイルの言葉だけ）。
+  // TinyMCE の通知は位置を計算して重ねるため、本文の枠のスクロールやタブの切り替えに追従しない。帯はページの流れの中にあるので、追従の処理は要らない
+  const lossElements = ['script', 'style', 'iframe', 'object', 'embed', 'svg', 'form', 'noscript', 'link', 'meta', 'template', 'math'];
+
+  function countMarkup(html) {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const counts = {};
+    const sandboxes = [];
+
+    function add(key) {
+      counts[key] = (counts[key] || 0) + 1;
+    }
+
+    doc.querySelectorAll(lossElements.join(',')).forEach(function (element) {
+      add(element.localName);
+      if (element.localName === 'iframe') {
+        sandboxes.push(element.getAttribute('sandbox'));
+      }
+    });
+    doc.querySelectorAll('*').forEach(function (element) {
+      Array.prototype.forEach.call(element.attributes, function (attribute) {
+        if (/^on/i.test(attribute.name)) {
+          add('event');
+        }
+        if (/^\s*javascript:/i.test(attribute.value)) {
+          add('javascript');
+        }
+      });
+    });
+    counts.sandboxes = sandboxes;
+    return counts;
+  }
+
+  function showLossNotice(editor, sentences) {
+    const band = document.createElement('div');
+    band.className = 'tinymce7-loss-notice';
+    band.setAttribute('role', 'status');
+    sentences.forEach(function (sentence) {
+      const line = document.createElement('p');
+      line.textContent = sentence;
+      band.appendChild(line);
+    });
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'tinymce7-loss-notice__close';
+    close.setAttribute('aria-label', editor.translate('Close'));
+    close.textContent = '\u00d7';
+    close.addEventListener('click', function () {
+      band.remove();
+    });
+    band.appendChild(close);
+    const container = editor.getContainer();
+    container.parentNode.insertBefore(band, container);
+    editor.on('remove', function () {
+      band.remove();
+    });
+  }
+
+  function bindLossNotice(editor) {
+    editor.options.register('modx_loss_notice', {processor: 'object'});
+    const labels = editor.options.get('modx_loss_notice');
+    const element = editor.getElement();
+    if (!labels || !element || element.tagName !== 'TEXTAREA') {
+      return;
+    }
+    // TinyMCE が初期化で元の欄の値を取り込む前に控える
+    const original = countMarkup(element.value);
+    editor.on('init', function () {
+      const saved = countMarkup(editor.getContent());
+      const lost = [];
+      lossElements.concat(['event', 'javascript']).forEach(function (key) {
+        const diff = (original[key] || 0) - (saved[key] || 0);
+        if (diff > 0) {
+          lost.push(labels.item.replace('%s', labels.names[key] || key).replace('%d', diff));
+        }
+      });
+      const sentences = [];
+      if (lost.length > 0) {
+        sentences.push(labels.lost.replace('%s', lost.join(labels.separator)));
+      }
+      // sandbox が付く・変わる（保存後に、元の iframe に無い sandbox の値が現れる。object が iframe に変わるときも含む）
+      const before = original.sandboxes.slice();
+      const added = saved.sandboxes.filter(function (value) {
+        const index = before.indexOf(value);
+        if (index === -1) {
+          return value !== null;
+        }
+        before.splice(index, 1);
+        return false;
+      });
+      if (added.length > 0) {
+        sentences.push(labels.sandbox);
+      }
+      if (sentences.length === 0) {
+        return;
+      }
+      sentences.push(labels.consult);
+      showLossNotice(editor, sentences);
+    });
+  }
+
   // リソースの編集画面の本文（#content_body の中の欄）は、内容の量に合わせて高さを変える。
   // 下限は設定の height、上限はエディタ全体が管理画面の本文の枠（#mainPane）の見える高さに収まる高さ
   // （上のタブの行と、下の「使用エディター」の欄の分を空ける）。上限を超える分はエディタの中でスクロールする。
@@ -283,5 +387,6 @@
     if (typeof global.mceModxPastedUpload === 'function') {
       global.mceModxPastedUpload(editor);
     }
+    bindLossNotice(editor);
   };
 })(window);

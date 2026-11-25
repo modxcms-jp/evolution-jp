@@ -136,6 +136,9 @@ final class EditorInitializer
             && $this->fileBrowserResolver->canUsePicker('images')
             && !$this->fileBrowserResolver->canUploadToPicker();
         $config = $this->applyPastedUpload($config, $canUploadPasted, $screen['newDocument'], $uploadForbidden);
+        if ($isManager) {
+            $config['modx_loss_notice'] = $this->lossNoticeLabels();
+        }
 
         $configJson = $this->configRepository->encode($config);
 
@@ -151,6 +154,9 @@ final class EditorInitializer
             $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/mcpuk-picker.js'));
         }
 
+        if ($isManager) {
+            $scripts[] = '<link rel="stylesheet" href="' . hsc($this->scriptFactory->bundledAssetUrl('css/loss-notice.css')) . '">';
+        }
         $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/editor-setup.js'));
 
         $output = [];
@@ -276,6 +282,36 @@ final class EditorInitializer
         }
 
         return $config;
+    }
+
+    /**
+     * 保存すると本文から失われる・変わるものを開いた時点で知らせる通知の文言（js/editor-setup.js の bindLossNotice）。
+     * %s と %d は JS 側で、名前と件数に置き換える
+     *
+     * @return array<string, mixed>
+     */
+    private function lossNoticeLabels(): array
+    {
+        return [
+            'lost' => $this->language->translate(
+                'tinymce7_loss_lost',
+                'If you save now, the following will be removed: %s.'
+            ),
+            'item' => $this->language->translate('tinymce7_loss_item', '%s (%d)'),
+            'separator' => $this->language->translate('tinymce7_loss_separator', ', '),
+            'names' => [
+                'event' => $this->language->translate('tinymce7_loss_event', 'attributes such as onclick'),
+                'javascript' => $this->language->translate('tinymce7_loss_javascript', 'values starting with javascript:'),
+            ],
+            'sandbox' => $this->language->translate(
+                'tinymce7_loss_sandbox',
+                'If you save now, a sandbox attribute is added to iframes, and embedded content may stop working.'
+            ),
+            'consult' => $this->language->translate(
+                'tinymce7_loss_consult',
+                'If you do not want this change, please consult the site administrator.'
+            ),
+        ];
     }
 
     /**
