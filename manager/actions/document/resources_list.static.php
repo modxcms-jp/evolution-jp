@@ -189,6 +189,7 @@ if (!$numRecords) {
         $col['title'] = parseText($tpl, $doc);
         $col['publishedon'] = getPublishedOn($doc);
         $col['editedon'] = getEditedon($doc['editedon']);
+        $col['menuindex'] = (int) $doc['menuindex'];
         $col['status'] = getStatus($doc);
         $rows[] = $col;
     }
@@ -202,6 +203,17 @@ if (!$numRecords) {
         ['key' => 'title', 'label' => lang('resource_title'), 'html' => true, 'sort' => 'pagetitle'],
         ['key' => 'publishedon', 'label' => lang('publish_date'), 'html' => true, 'sort' => 'publishedon'],
         ['key' => 'editedon', 'label' => lang('editedon'), 'html' => true, 'sort' => 'editedon'],
+        [
+            'key' => 'menuindex',
+            'label' => sprintf(
+                '<span aria-hidden="true">%s</span><span class="is-visually-hidden">%s</span>',
+                hsc(lang('resources_list_col_menuindex')),
+                hsc(lang('resource_opt_menu_index'))
+            ),
+            'labelHtml' => true,
+            'class' => 'is-shrink',
+            'sort' => 'menuindex',
+        ],
         ['key' => 'status', 'label' => lang('page_data_status'), 'html' => true],
     ]);
     $table = new DataTable($columns, [

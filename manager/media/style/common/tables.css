@@ -38,10 +38,22 @@
         text-align: left;
     }
 
+    /* 見出しの短い表記に添える正式な名前（画面には出さず、読み上げにだけ伝える） */
+    .grid .is-visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+
     /* 並べ替えの印（今並べている列の見出しのリンクの後ろ。読み上げは aria-sort が受け持つ） */
     .grid th[aria-sort] a::after {
         margin-left: 4px;
-        font-size: 0.7em;
+        font-size: 1em;
         color: var(--color-primary, #375665);
     }
 
