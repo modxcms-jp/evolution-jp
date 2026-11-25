@@ -192,6 +192,14 @@ final class PreferenceResolver
         return $this->detectBool(['tinymce7_sandbox_iframes']) ?? true;
     }
 
+    /**
+     * 本文の script・style を残すか（管理画面のエディターだけ）。未設定なら消す
+     */
+    public function detectKeepScripts(): bool
+    {
+        return $this->detectBool(['tinymce7_keep_scripts']) ?? false;
+    }
+
     public function detectLinkRel(): string
     {
         return $this->detectString(['tinymce7_link_rel']);

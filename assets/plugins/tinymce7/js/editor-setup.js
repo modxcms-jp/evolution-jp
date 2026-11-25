@@ -240,6 +240,35 @@
     });
   }
 
+  // 設定「script と style」を「残す」にしたときだけ、EditorInitializer が TinyMCE の protect に足す。
+  // protect の中身は escape() で退避されるので、MODX タグや日本語もそのまま残る。無害化（xss_sanitization）は切らない。
+  // コメントの中に script・style があるときは、コメントごと保護する（左から順に一致するので、script の中の <!-- は script の一部になる）
+  global.tinymce7KeepScriptsProtect = [
+    /<script(?=[\s>\/])[\s\S]*?<\/script\s*>|<style(?=[\s>\/])[\s\S]*?<\/style\s*>|<!--(?=(?:(?!-->)[\s\S])*?<(?:script|style)(?=[\s>\/]))[\s\S]*?-->/gi
+  ];
+
+  // 保護した部分は <!--mce:protected …--> のコメントとして持たれ、取り出すときに元の HTML に戻る。
+  // 貼り付け・ドロップした HTML にこのコメントがあると、外から script が入るので、「残す」のときは消す。
+  // エディターの中での切り取り・貼り付けも同じ扱い（e.internal では分けない）
+  function bindDropProtectedComment(editor) {
+    const patterns = editor.options.get('protect') || [];
+    if (patterns.indexOf(global.tinymce7KeepScriptsProtect[0]) === -1) {
+      return;
+    }
+    editor.on('PastePostProcess', function (e) {
+      const walker = e.node.ownerDocument.createTreeWalker(e.node, NodeFilter.SHOW_COMMENT);
+      const found = [];
+      while (walker.nextNode()) {
+        if (walker.currentNode.nodeValue.indexOf('mce:protected ') === 0) {
+          found.push(walker.currentNode);
+        }
+      }
+      found.forEach(function (node) {
+        node.parentNode.removeChild(node);
+      });
+    });
+  }
+
   global.tinymce7EditorSetup = function (editor) {
     fitContentHeight(editor);
     bindUploadForbiddenNotice(editor);
@@ -247,6 +276,7 @@
     bindInputNotification(editor);
     bindRelOrdering(editor);
     bindChoiceLists(editor);
+    bindDropProtectedComment(editor);
     if (typeof global.mceModxImageEdit === 'function') {
       global.mceModxImageEdit(editor);
     }
