@@ -91,7 +91,7 @@ $_lang["installation_new_installation"] = '新規インストール';
 $_lang["installation_note"] = '<strong>はじめに:</strong>管理画面にログインできたら、まずは管理画面右上のヘルプをご確認ください。';
 $_lang["installation_successful"] = '<span class="ok">インストールが完了しました。</span>';
 $_lang["installation_upgrade_existing"] = 'アップデート';
-$_lang["installation_upgrade_existing_note"] = 'データベースをアップデートします。始める前に<a href="https://modx.jp/docs/update.html" target="_blank">手順と注意点</a>を確認してください。<br /><span class="notok">【注意】</span>まだなら、管理画面の「バックアップ・リストア」でデータベースのスナップショットを取っておいてください。';
+$_lang["installation_upgrade_existing_note"] = 'データベースをアップデートします。始める前に<a href="https://modx.jp/docs/update.html" target="_blank">手順と注意点</a>を確認してください。<br /><span class="notok">【注意】</span>まだなら、phpMyAdmin などデータベースのツール、またはコマンドラインの <span class="mono">php evo.php db:backup --driver=php</span> で、データベースのバックアップを取っておいてください。';
 $_lang["installed"] = 'インストールしました';
 $_lang["installing_demo_site"] = 'サンプルサイトのインストール: ';
 $_lang["install_in_progress"] = 'インストールを実行しています…';
