@@ -620,7 +620,7 @@ class DocumentParser
             }
 
             // キャッシュ有効を外したページは、304 で手元の内容を使われないよう、早い返しが付けたヘッダーを外す
-            // （スニペットなどが付けるヘッダーを消さないよう、それらが動く前に外す）
+            // （スニペットと OnLoadWebDocument 以降のプラグインが付けるヘッダーを消さないよう、それらが動く前に外す）
             if ($this->config('conditional_get') && $this->doc('cacheable') != 1) {
                 header_remove('ETag');
                 header_remove('Last-Modified');
