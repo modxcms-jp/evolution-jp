@@ -26,6 +26,8 @@ export function createMoveDialog(ctx) {
     var moveFolder = '';
     var sourceFolder = '';
     var closeOverlay = null;
+    // 最後に頼んだ一覧の番号。遅れて届いた前の一覧の応答は捨てる
+    var loadSeq = 0;
 
     function folderRowHtml(name) {
         return '' +
@@ -49,8 +51,12 @@ export function createMoveDialog(ctx) {
             restoreFocus(crumbs[crumbs.length - 1]);
         }
 
+        var seq = ++loadSeq;
         fetchJson(apiUrl(ctx.config, { action: 'list', folder: moveFolder }))
             .then(function (data) {
+                if (seq !== loadSeq) {
+                    return;
+                }
                 if (data.folders.length === 0) {
                     ctx.gridEl.innerHTML = '<div class="evo-fb-empty">' + escapeHtml(t('fb_no_subfolders')) + '</div>';
                     return;
@@ -66,6 +72,9 @@ export function createMoveDialog(ctx) {
                 });
             })
             .catch(function (err) {
+                if (seq !== loadSeq) {
+                    return;
+                }
                 ctx.gridEl.innerHTML = '<div class="evo-fb-empty evo-fb-error">' + escapeHtml(loadFailureMessage(err)) + '</div>';
             });
     }
