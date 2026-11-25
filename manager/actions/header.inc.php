@@ -73,6 +73,9 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         if (window.EvoShell) {
             EvoShell.unsavedMessage = <?= js_literal(lang('warning_not_saved')) ?>;
             EvoShell.closeLabel = <?= js_literal(lang('close')) ?>;
+            EvoShell.networkErrorMessage = <?= js_literal(lang('shell_network_error')) ?>;
+            EvoShell.sessionExpiredMessage = <?= js_literal(lang('shell_session_expired')) ?>;
+            EvoShell.saveRejectedMessage = <?= js_literal(lang('shell_save_rejected')) ?>;
         }
         EvoDialog.cancelLabel = <?= js_literal(lang('cancel')) ?>;
         EvoDialog.closeLabel = <?= js_literal(lang('close')) ?>;

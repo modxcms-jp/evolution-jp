@@ -147,7 +147,7 @@ export function createTree(ctx) {
             acc = acc ? acc + '/' + segment : segment;
         });
         chain.then(function () {
-            setActiveTreePath(path);
+            setActiveTreePath(ctx.getCurrentFolder());
         });
     }
 
