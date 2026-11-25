@@ -54,7 +54,15 @@ if (!defined('MODX_API_MODE')
     if (session_status() !== PHP_SESSION_ACTIVE) {
         session_name($site_sessionname);
         session_cache_limiter('');
-        ini_set('session.gc_maxlifetime', (string)(3600 * 24 * 30)); // init::session_set_cookie_params()と同値
+        if (isset($site_cookie_params)) {
+            // init::session_set_cookie_params() と同じ値。https かどうかは接続ごとに決まるので、ここで判定する
+            $site_cookie_params['secure'] = strtolower((string)($_SERVER['HTTPS'] ?? '')) === 'on'
+                || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+            ini_set('session.gc_maxlifetime', (string)$site_cookie_params['lifetime']);
+            session_set_cookie_params($site_cookie_params);
+        } else {
+            ini_set('session.gc_maxlifetime', (string)(3600 * 24 * 30));
+        }
         session_start();
     }
     if (!isset($_SESSION['mgrValidated']) && !isset($_SESSION['webValidated'])) {

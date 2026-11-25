@@ -26,6 +26,9 @@
 - 名前は Web サーバーから見た設置パスで決まります（`cms_session_name()`）。Web で書き出すときはこの名前を書き、CLI（`php evo.php cache:clear` など）ではパスが違うことがあるので計算せず、今ある `basicConfig.php` の名前を引き継ぎます。
 - 設置パスを変えたサイトで CLI だけで作り直すと、前のパスの名前が残ります。Web 側で一度作り直してください（リソースの保存や「サイトをリフレッシュ」など）。
 - `basicConfig.php` が無い状態で CLI が書き出すと名前が分からないので、`$cache_type` と `$conditional_get` を書かず、早い返しを使いません。`cache_type=2` では毎回ページを生成します。次に Web 側でキャッシュを作り直したときに元に戻ります（早い返しを使う設定のときは、システムログに警告を残します）。デプロイなどで `temp/cache/` を消してから CLI で作り直さないでください。
+- 早い返しの経路も、`session_start()` の前にセッションの cookie の属性（`HttpOnly`・`SameSite`・path・寿命）を揃えます。`init::session_cookie_params()` の値を `basicConfig.php` の `$site_cookie_params` に書き出し、早い返しはそのまま `session_set_cookie_params()` に渡します（読むファイルを増やさず、値の写しを作らないため）。`secure` だけは接続ごとに決まるので、早い返しが `HTTPS` と `X-Forwarded-Proto` から決めます。
+- path は Web で書き出すときの `MODX_BASE_URL` です。CLI は設置場所を知らないので、セッション名と同様に今ある値を引き継ぎます。`$site_cookie_params` が無い（古い `basicConfig.php`）ときは属性を付けず、次に Web 側でキャッシュを作り直したときから効きます。
+- `saveToFile()` は書き出した直後に、そのファイルの OPcache を `opcache_invalidate()` で捨てます。`revalidate_freq` の間は古い `basicConfig.php` が使われ、保存の直後の条件付き GET が古い `ETag` に 304 を返すのを防ぎます（CLI からの書き出しは Web の OPcache に届きません）。
 
 ## 条件付き GET とキャッシュ有効（cacheable）
 
