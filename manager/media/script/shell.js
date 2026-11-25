@@ -63,12 +63,6 @@
         return resolved.pathname === base + 'index.php' || resolved.pathname === base;
     }
 
-    // シェルで受けず、ページ全体で移る画面。モジュールの実行（a=112）は、外部のコードが完全な HTML を出すことがあり、
-    // 断片として取りに行くとモジュールの出力で文書ごと差し替わって、履歴が壊れる
-    function isFullPageUrl(url) {
-        return new URL(url, window.location.href).searchParams.get('a') === '112';
-    }
-
     // target="main" は frameset 時代の「本文のフレーム」。シェルでは本文が #mainPane なので、target の無いリンク・フォームと同じに扱う
     function hasOwnTarget(el) {
         const target = el.getAttribute('target');
@@ -263,15 +257,25 @@
     }
 
     // 応答全体でドキュメントを書き換える(断片でない完全HTMLが返った場合の保険)。
-    // document.writeはアドレスバーを更新しないため、応答先URLをhistoryへ反映する
-    function replaceDocument(html, finalUrl) {
+    // document.writeはアドレスバーを更新しないため、応答先URLをhistoryへ反映する。
+    // 画面を移るとき(push)は、直前の画面の項目を残して積む（戻るで管理画面へ戻れる）
+    function replaceDocument(html, finalUrl, push) {
         window.documentDirty = false;
         if (finalUrl && finalUrl !== window.location.href) {
-            window.history.replaceState({ url: finalUrl }, '', finalUrl);
+            if (push) {
+                window.history.pushState({ url: finalUrl }, '', finalUrl);
+            } else {
+                window.history.replaceState({ url: finalUrl }, '', finalUrl);
+            }
         }
         document.open();
         document.write(html);
         document.close();
+        // document.open() で window のリスナー（シェルの popstate）が消えている。
+        // 戻る・進むでは、その URL の画面を読み直す（管理画面ならシェルが戻る。モジュールは 1 回だけ動く）
+        window.addEventListener('popstate', function () {
+            window.location.reload();
+        }, { once: true });
     }
 
     // 前ページが残したグローバルなUI部品を破棄する(差し替え前のクリーンアップ)
@@ -760,7 +764,7 @@
                         } else if (isPost || isFullDocumentHtml(text)) {
                             // 断片で返せない応答(モジュール実行等)はドキュメントごと差し替える。
                             // document.writeはアドレスバーを更新しないため、応答先のURLで補正する
-                            replaceDocument(text, finalUrl);
+                            replaceDocument(text, finalUrl, push && !keepUrl);
                         } else {
                             stopWork();
                             fullReload(url);
@@ -853,10 +857,6 @@
         navigate: function (url, opts) {
             const push = !opts || opts.push !== false;
             if (!confirmIfDirty()) {
-                return;
-            }
-            if (isFullPageUrl(url)) {
-                fullReload(url);
                 return;
             }
             request(normalizeManagerUrl(url), { method: 'GET' }, push);
@@ -1391,7 +1391,7 @@
             }
         }, true);
 
-        // リンククリックの委譲。data-no-ajax / target付き / 外部URLは素通しする
+        // リンククリックの委譲。data-no-ajax / target付き(target="main" を除く) / 外部URLは素通しする
         document.addEventListener('click', function (e) {
             if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
                 return;
