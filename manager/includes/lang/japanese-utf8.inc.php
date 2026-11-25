@@ -690,6 +690,7 @@ return [
     "resources_list_search_clear" => '絞り込みを解除',
     "resources_list_search_no_match" => '条件に合うサブリソースはありません。',
     "resources_list_reset_order" => '既定の並び順に戻す',
+    "resources_list_col_menuindex" => '順',
     "resources_in_container_no" => 'サブリソースはありません。',
     "role" => 'ロール',
     "role_about" => '「MODXについて」ページの表示',

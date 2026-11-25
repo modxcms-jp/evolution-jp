@@ -243,7 +243,7 @@
 
 - 余白は値で書く（RevoStyle は `--space-*` の値が違うため、`var(--space-2)` と書くと値が変わる）
 - 一部のテーマにしかない性質（表の角・影・`border-collapse`、見出しの行の下の枠、ページ送りの角など）は、テーマの規則に書く
-- 並べ替えの印（`.grid th[aria-sort] a::after`）も tables.css が決める。色は `--color-primary`
+- 並べ替えの印（`.grid th[aria-sort] a::after`）も tables.css が決める。大きさは `1em`、色は `--color-primary`
 - ページ送りの普段の地（`--pagination-bg`）と、今のページの地（`--pagination-active-bg`）は、どちらも tables.css が決める。普段の地だけをテーマに残すと、層の外の規則が勝ち、今のページの地が出なくなる
 
 | 変数 | 意味 | 既定値（tables.css） |

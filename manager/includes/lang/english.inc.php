@@ -688,6 +688,7 @@ return [
     "resources_list_search_clear" => 'Clear filter',
     "resources_list_search_no_match" => 'No child-Resources match the keyword.',
     "resources_list_reset_order" => 'Restore default order',
+    "resources_list_col_menuindex" => 'Order',
     "resources_in_container_no" => 'This Container does not have child-Resources.',
     "role" => 'Role',
     "role_about" => 'View the about page',

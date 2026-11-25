@@ -120,9 +120,10 @@
 | `.is-shrink` | 幅を中身に合わせる列 |
 | `.is-center` | 中央寄せの列 |
 | `.is-end` | 右寄せ（行の終わりの側に寄せる）の列 |
+| `.is-visually-hidden` | 見出しの短い表記（「順」など）に添える正式な名前。画面には出さず読み上げにだけ伝える。短い表記の側は `aria-hidden="true"` にして、`labelHtml` の見出しに入れる |
 | `.data-table-empty` | 0 件のときのセル |
 
-並べ替えている列の見出しは `th[aria-sort="ascending|descending"]` になる。テーマは `.grid th[aria-sort] a::after` で向きの印（昇順 ▲・降順 ▼）を出す。印は飾りなので `content: "▲" / ""` の形で読み上げから外し（向きは `aria-sort` が伝える）、色は `--color-primary`、間は `--space-1` を使う。凍結テーマの RevoStyle は持たない。
+並べ替えている列の見出しは `th[aria-sort="ascending|descending"]` になる。向きの印（昇順 ▲・降順 ▼）は、`common/tables.css` の `.grid th[aria-sort] a::after` が全テーマに出す（テーマは書かない）。印は飾りなので `content: "▲" / ""` の形で読み上げから外し（向きは `aria-sort` が伝える）、大きさは本文と同じ `1em`、色は `--color-primary`、間は 4px。並べ替えで印が付くと、`.is-shrink` の列はそのぶん広がる。
 
 外部のテーマはこの一覧を写す。
 
