@@ -6192,11 +6192,6 @@ class DocumentParser
 
         $new_file_permissions = $this->newFilePermissions();
 
-        if (strpos($target_path, $this->config('filemanager_path')) !== 0) {
-            $msg = "Can't upload to '{$target_path}'.";
-            $this->logEvent(1, 3, $msg, 'move_uploaded_file');
-        }
-
         $img = $resize ? getimagesize($tmp_path) : false;
 
         if ($img) {
