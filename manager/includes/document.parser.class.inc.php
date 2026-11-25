@@ -55,7 +55,7 @@ class DocumentParser
     public $dumpSnippetsCode = [];
     public $chunkCache;
     public $snippetCache;
-    public $contentTypes;
+    public $contentTypes; // 以前のキャッシュ（siteCache.idx.php）が代入するため宣言を残す
     public $dumpSQLCode = [];
     public $ph;
     public $placeholders = [];
@@ -6191,11 +6191,6 @@ class DocumentParser
         $target_path = $this->sanitizeUploadedFilename($target_path);
 
         $new_file_permissions = $this->newFilePermissions();
-
-        if (strpos($target_path, $this->config('filemanager_path')) !== 0) {
-            $msg = "Can't upload to '{$target_path}'.";
-            $this->logEvent(1, 3, $msg, 'move_uploaded_file');
-        }
 
         $img = $resize ? getimagesize($tmp_path) : false;
 

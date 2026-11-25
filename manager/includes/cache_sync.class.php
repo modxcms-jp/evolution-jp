@@ -374,7 +374,6 @@ class synccache
 
         $content = "<?php\n";
         $content .= "if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;\n";
-        $content .= $this->_get_content_types(); // get content types
         $content .= $this->_get_events();   // WRITE system event triggers
         $content .= "\n";
         $content = str_replace(["\x0d\x0a", "\x0a", "\x0d"], "\x0a", $content);
@@ -495,24 +494,6 @@ class synccache
             return $this->getParents($parent_id);
         }
         return '';
-    }
-
-    private function _get_content_types()
-    {
-        $rs = db()->select(
-            'id, contentType',
-            '[+prefix+]site_content',
-            "contentType != 'text/html'"
-        );
-        $_ = ['$c = &$this->contentTypes;'];
-        while ($row = db()->getRow($rs)) {
-            $_[] = sprintf(
-                '$c[%s] = \'%s\';',
-                $row['id'],
-                $row['contentType']
-            );
-        }
-        return implode("\n", $_) . "\n";
     }
 
     private function _get_chunks()

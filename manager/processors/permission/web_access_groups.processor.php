@@ -153,6 +153,9 @@ if ($updategroupaccess == true) {
         'LEFT JOIN ' . $tbl_webgroup_access . ' AS wga ON wga.documentgroup = dgn.id ' .
         'SET dgn.private_webgroup = (wga.webgroup IS NOT NULL)';
     $rs = db()->query($sql);
+
+    // 公開側のページキャッシュは privateweb を見て配信するので、紐付けを変えたら消す
+    evo()->clearCache();
 }
 
 header('Location: index.php?a=91');

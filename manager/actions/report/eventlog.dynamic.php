@@ -45,7 +45,7 @@ $minLevelOptions = [
     SystemLogViewer::minLevelFilter('warning') => lang('system_log_level_min_warning', '警告以上'),
 ];
 $sourceOptions = [
-    '' => lang('all', 'All'),
+    '' => lang('all'),
     'MODxMailer request log' => 'MODxMailer',
 ];
 if (!isset($sourceOptions[$source])) {
@@ -323,7 +323,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
             <form class="system-log-toolbar" method="get" action="index.php">
                 <input type="hidden" name="a" value="114" />
                 <label>
-                    <?= hsc(lang('period', '期間')) ?>
+                    <?= hsc(lang('period')) ?>
                     <select name="period" id="systemLogPeriod">
                         <option value="latest"<?= $period === 'latest' ? ' selected' : '' ?>><?= hsc(lang('latest_log', '最新ログ')) ?></option>
                         <option value="recent30"<?= $period === 'recent30' ? ' selected' : '' ?>><?= hsc(lang('recent_30_days', '直近30日')) ?></option>
@@ -336,7 +336,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                     </select>
                 </label>
                 <label id="systemLogMonthSelector" class="system-log-month-selector<?= $isYearPeriod ? '' : ' is-hidden' ?>">
-                    <?= hsc(lang('month', '月')) ?>
+                    <?= hsc(lang('month')) ?>
                     <select name="month" id="systemLogMonth"<?= $isYearPeriod ? '' : ' disabled' ?>>
                         <?php foreach ($months as $month) { ?>
                             <option value="<?= hsc($month) ?>"<?= $selectedMonth === $month ? ' selected' : '' ?>>
@@ -346,13 +346,13 @@ if (getv('download') === '1' && $selectedPath !== '') {
                     </select>
                 </label>
                 <label id="systemLogFileSelector" class="system-log-file-selector<?= $isLatest ? ' is-hidden' : '' ?>">
-                    <?= hsc(lang('log_files', 'ログファイル')) ?>
+                    <?= hsc(lang('log_files')) ?>
                     <select name="file" id="systemLogFile" data-selected="<?= hsc($selectedFile) ?>"></select>
                 </label>
                 <label>
                     <?= hsc(lang('type')) ?>
                     <select name="level" id="systemLogLevel">
-                        <option value=""><?= hsc(lang('all', 'All')) ?></option>
+                        <option value=""><?= hsc(lang('all')) ?></option>
                         <?php foreach ($minLevelOptions as $option => $optionLabel) { ?>
                             <option value="<?= hsc($option) ?>"<?= $level === $option ? ' selected' : '' ?>>
                                 <?= hsc($optionLabel) ?>
@@ -434,7 +434,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                     data-source="<?= hsc($source) ?>"
                     data-query="<?= hsc($query) ?>"
                 >
-                    <div class="system-log-loading"><?= hsc(lang('loading', 'Loading...')) ?></div>
+                    <div class="system-log-loading"><?= hsc(lang('loading')) ?></div>
                 </div>
             <?php } ?>
         <?php } ?>
