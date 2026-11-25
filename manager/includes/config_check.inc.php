@@ -278,7 +278,7 @@ class ConfigCheck {
             ];
         }
 
-        // マイグレーションで消せなかった、配布から外したファイル
+        // 配布から外したファイルが残っている
         $retiredDirs = EvoRetiredFiles::remainingDirs();
         if ($retiredDirs) {
             $warnings[] = [
