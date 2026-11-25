@@ -16,6 +16,13 @@
 | 機能 | 非推奨にした版 | 消す版 | 代わり |
 | --- | --- | --- | --- |
 | `Document` クラス（`manager/includes/extenders/ex_documentapi.php`） | 1.3 | 1.4 | `evo()->doc`（`loadExtension('DocAPI')` の DocAPI） |
+| グローバル設定 `server_protocol`（画面の「サーバータイプ」。`[(server_protocol)]`・`config('server_protocol')`） | 1.3（廃止済み） | 1.3 | `fixed_site_url` を `https://` で書く（`site-url.md`） |
+
+### server_protocol
+
+画面の項目・初期値・言語キーを 1.3 で消した。この値を読んで動きを変える処理は元から無く、https かどうかは接続ごとに判定する。新しいサイトには `server_protocol` の行が無く、`[(server_protocol)]` は何にも置き換わらない。アップデートしたサイトの行は消さずに残すので、`[(server_protocol)]` は今の値のまま出る。
+
+テンプレートやスニペットで `[(server_protocol)]` を読んでいるときは、`[(site_url)]` を使うか、`fixed_site_url` を `https://` で書く。
 
 ### Document クラス
 

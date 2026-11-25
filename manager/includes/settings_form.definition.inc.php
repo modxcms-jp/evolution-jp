@@ -139,13 +139,6 @@ return [
                         },
                     ],
                     [
-                        'key' => 'server_protocol',
-                        'type' => 'radio',
-                        'label' => lang('server_protocol_title'),
-                        'options' => ['http' => lang('server_protocol_http'), 'https' => lang('server_protocol_https')],
-                        'desc' => lang('server_protocol_message'),
-                    ],
-                    [
                         'key' => 'xhtml_urls',
                         'type' => 'yesno',
                         'label' => lang('xhtml_urls_title'),
