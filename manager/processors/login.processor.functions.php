@@ -178,14 +178,6 @@ function input($key, $default = null)
         'captcha_code' => post_strvar('captcha_code'),
         'rememberme'   => post_strvar('rememberme')
     ];
-    if (strpos($input['username'], ':roleid=') !== false) {
-        [$input['username'], $input['forceRole']] = explode(':roleid=', $input['username'], 2);
-        if (!preg_match('@^[0-9]+$@', $input['forceRole'])) {
-            $input['forceRole'] = 1;
-        }
-    } else {
-        $input['forceRole'] = false;
-    }
     return array_get($input, $key, $default);
 }
 
@@ -205,9 +197,6 @@ function user($key, $default = null)
         exit;
     }
 
-    if (($user['role'] == 1 && input('forceRole'))) {
-        $user['role'] = input('forceRole');
-    }
     // 期限の過ぎた一時ロックの後は、失敗回数を数え直す（ブロック中かどうかは isBlockedUser() が DB の値で決める）
     if (isExpiredTemporaryLock($user)) {
         $user['failedlogincount'] = '0';
