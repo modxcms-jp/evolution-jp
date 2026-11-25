@@ -643,7 +643,8 @@ function entity($key, $default = null)
                         </script>
                         <p><?= $_lang['tmplvar_access_msg'] ?></p>
                         <?php
-                        $chk = '';
+                        $chks = '';
+                        $notPublic = false;
                         $rs = db()->select('name, id', '[+prefix+]documentgroup_names');
                         if (empty($groupsarray) && is_array(entity('docgroups')) && empty(entity('id'))) {
                             $groupsarray = entity('docgroups');
