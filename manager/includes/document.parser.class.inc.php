@@ -55,7 +55,6 @@ class DocumentParser
     public $dumpSnippetsCode = [];
     public $chunkCache;
     public $snippetCache;
-    public $contentTypes;
     public $dumpSQLCode = [];
     public $ph;
     public $placeholders = [];
