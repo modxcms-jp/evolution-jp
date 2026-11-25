@@ -1040,35 +1040,6 @@ class ManagerAPI
         return $ids;
     }
 
-    /**
-     * 文書グループを消し、管理側・ウェブ側のユーザーグループとの紐付け、
-     * TV のアクセス権、文書との紐付けを残さない。
-     * そのあと privatemgr・privateweb を計算し直す。
-     * 文書グループは管理側・ウェブ側のどちらの画面からも消せるので、両方の紐付けをここで片付ける
-     *
-     * @param int $id 文書グループの id
-     * @return bool
-     */
-    public function deleteDocumentGroup($id)
-    {
-        $id = (int)$id;
-        $targets = [
-            '[+prefix+]documentgroup_names' => 'id',
-            '[+prefix+]membergroup_access' => 'documentgroup',
-            '[+prefix+]webgroup_access' => 'documentgroup',
-            '[+prefix+]site_tmplvar_access' => 'documentgroup',
-            '[+prefix+]document_groups' => 'document_group',
-        ];
-        foreach ($targets as $table => $column) {
-            if (!db()->delete($table, sprintf("%s='%d'", $column, $id))) {
-                return false;
-            }
-        }
-        $this->setMgrDocsAsPrivate();
-        $this->setWebDocsAsPrivate();
-        return true;
-    }
-
     public function getStylePath()
     {
         return MODX_MANAGER_PATH . 'media/style/';
