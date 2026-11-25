@@ -41,7 +41,8 @@ $code_version = (static function () {
 
 if (isset($conditional_get) && $conditional_get == 1) {
     include_once(MODX_BASE_PATH . "manager/includes/conditional_get.inc.php");
-} elseif (!defined('MODX_API_MODE')
+}
+if (!defined('MODX_API_MODE')
     && $cache_type == 2
     && $site_status != 0
     && $code_version !== ''
@@ -49,10 +50,13 @@ if (isset($conditional_get) && $conditional_get == 1) {
     && in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET', 'HEAD'], true)
     && count($_POST) < 1
     && (time() < $cacheRefreshTime || $cacheRefreshTime == 0)) {
-    session_name($site_sessionname);
-    session_cache_limiter('');
-    ini_set('session.gc_maxlifetime', (string)(3600 * 24 * 30)); // init::session_set_cookie_params()と同値
-    session_start();
+    // conditional_get.inc.php が 304 を返さずに戻ったときは、セッションが始まっている
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_name($site_sessionname);
+        session_cache_limiter('');
+        ini_set('session.gc_maxlifetime', (string)(3600 * 24 * 30)); // init::session_set_cookie_params()と同値
+        session_start();
+    }
     if (!isset($_SESSION['mgrValidated']) && !isset($_SESSION['webValidated'])) {
         session_write_close();
         $target = MODX_CACHE_PATH . 'pages/' . hash('crc32b', $_SERVER['REQUEST_URI'] ?? '') . '.pageCache.php';
