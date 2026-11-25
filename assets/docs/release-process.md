@@ -21,10 +21,12 @@ git push origin release-1.3.0J
 **処理内容:**
 
 1. リポジトリをチェックアウト
-2. `dist/` ディレクトリを作成
-3. 除外ファイルを除いてプロジェクトファイルを `dist/` にコピー
-4. `evo-release-1.3.0J.zip` を作成
-5. GitHub Release を**ドラフト状態**で自動作成し、zip ファイルを添付（自動リリースノート生成あり）
+2. `git archive` でタグのコミットから zip ファイルを作成
+3. `.gitattributes` の `export-ignore` に従って、配布対象外のファイルを除外
+4. `evo-release-1.3.0J.zip` を作成し、サイズと同じ系列の直前のリリースとの差をジョブの概要に出す
+5. GitHub Release を**ドラフト状態**で自動作成し、zip ファイルを添付（リリースノートは自動で作らない。本文は公開前に Releases 画面か `gh release edit` で入れる）
+
+リリースパッケージの生成方式は `git archive` です。配布対象外のパスは `.github/workflows/release.yml` ではなく、リポジトリルートの `.gitattributes` に `export-ignore` を追加して管理します。
 
 ### 3. ドラフト確認と公開
 
@@ -34,95 +36,31 @@ git push origin release-1.3.0J
 
 ## 除外ファイル一覧
 
-リリースパッケージから除外されるファイル・ディレクトリ:
-
-```
-.git/
-.github/
-.agent/
-.agents/
-.claude/
-.codex/
-.vscode/
-.work/
-.gitignore
-.gitkeep
-.gitattributes
-.editorconfig
-dist/
-docs/
-**/docs/
-readme*
-README*
-AGENTS.md
-CLAUDE.md
-compose.yml
-custom-instructions/
-manager/docker/
-```
+リリースパッケージから除外されるファイル・ディレクトリの正本は [.gitattributes](../../.gitattributes) の `export-ignore` の行である。`.git/` は `git archive` の仕様で常に含まれない。
 
 ### 除外設定の追加方法
 
-除外ファイル・ディレクトリを追加する場合は [.github/workflows/release.yml](../../.github/workflows/release.yml) を編集する。
+除外ファイル・ディレクトリを追加する場合は、リポジトリルートの `.gitattributes` を編集する。
 
-```yaml
-- name: Prepare dist directory
-  run: |
-    mkdir dist
-    rsync -a ./ dist/ \
-      --exclude='.git/' \
-      --exclude='.github/' \
-      --exclude='.gitignore' \
-      --exclude='.gitkeep' \
-      --exclude='.gitattributes' \
-      --exclude='.editorconfig' \
-      --exclude='dist/' \
-      --exclude='docs/' \
-      --exclude='**/docs/' \
-      --exclude='readme*' \
-      --exclude='README*' \
-      --exclude='AGENTS.md' \
-      --exclude='新しい除外パターン'    # ← ここに追加
+```gitattributes
+新しい除外パターン export-ignore
 ```
 
 **パターンの書き方:**
 
 | パターン | 説明 | 例 |
 |---------|------|-----|
-| `filename` | ファイル名 | `--exclude='AGENTS.md'` |
-| `dirname/` | ディレクトリ（末尾に `/`） | `--exclude='dist/'` |
-| `**/dirname/` | すべての階層のディレクトリ | `--exclude='**/docs/'` |
-| `*.ext` | 拡張子パターン | `--exclude='*.log'` |
-| `prefix*` | プレフィックスパターン | `--exclude='readme*'` |
-| `path/to/file` | 相対パス | `--exclude='temp/cache/'` |
-
-**追加例:**
-
-```yaml
-# テストファイルを除外
---exclude='**/test/' \
---exclude='**/tests/' \
---exclude='*.test.php' \
-
-# 開発用ファイルを除外
---exclude='.env' \
---exclude='.env.local' \
---exclude='composer.json' \
---exclude='composer.lock' \
---exclude='package.json' \
---exclude='package-lock.json' \
-
-# ログ・キャッシュを除外
---exclude='*.log' \
---exclude='temp/cache/*' \
---exclude='temp/backup/*'
-```
+| `filename export-ignore` | ファイル名 | `AGENTS.md export-ignore` |
+| `dirname/ export-ignore` | ディレクトリ | `manager/docker/ export-ignore` |
+| `**/dirname/ export-ignore` | すべての階層のディレクトリ | `**/docs/ export-ignore` |
+| `*.ext export-ignore` | 拡張子パターン | `*.log export-ignore` |
+| `prefix* export-ignore` | プレフィックスパターン | `README* export-ignore` |
+| `path/to/file export-ignore` | 相対パス | `manager/includes/cli/skill-lib.php export-ignore` |
 
 **注意事項:**
 
-- 各 `--exclude` の末尾にバックスラッシュ `\` を付けて改行する（最後の行を除く）
-- パターンはシングルクォート `'...'` で囲む
-- ディレクトリを除外する場合は末尾に `/` を付ける（例: `dist/`）
+- パターンの末尾に `export-ignore` を記述する
+- ディレクトリを除外する場合は末尾に `/` を付ける（例: `manager/docker/`）
 - `**/` は「すべての階層」を意味する（例: `**/docs/` は `assets/docs/` も `manager/media/docs/` も除外）
 
 ## トラブルシューティング
@@ -163,44 +101,14 @@ GitHub の Actions タブから失敗したワークフローを開き、「Re-r
 ローカルでリリースパッケージの内容を事前確認する場合:
 
 ```bash
-# dist ディレクトリを作成
-mkdir dist
+# 現在のコミットから、Actions と同じ方式で zip を作成
+git archive --format=zip HEAD -o evo-test.zip
 
-# rsync で除外設定を適用してコピー
-rsync -a ./ dist/ \
-  --exclude='.git/' \
-  --exclude='.github/' \
-  --exclude='.agent/' \
-  --exclude='.agents/' \
-  --exclude='.claude/' \
-  --exclude='.codex/' \
-  --exclude='.vscode/' \
-  --exclude='.work/' \
-  --exclude='.gitignore' \
-  --exclude='.gitkeep' \
-  --exclude='.gitattributes' \
-  --exclude='.editorconfig' \
-  --exclude='dist/' \
-  --exclude='docs/' \
-  --exclude='**/docs/' \
-  --exclude='readme*' \
-  --exclude='README*' \
-  --exclude='AGENTS.md' \
-  --exclude='CLAUDE.md' \
-  --exclude='compose.yml' \
-  --exclude='custom-instructions/' \
-  --exclude='manager/docker/'
+# zip の内容を確認
+unzip -l evo-test.zip
 
-# 内容を確認
-ls -la dist/
-
-# zip を作成（オプション）
-cd dist
-zip -r ../evo-test.zip .
-cd ..
-
-# 確認後、dist ディレクトリを削除
-rm -rf dist/ evo-test.zip
+# 確認後に zip を削除
+rm evo-test.zip
 ```
 
 ### よくある問題
@@ -231,8 +139,8 @@ ls -la .github/workflows/release.yml
 
 **対応:**
 
-1. ローカルで dist を作成して内容確認（上記手順参照）
-2. 除外パターンを `.github/workflows/release.yml` に追加
+1. ローカルで `git archive` を実行して内容確認（上記手順参照）
+2. 除外パターンを `.gitattributes` に追加
 
 #### Q. リリースノートを後から編集したい
 
