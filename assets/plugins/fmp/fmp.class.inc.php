@@ -2,6 +2,11 @@
 
 class ForgotManagerPassword
 {
+    // 再設定のリンクの有効な時間（分）
+    private const EXPIRE_MINUTES = 30;
+    // 同じ利用者に再設定のメールを送る間隔（秒）。この間は前のリンクが有効なので、締め出しにはならない
+    private const RESEND_INTERVAL = 300;
+
     public $tpl_path;
     private $errors;
     private $lang;
@@ -146,17 +151,46 @@ class ForgotManagerPassword
             // 管理者がブロックしたユーザーにも、送信したときと同じ応答にする（メールは送らない）
             return true;
         }
+        if ($this->isRecentlyIssued($user_id)) {
+            // 送信の間隔の中の要求にも、送信したときと同じ応答にする（メールは送らない）
+            evo()->logEvent(
+                0,
+                1,
+                'パスワード再設定メールの送信の間隔の中に再度要求があったため、送信しませんでした。',
+                'ForgotManagerPassword',
+                ['user_id' => (int)$user_id]
+            );
+            return true;
+        }
         $this->sweepTransient($user_id);
         // リンクだけでログインできるので、推測できない乱数で作る（96 ビット。URL 向けの base64 で 16 文字）
         $fmpkey = strtr(base64_encode(random_bytes(12)), '+/', '-_');
         $this->addTransient($user_id, 'fmp_hash', $fmpkey);
-        $this->addTransient($user_id, 'fmp_expire', date('Y-m-d H:i:00', strtotime('+30 minutes')));
+        $this->addTransient($user_id, 'fmp_expire', date('Y-m-d H:i:00', strtotime('+' . self::EXPIRE_MINUTES . ' minutes')));
 
         if (!$this->send($email, $fmpkey)) {
+            // 送れなかった発行は記録に残さない（残すと、送信の間隔のあいだ再度の要求が止まる）
+            $this->sweepTransient($user_id);
             $this->errors[] = $this->lang('error_sending_email');
             return false;
         }
         return true;
+    }
+
+    // 発行の時刻は記録にないので、有効期限（発行の EXPIRE_MINUTES 分後）から求める
+    private function isRecentlyIssued($user_id)
+    {
+        $expire = strtotime((string)db()->getValue(
+            db()->select(
+                'setting_value',
+                '[+prefix+]user_settings',
+                sprintf("user='%d' AND setting_name='fmp_expire'", $user_id)
+            )
+        ));
+        if ($expire === false) {
+            return false;
+        }
+        return $expire - self::EXPIRE_MINUTES * 60 + self::RESEND_INTERVAL > time();
     }
 
     function send($email, $fmpkey)
