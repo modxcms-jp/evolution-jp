@@ -74,8 +74,6 @@ if (postedMode() === 'new') {
 
     if (validated('syncsite')) {
         evo()->clearCache();
-    } else {
-        reserveCacheRefresh($param['doc_vars']);
     }
 
     // invoke OnDocFormSave event
@@ -153,8 +151,6 @@ if (postedMode() === 'edit') {
         } else {
             evo()->clearCache(['target' => 'pagecache']);
         }
-    } else {
-        reserveCacheRefresh($param['doc_vars']);
     }
 
     // invoke OnDocFormSave event
@@ -166,15 +162,6 @@ if (postedMode() === 'edit') {
 
 header('Location: index.php?a=7');
 
-
-// キャッシュを消さずに保存したときも、予約公開・公開終了の時刻を basicConfig.php の $cacheRefreshTime に反映する
-function reserveCacheRefresh($doc_vars)
-{
-    $time = array_get($doc_vars, 'pub_date') ?: array_get($doc_vars, 'unpub_date');
-    if ($time) {
-        evo()->setCacheRefreshTime((int)$time);
-    }
-}
 
 // OnBeforeDocFormSave のプラグインが変えた親を、保存後の処理にも反映する
 function syncParentAfterEvent($param)
