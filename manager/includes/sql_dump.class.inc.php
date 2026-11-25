@@ -152,13 +152,60 @@ final class EvoSqlDump
         return true;
     }
 
+    // 表の名前の正規表現（バッククォートで囲んだ名前か、囲まない名前）
+    private const NAME = '(?:`((?:[^`]|``)+)`|([0-9a-zA-Z_$]+))';
+
     /**
      * 文が対象にする表の名前（INSERT・REPLACE・DROP TABLE・CREATE TABLE・TRUNCATE・LOCK TABLES・ALTER TABLE）。
      * 当たらなければ ''。文は statements() が返す形（先頭のコメントを除いたもの）で渡す
      */
     public static function tableOf(string $statement): string
     {
-        $name = '(?:`((?:[^`]|``)+)`|([0-9a-zA-Z_$]+))';
+        $m = self::matchTable($statement);
+        if (!$m) {
+            return '';
+        }
+        if (isset($m[3]) && $m[3] !== '') {
+            return str_replace('``', '`', $m[3]);
+        }
+        return $m[4] ?? '';
+    }
+
+    /**
+     * 文が指す DB の名前。USE・CREATE DATABASE・DB 名付きの表（`db`.`table`）の DB 名を返し、
+     * DROP DATABASE・ALTER DATABASE（SCHEMA も同じ）は「DROP DATABASE 名前」の形で返す（DB 名と一致しないので、呼び出し側が必ず断れる）。
+     * 当たらなければ ''。文は statements() が返す形で渡す
+     */
+    public static function databaseOf(string $statement): string
+    {
+        $name = self::NAME;
+        $unquote = static function (array $m, int $at): string {
+            return str_replace('``', '`', $m[$at] !== '' ? $m[$at] : ($m[$at + 1] ?? ''));
+        };
+        if (preg_match('/^USE\s+' . $name . '/i', $statement, $m)) {
+            return $unquote($m, 1);
+        }
+        // mysqldump --databases の CREATE DATABASE /*!32312 IF NOT EXISTS*/ `db` と、/*!40000 DROP DATABASE IF EXISTS `db`*/ の形を含む
+        if (preg_match(
+            '/^(?:\/\*!\d+\s+)?(CREATE|DROP|ALTER)\s+(?:DATABASE|SCHEMA)\s+'
+            . '(?:\/\*!\d+\s+IF\s+(?:NOT\s+)?EXISTS\s*\*\/\s*|IF\s+(?:NOT\s+)?EXISTS\s+)?' . $name . '/i',
+            $statement,
+            $m
+        )) {
+            $database = $unquote($m, 2);
+            return strcasecmp($m[1], 'CREATE') === 0 ? $database : strtoupper($m[1]) . ' DATABASE ' . $database;
+        }
+        $m = self::matchTable($statement);
+        if ($m) {
+            return $unquote($m, 1);
+        }
+        return '';
+    }
+
+    // 表を対象にする文の、DB 名（1・2）と表名（3・4）の取り出し。当たらなければ null
+    private static function matchTable(string $statement): ?array
+    {
+        $name = self::NAME;
         if (!preg_match(
             '/^(?:INSERT(?:\s+(?:LOW_PRIORITY|DELAYED|HIGH_PRIORITY))?(?:\s+IGNORE)?\s+INTO'
             . '|REPLACE(?:\s+(?:LOW_PRIORITY|DELAYED))?\s+INTO'
@@ -169,21 +216,19 @@ final class EvoSqlDump
             $statement,
             $m
         )) {
-            return '';
+            return null;
         }
-        if (isset($m[3]) && $m[3] !== '') {
-            return str_replace('``', '`', $m[3]);
-        }
-        return $m[4] ?? '';
+        return $m;
     }
 
     /**
-     * 戻す前の下読み。$stream のダンプを最後まで読み、対象の表の名前（重なりなし）と、
+     * 戻す前の下読み。$stream のダンプを最後まで読み、対象の表の名前・指している DB の名前（どちらも重なりなし）と、
      * DELIMITER（トリガー・ストアドプロシージャー）を含むかを返す。DB には何も送らない
      */
     public static function inspect($stream): array
     {
         $tables = [];
+        $databases = [];
         $delimiter = false;
         foreach (self::statements($stream) as $statement) {
             if (preg_match('/(?:\A|\n)[ \t]*DELIMITER\s/i', $statement)) {
@@ -193,8 +238,12 @@ final class EvoSqlDump
             if ($table !== '') {
                 $tables[$table] = true;
             }
+            $database = self::databaseOf($statement);
+            if ($database !== '') {
+                $databases[$database] = true;
+            }
         }
-        return ['tables' => array_keys($tables), 'delimiter' => $delimiter];
+        return ['tables' => array_keys($tables), 'databases' => array_keys($databases), 'delimiter' => $delimiter];
     }
 
     /**

@@ -96,6 +96,17 @@ if (sessionv('result_msg')) {
                 ])
             );
             break;
+        case 'restore_database_mismatch':
+            $foreignDatabases = array_map('strval', (array) ($restoreResult['foreign_databases'] ?? []));
+            $restoreHtml = sprintf(
+                '<div class="errmsg">%s</div>',
+                evo()->parseText(lang('bkmgr_restore_database_mismatch'), [
+                    // ダンプから来た名前なので、parseText() の置き換えのタグとして読まれないようにする
+                    'site_database' => hsc_for_tpl("'" . db()->dbname . "'"),
+                    'databases'     => hsc_for_tpl(implode(', ', array_slice($foreignDatabases, 0, 5)) . (count($foreignDatabases) > 5 ? ', …' : '')),
+                ])
+            );
+            break;
         case 'restore_invalid_file':
             $restoreHtml = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_restore_invalid_file'));
             break;
