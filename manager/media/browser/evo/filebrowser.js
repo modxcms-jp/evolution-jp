@@ -11,6 +11,7 @@
 //                                  行のアイコンはここから作り、grid.js は入口を判定しない。'open'・'preview' は右クリックと選択の帯にも出る
 //                                  (その並びと条件は SELECTION_ACTIONS)。ダウンロードは itemActions に無い入口でも、右クリックと帯に共通で出す
 //   previewActions(entry, host)    プレビューに足すボタンの配列 [{ label, primary, onSelect }]。複製・削除はどの入口でも共通に後ろへ足す
+//   pickFile(entry, host)          選んで返す入口(ピッカー)だけが持つ。選択の帯と右クリックメニューの先頭に「このファイルを選択」(1 件のとき)を出す。持たない入口には出ない
 //   contextMenuItems(entry, host)  右クリックメニューに足す項目。entry があれば(ファイル 1 件)先頭に、null なら(何も無い所)最後に足す
 //   confirmOverwrite(names, host)  サーバーが同じ名前があると返したとき、保存する名前(names)を並べて上書きしてよいか確かめる。
 //                                  true なら、そのファイルだけを上書きで送り直す
@@ -305,12 +306,6 @@ function init(root, entry, behaviors) {
         onSort: function (key) {
             setSort(key, state.sortKey === key && state.sortDir === 'asc' ? 'desc' : 'asc');
         },
-        openPreview: function (name) {
-            var file = findFile(name);
-            if (file) {
-                preview.open(file);
-            }
-        },
         openFile: function (name) {
             var file = findFile(name);
             if (file) {
@@ -333,6 +328,8 @@ function init(root, entry, behaviors) {
         onSelectionChange: function (count) {
             // 選択が無いときは帯を visibility で隠す(場所は取ったままなので、出し入れで一覧の位置も高さも変わらない)
             selectionBarEl.classList.toggle('is-hidden', count === 0);
+            // 1 件のときは件数を見せない(読み上げ用の文字は残す。filebrowser.css)
+            selectionBarEl.classList.toggle('is-single', count === 1);
             updateSelectionActions();
             notifySelection();
         },
@@ -751,7 +748,7 @@ function init(root, entry, behaviors) {
     });
 
     // Enter: 一覧でファイルを 1 件選んでいるときに、ダブルクリックと同じく openFile を呼ぶ。
-    // フォーカスが一覧そのものか、選んでいるファイルの名前のボタンにあるときだけ受ける(サムネイルのボタンの Enter は、これまでどおりプレビューを開く)。
+    // フォーカスが一覧そのものか、選んでいるファイルの名前・サムネイルのボタンにあるときだけ受ける(サムネイルのボタンも同じ)。
     // 入力欄・ダイアログ・右クリックメニューが開いているとき、ほかのボタン(Enter でそのボタンを押す)では動かさない
     root.addEventListener('keydown', function (e) {
         if (e.key !== 'Enter' || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || e.defaultPrevented || e.isComposing) {
@@ -765,7 +762,7 @@ function init(root, entry, behaviors) {
         }
         var name = Array.from(state.selection)[0];
         if (e.target !== dropzoneEl) {
-            var itemBtn = e.target.closest('[data-role="name"]');
+            var itemBtn = e.target.closest('[data-role="name"], [data-role="thumb"]');
             var itemEl = itemBtn && itemBtn.closest('.evo-fb-item-file');
             if (!itemEl || itemEl.getAttribute('data-name') !== name) {
                 return;
@@ -783,9 +780,15 @@ function init(root, entry, behaviors) {
     // --- 選択に対する操作の表 ---
     // 右クリックメニューと下の選択の帯は、どちらもこの表から作る(並び・文言・出す条件・実行がここだけにある)。
     // files は選んでいるファイル。single は 1 件だけのときの操作、when は出す条件、enabled は押せる条件(省くと常に押せる)。
-    // メニューは押せない操作を出さず、帯は single の操作を複数のときも出したまま押せなくする(件数で位置が動かないように)。
-    // open・preview は入口の itemActions に入っているときだけ出す(入口ごとの内訳は behaviors が決める)
-    var SELECTION_ACTIONS = [
+    // 帯もメニューも、出す条件と押せる条件を両方満たす操作だけを並べる(actionsFor)。並ぶボタンが選択で変わっても帯の高さが動かないよう、
+    // 帯はいちばん長くなる状態(全部のボタン)の高さを予約する(reserveSelectionBarHeight)。
+    // open・preview は入口の itemActions に入っているときだけ出す(入口ごとの内訳は behaviors が決める)。
+    // pick は選んで返す入口(behaviors.pickFile があるピッカー)だけ、先頭に置く(primary は帯で目立たせるボタン)
+    var pickActions = typeof behaviors.pickFile === 'function' ? [{
+        id: 'pick', label: 'fb_pick_this_file', single: true, primary: true,
+        run: function (files) { behaviors.pickFile(files[0], host); }
+    }] : [];
+    var SELECTION_ACTIONS = pickActions.concat([
         {
             id: 'open', label: ITEM_ACTIONS.open.label, single: true,
             when: function () { return itemActionKinds.indexOf('open') !== -1; },
@@ -815,7 +818,7 @@ function init(root, entry, behaviors) {
         },
         { id: 'move', label: 'move', enabled: isWritable, run: bulkMove },
         { id: 'delete', label: 'delete', danger: true, enabled: isWritable, run: bulkDelete }
-    ];
+    ]);
 
     // 書き込めないフォルダでは、コピー以外(切り取り・名前を変更・移動・削除)を押せなくする
     function isWritable() {
@@ -849,6 +852,9 @@ function init(root, entry, behaviors) {
         btn.type = 'button';
         btn.setAttribute('data-action', 'selection-' + action.id);
         btn.textContent = t(action.label);
+        if (action.primary) {
+            btn.classList.add('button', 'primary');
+        }
         btn.addEventListener('click', function () {
             var files = selectedFiles();
             if (isActionVisible(action, files) && isActionEnabled(action, files)) {
@@ -869,10 +875,35 @@ function init(root, entry, behaviors) {
         SELECTION_ACTIONS.forEach(function (action, i) {
             var btn = selectionActionBtns[i];
             var visible = isActionVisible(action, files);
-            // 未選択のときは全部を押せない状態で残す。隠すと帯が低くなり、最初の選択で一覧の高さが変わる
-            btn.parentNode.hidden = files.length > 0 && !visible;
-            btn.disabled = !(visible && isActionEnabled(action, files));
+            var enabled = visible && isActionEnabled(action, files);
+            // 未選択のときは全部を並べたまま押せない状態にする(帯は見えていない)。選んだら右クリックメニューと同じ条件で並べる
+            btn.parentNode.hidden = files.length > 0 && !enabled;
+            btn.disabled = !enabled;
         });
+    }
+
+    // 並ぶボタンが選択で変わると、狭い幅では横スクロールバーの有無が変わり、帯の高さが動く。
+    // そこで、帯がいちばん長くなる状態(全部のボタン・件数あり)の高さを測って min-height にする。
+    // 帯・ボタンの欄の大きさが変わったら(幅・フォントの読み込み・テーマの切り替え・非表示のモーダルが見えたとき)測り直す。
+    // 非表示で 0 のときは予約しない(次に大きさが変わったとき測る)
+    function reserveSelectionBarHeight() {
+        var hidden = selectionActionBtns.map(function (btn) { return btn.parentNode.hidden; });
+        var single = selectionBarEl.classList.contains('is-single');
+        selectionActionBtns.forEach(function (btn) { btn.parentNode.hidden = false; });
+        selectionBarEl.classList.remove('is-single');
+        selectionBarEl.style.minHeight = '';
+        var height = selectionBarEl.offsetHeight;
+        selectionActionBtns.forEach(function (btn, i) { btn.parentNode.hidden = hidden[i]; });
+        selectionBarEl.classList.toggle('is-single', single);
+        if (height) {
+            selectionBarEl.style.minHeight = height + 'px';
+        }
+    }
+    reserveSelectionBarHeight();
+    if (typeof ResizeObserver === 'function') {
+        var barObserver = new ResizeObserver(reserveSelectionBarHeight);
+        barObserver.observe(selectionBarEl);
+        barObserver.observe(selectionActionsEl);
     }
 
     // --- 右クリックメニュー ---

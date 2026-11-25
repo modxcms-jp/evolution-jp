@@ -57,6 +57,10 @@ var behaviors = {
     openFile: function (entry) {
         pickFile(entry.path);
     },
+    // 選択の帯と右クリックメニューの「このファイルを選択」(filebrowser.js の SELECTION_ACTIONS が、この関数があるときだけ先頭に置く)
+    pickFile: function (entry) {
+        pickFile(entry.path);
+    },
     previewActions: function (entry) {
         return [{
             label: t('fb_pick_this_file'),
@@ -64,12 +68,9 @@ var behaviors = {
             onSelect: function () { pickFile(entry.path); }
         }];
     },
-    // 右クリックメニューの先頭に「このファイルを選択」を足す
-    contextMenuItems: function (entry) {
-        if (!entry) {
-            return [];
-        }
-        return [{ label: t('fb_pick_this_file'), onSelect: function () { pickFile(entry.path); } }];
+    // 「このファイルを選択」は SELECTION_ACTIONS が右クリックにも出すので、ここでは足さない
+    contextMenuItems: function () {
+        return [];
     },
     // 画像編集を開いた状態で起動したとき(edit=1)の終わり方。保存したファイルを選んだものとして返す / 取り消したら閉じる
     editDone: function (entry) {
