@@ -5983,6 +5983,10 @@ class DocumentParser
         }
 
         if (@file_put_contents($tmp, $data, LOCK_EX) && @rename($tmp, $filename)) {
+            // OPcache の確認間隔（revalidate_freq）の間は古い版が使われ、basicConfig.php の recent_update が古いままになる
+            if (function_exists('opcache_invalidate')) {
+                @opcache_invalidate($filename, true);
+            }
             return true;
         }
         if (is_file($tmp)) {
