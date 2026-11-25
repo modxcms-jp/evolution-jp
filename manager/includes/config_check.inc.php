@@ -4,6 +4,7 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
 }
 
 require_once MODX_CORE_PATH . 'special_pages.class.inc.php';
+require_once MODX_CORE_PATH . 'retired_files.class.inc.php';
 
 class ConfigCheck {
     private $warnings = '';
@@ -274,6 +275,18 @@ class ConfigCheck {
             $warnings[] = [
                 'title' => 'configcheck_del_actionphp',
                 'message' => $output
+            ];
+        }
+
+        // マイグレーションで消せなかった、配布から外したファイル
+        $retiredDirs = EvoRetiredFiles::remainingDirs();
+        if ($retiredDirs) {
+            $warnings[] = [
+                'title' => 'configcheck_retired_files',
+                'message' => evo()->parseText(
+                    $this->_lang['configcheck_retired_files_msg'],
+                    ['folders' => hsc_for_tpl(implode(', ', $retiredDirs))]
+                )
             ];
         }
 

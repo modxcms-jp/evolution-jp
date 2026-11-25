@@ -1206,6 +1206,8 @@ return [
 
     "configcheck_del_actionphp" => 'セキュリティ警告: action.phpが存在します',
     "configcheck_del_actionphp_msg" => 'Captcha画像の表示に使っていたaction.phpは、今は使いません。セキュリティ上の問題があるため削除してください。',
+    "configcheck_retired_files" => '配布から外した古いファイルが残っています',
+    "configcheck_retired_files_msg" => '次のフォルダーに、今の版では使わない古いファイルが残っています。自動で削除できなかったため、ファイルの権限を確かめて削除してください: [+folders+]',
 
     "a16_use_resources" => 'このテンプレートを使用しているリソース',
     "a16_many_resources" => 'リソース数が多いためここでは表示しません。',
