@@ -1,0 +1,12 @@
+# 配布物（git archive の zip）に必ず入っているべきファイル。1 行に 1 パス。
+# 確認は .github/scripts/release-archive-check.sh。release-process.md の zip の確認も同じ一覧を使う。
+# 新規インストール・起動に欠かせないものだけを置く。
+sample.htaccess
+index.php
+evo.php
+define-path.php
+install/index.php
+install/instprocessor.php
+install/sql/create_tables.sql
+manager/index.php
+manager/includes/version.inc.php
