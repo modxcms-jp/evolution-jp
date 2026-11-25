@@ -145,10 +145,6 @@ final class EvoSqlDump
         }
         $ok = self::write($fp, $tables, $options);
         $ok = fclose($fp) && $ok;
-        // tempnam() は 0600 で作るので、本体のほかのファイルと同じ権限にする
-        if ($ok) {
-            @chmod($tmp, evo()->newFilePermissions());
-        }
         if (!$ok || filesize($tmp) === 0 || !rename($tmp, $path)) {
             unlink($tmp);
             return false;

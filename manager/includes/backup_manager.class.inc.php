@@ -61,6 +61,8 @@ class EvoBackupManager
         if (!$written) {
             return false;
         }
+        // スナップショットは FTP などで取り出すので、本体のほかのファイルと同じ権限にする（tempnam() は 0600 で作る）
+        @chmod($path, evo()->newFilePermissions());
 
         $this->pruned = $this->store->prune($options['keep'] ?? EvoSnapshotStore::KEEP);
         return $name;
@@ -232,10 +234,15 @@ class EvoBackupManager
                 $result['error'] = db()->getLastError();
                 $result['failed_at'] = $number;
                 // 途中で止まった DB ではキャッシュの再生成が止まりうるので、設定だけ戻す
-                // （LOCK TABLES が残っていると、ロックしていない表に触れない）
-                db()->query('UNLOCK TABLES');
+                // （LOCK TABLES が残っていると、ロックしていない表に触れない）。接続が切れていれば何もできないので、控えの名前だけ返す
+                if (db()->query('UNLOCK TABLES', false) === false) {
+                    fclose($stream);
+                    return $result;
+                }
                 if (EvoDbTables::exists(EvoDbTables::name('system_settings'))) {
                     $this->restoreSettings($keep);
+                    // SET AUTOCOMMIT=0 のダンプで、戻した設定が確定されずに消えないようにする
+                    db()->query('COMMIT', false);
                 }
                 fclose($stream);
                 return $result;
@@ -243,7 +250,7 @@ class EvoBackupManager
             $result['executed']++;
         }
         fclose($stream);
-        db()->query('UNLOCK TABLES');
+        db()->query('UNLOCK TABLES', false);
 
         if (!$this->finish($keep)) {
             $result['error'] = 'system_settings or system_cache is missing; cache was not rebuilt';
@@ -260,7 +267,7 @@ class EvoBackupManager
     {
         $own = (string) db()->dbname;
         return array_values(array_filter($databases, function ($database) use ($own) {
-            return $database !== $own;
+            return (string) $database !== $own;
         }));
     }
 

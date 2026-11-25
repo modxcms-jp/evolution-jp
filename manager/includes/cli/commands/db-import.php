@@ -52,7 +52,7 @@ if ($result['refused'] === 'delimiter') {
 if ($result['refused'] === 'database') {
     $databases = array_slice($result['foreign_databases'], 0, 5);
     cli_usage(sprintf(
-        'Error: the dump refers to a database other than this site\'s (this site: %s, found: %s); nothing was changed. Restore a dump of this site\'s tables only (without USE, CREATE DATABASE or database-qualified names).',
+        'Error: the dump points to a database other than this site\'s with USE or similar, or contains DROP DATABASE or ALTER DATABASE (this site: %s, found: %s); nothing was changed. Restore a dump of this site\'s tables only.',
         "'" . db()->dbname . "'",
         implode(', ', $databases) . (count($result['foreign_databases']) > 5 ? ', ...' : '')
     ));
