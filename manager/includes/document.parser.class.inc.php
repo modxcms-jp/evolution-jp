@@ -3108,9 +3108,9 @@ class DocumentParser
                 continue;
             }
             $value = $this->_get_snip_result($call);
-            // 配列は str_replace の置換値に使用不可（PHP 8.1+ TypeError）。整数・ブール等のスカラーは文字列化して通す
+            // 配列は str_replace の置換値に使用不可（PHP 8.1+ TypeError）。タグの出力としては空にする
             if (is_array($value)) {
-                continue;
+                $value = '';
             }
             $content = str_replace($matches[0][$i], (string) $value, $content);
         }
