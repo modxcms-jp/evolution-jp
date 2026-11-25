@@ -60,12 +60,13 @@ if (manager()->hasFormValues()) {
     // restore post values
     $userdata = array_merge($userdata, $form_v);
     $userdata['dob'] = ConvertDate($userdata['dob']);
-    $usernamedata['username'] = postv('newusername');
-    $usernamedata['oldusername'] = postv('oldusername');
     $usersettings = array_merge($usersettings, $userdata);
-    $usersettings['allowed_days'] = is_array(postv('allowed_days')) ? implode(",", postv('allowed_days')) : "";
+    $usersettings['allowed_days'] = is_array($form_v['allowed_days'] ?? null) ? implode(',', $form_v['allowed_days']) : '';
     extract($usersettings, EXTR_OVERWRITE);
 }
+
+// プロフィールではユーザー名を変えない。保存済みのユーザー名を hidden で送り返す
+$userdata['username'] = $usernamedata['username'];
 
 function userData($key, $default = null)
 {
