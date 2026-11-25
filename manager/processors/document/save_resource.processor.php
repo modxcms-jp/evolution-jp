@@ -61,7 +61,7 @@ if (postedMode() === 'new') {
     convertDataUriAfterInsert($param['doc_vars'], $newid);
 
     if (!empty($param['tv_vars'])) {
-        insert_tmplvars($newid, $param['tv_vars']);
+        evo()->doc->saveTmplvars($newid, $param['tv_vars']);
     }
 
     setDocPermissionsNew($newid);
@@ -128,7 +128,7 @@ if (postedMode() === 'edit') {
     finishDataUriFiles(true);
 
     if ($param['tv_vars']) {
-        update_tmplvars(validated('id'), $param['tv_vars']);
+        evo()->doc->saveTmplvars(validated('id'), $param['tv_vars']);
     }
 
     setDocPermissionsEdit(validated('id'));
@@ -226,67 +226,21 @@ function refreshNewDocId($doc_vars)
 
 function get_tmplvars()
 {
-    $template = validated('template');
-
-    if (empty($template)) {
-        return [];
-    }
-
-    // get document groups for current user
-    $docgrp = sessionv('mgrDocgroups')
-        ? implode(',', sessionv('mgrDocgroups'))
-        : ''
-    ;
-
-
-    $rs = db()->select(
-        'DISTINCT tv.*',
-        [
-            '[+prefix+]site_tmplvars AS tv',
-            'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid = tv.id',
-            'LEFT JOIN [+prefix+]site_tmplvar_access tva ON tva.tmplvarid=tv.id'
-        ],
-        sprintf(
-            "tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)",
-            $template,
-            sessionv('mgrRole'),
-            $docgrp ? sprintf('OR tva.documentgroup IN (%s)', $docgrp) : ''
-        ),
-        'tv.rank'
-    );
-
     $tmplvars = [];
-    while ($row = db()->getRow($rs)) {
+    foreach (evo()->doc->templateTmplvars(validated('template')) as $row) {
         $tvid = 'tv' . $row['id'];
 
-        if (validated($tvid) === null) {
-            $multi_type = ['checkbox', 'listbox-multiple', 'custom_tv'];
-            if (!in_array($row['type'], $multi_type)) {
-                continue;
-            }
+        if (validated($tvid) === null && !in_array($row['type'], DocAPI::MULTI_VALUE_TV_TYPES, true)) {
+            continue;
         }
 
         if ($row['type'] === 'url') {
             $value = normalize_url_tv_value(validated($tvid), validated($tvid . '_prefix', '--'));
-        } elseif ($row['type'] === 'file') {
-            $value = validated($tvid);
-        } elseif (is_array(validated($tvid))) {
-            $value = implode('||', validated($tvid));
-        } elseif (validated($tvid) !== null) {
-            $value = validated($tvid);
         } else {
-            $value = '';
+            $value = validated($tvid);
         }
-        // save value if it was modified
-        if (substr($row['default_text'], 0, 6) === '@@EVAL') {
-            $row['default_text'] = eval(trim(substr($row['default_text'], 7)));
-        }
-
-        if (strlen($value) > 0 && $value != $row['default_text']) {
-            $tmplvars[$row['id']] = $value;
-        } else {
-            $tmplvars[$row['id']] = false;
-        }
+        // 既定値と同じか空なら false（保存せず、あれば行を消す）
+        $tmplvars[$row['id']] = evo()->doc->tmplvarValueForSave($row, $value);
     }
     return $tmplvars;
 }
@@ -680,94 +634,6 @@ function getExistsValues($id)
         );
     }
     return $row;
-}
-
-function insert_tmplvars($docid, $tmplvars)
-{
-    if (!$tmplvars) {
-        return;
-    }
-    $tvChanges = [];
-    $tv['contentid'] = $docid;
-    foreach ($tmplvars as $tmplvarid => $value) {
-        if ($value !== false) {
-            $tv['tmplvarid'] = $tmplvarid;
-            $tv['value'] = $value;
-            $tvChanges[] = $tv;
-        }
-    }
-    if (!$tvChanges) {
-        return;
-    }
-    foreach ($tvChanges as $tv) {
-        $tv = db()->escape($tv);
-        db()->insert($tv, '[+prefix+]site_tmplvar_contentvalues');
-    }
-}
-
-function update_tmplvars($docid, $tmplvars)
-{
-    if (!$tmplvars) {
-        return;
-    }
-    $tvChanges = [];
-    $tvAdded = [];
-    $tvDeletions = [];
-    $rs = db()->select(
-        'id, tmplvarid',
-        '[+prefix+]site_tmplvar_contentvalues',
-        sprintf("contentid='%s'", $docid)
-    );
-    $tvIds = [];
-    while ($row = db()->getRow($rs)) {
-        $tvIds[$row['tmplvarid']] = $row['id'];
-    }
-    $tv['contentid'] = $docid;
-    foreach ($tmplvars as $tmplvarid => $value) {
-        if ($value === false) {
-            if (isset($tvIds[$tmplvarid])) {
-                $tvDeletions[] = $tvIds[$tmplvarid];
-            }
-        } else {
-            $tv['tmplvarid'] = $tmplvarid;
-            $tv['value'] = $value;
-            if (isset($tvIds[$tmplvarid])) {
-                $tvChanges[] = $tv;
-            } else {
-                $tvAdded[] = $tv;
-            }
-        }
-    }
-
-    if ($tvDeletions) {
-        db()->delete(
-            '[+prefix+]site_tmplvar_contentvalues',
-            'id IN(' . implode(',', $tvDeletions) . ')'
-        );
-    }
-    if ($tvAdded) {
-        foreach ($tvAdded as $tv) {
-            db()->insert(
-                db()->escape($tv),
-                '[+prefix+]site_tmplvar_contentvalues'
-            );
-        }
-    }
-
-    if (!$tvChanges) {
-        return;
-    }
-    foreach ($tvChanges as $tv) {
-        db()->update(
-            db()->escape($tv),
-            '[+prefix+]site_tmplvar_contentvalues',
-            sprintf(
-                "tmplvarid='%s' AND contentid='%s'",
-                $tv['tmplvarid'],
-                $docid
-            )
-        );
-    }
 }
 
 // document access permissions

@@ -7,6 +7,8 @@ require_once MODX_CORE_PATH . 'special_pages.class.inc.php';
 // ex_documentapi.php の Document クラスは本体から使われておらず、非推奨（#1085）
 class DocAPI
 {
+    // 値が複数になる TV の型。選ばなかったときは、項目が送られないので空として扱う
+    const MULTI_VALUE_TV_TYPES = ['checkbox', 'listbox-multiple', 'custom_tv'];
 
     public $mode;
 
@@ -211,6 +213,148 @@ class DocAPI
             $draft,
             $this->protectedPubError($docid, $draft['published'], $ruled['pub_date'], $ruled['unpub_date'])
         ];
+    }
+
+    /**
+     * 下書きを文書へ採用する（今すぐ採用・予約の時刻の採用の共通の入口）。
+     * 文書の項目は update() で、TV は下書きの tv<ID> の値を通常の保存と同じ規則（tmplvarValueForSave()）で保存する。
+     * $draft は draftForAdoption() の返り値
+     */
+    public function updateFromDraft($draft, $docid)
+    {
+        $rs = $this->update($draft, $docid);
+        if ($rs === false) {
+            return false;
+        }
+        $tmplvars = [];
+        foreach ($this->templateTmplvars($draft['template'] ?? 0, false) as $row) {
+            $key = 'tv' . $row['id'];
+            if (array_key_exists($key, $draft)) {
+                $tmplvars[$row['id']] = $this->tmplvarValueForSave($row, $draft[$key]);
+            }
+        }
+        if ($tmplvars) {
+            $this->saveTmplvars($docid, $tmplvars);
+            evo()->clearCache();
+        }
+        return $rs;
+    }
+
+    /**
+     * 下書きに入れる TV の値を、通常の保存と同じ範囲に絞る。
+     * テンプレートに無い TV と、今のユーザーが変えられない TV は落とす。選ばなかった複数選択の TV は、
+     * 採用で空にできるよう空文字で残す（下書きの項目が無いことは「変えない」の意味にするため）
+     */
+    public function limitDraftTmplvars($fields)
+    {
+        $allowed = [];
+        foreach ($this->templateTmplvars($fields['template'] ?? 0) as $row) {
+            $key = 'tv' . $row['id'];
+            $allowed[$key] = true;
+            if (!isset($fields[$key]) && in_array($row['type'], self::MULTI_VALUE_TV_TYPES, true)) {
+                $fields[$key] = '';
+            }
+        }
+        foreach (array_keys($fields) as $key) {
+            if (preg_match('@^(tv[0-9]+)(_prefix)?$@', (string)$key, $m) && !isset($allowed[$m[1]])) {
+                unset($fields[$key]);
+            }
+        }
+        return $fields;
+    }
+
+    /**
+     * テンプレートに割り当てた TV の行を rank 順に返す。$checkAccess が真なら、今の管理ユーザーが変えられる TV だけ
+     * （site_tmplvar_access。ロールが 1 のユーザーは全部）
+     */
+    public function templateTmplvars($template, $checkAccess = true)
+    {
+        $template = (int)$template;
+        if (!$template) {
+            return [];
+        }
+        $where = sprintf("tvtpl.templateid='%d'", $template);
+        if ($checkAccess) {
+            $docgrp = sessionv('mgrDocgroups')
+                ? implode(',', array_map('intval', sessionv('mgrDocgroups')))
+                : '';
+            $where .= sprintf(
+                " AND (1='%s' OR ISNULL(tva.documentgroup) %s)",
+                (int)sessionv('mgrRole'),
+                $docgrp ? sprintf('OR tva.documentgroup IN (%s)', $docgrp) : ''
+            );
+        }
+        $rs = db()->select(
+            'DISTINCT tv.*',
+            [
+                '[+prefix+]site_tmplvars AS tv',
+                'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid = tv.id',
+                'LEFT JOIN [+prefix+]site_tmplvar_access tva ON tva.tmplvarid=tv.id'
+            ],
+            $where,
+            'tv.rank'
+        );
+        $rows = [];
+        while ($row = db()->getRow($rs)) {
+            $rows[] = $row;
+        }
+        return $rows;
+    }
+
+    /**
+     * TV の値を保存する形にする。配列は '||' でつなぐ。空か既定値と同じなら false（保存せず、あれば行を消す）。
+     * リソースの保存と下書きの採用の共通の規則。URL 型の接頭辞は呼び出し側で整えてから渡す
+     */
+    public function tmplvarValueForSave($tv, $value)
+    {
+        if (is_array($value)) {
+            $value = implode('||', $value);
+        }
+        $value = (string)$value;
+        $default = $tv['default_text'];
+        if (substr($default, 0, 6) === '@@EVAL') {
+            $default = eval(trim(substr($default, 7)));
+        }
+        return strlen($value) > 0 && $value != $default ? $value : false;
+    }
+
+    /**
+     * TV の値を保存する。$tmplvars は [TV の id => 値]。値が false なら行を消す（tmplvarValueForSave() の返り値）
+     */
+    public function saveTmplvars($docid, $tmplvars)
+    {
+        $docid = (int)$docid;
+        $rs = db()->select(
+            'id, tmplvarid',
+            '[+prefix+]site_tmplvar_contentvalues',
+            where('contentid', '=', $docid)
+        );
+        $rowIds = [];
+        while ($row = db()->getRow($rs)) {
+            $rowIds[$row['tmplvarid']] = $row['id'];
+        }
+        foreach ($tmplvars as $tmplvarid => $value) {
+            $tmplvarid = (int)$tmplvarid;
+            if ($value === false) {
+                if (isset($rowIds[$tmplvarid])) {
+                    db()->delete(
+                        '[+prefix+]site_tmplvar_contentvalues',
+                        where('id', '=', (int)$rowIds[$tmplvarid])
+                    );
+                }
+                continue;
+            }
+            $f = db()->escape(['contentid' => $docid, 'tmplvarid' => $tmplvarid, 'value' => $value]);
+            if (isset($rowIds[$tmplvarid])) {
+                db()->update(
+                    $f,
+                    '[+prefix+]site_tmplvar_contentvalues',
+                    sprintf("tmplvarid='%d' AND contentid='%d'", $tmplvarid, $docid)
+                );
+                continue;
+            }
+            db()->insert($f, '[+prefix+]site_tmplvar_contentvalues');
+        }
     }
 
     // type : 'create' or 'update'

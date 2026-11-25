@@ -4,7 +4,8 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (!evo()->hasPermission('save_document')) {
+// 「下書きを採用」のボタンと同じく、公開の権限も求める
+if (!evo()->hasPermission('save_document') || !evo()->hasPermission('publish_document')) {
     alert()->setError(3);
     alert()->dumpError();
 }
