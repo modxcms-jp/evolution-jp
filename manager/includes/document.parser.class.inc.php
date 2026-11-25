@@ -54,7 +54,7 @@ class DocumentParser
     public $dumpSnippetsCode = [];
     public $chunkCache;
     public $snippetCache;
-    public $contentTypes;
+    public $contentTypes; // 以前のキャッシュ（siteCache.idx.php）が代入するため宣言を残す
     public $dumpSQLCode = [];
     public $ph;
     public $placeholders = [];
