@@ -1532,6 +1532,8 @@ return [
     "fb_unzip_failed" => 'Could not extract: %s',
     "fb_unzip_done" => 'Extracted %s files.',
     "fb_unzip_entry_failed" => 'Files that could not be extracted:',
+    "fb_unzip_renamed" => 'Extracted under a different name (original name → new name):',
+    "fb_unzip_renamed_more" => '%s more',
     "fb_content_format_title" => 'The extension is .%s, but the content is a %s image',
     "styleguide_title" => 'Style guide',
     "styleguide_msg" => 'A page that lists the manager UI parts. Choose a theme to check how the parts look and line up. Settings are not changed.',

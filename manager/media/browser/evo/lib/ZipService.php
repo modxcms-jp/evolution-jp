@@ -95,12 +95,14 @@ class ZipService
      *
      * @param string $zipPath resolveFile() で確かめた zip の実パス
      * @param string $destDir resolveDir() で確かめた展開先の実パス
-     * @return array{ok:bool,reason:string,extracted:int,files:string[],failed:string[]} reason は unavailable・open_failed・unsafe・''。
-     *         files は展開できたファイル(フォルダは含まない)の、展開先からの相対パス
+     * @return array{ok:bool,reason:string,extracted:int,files:string[],failed:string[],renamed:array<int,array{from:string,to:string}>}
+     *         reason は unavailable・open_failed・unsafe・''。
+     *         files は展開できたファイル(フォルダは含まない)の、展開先からの相対パス。
+     *         renamed は名前が変わったもの(zip 内の名前 => 付いた名前)。フォルダーの名前が変わったときは、配下を並べずそのフォルダーを 1 件にする
      */
     public static function extract($zipPath, $destDir, PathResolver $resolver, PathGuard $guard, DocumentParser $modx)
     {
-        $result = ['ok' => false, 'reason' => '', 'extracted' => 0, 'files' => [], 'failed' => []];
+        $result = ['ok' => false, 'reason' => '', 'extracted' => 0, 'files' => [], 'failed' => [], 'renamed' => []];
 
         if (!extension_loaded('zip') || !class_exists('ZipArchive')) {
             $result['reason'] = 'unavailable';
@@ -130,6 +132,7 @@ class ZipService
         $folderPermissions = $modx->newFolderPermissions();
         $filePermissions = $modx->newFilePermissions();
         $assigned = ['dirs' => [], 'paths' => []];
+        $renamed = [];
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $entryName = self::entryName($zip, $i);
             $relative = self::entryPath($modx, $entryName);
@@ -146,15 +149,17 @@ class ZipService
                 $result['failed'][] = $relative;
                 continue;
             }
-            if ($isDirEntry) {
+            if (!$isDirEntry && !self::copyEntry($zip, $i, $targetPath, $filePermissions)) {
+                $result['failed'][] = $relative;
                 continue;
             }
-            if (!self::copyEntry($zip, $i, $targetPath, $filePermissions)) {
-                $result['failed'][] = $relative;
+            self::noteRenamed($entryName, $completeRelative, $renamed);
+            if ($isDirEntry) {
                 continue;
             }
             $result['files'][] = $completeRelative;
         }
+        $result['renamed'] = array_values($renamed);
         if ($result['failed']) {
             $modx->logEvent(0, 2, 'Some zip entries could not be extracted', 'unzip', [
                 'zip' => $zipPath,
@@ -166,6 +171,30 @@ class ZipService
         $result['ok'] = true;
         $result['extracted'] = count($result['files']);
         return $result;
+    }
+
+    /**
+     * zip 内の名前と付いた名前の、最初に違う要素までを $renamed に足す(同じ組は 1 件)。
+     * 付いた名前は要素の数が同じなので、フォルダーの名前が変わったときは、配下のファイルを並べずそのフォルダーだけが載る
+     */
+    private static function noteRenamed($entryName, $completeRelative, array &$renamed)
+    {
+        $from = [];
+        foreach (explode('/', str_replace('\\', '/', $entryName)) as $segment) {
+            if ($segment !== '' && $segment !== '.') {
+                $from[] = $segment;
+            }
+        }
+        $to = explode('/', $completeRelative);
+        foreach ($to as $i => $segment) {
+            if ($segment === $from[$i]) {
+                continue;
+            }
+            $fromPath = implode('/', array_slice($from, 0, $i + 1));
+            $toPath = implode('/', array_slice($to, 0, $i + 1));
+            $renamed[$fromPath . "\n" . $toPath] = ['from' => $fromPath, 'to' => $toPath];
+            return;
+        }
     }
 
     /** エントリ名を UTF-8 で返す。Windows の zip は Shift_JIS(CP932) が多く、getNameIndex() の既定は CP437 とみなして崩すため、元のバイト列から変換する */
