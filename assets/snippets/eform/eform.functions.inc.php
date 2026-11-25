@@ -947,7 +947,7 @@ function eFormParseTemplate($tpl, $isDebug = false)
                 $tpl = str_replace($matches[0], $newTag . $placeholderValue . "</textarea>", $tpl);
                 break;
             default: //all the rest, ie. "input"
-                $fieldType = isset($tagAttributes['type']) ? strtolower(stripTagQuotes($tagAttributes['type'])) : 'text';
+                $fieldType = isset($tagAttributes['type']) ? stripTagQuotes($tagAttributes['type']) : 'text';
                 // a checkbox / radio without a value attribute sends "on" (as in HTML)
                 if (($fieldType == 'checkbox' || $fieldType == 'radio') && !isset($tagAttributes['value'])) {
                     $tagAttributes['value'] = '"on"';
@@ -997,7 +997,7 @@ function stripTagQuotes($value)
 function buildTagPlaceholder($tag, $attributes, $name)
 {
     // an input without type is a text input
-    $type = (isset($attributes["type"])) ? strtolower(stripTagQuotes($attributes["type"])) : ($tag === 'input' ? 'text' : '');
+    $type = (isset($attributes["type"])) ? stripTagQuotes($attributes["type"]) : ($tag === 'input' ? 'text' : '');
     $quotedValue = (isset($attributes['value'])) ? $attributes['value'] : '""';
     $val = stripTagQuotes($quotedValue);
     // keep "no value attribute" as is (a submit button shows its default label)
@@ -1024,18 +1024,32 @@ function buildTagPlaceholder($tag, $attributes, $name)
                         $name,
                         $val
                     );
-                case 'submit':
-                case 'button':
-                case 'reset':
-                case 'image':
-                case 'file':
-                case 'hidden': //leave as is - no placeholder
-                    return "<input$t$valueAttr />";
-                default: //text, password, email, tel, number, url, date, search ...
+                case 'text':
                     if ($name == 'vericode') {
                         return "<input$t value=\"\" />";
                     }
+                //else pass on to next
+                case 'password':
                     return "<input$t value=\"[+$name+]\" />";
+                case 'email':
+                case 'tel':
+                case 'url':
+                case 'number':
+                case 'search':
+                case 'date':
+                case 'time':
+                case 'month':
+                case 'week':
+                case 'datetime-local':
+                case 'color':
+                case 'range':
+                    // 複数欄（name に [ がある）には 1 つの値を戻せないので、書いた value のまま
+                    if (strpos($attributes['name'] ?? '', '[') !== false) {
+                        return "<input$t$valueAttr />";
+                    }
+                    return "<input$t value=\"[+$name+]\" />";
+                default: //leave as is - no placeholder
+                    return "<input$t$valueAttr />";
             }
         case "file": //no placeholder!
         case "textarea": //placeholder needs to be added in calling code
