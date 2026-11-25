@@ -619,6 +619,13 @@ class DocumentParser
                 $this->documentObject = array_merge((array)$_, $this->documentObject);
             }
 
+            // キャッシュ有効を外したページは、304 で手元の内容を使われないよう、早い返しが付けたヘッダーを外す
+            // （スニペットなどが付けるヘッダーを消さないよう、それらが動く前に外す）
+            if ($this->config('conditional_get') && $this->doc('cacheable') != 1) {
+                header_remove('ETag');
+                header_remove('Last-Modified');
+            }
+
             // validation routines
             if ($this->checkSiteStatus() === false) {
                 if (!$this->config('site_unavailable_page')) {
