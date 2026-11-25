@@ -230,7 +230,8 @@ export function createGrid(ctx) {
         input.addEventListener('keydown', function (e) {
             e.stopPropagation();
             // 変換中の Enter・Escape は、変換の確定・取り消しに使われる
-            if (e.isComposing) {
+            // Safari は変換の確定後に isComposing=false・keyCode=229 の Enter を送る
+            if (e.isComposing || e.keyCode === 229) {
                 return;
             }
             if (e.key === 'Enter') {

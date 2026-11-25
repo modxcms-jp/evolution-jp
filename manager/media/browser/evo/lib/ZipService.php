@@ -98,7 +98,7 @@ class ZipService
      * @return array{ok:bool,reason:string,extracted:int,files:string[],failed:string[],renamed:array<int,array{from:string,to:string}>}
      *         reason は unavailable・open_failed・unsafe・''。
      *         files は展開できたファイル(フォルダは含まない)の、展開先からの相対パス。
-     *         renamed は名前が変わったもの(zip 内の名前 => 付いた名前)。フォルダーの名前が変わったときは、配下を並べずそのフォルダーを 1 件にする
+     *         renamed は名前が変わった要素の、zip 内のパス => 付いたパス。フォルダーの名前が変わったときは、そのフォルダーと、その中で名前が変わったものが別々に載る(変わっていない配下は載せない)
      */
     public static function extract($zipPath, $destDir, PathResolver $resolver, PathGuard $guard, DocumentParser $modx)
     {
@@ -153,7 +153,7 @@ class ZipService
                 $result['failed'][] = $relative;
                 continue;
             }
-            self::noteRenamed($entryName, $completeRelative, $renamed);
+            self::noteRenamed($modx, $entryName, $completeRelative, $renamed);
             if ($isDirEntry) {
                 continue;
             }
@@ -174,10 +174,12 @@ class ZipService
     }
 
     /**
-     * zip 内の名前と付いた名前の、最初に違う要素までを $renamed に足す(同じ組は 1 件)。
-     * 付いた名前は要素の数が同じなので、フォルダーの名前が変わったときは、配下のファイルを並べずそのフォルダーだけが載る
+     * zip 内の名前と付いた名前を要素ごとに比べ、違う要素までのパスの組を $renamed に足す(同じ組は 1 件)。
+     * 付いた名前は要素の数が同じなので、フォルダーの名前が変わったときは、そのフォルダーの組と、中の名前が変わったものの組が並ぶ。
+     * 配下の名前が変わっていないファイルは載らない。macOS の zip が付ける __MACOSX 以下は載せない。
+     * zip 内の名前は、無害化と同じ条件で NFC にそろえてから比べる(NFD の見た目の同じ名前を、変わったとしない)
      */
-    private static function noteRenamed($entryName, $completeRelative, array &$renamed)
+    private static function noteRenamed(DocumentParser $modx, $entryName, $completeRelative, array &$renamed)
     {
         $from = [];
         foreach (explode('/', str_replace('\\', '/', $entryName)) as $segment) {
@@ -185,15 +187,25 @@ class ZipService
                 $from[] = $segment;
             }
         }
+        if (($from[0] ?? '') === '__MACOSX') {
+            return;
+        }
+        $normalize = class_exists('Normalizer')
+            && $modx->config('clean_uploaded_filename') != 1
+            && mb_check_encoding(implode('/', $from), 'UTF-8');
         $to = explode('/', $completeRelative);
         foreach ($to as $i => $segment) {
-            if ($segment === $from[$i]) {
+            $original = $from[$i];
+            if ($normalize) {
+                $normalized = Normalizer::normalize($original, Normalizer::FORM_C);
+                $original = is_string($normalized) ? $normalized : $original;
+            }
+            if ($segment === $original) {
                 continue;
             }
             $fromPath = implode('/', array_slice($from, 0, $i + 1));
             $toPath = implode('/', array_slice($to, 0, $i + 1));
             $renamed[$fromPath . "\n" . $toPath] = ['from' => $fromPath, 'to' => $toPath];
-            return;
         }
     }
 
