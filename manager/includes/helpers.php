@@ -385,7 +385,7 @@ function manager_error_guide_applies()
 
 // 権限の無い人に出すエラーの案内。詳細は出さず、システムログと突き合わせる手がかり（エラーの番号 = trace_id、日時、画面）を添える。
 // 途中まで出した画面（編集画面のフォームの中など）にも出るので、フォーム・ボタンは置かず、通常のリンクだけにする。
-// 言語ファイルが読めないこともあるので、lang() には既定の文を渡す。見た目は theme-base.css の .evo-error-guide
+// 言語ファイルが読めないこともあるので、lang() には既定の文を渡す。見た目は sections.css の .evo-error-guide
 function manager_error_guide_html()
 {
     $action = get_intvar('a') ?: post_intvar('a');

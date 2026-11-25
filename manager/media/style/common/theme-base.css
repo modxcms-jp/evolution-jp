@@ -640,27 +640,3 @@ a.hometblink img {
     border: 0 !important;
     text-decoration: none !important;
 }
-
-/* 権限の無い人に出すエラーの案内（manager_error_guide_html()）。
-   ツリー（#treePane）の細い幅の中にも出るので、ラベルと値を縦に並べ、長い値は折り返す */
-.evo-error-guide {
-    box-sizing: border-box;
-    max-width: 40em;
-    padding: 1em;
-    border: 1px solid var(--color-border-default, #ccc);
-    background: var(--color-surface, #fff);
-    color: var(--color-text-primary, #333);
-    overflow-wrap: anywhere;
-}
-
-.evo-error-guide dl {
-    margin: 0 0 1em;
-}
-
-.evo-error-guide dt {
-    color: var(--color-text-muted, #666);
-}
-
-.evo-error-guide dd {
-    margin: 0 0 0.5em;
-}
