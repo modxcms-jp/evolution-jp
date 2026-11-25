@@ -202,6 +202,7 @@ class ManageActions
         fbSendJson([
             'extracted' => $result['extracted'],
             'failed' => $result['failed'],
+            'renamed' => $result['renamed'],
         ]);
     }
 
