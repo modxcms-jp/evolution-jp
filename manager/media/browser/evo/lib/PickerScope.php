@@ -20,7 +20,7 @@ class PickerScope implements BrowserScope
     }
 
     /**
-     * 管理画面のセッションは常に許可。ウェブユーザーのセッションは、設定 rb_webuser が有効なときだけ許可する（既定は無効）。
+     * 管理画面のセッションは、ユーザーが削除・ブロックされていなければ許可。ウェブユーザーのセッションは、設定 rb_webuser が有効なときだけ許可する（既定は無効）。
      * どちらも設定 use_browser が有効で、種類が images / media / files のどれかであること。
      * 戻り値は、よければインスタンス、だめなら ['code', 'lang', 'status']
      */
@@ -30,6 +30,8 @@ class PickerScope implements BrowserScope
             if (!sessionv('webValidated') || (int) $modx->config('rb_webuser') !== 1) {
                 return ['code' => 'unauthorized', 'lang' => 'fb_err_unauthorized', 'status' => 403];
             }
+        } elseif (!manager()->refreshMgrPermissions()) {
+            return ['code' => 'unauthorized', 'lang' => 'fb_err_unauthorized', 'status' => 403];
         }
         if (!$config->isBrowserEnabled()) {
             return ['code' => 'forbidden', 'lang' => 'fb_err_forbidden', 'status' => 403];
@@ -139,7 +141,9 @@ class PickerScope implements BrowserScope
         if (!sessionv('mgrValidated')) {
             return true;
         }
-        manager()->refreshMgrPermissions();
+        if (!manager()->refreshMgrPermissions()) {
+            return false;
+        }
 
         return $this->modx->hasPermission($permission);
     }
