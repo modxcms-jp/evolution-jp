@@ -219,7 +219,7 @@ class template
         $template = $this->_fetch($tpl);
 
         if (strpos($template, '[!') !== false) {
-            return str_replace(['[!', '!]'], '[[', ']]', $template);
+            return str_replace(['[!', '!]'], ['[[', ']]'], $template);
         }
 
         return $template;
