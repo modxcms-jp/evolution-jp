@@ -4367,7 +4367,8 @@ class DocumentParser
         if ($id == 0) {
             $id = $this->config('site_start');
         } elseif ($id == '') {
-            $id = $this->documentIdentifier;
+            // 今の文書。API モードなどで文書が無いときはトップページ
+            $id = $this->documentIdentifier ?: $this->config('site_start');
         }
 
         // 引数の型と並びをそのまま残すキーにする（ハッシュにすると別の引数が同じキーになりうる）
