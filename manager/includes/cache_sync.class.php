@@ -15,7 +15,6 @@ class synccache
 
     private $current_time;
     private $session_name = '';
-    private $session_cookie_path = '';
 
     public function __construct()
     {
@@ -101,7 +100,6 @@ class synccache
 
         // sitecache の削除で basicConfig.php も消えるので、書き直すときに引き継ぐ値を先に読んでおく
         $this->session_name = $this->getSessionName();
-        $this->session_cookie_path = $this->getSessionCookiePath();
 
         if (strpos($this->target, 'pagecache') !== false) {
             $result = $this->purgeCacheFiles();
@@ -233,21 +231,20 @@ class synccache
         if ($session_name !== '') {
             $content[] = sprintf('$site_sessionname = %s;', var_export($session_name, true));
             $content[] = sprintf('$cache_type = %s;', (int) config('cache_type', 1));
-            $cookie_path = $this->session_cookie_path ?: $this->getSessionCookiePath();
-            if ($cookie_path !== '') {
-                // 早い返しの経路が session_start() の前に渡す、セッションの cookie の属性（secure は接続ごとに決まるので含めない）
-                $cookie_params = ['path' => $cookie_path] + init::session_cookie_params();
-                $content[] = sprintf(
-                    '$site_cookie_params = [%s];',
-                    implode(', ', array_map(
-                        static function ($key, $value) {
-                            return var_export($key, true) . ' => ' . var_export($value, true);
-                        },
-                        array_keys($cookie_params),
-                        $cookie_params
-                    ))
-                );
-            }
+            // 早い返しが session_start() の前に渡す、セッションの cookie の属性。secure は接続ごとに決まるので含めない。
+            // path は書き出さず、早い返しは今までどおり php.ini の既定（/）にする
+            $cookie_params = init::session_cookie_params();
+            unset($cookie_params['path']);
+            $content[] = sprintf(
+                '$site_cookie_params = [%s];',
+                implode(', ', array_map(
+                    static function ($key, $value) {
+                        return var_export($key, true) . ' => ' . var_export($value, true);
+                    },
+                    array_keys($cookie_params),
+                    $cookie_params
+                ))
+            );
             if (config('conditional_get')) {
                 $content[] = sprintf(
                     '$conditional_get = %s;',
@@ -317,25 +314,6 @@ class synccache
         if (
             is_file($path)
             && preg_match('/^\$site_sessionname = \'([^\'\\\\]+)\';$/m', (string) file_get_contents($path), $m)
-        ) {
-            return $m[1];
-        }
-        return '';
-    }
-
-    /**
-     * セッションの cookie の path。CLI では MODX_BASE_URL が実際の設置場所と違うため、今ある basicConfig.php の値を引き継ぐ。分からなければ空文字
-     */
-    private function getSessionCookiePath()
-    {
-        if (PHP_SAPI !== 'cli') {
-            return MODX_BASE_URL;
-        }
-
-        $path = $this->cachePath . 'basicConfig.php';
-        if (
-            is_file($path)
-            && preg_match('/^\$site_cookie_params = \[.*\'path\' => \'([^\'\\\\]+)\'/m', (string) file_get_contents($path), $m)
         ) {
             return $m[1];
         }

@@ -15,12 +15,13 @@ if (isset($site_sessionname) && $site_sessionname) {
     session_name($site_sessionname);
     session_cache_limiter('');
     if (isset($site_cookie_params)) {
-        // init::session_set_cookie_params() と同じ値。https かどうかは接続ごとに決まるので、ここで判定する
+        // init::session_set_cookie_params() と、secure 以外は同じ値（path は今までどおり php.ini の既定）。secure は接続ごとに決まるので、ここで判定する
         $site_cookie_params['secure'] = strtolower((string)($_SERVER['HTTPS'] ?? '')) === 'on'
             || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
         ini_set('session.gc_maxlifetime', (string)$site_cookie_params['lifetime']);
         session_set_cookie_params($site_cookie_params);
     } else {
+        // $site_cookie_params が無い古い basicConfig.php 用
         ini_set('session.gc_maxlifetime', (string)(3600 * 24 * 30));
     }
     session_start();
