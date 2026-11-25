@@ -3,7 +3,7 @@ if (!isset($_SERVER['REQUEST_TIME_FLOAT'])) {
     $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
 }
 $mstart = memory_get_usage();
-include 'define-path.php';
+include_once __DIR__ . '/define-path.php';
 
 if (defined('IN_MANAGER_MODE')) {
     return;
