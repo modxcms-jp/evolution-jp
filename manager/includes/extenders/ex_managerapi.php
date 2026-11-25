@@ -915,20 +915,40 @@ class ManagerAPI
         return $row;
     }
 
-    // ロール設定の変更をログインし直さずに反映するため、管理画面のリクエストごとに読み直す
+    /**
+     * ロール設定の変更をログインし直さずに反映するため、管理画面のリクエストごとにロールの権限を読み直す。
+     * ユーザーが削除された・管理者がブロックした（期限つきを含む）ときは、管理画面のセッションを破棄して false を返す。
+     * 失敗回数による一時ロック（blockeduntil が未来で、failedlogincount が failed_login_attempts 以上。isTemporaryLoginLock()）は、ログインを止めるだけで、開いているセッションは切らない（管理者が自分で解除できるように）
+     *
+     * @return bool 続けてよいとき true。セッションを破棄したとき false
+     */
     public function refreshMgrPermissions($uid = 0)
     {
         if (!$uid) {
-            $uid = evo()->getLoginUserID();
+            $uid = sessionv('mgrInternalKey', 0);
         }
-        $role = db()->getValue(
-            db()->select('role', '[+prefix+]user_attributes', sprintf("internalKey='%d'", $uid))
+        $row = db()->getRow(
+            db()->select(
+                'mu.id, ua.role, ua.blocked, ua.blockeduntil, ua.blockedafter, ua.failedlogincount',
+                [
+                    '[+prefix+]manager_users mu',
+                    'LEFT JOIN [+prefix+]user_attributes ua ON ua.internalKey=mu.id'
+                ],
+                sprintf("mu.id='%d'", (int)$uid)
+            )
         );
-        if ($role === false || $role === null) {
-            return;
+        if (!$row || isUserBlockedByAdmin($row)) {
+            session_unset();
+            @session_destroy();
+            return false;
         }
-        sessionv('*mgrRole', $role);
-        sessionv('*mgrPermissions', $this->getMgrPermissions($role));
+        // 属性の行が無いユーザーはロールが無いので、権限は今のまま
+        if ($row['role'] === null) {
+            return true;
+        }
+        sessionv('*mgrRole', $row['role']);
+        sessionv('*mgrPermissions', $this->getMgrPermissions($row['role']));
+        return true;
     }
 
     public function getMemberGroups($uid = 0)

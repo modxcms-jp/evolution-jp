@@ -7,7 +7,12 @@ $content = manager()->openElementForm('tmplvar', ' template variable');
 $id = (int) ($content['id'] ?? 0);
 sessionv('*itemname', $content ? $content['caption'] : 'New Template Variable');
 
-$content = manager()->restoreElementFormValues($content);
+// 入力エラーの差し戻しでは、テンプレートの割り当てと文書グループも入力のままにする（未選択は空配列）
+$content = manager()->restoreElementFormValues($content, '', ['locked'], ['template', 'document_groups']);
+// 表示パラメーターの入力欄（hidden の params）は、DB の列 display_params と名前が違う
+if (isset($content['params'])) {
+    $content['display_params'] = $content['params'];
+}
 
 // get available RichText Editors
 $RTEditors = '';
@@ -520,12 +525,12 @@ function entity($key, $default = null)
                             <?php
                             if (0 < db()->count($rs)) :
                                 while ($row = db()->getRow($rs)) :
-                                    if (request_intvar('a') === 300 && config('default_template') == $row['id']) {
+                                    if (is_array(entity('template'))) {
+                                        $checked = in_array($row['id'], entity('template'));
+                                    } elseif (request_intvar('a') === 300 && config('default_template') == $row['id']) {
                                         $checked = true;
                                     } elseif (get_intvar('tpl') && (int)$row['id'] === get_intvar('tpl')) {
                                         $checked = true;
-                                    } elseif ($id == 0 && is_array(entity('template'))) {
-                                        $checked = in_array($row['id'], entity('template'));
                                     } else {
                                         $checked = $row['tmplvarid'];
                                     }
@@ -650,7 +655,7 @@ function entity($key, $default = null)
                         $chks = '';
                         $notPublic = false;
                         $rs = db()->select('name, id', '[+prefix+]documentgroup_names');
-                        if (empty($groupsarray) && is_array(entity('document_groups')) && empty(entity('id'))) {
+                        if (is_array(entity('document_groups'))) {
                             $groupsarray = entity('document_groups');
                         }
                         $number_of_g = 0;

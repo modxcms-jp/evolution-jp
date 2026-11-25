@@ -31,13 +31,16 @@
         $where,
         'save_role DESC, new_role DESC, id ASC'
     );
+    // 新規は、入力エラーで差し戻されたときの選択、なければ default_role。どちらも無ければ（編集で、ロールが空・存在しないときも）、先頭の管理者を黙って選ばず、空の項目を出す。保存側が新規の空を断る（save_user.processor.php）
+    $selectedRole = user('role');
+    if ($action === 11 && ($selectedRole === null || $selectedRole === '')) {
+        $selectedRole = config('default_role');
+    }
     $options = [];
+    $hasSelected = false;
     while ($row = db()->getRow($rs)) {
-        if ($action === 11) {
-            $selected = ($row['id'] == config('default_role'));
-        } else {
-            $selected = ($row['id'] == user('role'));
-        }
+        $selected = $selectedRole !== null && $selectedRole !== '' && $row['id'] == $selectedRole;
+        $hasSelected = $hasSelected || $selected;
         $options[] = html_tag(
             'option',
             [
@@ -46,6 +49,10 @@
             ],
             hsc($row['name'])
         );
+    }
+    $isUnselected = !$hasSelected;
+    if ($isUnselected) {
+        array_unshift($options, '<option value="" selected disabled>' . hsc(lang('user_role_choose')) . '</option>');
     }
     echo EvoFieldRow::render([
         'label' => lang('user_role'),
