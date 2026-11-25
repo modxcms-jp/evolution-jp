@@ -676,6 +676,8 @@
         const isPost = options.method === 'POST';
         const slot = isModalTarget ? 'modal' : 'main';
         const generation = ++generations[slot];
+        // モーダルの保存を始めたときの本体の番号。応答が古くなったとき、その間に本体で何も始めていないかを見る
+        const mainAtStart = generations.main;
         const isLatest = function () {
             return generation === generations[slot];
         };
@@ -726,7 +728,7 @@
                                 handleRefreshParam(screenUrl);
                             }
                             if (isPost && isModalTarget) {
-                                refreshAfterStaleModalSave();
+                                refreshAfterStaleModalSave(mainAtStart);
                             }
                             return;
                         }
@@ -768,18 +770,18 @@
         }
     }
 
-    // モーダルの保存の応答が、モーダルを閉じたあとに届いたとき。背後が未保存でなければ、閉じたときにできなかった取り直しを行う。
+    // モーダルの保存の応答が、モーダルを閉じたあとに届いたとき。背後が未保存で、その間に本体で何も始めていなければ、閉じたときにできなかった取り直しを行う。
     // 別のモーダルが開いていれば、それを閉じるときの取り直しに任せる
-    function refreshAfterStaleModalSave() {
+    function refreshAfterStaleModalSave(mainAtStart) {
         const overlay = document.getElementById('evoShellModalOverlay');
         if (overlay && !overlay.classList.contains('hidden')) {
             modalDirty = true;
-        } else if (!window.documentDirty) {
+        } else if (!window.documentDirty && generations.main === mainAtStart) {
             request(currentUrl, { method: 'GET' }, false);
         }
     }
 
-    // ツリー/メニュー部品を再取得して差し替える(セッション切れ検出・失敗時の後始末込み)
+    // ツリー/メニュー部品を再取得して差し替える(セッション切れ検出込み。失敗したら今の部品のまま)
     function reloadPartial(url, elementId) {
         const current = document.getElementById(elementId);
         if (!current) {
@@ -897,7 +899,10 @@
                     method: 'POST',
                     body: formData,
                     headers: { 'X-CSRF-Token': getCsrfToken() }
-                }, push, target).then(clear, clear);
+                }, push, target).then(clear, function (e) {
+                    clear();
+                    throw e;
+                });
             } catch (e) {
                 clear();
                 throw e;
