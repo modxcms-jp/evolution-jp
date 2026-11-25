@@ -329,6 +329,7 @@
         }
 
         executeScripts(pane, function () {
+            stopWork();
             pane.classList.remove('evo-pane-pending');
             // 断片内のready相当は即時実行済み。共通後処理を行う
             const preLoader = document.getElementById('preLoader');
@@ -347,7 +348,6 @@
             updateDocumentTitle();
             handleRefreshParam(finalUrl);
             scrollPaneToHash(finalUrl);
-            stopWork();
             document.dispatchEvent(new CustomEvent('evoshell:load', { detail: { url: finalUrl, screenUrl: screenUrl || finalUrl } }));
         });
     }
@@ -470,11 +470,11 @@
         }
 
         executeScripts(body, function () {
+            stopWork();
             body.classList.remove('evo-pane-pending');
             if (window.MODXSortable && typeof window.MODXSortable.init === 'function') {
                 window.MODXSortable.init(body);
             }
-            stopWork();
             document.dispatchEvent(new CustomEvent('evoshell:modalload'));
         });
     }
@@ -669,7 +669,7 @@
 
     // targetが'modal'の場合、断片はEvoShellモーダルへ差し込む(#mainPaneやhistoryは触らない)。
     // 画面を差し替えるのは、最後に始めた要求の応答だけ。POSTは中断しないが、その後に別の画面を始めていれば、
-    // 結果の画面では上書きしない（保存は済んでいる）
+    // 結果の画面では上書きしない（サーバーの処理は終わっている。結果の画面と、その中の知らせは出ない）
     function request(url, options, push, target) {
         startWork();
         const isModalTarget = target === 'modal';
@@ -680,16 +680,28 @@
             return generation === generations[slot];
         };
         const headers = Object.assign({ 'X-Requested-With': 'XMLHttpRequest', 'X-Evo-Shell': '1' }, options.headers || {});
+        // 通信の失敗（fetch と本文の受信）だけをここで扱う。結果を適用中の例外は、通信失敗にしない
+        const onNetworkFailure = function () {
+            if (isPost) {
+                // POST(保存等)の通信失敗を無反応のまま放置しない。再送信も再読み込みもせず、入力を残す
+                reportFailedPost(EvoShell.networkErrorMessage, !isModalTarget && isLatest());
+                return;
+            }
+            stopWork();
+            if (isLatest()) {
+                fullReload(url);
+            }
+        };
         return fetch(url, Object.assign({}, options, { headers: headers, credentials: 'same-origin' }))
             .then(function (response) {
                 if (response.headers.get('X-Evo-Login') === 'required') {
                     if (isPost) {
-                        // セッション切れ。画面を変えずに入力を残し、別のタブでログインしてから保存し直すよう知らせる
+                        // セッション切れ。画面を変えずに入力を残し、コピーしてログインし直し、画面を開き直すよう知らせる
                         reportFailedPost(EvoShell.sessionExpiredMessage, !isModalTarget && isLatest());
                         return null;
                     }
+                    stopWork();
                     if (!isLatest()) {
-                        stopWork();
                         return null;
                     }
                     // 開こうとした画面（モーダルなら今の画面）をフルリロードしてログイン画面を出す。
@@ -698,7 +710,7 @@
                     return null;
                 }
                 if (/attachment/i.test(response.headers.get('Content-Disposition') || '')) {
-                    return downloadResponse(response).then(stopWork);
+                    return downloadResponse(response).then(stopWork, onNetworkFailure);
                 }
                 // POSTがリダイレクトせずに結果を返したときは、アドレスバーと履歴を操作のURLにしない。
                 // 状態を変える操作のURLはGETで開けない(405)ため、再読み込みや戻るで失敗しないよう、元の画面のURLのままにする
@@ -706,48 +718,65 @@
                 const screenUrl = responseUrlWithRequestHash(response.url, url);
                 const finalUrl = keepUrl ? currentUrl : screenUrl;
                 return response.text().then(function (text) {
-                    if (!isLatest()) {
-                        stopWork();
-                        if (isPost) {
-                            // 保存の結果が求めるツリー・メニューの読み直しだけは行う
-                            handleRefreshParam(screenUrl);
-                        }
-                        return null;
-                    }
-                    if (response.headers.get('X-Evo-Pane') === '1') {
-                        if (isModalTarget) {
+                    stopWorkOnThrow(function () {
+                        if (!isLatest()) {
+                            stopWork();
                             if (isPost) {
-                                modalDirty = true;
+                                // 保存の結果が求めるツリー・メニューの読み直しだけは行う
+                                handleRefreshParam(screenUrl);
                             }
-                            applyModalFragment(text, finalUrl);
-                        } else {
-                            applyFragment(text, finalUrl, push && !keepUrl, screenUrl);
+                            if (isPost && isModalTarget) {
+                                refreshAfterStaleModalSave();
+                            }
+                            return;
                         }
-                    } else if (isPost && !response.ok && /^text\/plain/i.test(response.headers.get('Content-Type') || '')) {
-                        // CSRFトークンの不一致（ログインし直したあとの保存など）のように、文字だけのエラー。
-                        // 画面と入力は残して知らせる
-                        reportFailedPost(EvoShell.saveRejectedMessage, !isModalTarget);
-                    } else if (isPost || isFullDocumentHtml(text)) {
-                        // 断片で返せない応答(モジュール実行等)はドキュメントごと差し替える。
-                        // document.writeはアドレスバーを更新しないため、応答先のURLで補正する
-                        replaceDocument(text, finalUrl);
-                    } else {
-                        fullReload(url);
-                    }
+                        if (response.headers.get('X-Evo-Pane') === '1') {
+                            if (isModalTarget) {
+                                if (isPost) {
+                                    modalDirty = true;
+                                }
+                                applyModalFragment(text, finalUrl);
+                            } else {
+                                applyFragment(text, finalUrl, push && !keepUrl, screenUrl);
+                            }
+                        } else if (isPost && response.status === 403 && /^text\/plain/i.test(response.headers.get('Content-Type') || '')) {
+                            // CSRFトークンの不一致（ログインし直したあとの保存など）の、文字だけの 403。
+                            // 画面と入力は残して知らせる
+                            reportFailedPost(EvoShell.saveRejectedMessage, !isModalTarget);
+                        } else if (isPost || isFullDocumentHtml(text)) {
+                            // 断片で返せない応答(モジュール実行等)はドキュメントごと差し替える。
+                            // document.writeはアドレスバーを更新しないため、応答先のURLで補正する
+                            replaceDocument(text, finalUrl);
+                        } else {
+                            stopWork();
+                            fullReload(url);
+                        }
+                    });
                     return null;
-                });
-            })
-            .catch(function () {
-                if (isPost) {
-                    // POST(保存等)の通信失敗を無反応のまま放置しない。再送信も再読み込みもせず、入力を残す
-                    reportFailedPost(EvoShell.networkErrorMessage, !isModalTarget && isLatest());
-                    return;
-                }
-                stopWork();
-                if (isLatest()) {
-                    fullReload(url);
-                }
-            });
+                }, onNetworkFailure);
+            }, onNetworkFailure);
+    }
+
+    // 結果の適用中に例外が出ても「処理中」の数が合うよう、数えてから投げ直す
+    // （適用の同期の部分で出る例外。画面の差し替え後の stopWork は executeScripts の done の先頭で行う）
+    function stopWorkOnThrow(fn) {
+        try {
+            fn();
+        } catch (e) {
+            stopWork();
+            throw e;
+        }
+    }
+
+    // モーダルの保存の応答が、モーダルを閉じたあとに届いたとき。背後が未保存でなければ、閉じたときにできなかった取り直しを行う。
+    // 別のモーダルが開いていれば、それを閉じるときの取り直しに任せる
+    function refreshAfterStaleModalSave() {
+        const overlay = document.getElementById('evoShellModalOverlay');
+        if (overlay && !overlay.classList.contains('hidden')) {
+            modalDirty = true;
+        } else if (!window.documentDirty) {
+            request(currentUrl, { method: 'GET' }, false);
+        }
     }
 
     // ツリー/メニュー部品を再取得して差し替える(セッション切れ検出・失敗時の後始末込み)
@@ -781,7 +810,7 @@
                 executeScripts(fresh);
             })
             .catch(function () {
-                stopWork();
+                // 失敗したら今の部品のまま
             });
     }
 
@@ -789,7 +818,7 @@
         // header.inc.phpが言語別メッセージで上書きする
         unsavedMessage: 'Your changes are not saved. Continue?',
         networkErrorMessage: 'The request failed, so it is not known whether your changes were saved. What you entered is still on this screen. Check your connection and save again.',
-        sessionExpiredMessage: 'Your session has expired, so your changes were not saved. What you entered is still on this screen. After you log in again in another tab, this screen can no longer save, so copy your input first. Then reload the screen after logging in and paste it back.',
+        sessionExpiredMessage: 'Your session has expired, so your changes were not saved. This screen can no longer save. What you entered is still on this screen, so copy it, log in again, reload the screen and paste it back.',
         saveRejectedMessage: 'This screen can no longer save. Its permission to save is no longer valid, for example because you logged in again. What you entered is still on this screen: copy it, reload the screen and paste it back.',
 
         // ツリーの上のピン（manager/frames/tree.php の #treePin）。押すと自動の拡縮を止め、もう一度押すと戻す
@@ -858,7 +887,7 @@
             }
 
             // 未保存の印は送信では消さない。応答で画面を差し替えるとき（applyFragment）に消える
-            // 応答・エラー・同期の例外のどれでも印を外す
+            // 応答・エラー・同期の例外のどれでも送信中の印を外す
             const clear = function () {
                 setSubmitting(form, false);
             };

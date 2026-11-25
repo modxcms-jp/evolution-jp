@@ -29,7 +29,7 @@ $icons_path = manager_style_image_path('icons');
     </ul>
 </div>
 <div class="sectionBody">
-    <form action="index.php" name="logging" class="mutate" method="GET">
+    <form action="index.php" name="logging" class="mutate" method="GET" onsubmit="documentDirty=false;">
         <input type="hidden" name="a" value="13">
         <div class="tab-pane" id="logPane">
             <div class="tab-page" id="tabGeneral">
