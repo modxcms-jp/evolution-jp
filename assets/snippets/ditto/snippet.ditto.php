@@ -404,16 +404,9 @@ if ($count > 0) {
     $dbFields = $ditto->fields['display']['db'];
     $TVs = $ditto->fields['display']['tv'];
 
-    switch ($orderBy['parsed'][0][1] ?? null) {
-        case 'DESC':
-            $stop = ($ditto->prefetch === false) ? $stop + $start + $offset : $stop + $offset;
-            $start += $offset;
-            break;
-        case 'ASC':
-            $start += $offset;
-            $stop += $start;
-            break;
-    }
+    // skip &start documents. With the prefetch $stop is the length of the slice, otherwise the end position
+    $stop += $ditto->prefetch === false ? $start + $offset : $offset;
+    $start += $offset;
 
     if ($ditto->prefetch !== false) {
         $documentIDs = array_slice($documentIDs, $start, $stop);
