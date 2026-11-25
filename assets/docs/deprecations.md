@@ -49,7 +49,7 @@
 | `loadExtension('EXPORT_SITE')`（クラス `EXPORT_SITE`、`$modx->export`） | `loadExtension()` が `false` を返す。警告: なし | `EvoSiteExporter`・`EvoSiteExportJob`、`php evo.php export:site` | #910 |
 | `top.mainMenu.reloadPane()`・`doRefresh()`（管理画面の JS） | 関数が無い。呼ぶと JS のエラーになる。再読み込みを求める URL の引数も `r=1`・`r=2`・`r=3`・`r=9`・`r=10` から `refresh=tree`・`menu`・`all`・`page` に変わり、`r` は読まない。戻さない（#1824 の決定）。警告: なし | `EvoShell.refresh()`、リダイレクト先の URL に `refresh` を付ける（`manager-shell.md`） | #1296・#1824 |
 | ログインの「ユーザー名:roleid=N」（`login.processor.functions.php`） | ユーザー名の後ろに `:roleid=N` を付けると、ロール 1 のユーザーが、そのセッションだけロール N の権限で入る動き。管理画面はリクエストごとにロールを DB から読み直す（`refreshMgrPermissions()`、#46）ので、ログイン直後の次のリクエストから効かなくなっていた。#1821 でコードを消した。警告: なし | ロールを変えて確かめるときは、そのロールのユーザーでログインする | #1821・#46 |
-| `$modx->contentTypes` | 宣言は残るが、値が入らなくなる（本体のどこからも使っていなかった、キャッシュからの書き出しをやめた）。読むと空。警告: なし | `$modx->config('custom_contenttype')` などの設定を読む | #1814 |
+| `$modx->contentTypes` | 宣言は残るが、値が入らなくなる（文書ごとの contentType の控えで、本体のどこからも使っていなかった書き出しをやめた）。読むと空。警告: なし | 文書の contentType を読む（`$modx->documentObject['contentType']` か `getDocument()`） | #1814 |
 
 ### DB の API
 
