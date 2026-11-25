@@ -1218,7 +1218,7 @@ return [
     "configcheck_del_actionphp_msg" => 'Captcha画像の表示に使っていたaction.phpは、今は使いません。セキュリティ上の問題があるため削除してください。',
     "configcheck_retired_files" => '配布から外した古いファイルが残っています',
     "configcheck_retired_files_msg" => '次のフォルダーに、今の版では使わない古いファイルが残っています。削除してください: [+folders+]',
-    "configcheck_connection_charset" => 'データベースの接続の文字コードが Unicode ではありません',
+    "configcheck_connection_charset" => 'データベースの接続の文字セットが Unicode ではありません',
     "configcheck_connection_charset_msg" => 'データベース「[+dbase+]」の既定の文字セットが latin1 などのため、日本語が「?」で保存されるおそれがあります。データベースの管理者が、次の SQL を実行してください（既存のテーブルは変わらず、これから作るテーブルの既定だけが変わります）: ALTER DATABASE `[+dbase+]` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci',
 
     "a16_use_resources" => 'このテンプレートを使用しているリソース',

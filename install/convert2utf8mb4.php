@@ -41,11 +41,11 @@ class convert2utf8mb4 {
 
     /**
      * DB の既定の文字セットを utf8mb4 にする（既存の表は変わらず、これから作る表の既定だけが変わる）。
-     * 変えたあとは、同じ接続の character_set_connection も新しい既定にそろえる。変更できなければ false
+     * 変更できなければ false。接続の文字セットには触れない（呼び出し側が必要なら applyConnectionCharset() を呼ぶ）
      */
     public function convertDb($collation = 'utf8mb4_general_ci')
     {
-        $converted = db()->exec(
+        return (bool) db()->exec(
             sprintf(
                 "ALTER DATABASE `%s` CHARACTER SET = utf8mb4 COLLATE = %s",
                 str_replace('`', '``', db()->dbase),
@@ -53,12 +53,19 @@ class convert2utf8mb4 {
             ),
             false
         );
-        return $converted && db()->applyConnectionCharset();
     }
 
     public function getDefaultCharset() {
+        return $this->getSchemaDefault('DEFAULT_CHARACTER_SET_NAME');
+    }
+
+    public function getDefaultCollation() {
+        return $this->getSchemaDefault('DEFAULT_COLLATION_NAME');
+    }
+
+    private function getSchemaDefault($column) {
         $rs = db()->select(
-            'DEFAULT_CHARACTER_SET_NAME',
+            $column,
             'INFORMATION_SCHEMA.SCHEMATA',
             sprintf("SCHEMA_NAME = '%s'", db()->dbase)
         );

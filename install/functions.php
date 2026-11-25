@@ -1011,7 +1011,16 @@ function prepareDatabaseDefaultForInstall()
     if ($convert->getDefaultCharset() === 'utf8mb4') {
         return;
     }
-    convertDatabaseDefault($convert, sessionv('database_collation'));
+    $before = [$convert->getDefaultCharset(), $convert->getDefaultCollation()];
+    if (!convertDatabaseDefault($convert, sessionv('database_collation'))) {
+        return;
+    }
+    // SET CHARACTER SET は character_set_connection を DB の既定にするので、変えたあとの既定でやり直す
+    db()->applyConnectionCharset();
+    log_install_event('Changed the database default charset to utf8mb4', [
+        'from' => $before,
+        'to' => ['utf8mb4', sessionv('database_collation')]
+    ]);
 }
 
 function convert2utf8mb4() {
@@ -1035,14 +1044,13 @@ function convert2utf8mb4() {
     }
 
     echo "<p>tableのcollationをutf8mb4_general_ciに変換します。</p>";
-    if ($collation !== 'utf8mb4_general_ci') {
-        convertDatabaseDefault($convert, 'utf8mb4_general_ci');
-    }
+    $databaseConverted = $collation === 'utf8mb4_general_ci' || convertDatabaseDefault($convert, 'utf8mb4_general_ci');
 
     $count = $convert->convertTablesWithPrefix(sessionv('table_prefix', 'modx_'));
     if ($count) {
         echo sprintf(
-            "<p>Database and tables collation have been changed to utf8mb4_general_ci. %d tables have been converted.</p>",
+            "<p>%s collation have been changed to utf8mb4_general_ci. %d tables have been converted.</p>",
+            $databaseConverted ? 'Database and tables' : 'Tables',
             $count
         );
     } else {

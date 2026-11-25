@@ -48,9 +48,11 @@ CLI の使い方の詳細は [`manager/includes/cli/README.md`](../../manager/in
 - アップデーターの変換（上の手順 4）: 利用者が変換を選んだとき、`ALTER DATABASE ... COLLATE utf8mb4_general_ci` にする
 - 新規インストール: 選んだ文字セットが utf8mb4 で、DB の既定がそうでないとき、表を作る前に、選んだ照合順序で既定を utf8mb4 にする（`prepareDatabaseDefaultForInstall()`）。既定がすでに utf8mb4 なら何もしない（照合順序も変えない）。この変更は既存の表に影響せず、これから作る表の既定だけが変わる
 
-`convertDb()` は、変更のあと、同じ接続で `SET CHARACTER SET` をやり直して、`character_set_connection` を新しい既定にそろえる（`DBAPI::applyConnectionCharset()`。`connect()` と同じ処理）。`ALTER DATABASE` の権限が無いなど変更できないときは、インストールを止めず、結果の画面とインストールのログで知らせる。
+`convertDb()` は `ALTER DATABASE` だけを行い、成否を返す。接続の文字セットには触れない。更新の変換では、接続は `config.inc.php` の文字セットで済んでいて、`db()->charset` はセッションの値（表の照合順序から割り出した値）なので、ここで接続をやり直すと、接続が途中から別の文字セットになりうる。新規インストールだけが、変更が成功したあとに `DBAPI::applyConnectionCharset()`（`connect()` と同じ処理）で `SET CHARACTER SET` をやり直し、`character_set_connection` を新しい既定にそろえる。変更の前後の既定はインストールのログに残る。`ALTER DATABASE` の権限が無いなど変更できないときは、インストールを止めず、結果の画面とログで知らせる。
 
-アップデートで変換を断ったサイトや、権限が無くて変えられなかったサイトは、ダッシュボードの設定チェック（`config_check.inc.php`）が、`config.inc.php` で Unicode の接続を指定しているのに `@@character_set_connection` が Unicode でないときに警告する。直し方は、DB の管理者が `ALTER DATABASE` を実行すること。接続の方法（`SET NAMES` への変更など）は、今動いているサイトの動きが変わるため変えない。
+既定を変えると、この DB に `SET CHARACTER SET` でつなぐ接続の文字セットも変わる（同じ DB を共用している別のサイトを含む）。既存の表の中身は変わらない。
+
+アップデートで変換を断ったサイトや、権限が無くて変えられなかったサイトは、ダッシュボードの設定チェック（`config_check.inc.php`）が、`config.inc.php` で Unicode の接続を指定しているのに `@@character_set_connection` が Unicode でないときに警告する。直し方は、DB の管理者が `ALTER DATABASE` を実行すること。表がすでに `utf8mb4_general_ci` のサイト（1.2 で新規インストールしたものなど）は、更新の変換では DB の既定が変わらないので、この警告が残りうる。接続の方法（`SET NAMES` への変更など）は、今動いているサイトの動きが変わるため変えない。
 
 ## マイグレーションの書き方
 
