@@ -7,7 +7,8 @@
 非推奨の機能が使われたら、`logDeprecated($name, $message)`（`manager/includes/helpers.php`）でシステムログに警告（type 2）を残す。
 
 - 同じ `$name` は 1 回の要求につき 1 回だけ記録する
-- コンテキストに `deprecated`（`$name`）・`file`・`line`（呼び出し元）・`snippet` または `plugin`（その中から呼ばれたとき）・`uri` を入れる
+- コンテキストに `deprecated`（`$name`）・`file`・`line`（呼び出し元）だけを入れる。スニペット・プラグイン・URL は全ログ共通の `current_snippet`・`active_plugin`・`decoded_request_uri`・`request.url` に入る
+- `$modx` の非推奨メソッド（`DeprecatedAPI`）は、これとは別に `__call()` が別の条件で警告を残す
 - 確認は `php evo.php log:search "deprecated" --level=warning`
 
 ## 一覧

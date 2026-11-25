@@ -874,7 +874,7 @@ SQL_QUERY;
     {
         logDeprecated(
             'Document',
-            'The Document class is deprecated and will be removed in 1.4. Use evo()->doc (DocAPI) instead.'
+            "The Document class is deprecated and will be removed in 1.4. Use evo()->loadExtension('DocAPI') and evo()->doc instead."
         );
     }
 

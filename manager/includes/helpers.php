@@ -1636,7 +1636,7 @@ function image_display_size_by_orientation($width, $height, $orientation)
 
 /**
  * 非推奨の機能が使われたことを、1 回の要求につき 1 回だけシステムログに警告（type 2）で残す。
- * 呼び出し元のファイルと行、スニペットやプラグインの中ならその名前をコンテキストに入れる。
+ * 呼び出し元のファイルと行をコンテキストに入れる（スニペット・プラグイン・URL は全ログ共通のコンテキストに入る）。
  *
  * @param string $name 非推奨の機能の名前（同じ名前は 1 回の要求で 1 回だけ記録する）
  * @param string $message 非推奨である理由と代わりの手段
@@ -1662,12 +1662,6 @@ function logDeprecated($name, $message)
         $context['line'] = $frame['line'] ?? 0;
         break;
     }
-    if (evo()->currentSnippet) {
-        $context['snippet'] = evo()->currentSnippet;
-    } elseif (!empty(evo()->event->activePlugin)) {
-        $context['plugin'] = evo()->event->activePlugin;
-    }
-    $context['uri'] = evo()->decoded_request_uri;
 
     evo()->logEvent(0, 2, $message, 'Call deprecated feature', $context);
 }
