@@ -108,7 +108,7 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 | `tinymce7_toolbar_preset` | プリセットを `simple` / `basic` / `legacy` / `full` から選択します。|
 | `tinymce7_menubar` | メニューバーの表示制御（`1` = 表示、`0` = 非表示、空 = TinyMCE 既定値）。|
 | `tinymce7_entermode` | Enter キーで挿入する要素を `p` または `br` から選択します。|
-| `tinymce7_css_selectors` | 「表示名=クラス名;表示名2=クラス名2」の形式で、ツールバーの「フォーマット」に出す CSS クラスを指定します。各項目は `selector: '*'` と `inline: 'span'` を併せ持つ `style_formats` に変換され（要素全体を選ぶと要素に class、一部を選ぶと span で包む）、TinyMCE の既定の書式一覧の後ろに追加されます。importcss プラグインが取り込むクラスに置き換えられないよう `importcss_append` も有効にし、ツールバーに `styles` が無ければ先頭に足します。サイト共通の設定で、入力欄はシステム設定画面（a=17）にだけ出します。一度保存すると空でも旧キーには戻りません。|
+| `tinymce7_css_selectors` | 「表示名=クラス名;表示名2=クラス名2」の形式で、ツールバーの「書式」に出す CSS クラスを指定します。各項目は `selector: '*'` と `inline: 'span'` を併せ持つ `style_formats` に変換され（要素全体を選ぶと要素に class、一部を選ぶと span で包む）、TinyMCE の既定の書式一覧の後ろに追加されます。importcss プラグインが取り込むクラスに置き換えられないよう `importcss_append` も有効にし、ツールバーに `styles` が無ければ先頭に足します。同じ一覧から、リンクのダイアログの「クラス」の選択肢（`link_class_list`、先頭は「なし」）も作ります。選択肢の名前は、表示名とクラス名が違えば「表示名 (クラス名)」です。設定ファイルで `link_class_list` を指定していれば、そちらを使います。サイト共通の設定で、入力欄はシステム設定画面（a=17）にだけ出します。一度保存すると空でも旧キーには戻りません。|
 | `tinymce7_template_docs` | ひな形にするリソースの ID（カンマ区切り）。未保存なら旧 TinyMCE 3 の `mce_template_docs` を読みます。|
 | `tinymce7_template_chunks` | ひな形にするチャンクの名前（カンマ区切り）。未保存なら旧 TinyMCE 3 の `mce_template_chunks` を読みます。|
 | `tinymce7_template_category` | このカテゴリに属するチャンクをすべてひな形にします（カテゴリ名で指定）。|
@@ -134,6 +134,11 @@ TinyMCE 7 ではオープンソース版の `template` プラグインが廃止�
 - 一覧と本文は `TinyMCE7\Editor\TemplateRepository` が集め、エディター設定の `modx_templates` として渡します（別のエンドポイントは使いません）。リソースは公開中かつ管理画面で閲覧できるもの、チャンクは公開中のものに限ります。
 - ツールバーのボタン名は旧プラグインと同じ `template`、メニュー項目名は TinyMCE 7 の「挿入」メニュー既定値に含まれる `inserttemplate` です。ひな形が無いときは、ツールバー設定から `template` を取り除きます。
 - 本文は MODX タグを含めて保存されているまま挿入します。ダイアログのプレビューは、エディターのスキーマで無害化した HTML を表示します。
+
+## リンクのダイアログの「クラス」
+- 選択肢は `link_class_list` です。設定ファイルで指定していればそれを、無ければ `tinymce7_css_selectors` から作った一覧を使います。
+- TinyMCE のリンクのダイアログは、一覧に無い class を初期値にできず、そのまま保存すると class を消します。そこで `EditorInitializer` の `setup` で、ダイアログを開く前（`mceLink` の `BeforeExecCommand`）に、本文のリンクの class のうち一覧に無いものを末尾に足します。どちらの元の一覧でも同じです。
+- ダイアログが編集するリンクは選び方（キャレット・範囲選択・キャプション付き画像）で決まり方が変わるため、選んでいるリンクではなく本文のすべてのリンクを見ます。そのため、ほかのリンクの class も選択肢に出ます。
 
 ## コード構成
 - `TinyMCE7\Plugin` クラスがエントリーポイントで、イベントごとの処理を担当します。

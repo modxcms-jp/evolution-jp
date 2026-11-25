@@ -17,7 +17,7 @@ $_lang['tinymce7_entermode_default'] = 'TinyMCE default (paragraph)';
 $_lang['tinymce7_entermode_p'] = 'Insert paragraph <p>';
 $_lang['tinymce7_entermode_br'] = 'Insert line break <br>';
 $_lang['tinymce7_css_selectors_label'] = 'CSS style selectors';
-$_lang['tinymce7_css_selectors_description'] = 'CSS classes offered in the toolbar "Formats" list, as "Display name=class;Display name 2=class2" (e.g. Book title=booktitle;Author=author). Selecting a whole element adds the class to it; selecting part of the text wraps it in a span. The setting of the old TinyMCE plugin is carried over if present.';
+$_lang['tinymce7_css_selectors_description'] = 'CSS classes offered in the toolbar "Formats" list, as "Display name=class;Display name 2=class2" (e.g. Book title=booktitle;Author=author). Selecting a whole element adds the class to it; selecting part of the text wraps it in a span. The same classes are offered in the Class list of the link dialog. The setting of the old TinyMCE plugin is carried over if present.';
 
 $_lang['tinymce7_template_label'] = 'Templates';
 $_lang['tinymce7_template_docs'] = 'Resource IDs';
