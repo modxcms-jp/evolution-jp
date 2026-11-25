@@ -10,3 +10,4 @@ install/instprocessor.php
 install/sql/create_tables.sql
 manager/index.php
 manager/includes/version.inc.php
+temp/.htaccess

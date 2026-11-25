@@ -261,7 +261,7 @@ gh release view "${TAG}" --json isDraft,tagName,assets,url
 gh release download "${TAG}" --pattern "evo-${TAG}.zip" --dir "${CHECK_DIR}"
 
 # 必須ファイルを確認（一覧は .github/scripts/release-required-files.txt。欠けがあれば終了コード 1）
-bash .github/scripts/release-archive-check.sh "${ZIP_PATH}"
+bash .github/scripts/release-archive-check.sh "${ZIP_PATH}" || exit 1
 
 # 配布対象外のパスが含まれていないことを確認（該当時は終了）
 if unzip -Z1 "${ZIP_PATH}" | rg '(^|/)(\.github|\.agent|\.agents|\.claude|\.codex|\.vscode|\.work|docs|custom-instructions|manager/docker)(/|$)|(^|/)(\.gitignore|\.gitkeep|\.editorconfig|\.coderabbit\.yaml|\.gitattributes|AGENTS\.md|CLAUDE\.md|compose\.yml|readme[^/]*|README[^/]*)$'; then
