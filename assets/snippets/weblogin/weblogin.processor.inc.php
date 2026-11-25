@@ -385,6 +385,8 @@ if (isset($newloginerror) && $newloginerror == 1) {
     return;
 }
 
+// ログイン前のセッション ID を引き継がない（管理画面のログインと同じ）
+session_regenerate_id(true);
 $currentsessionid = session_id();
 
 if (sessionv('webValidated') === null) {
