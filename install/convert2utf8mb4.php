@@ -39,14 +39,21 @@ class convert2utf8mb4 {
         return strpos($this->getConfigContent(), "'utf8mb4'") !== false;
     }
 
-    public function convertDb()
+    /**
+     * DB の既定の文字セットを utf8mb4 にする（既存の表は変わらず、これから作る表の既定だけが変わる）。
+     * 変えたあとは、同じ接続の character_set_connection も新しい既定にそろえる。変更できなければ false
+     */
+    public function convertDb($collation = 'utf8mb4_general_ci')
     {
-        db()->exec(
+        $converted = db()->exec(
             sprintf(
-                "ALTER DATABASE `%s` CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci",
-                db()->dbase
-            )
+                "ALTER DATABASE `%s` CHARACTER SET = utf8mb4 COLLATE = %s",
+                str_replace('`', '``', db()->dbase),
+                db()->escape($collation)
+            ),
+            false
         );
+        return $converted && db()->applyConnectionCharset();
     }
 
     public function getDefaultCharset() {

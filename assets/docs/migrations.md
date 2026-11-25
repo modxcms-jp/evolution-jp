@@ -41,6 +41,17 @@ CLI の使い方の詳細は [`manager/includes/cli/README.md`](../../manager/in
 
 ランナーは、キャッシュを消さない。消すのは呼び出し側（インストーラは最後に、CLI の `migrate` は適用か失敗のあとに）。
 
+### DB の既定の文字セット
+
+接続の `SET CHARACTER SET utf8mb4` は、`character_set_connection` を DB の既定の文字セットにする。DB の既定が latin1 などのままだと、表が utf8mb4 でも日本語が `?` で保存される。そのため、DB の既定を utf8mb4 にする処理を `convert2utf8mb4::convertDb()` の 1 つに置き、2 か所から呼ぶ。
+
+- アップデーターの変換（上の手順 4）: 利用者が変換を選んだとき、`ALTER DATABASE ... COLLATE utf8mb4_general_ci` にする
+- 新規インストール: 選んだ文字セットが utf8mb4 で、DB の既定がそうでないとき、表を作る前に、選んだ照合順序で既定を utf8mb4 にする（`prepareDatabaseDefaultForInstall()`）。既定がすでに utf8mb4 なら何もしない（照合順序も変えない）。この変更は既存の表に影響せず、これから作る表の既定だけが変わる
+
+`convertDb()` は、変更のあと、同じ接続で `SET CHARACTER SET` をやり直して、`character_set_connection` を新しい既定にそろえる（`DBAPI::applyConnectionCharset()`。`connect()` と同じ処理）。`ALTER DATABASE` の権限が無いなど変更できないときは、インストールを止めず、結果の画面とインストールのログで知らせる。
+
+アップデートで変換を断ったサイトや、権限が無くて変えられなかったサイトは、ダッシュボードの設定チェック（`config_check.inc.php`）が、`config.inc.php` で Unicode の接続を指定しているのに `@@character_set_connection` が Unicode でないときに警告する。直し方は、DB の管理者が `ALTER DATABASE` を実行すること。接続の方法（`SET NAMES` への変更など）は、今動いているサイトの動きが変わるため変えない。
+
 ## マイグレーションの書き方
 
 ### 作り方

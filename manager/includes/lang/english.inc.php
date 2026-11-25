@@ -1216,6 +1216,8 @@ return [
     "configcheck_del_actionphp_msg" => 'action.php used by captcha function what is unnecessary.',
     "configcheck_retired_files" => 'Old files that are no longer distributed remain',
     "configcheck_retired_files_msg" => 'Old files that this version does not use remain in the following folders. Delete them: [+folders+]',
+    "configcheck_connection_charset" => 'The database connection character set is not Unicode',
+    "configcheck_connection_charset_msg" => 'The default character set of the database "[+dbase+]" is latin1 or similar, so Japanese and other text may be saved as "?". The database administrator should run the following SQL (existing tables are unchanged; only the default for newly created tables changes): ALTER DATABASE `[+dbase+]` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci',
 
     "a16_use_resources" => 'The resources that uses this template',
     "a16_many_resources" => 'Because there is much number of the resources, do not display it here.',

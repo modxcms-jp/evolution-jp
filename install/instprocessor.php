@@ -266,6 +266,10 @@ if (sessionv('is_upgradeable')) {
     }
 }
 
+if (!sessionv('is_upgradeable')) {
+    prepareDatabaseDefaultForInstall();
+}
+
 echo "<p>" . lang('setup_database_creating_tables');
 log_install_event('Creating database tables');
 

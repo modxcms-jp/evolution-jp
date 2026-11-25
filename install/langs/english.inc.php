@@ -172,6 +172,7 @@ $_lang['utf8mb4_conversion_enable'] = 'Convert existing utf8 tables to utf8mb4 d
 $_lang['utf8mb4_conversion_skip'] = 'Skip conversion and keep existing utf8 tables';
 $_lang['utf8mb4_conversion_tables_intro'] = 'Tables targeted for conversion:';
 $_lang['utf8mb4_conversion_tables_none'] = 'No tables require conversion.';
+$_lang['database_default_charset_failed'] = 'The default character set of the database could not be changed to utf8mb4 (the account may lack the privilege). Japanese and other text may be saved as "?". Ask the database administrator to run: ALTER DATABASE `%s` CHARACTER SET utf8mb4 COLLATE %s';
 
 $_lang['checking_if_content_exists'] = 'Checking if <span class="mono">/content</span> directory exists: ';
 $_lang['checking_if_content_writable'] = 'Checking if <span class="mono">/content</span> directory is writable: ';
