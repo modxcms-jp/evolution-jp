@@ -9,7 +9,7 @@ function checkSafedUri()
     if (strpos(urldecode(request_uri()), "'") === false) {
         return;
     }
-    jsAlert('This is illegal login.');
+    jsAlert(lang('login_illegal_uri'));
 }
 
 function jsAlert($msg)
@@ -45,13 +45,13 @@ function validateLoginInput()
     $password = loginPassword();
 
     if (!$username || trim((string)$username) === '') {
-        jsAlert('ユーザー名とパスワードを入力してください');
+        jsAlert(lang('login_input_required'));
         return false;
     }
 
     // パスワード再設定メールのリンク（fmpkey付きGET）はパスワードなしで来る。認証はOnManagerAuthenticationに任せる
     if (!$password && !getv('fmpkey')) {
-        jsAlert('ユーザー名とパスワードを入力してください');
+        jsAlert(lang('login_input_required'));
         return false;
     }
 
@@ -372,7 +372,7 @@ function checkAllowedIp()
     $hostname = gethostbyaddr(serverv('REMOTE_ADDR'));
     if ($hostname !== false && $hostname != serverv('REMOTE_ADDR')) {
         if (gethostbyname($hostname) != serverv('REMOTE_ADDR')) {
-            jsAlert("Your hostname doesn't point back to your IP!");
+            jsAlert(lang('login_allowed_ip_hostname_mismatch'));
             return false;
         }
     }
@@ -380,7 +380,7 @@ function checkAllowedIp()
         return true;
     }
 
-    jsAlert('You are not allowed to login from this location.');
+    jsAlert(lang('login_allowed_ip_denied'));
     return false;
 }
 
@@ -418,7 +418,7 @@ function checkCaptcha()
     }
 
     if (!sessionv('veriword')) {
-        jsAlert('Captcha is not configured properly.');
+        jsAlert(lang('login_captcha_missing'));
         return false;
     }
 
@@ -441,7 +441,7 @@ function checkAllowedDays()
     if (list_has_item(user_config('allowed_days'), $day)) {
         return true;
     }
-    jsAlert("You are not allowed to login at this time. Please try again later.");
+    jsAlert(lang('login_allowed_days_denied'));
     return false;
 }
 
