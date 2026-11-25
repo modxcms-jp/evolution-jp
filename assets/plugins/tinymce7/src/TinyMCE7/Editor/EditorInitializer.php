@@ -106,6 +106,7 @@ final class EditorInitializer
         }
         $config = $this->preferences->applyCssSelectors($config);
         $config = $this->preferences->applyLinkRel($config);
+        $config = $this->preferences->applySandboxIframes($config);
         $config = $this->preferences->applyBodyAttributes($config);
 
         $config = $this->applyEditorCssPath($config);

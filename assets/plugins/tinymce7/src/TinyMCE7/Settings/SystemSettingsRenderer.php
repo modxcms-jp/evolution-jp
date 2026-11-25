@@ -147,6 +147,19 @@ final class SystemSettingsRenderer
             $html[] = '      <div>' . hsc($this->t('tinymce7_link_rel_description', 'Values offered in the Rel list of the link dialog, as "Display name=value;Display name 2=value2".')) . '</div>';
             $html[] = '    </td>';
             $html[] = '  </tr>';
+            $sandboxValue = $preferences->detectSandboxIframes() ? '1' : '0';
+            $html[] = '  <tr class="row1">';
+            $html[] = '    <th><label for="tinymce7_sandbox_iframes">' . hsc($this->t('tinymce7_sandbox_iframes_label', 'sandbox for iframes')) . '</label></th>';
+            $html[] = '    <td>';
+            $html[] = '      <select name="tinymce7_sandbox_iframes" id="tinymce7_sandbox_iframes" class="inputBox">';
+            foreach (['1' => $this->t('tinymce7_sandbox_iframes_on', 'Add'), '0' => $this->t('tinymce7_sandbox_iframes_off', 'Do not add')] as $value => $label) {
+                $selected = ($sandboxValue === (string)$value) ? ' selected="selected"' : '';
+                $html[] = '            <option value="' . $value . '"' . $selected . '>' . hsc($label) . '</option>';
+            }
+            $html[] = '      </select>';
+            $html[] = '      <div>' . hsc($this->t('tinymce7_sandbox_iframes_description', 'Choose whether to add the sandbox attribute to iframes in the content.')) . '</div>';
+            $html[] = '    </td>';
+            $html[] = '  </tr>';
             $html[] = '  <tr class="row1">';
             $html[] = '    <th>' . hsc($this->t('tinymce7_template_label', 'Templates')) . '</th>';
             $html[] = '    <td>';

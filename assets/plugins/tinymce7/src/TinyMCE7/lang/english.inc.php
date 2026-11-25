@@ -26,6 +26,11 @@ $_lang['tinymce7_css_selectors_description'] = 'CSS classes offered in the toolb
 $_lang['tinymce7_link_rel_label'] = 'Link rel';
 $_lang['tinymce7_link_rel_description'] = 'Values offered in the Rel list of the link dialog. Enter "Display name=value", separating multiple entries with ";" (e.g. Enlarge image=lightbox;External site=nofollow). When empty, the Rel list is not shown.';
 
+$_lang['tinymce7_sandbox_iframes_label'] = 'sandbox for iframes';
+$_lang['tinymce7_sandbox_iframes_on'] = 'Add';
+$_lang['tinymce7_sandbox_iframes_off'] = 'Do not add';
+$_lang['tinymce7_sandbox_iframes_description'] = 'Choose whether to add the sandbox attribute to iframes in the content. When added, embeds such as Google Maps may stop working after the content is saved (YouTube is not affected). When not added, the restrictions on scripts inside embeds are removed.';
+
 $_lang['tinymce7_template_label'] = 'Templates';
 $_lang['tinymce7_template_docs'] = 'Resource IDs';
 $_lang['tinymce7_template_chunks'] = 'Chunk names';
