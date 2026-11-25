@@ -63,6 +63,12 @@
         return resolved.pathname === base + 'index.php' || resolved.pathname === base;
     }
 
+    // target="main" は frameset 時代の「本文のフレーム」。シェルでは本文が #mainPane なので、target の無いリンク・フォームと同じに扱う
+    function hasOwnTarget(el) {
+        const target = el.getAttribute('target');
+        return !!target && target !== 'main';
+    }
+
     function normalizeManagerUrl(url) {
         const resolved = new URL(url, window.location.href);
         if (!isManagerUrl(resolved.href)) {
@@ -251,15 +257,29 @@
     }
 
     // 応答全体でドキュメントを書き換える(断片でない完全HTMLが返った場合の保険)。
-    // document.writeはアドレスバーを更新しないため、応答先URLをhistoryへ反映する
-    function replaceDocument(html, finalUrl) {
+    // document.writeはアドレスバーを更新しないため、応答先URLをhistoryへ反映する。
+    // 画面を移るとき(push)は、直前の画面の項目を残して積む（戻るで管理画面へ戻れる）
+    function replaceDocument(html, finalUrl, push) {
         window.documentDirty = false;
         if (finalUrl && finalUrl !== window.location.href) {
-            window.history.replaceState({ url: finalUrl }, '', finalUrl);
+            if (push) {
+                window.history.pushState({ url: finalUrl }, '', finalUrl);
+            } else {
+                window.history.replaceState({ url: finalUrl }, '', finalUrl);
+            }
         }
         document.open();
         document.write(html);
         document.close();
+        // document.open() で window のリスナー（シェルの popstate）が消えている。
+        // 戻る・進むで別の URL になったら、その URL の画面を読み直す（管理画面ならシェルが戻る。モジュールは 1 回だけ動く）。
+        // ページ内リンクのハッシュだけの移動では読み直さない
+        const shownUrl = window.location.href.split('#')[0];
+        window.addEventListener('popstate', function () {
+            if (window.location.href.split('#')[0] !== shownUrl) {
+                window.location.reload();
+            }
+        });
     }
 
     // 前ページが残したグローバルなUI部品を破棄する(差し替え前のクリーンアップ)
@@ -748,7 +768,7 @@
                         } else if (isPost || isFullDocumentHtml(text)) {
                             // 断片で返せない応答(モジュール実行等)はドキュメントごと差し替える。
                             // document.writeはアドレスバーを更新しないため、応答先のURLで補正する
-                            replaceDocument(text, finalUrl);
+                            replaceDocument(text, finalUrl, push && !keepUrl);
                         } else {
                             stopWork();
                             fullReload(url);
@@ -989,7 +1009,7 @@
             document.body.classList.contains('evo-shell')
             && this.closest('#mainPane, #evoShellModal')
             && !this.hasAttribute('data-no-ajax')
-            && !this.hasAttribute('target')
+            && !hasOwnTarget(this)
             && isManagerUrl(action)
         ) {
             EvoShell.submit(this);
@@ -1375,13 +1395,13 @@
             }
         }, true);
 
-        // リンククリックの委譲。data-no-ajax / target付き / 外部URLは素通しする
+        // リンククリックの委譲。data-no-ajax / target付き(target="main" を除く) / 外部URLは素通しする
         document.addEventListener('click', function (e) {
             if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
                 return;
             }
             const link = e.target.closest('a[href]');
-            if (!link || link.hasAttribute('data-no-ajax') || link.hasAttribute('target') || link.hasAttribute('download')) {
+            if (!link || link.hasAttribute('data-no-ajax') || hasOwnTarget(link) || link.hasAttribute('download')) {
                 return;
             }
             const href = link.getAttribute('href');
@@ -1429,7 +1449,7 @@
             if (form.tagName !== 'FORM' || !form.closest('#mainPane, #evoShellModal')) {
                 return;
             }
-            if (form.hasAttribute('data-no-ajax') || form.hasAttribute('target')) {
+            if (form.hasAttribute('data-no-ajax') || hasOwnTarget(form)) {
                 return;
             }
             const action = (e.submitter && e.submitter.getAttribute('formaction')) || form.getAttribute('action') || window.location.href;

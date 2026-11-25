@@ -13,6 +13,7 @@
 
 - `manager/actions/header.inc.php` が、メニューとツリーを部品として読み込み、本文の前に描く。`?chromeless=1` の画面と QuickManager の埋め込みでは、メニューとツリーを描かない（body に `evo-shell` が付かない）。
 - 画面の移動は `manager/media/script/shell.js`（`EvoShell`）が受け持つ。`X-Evo-Shell: 1` を付けて要求し、`#mainPane` だけを差し替える（応答は `X-Evo-Pane: 1` の断片）。
+- 完全な HTML（`<html>`）を返す画面（外部のモジュールなど。`a=112`）は、`replaceDocument()` が文書ごと差し替える。GET で画面を移るときは `pushState` で応答先の URL を積み、直前の管理画面の項目を残す（リダイレクトしない POST・戻る／進むでは `replaceState`）。差し替えると `document.open()` で window のリスナーが消えるので、`popstate` を受け、URL（ハッシュを除く）が変わったら `location.reload()` する。戻るでその URL の管理画面を読み直し、進むでは読み直した管理画面のシェルが `navigate()` で取り直す。どちらもモジュールは 1 回だけ動く。断片を返すモジュール（同梱の docmanager など）はシェルの中に出る。ただし、モジュールの画面を全体で読み込んだあと（F5、モジュールの中でリンク・フォームで移ってから戻ったとき）の「戻る」では、読み込んだ画面に `popstate` のリスナーが無いので、URL だけが変わって管理画面に戻らない（F5 で戻る）。
 - 差し替えた断片の `<script>` を実行し終わるまで、`#mainPane`（シェルのモーダルでは `#evoShellModalBody`）に `evo-pane-pending` を付けて隠す（`opacity: 0`）。`src` のある `<script>` の読み込みを待つ間に、タブの組み立てなど JS で整える前の HTML が一瞬描かれるのを防ぐ。非同期で後から整う部品（TinyMCE の初期化など）は待たない。
 - 断片の中の `<script>` は、画面を訪れるたびに実行し直す（ページ専用の初期化のため）。`<script src>` は、同じタグが今の文書に残っていれば読まない。
 - 1 回だけ動かしたいスクリプトは、次のどちらかにする。
@@ -82,6 +83,7 @@ frameset 時代のコードは、`top.main`・`parent.tree`・`top.mainMenu` の
 | `window.tree` | ツリーの状態（`ca`）と操作（`saveFolderState`・`restoreTree`・`expandTree`・`collapseTree`・`updateTree`・`reload`・`resizeTree`） | `manager/frames/tree.php` |
 | `window.mainMenu` | メニューの操作（`reloadtree`・`reloadmenu`・`hideTreeFrame`・`defaultTreeFrame`・`removeLocks`・`showWin`・`keepMeAlive`・`work`・`stopWork` など） | `manager/frames/menu.php` |
 
+- `target="main"` のリンク・フォームは、`target` の無いものと同じに扱う（`shell.js` の `hasOwnTarget()`）。完全な HTML に差し替わった画面にはシェルが無いので、`header.inc.php` が最上位の窓（iframe を除く）の `window.name` を `main` にしておく。差し替えても同じ窓なので名前は残り、モジュールの `target="main"` はそのタブへ届く（管理画面を経ずに URL を直接開いたタブでは届かず、新しいタブが開く）。
 - シェルでは `top`・`parent` も自分の window を指すので、`top.tree` や `parent.mainMenu` と書いたコードも同じものに届く。
 - シェルのモーダル（`#evoShellModal`。シェルの中で開くファイルブラウザを含む）は iframe ではなく、断片を同じ window に差し込む。互換の名前はそのまま届く。
 - シェルの中に置いた iframe（TinyMCE のダイアログなど）では、iframe 自身の window には `tree`・`mainMenu` が無いが、`parent`・`top` からはシェルのものに届く。
