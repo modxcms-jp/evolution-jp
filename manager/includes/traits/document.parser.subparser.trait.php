@@ -1312,9 +1312,11 @@ trait DocumentParserSubParserTrait
             case '@DIR' :
                 $files = [];
                 $param = trim($param, '/');
-                $path = MODX_BASE_PATH . $param;
-                if (!is_dir($path)) {
-                    exit($path);
+                // @FILE・@INCLUDE と同じ場所の判定。無い・許されない場所は空にする
+                $path = $this->resolveBindDirPath(MODX_BASE_PATH . $param);
+                if ($path === false) {
+                    $output = '';
+                    break;
                 }
 
                 $dir = dir($path);
