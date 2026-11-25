@@ -226,31 +226,34 @@ function alertAndQuit($string, $docid)
     exit;
 }
 
-// 移動先で同じエイリアスになる文書を返す（移動先に既にある文書との重なりと、移動する文書どうしの重なり）
+// 移動先で同じエイリアスになる文書を返す。移動先にすでにある文書との重なりと、移動する文書どうしの重なりを、
+// DB の照合順序で 1 度に見る。移動する文書どうしの組は、先に出てきた文書を相手として、あとの文書だけを返す
 function findDuplicateAliases($doc_ids, $new_parent)
 {
-    $moving_ids = implode(',', $doc_ids);
     if (evo()->config('allow_duplicate_alias')) {
         return [];
     }
+    $moving_ids = implode(',', $doc_ids);
     $duplicates = [];
-    $moving = []; // 移動する文書で、先に出てきたもののエイリアス => id
-    foreach ($doc_ids as $doc_id) {
-        $rs = db()->select("IF(alias='', id, alias) AS alias", '[+prefix+]site_content', "id='{$doc_id}'");
-        $alias = (string) db()->getValue($rs);
+    foreach ($doc_ids as $i => $doc_id) {
+        $alias = (string) db()->getValue(
+            db()->select("IF(alias='', id, alias) AS alias", '[+prefix+]site_content', "id='{$doc_id}'")
+        );
         $alias_sql = db()->escape($alias);
-        $rs = db()->select('id', '[+prefix+]site_content',
-            "parent='{$new_parent}' AND id NOT IN ({$moving_ids}) AND (alias='{$alias_sql}' OR (alias='' AND id='{$alias_sql}'))");
-        if (0 < db()->count($rs)) {
-            $duplicates[] = ['doc_id' => $doc_id, 'target_id' => db()->getValue($rs), 'alias' => $alias];
-            continue;
+        $rs = db()->select(
+            'id',
+            '[+prefix+]site_content',
+            "((parent='{$new_parent}' AND id NOT IN ({$moving_ids})) OR (id IN ({$moving_ids}) AND id<>'{$doc_id}'))"
+            . " AND (alias='{$alias_sql}' OR (alias='' AND id='{$alias_sql}'))"
+        );
+        while ($row = db()->getRow($rs)) {
+            $pos = array_search((int) $row['id'], $doc_ids, true);
+            if ($pos !== false && $i < $pos) {
+                continue; // 組の相手があとに出てくる文書は、その文書のほうで返す
+            }
+            $duplicates[] = ['doc_id' => $doc_id, 'target_id' => $row['id'], 'alias' => $alias];
+            break;
         }
-        $key = mb_strtolower($alias);
-        if (isset($moving[$key])) {
-            $duplicates[] = ['doc_id' => $doc_id, 'target_id' => $moving[$key], 'alias' => $alias];
-            continue;
-        }
-        $moving[$key] = $doc_id;
     }
     return $duplicates;
 }
