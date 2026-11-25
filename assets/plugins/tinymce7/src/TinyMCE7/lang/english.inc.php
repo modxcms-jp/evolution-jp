@@ -31,6 +31,11 @@ $_lang['tinymce7_sandbox_iframes_on'] = 'Add';
 $_lang['tinymce7_sandbox_iframes_off'] = 'Do not add';
 $_lang['tinymce7_sandbox_iframes_description'] = 'Whether to add the sandbox attribute to iframes in the content. When added, embeds such as Google Maps may stop working after the content is saved (embeds from youtube.com, vimeo.com and similar hosts are not affected). When not added, the restrictions on scripts inside embeds are removed. A sandbox attribute that has already been added stays, so remove it in the source code view.';
 
+$_lang['tinymce7_keep_scripts_label'] = 'script and style';
+$_lang['tinymce7_keep_scripts_on'] = 'Keep';
+$_lang['tinymce7_keep_scripts_off'] = 'Remove';
+$_lang['tinymce7_keep_scripts_description'] = 'Whether to keep script and style elements in the content. Applies to the editor in the manager only. When kept, script and style elements written in the source code view are saved. They do not run and are not shown in the editing area (deleting the content around them deletes them too). Script and style elements in pasted HTML are removed with either setting.';
+
 $_lang['tinymce7_template_label'] = 'Templates';
 $_lang['tinymce7_template_docs'] = 'Resource IDs';
 $_lang['tinymce7_template_chunks'] = 'Chunk names';

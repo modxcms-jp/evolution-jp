@@ -160,6 +160,19 @@ final class SystemSettingsRenderer
             $html[] = '      <div>' . hsc($this->t('tinymce7_sandbox_iframes_description', 'Whether to add the sandbox attribute to iframes in the content.')) . '</div>';
             $html[] = '    </td>';
             $html[] = '  </tr>';
+            $keepScriptsValue = $preferences->detectKeepScripts() ? '1' : '0';
+            $html[] = '  <tr class="row1">';
+            $html[] = '    <th><label for="tinymce7_keep_scripts">' . hsc($this->t('tinymce7_keep_scripts_label', 'script and style')) . '</label></th>';
+            $html[] = '    <td>';
+            $html[] = '      <select name="tinymce7_keep_scripts" id="tinymce7_keep_scripts" class="inputBox">';
+            foreach (['0' => $this->t('tinymce7_keep_scripts_off', 'Remove'), '1' => $this->t('tinymce7_keep_scripts_on', 'Keep')] as $value => $label) {
+                $selected = ($keepScriptsValue === (string)$value) ? ' selected="selected"' : '';
+                $html[] = '            <option value="' . $value . '"' . $selected . '>' . hsc($label) . '</option>';
+            }
+            $html[] = '      </select>';
+            $html[] = '      <div>' . hsc($this->t('tinymce7_keep_scripts_description', 'Whether to keep script and style elements in the content.')) . '</div>';
+            $html[] = '    </td>';
+            $html[] = '  </tr>';
             $html[] = '  <tr class="row1">';
             $html[] = '    <th>' . hsc($this->t('tinymce7_template_label', 'Templates')) . '</th>';
             $html[] = '    <td>';

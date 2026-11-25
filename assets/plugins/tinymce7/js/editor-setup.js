@@ -240,6 +240,13 @@
     });
   }
 
+  // 設定「script と style」を「残す」にしたときだけ、EditorInitializer が TinyMCE の protect に足す。
+  // protect の中身は escape() で退避されるので、MODX タグや日本語もそのまま残り、無害化も効いたまま。
+  // コメントの中に script・style があるときは、コメントごと保護する（左から順に一致するので、script の中の <!-- は script の一部になる）
+  global.tinymce7KeepScriptsProtect = [
+    /<script\b[\s\S]*?<\/script\s*>|<style\b[\s\S]*?<\/style\s*>|<!--(?=(?:(?!-->)[\s\S])*?<(?:script|style)\b)[\s\S]*?-->/gi
+  ];
+
   global.tinymce7EditorSetup = function (editor) {
     fitContentHeight(editor);
     bindUploadForbiddenNotice(editor);
