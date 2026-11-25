@@ -231,6 +231,20 @@ class synccache
         if ($session_name !== '') {
             $content[] = sprintf('$site_sessionname = %s;', var_export($session_name, true));
             $content[] = sprintf('$cache_type = %s;', (int) config('cache_type', 1));
+            // 早い返しが session_start() の前に渡す、セッションの cookie の属性。secure は接続ごとに決まるので含めない。
+            // path は書き出さず、早い返しは今までどおり php.ini の既定（/）にする
+            $cookie_params = init::session_cookie_params();
+            unset($cookie_params['path']);
+            $content[] = sprintf(
+                '$site_cookie_params = [%s];',
+                implode(', ', array_map(
+                    static function ($key, $value) {
+                        return var_export($key, true) . ' => ' . var_export($value, true);
+                    },
+                    array_keys($cookie_params),
+                    $cookie_params
+                ))
+            );
             if (config('conditional_get')) {
                 $content[] = sprintf(
                     '$conditional_get = %s;',
