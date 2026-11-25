@@ -384,8 +384,8 @@ function manager_error_guide_applies()
 }
 
 // 権限の無い人に出すエラーの案内。詳細は出さず、システムログと突き合わせる手がかり（エラーの番号 = trace_id、日時、画面）を添える。
-// 言語ファイルが読めないこともあるので、lang() には既定の文を渡す。
-// ペインや iframe の中にも出るので、リンクは最上位の画面で開き（target="_top"）、シェルに横取りさせない（data-no-ajax）
+// 途中まで出した画面（編集画面のフォームの中など）にも出るので、フォーム・ボタンは置かず、通常のリンクだけにする。
+// 言語ファイルが読めないこともあるので、lang() には既定の文を渡す。見た目は theme-base.css の .evo-error-guide
 function manager_error_guide_html()
 {
     $action = get_intvar('a') ?: post_intvar('a');
@@ -405,27 +405,17 @@ function manager_error_guide_html()
     }
     $rowsHtml = '';
     foreach ($rows as [$label, $value]) {
-        $rowsHtml .= sprintf('<tr><td>%s</td><td>%s</td></tr>', hsc($label), hsc($value));
+        $rowsHtml .= sprintf('<dt>%s</dt><dd>%s</dd>', hsc($label), hsc($value));
     }
 
-    $logout = sprintf(
-        '<form method="post" action="%s" style="display:inline;" target="_top" data-no-ajax>%s'
-        . '<button type="submit">%s</button></form>',
-        hsc(MODX_MANAGER_URL . 'index.php?a=8'),
-        csrfTokenField(),
-        hsc(lang('logout', 'ログアウト'))
-    );
-
+    // ペインや iframe の中にも出るので最上位の画面で開き（target="_top"）、シェルに横取りさせない（data-no-ajax）
     return sprintf(
-        '<div role="alert" style="max-width:40em;margin:2em auto;padding:1em 1.5em;'
-        . 'border:1px solid var(--color-border-default);background:var(--color-surface);color:var(--color-text-primary);">'
-        . '<p>%s</p><table>%s</table>'
-        . '<div><a href="%s" target="_top" data-no-ajax>%s</a> %s</div></div>',
+        '<div class="evo-error-guide" role="alert"><p>%s</p><dl>%s</dl>'
+        . '<p><a href="%s" target="_top" data-no-ajax>%s</a></p></div>',
         hsc(lang('manager_error_guide_message', '管理画面でエラーが起きました。サイトの管理者に連絡してください。')),
         $rowsHtml,
         hsc(MODX_MANAGER_URL),
-        hsc(lang('manager_error_guide_reload', 'もう一度開く')),
-        $logout
+        hsc(lang('manager_error_guide_home', '管理画面のトップを開く'))
     );
 }
 

@@ -30,7 +30,7 @@
 
 ## プラグインが失敗したとき
 
-- 管理画面（ログイン後）: エラーの画面に、セーフモードのボタンが出る（プラグインの権限のある人だけ。`manager_safe_mode_button_html()`）。プラグインの権限が無い人には、詳細の代わりに「管理者に連絡」の案内（日時・エラーの番号 = システムログの trace_id・画面、もう一度開く、ログアウト）だけを出す（`manager_error_guide_html()`）。セーフモードの間は、その人の管理画面の要求でプラグインを動かさない。セーフモードは `manager/index.php` の `getSettings()` より前に効くので、`OnGetConfig` のプラグインも止まる（`manager_sync_safe_mode()`）。アップデート待ちのときも、セーフモードに入ればアップデーターへ進める。
+- 管理画面（ログイン後）: エラーの画面に、セーフモードのボタンが出る（プラグインの権限のある人だけ。`manager_safe_mode_button_html()`）。プラグインの権限が無い人には、詳細の代わりに「管理者に連絡」の案内（日時・エラーの番号 = システムログの trace_id・開いた画面と、管理画面のトップへの通常のリンク 1 つ。フォームやボタンは置かない）だけを出す（`manager_error_guide_html()`）。セーフモードの間は、その人の管理画面の要求でプラグインを動かさない。セーフモードは `manager/index.php` の `getSettings()` より前に効くので、`OnGetConfig` のプラグインも止まる（`manager_sync_safe_mode()`）。アップデート待ちのときも、セーフモードに入ればアップデーターへ進める。
 - ログイン画面: 画面を出す前に守りの目印（`manager_login_guard_path()`）を置き、出せたら消す。目印を置いてから 300 秒のうちは守りが効き（`manager_login_guard_active()`）、ログイン画面をプラグインを外して出す。ログイン画面のイベント（`OnManagerLoginFormPrerender`・`OnManagerLoginFormRender`）でプラグインが失敗すると、`messageQuit()` は `Error` を出さずに同じログイン画面へ送り直す（`manager_retry_login_form_without_plugins()`）。送り直した要求は、守りが効いているのでプラグインを外して出る。守りが効いていない（目印を置けない・古い目印を新しくできない）ときは、送り直さずに `Error` を出す。
 - ログインする前に止まるとき（ログインの処理 `login.processor.php` か `OnGetConfig` のプラグインが壊れているとき）は、DB でそのプラグインを無効にする。
 
