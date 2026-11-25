@@ -17,11 +17,12 @@ $tbl_web_groups = evo()->getFullTableName('web_groups');
 $tbl_web_user_attributes = evo()->getFullTableName('web_user_attributes');
 
 // get user name
-$rs = db()->select('*', $tbl_web_users, "id='{$id}'", '', '1');
-if ($rs) {
-    $row = db()->getRow($rs);
-    $username = $row['username'];
+$row = db()->getRow(db()->select('username', $tbl_web_users, "id='{$id}'", '', '1'));
+if (!$row) {
+    alert()->setError(7);
+    alert()->dumpError();
 }
+$username = $row['username'];
 
 
 // invoke OnBeforeWUsrFormDelete event
