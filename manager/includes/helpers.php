@@ -1104,7 +1104,11 @@ function ob_get_include($path)
     }
     ob_start();
     $return = include $path;
-    return ob_get_clean() ?: $return;
+    $output = ob_get_clean();
+    if ($output !== '') {
+        return $output;
+    }
+    return $return === 1 ? '' : $return;
 }
 
 function easy_hash($seed)
