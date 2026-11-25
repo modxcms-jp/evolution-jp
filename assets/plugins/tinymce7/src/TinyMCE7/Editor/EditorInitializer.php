@@ -183,8 +183,8 @@ final class EditorInitializer
         $output[] = '            }';
         $output[] = '    }';
         if ($isManager && $this->preferences->detectKeepScripts()) {
-            // 正規表現は JSON で渡せないので JS 側で足す。設定ファイルやサイトの protect があれば消さずに足す
-            $output[] = '    config.protect = (Array.isArray(config.protect) ? config.protect : []).concat(window.tinymce7KeepScriptsProtect || []);';
+            // 正規表現は JSON で渡せないので JS 側で足す。設定ファイルの protect があれば消さずに足す
+            $output[] = '    config.protect = (config.protect || []).concat(window.tinymce7KeepScriptsProtect);';
         }
         // 設定ファイルやサイトが setup を持っていても上書きせず、先に呼んでからエディター共通の設定を重ねる
         $output[] = '    const userSetup = typeof config.setup === "function" ? config.setup : null;';

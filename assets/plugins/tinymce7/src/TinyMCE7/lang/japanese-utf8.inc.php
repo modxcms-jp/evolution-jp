@@ -34,7 +34,7 @@ $_lang['tinymce7_sandbox_iframes_description'] = '本文の iframe に sandbox �
 $_lang['tinymce7_keep_scripts_label'] = 'script と style';
 $_lang['tinymce7_keep_scripts_on'] = '残す';
 $_lang['tinymce7_keep_scripts_off'] = '消す';
-$_lang['tinymce7_keep_scripts_description'] = '本文の script と style を残すか指定します。管理画面のエディターにだけ効きます。「残す」にすると、ソースコードの編集で書いた script と style が保存されます。編集欄の中では動かず、見えません（前後の内容をまとめて消すと一緒に消えます）。貼り付けた HTML の script と style は、どちらの設定でも消えます。';
+$_lang['tinymce7_keep_scripts_description'] = '本文の script と style を残すか指定します。管理画面のエディター（Quick Manager+ を含む）にだけ効きます。「残す」にすると、ソースコードの編集で書いた script と style が保存されます。編集欄の中では動かず、見えません（前後の内容をまとめて消すと一緒に消えます）。貼り付けた HTML の script と style は、どちらの設定でも消えます。';
 
 $_lang['tinymce7_template_label'] = 'ひな形';
 $_lang['tinymce7_template_docs'] = 'リソースID';

@@ -34,7 +34,7 @@ $_lang['tinymce7_sandbox_iframes_description'] = 'Whether to add the sandbox att
 $_lang['tinymce7_keep_scripts_label'] = 'script and style';
 $_lang['tinymce7_keep_scripts_on'] = 'Keep';
 $_lang['tinymce7_keep_scripts_off'] = 'Remove';
-$_lang['tinymce7_keep_scripts_description'] = 'Whether to keep script and style elements in the content. Applies to the editor in the manager only. When kept, script and style elements written in the source code view are saved. They do not run and are not shown in the editing area (deleting the content around them deletes them too). Script and style elements in pasted HTML are removed with either setting.';
+$_lang['tinymce7_keep_scripts_description'] = 'Whether to keep script and style elements in the content. Applies to the editor in the manager (including Quick Manager+) only. When kept, script and style elements written in the source code view are saved. They do not run and are not shown in the editing area (deleting the content around them deletes them too). Script and style elements in pasted HTML are removed with either setting.';
 
 $_lang['tinymce7_template_label'] = 'Templates';
 $_lang['tinymce7_template_docs'] = 'Resource IDs';
