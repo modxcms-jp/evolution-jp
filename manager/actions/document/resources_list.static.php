@@ -206,7 +206,8 @@ if (!$numRecords) {
         [
             'key' => 'menuindex',
             'label' => sprintf(
-                '<span aria-hidden="true">%s</span><span class="is-visually-hidden">%s</span>',
+                '<span aria-hidden="true" title="%s (menuindex)">%s</span><span class="is-visually-hidden">%s</span>',
+                hsc(lang('resource_opt_menu_index')),
                 hsc(lang('resources_list_col_menuindex')),
                 hsc(lang('resource_opt_menu_index'))
             ),
