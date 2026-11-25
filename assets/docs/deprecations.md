@@ -18,8 +18,6 @@
 
 ### Document クラス
 
-`new Document($id)` は本体から使われていない。`Document` クラスはパーサーの起動時に読み込まれるので、`loadExtension('documentapi')` を呼ばなくても使える。警告は `Document::__construct()` で残すため、`Document` を使ったときだけ出る（`loadExtension('documentapi')` を呼ぶだけでは出ない）。動き（`Document` の中身と戻り値）は 1.4 まで変えない。
-
-静的メソッド（`documentExist()`・`chPublish()`・`chDelete()`・`erase()`）はコンストラクタを通らないので、警告は出ない。
+`new Document($id)` は本体から使われていない。`Document` クラスはパーサーの起動時に読み込まれるので、`loadExtension('documentapi')` を呼ばなくても使える。警告は `Document::__construct()` と静的メソッド（`documentExist()`・`chPublish()`・`chDelete()`・`erase()`）の先頭で残すため、`Document` を使ったときだけ出る（`loadExtension('documentapi')` を呼ぶだけでは出ない）。動き（`Document` の中身と戻り値）は 1.4 まで変えない。
 
 1 件の文書を作る・更新する・削除するときは、DocAPI の `create()`・`update()`・`delete()`・`saveTV()` を使う（#1085）。
