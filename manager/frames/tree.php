@@ -212,8 +212,6 @@ if (!sessionv('tree_sortdir')) {
             timer = setTimeout(finish, TREE_SLIDE_MS + 120);
         }
 
-        // 開いたときは、子が描けたら true で解決する Promise を返す（閉じた・取れなかったときは false）。
-        // ノードの onclick は戻り値を使わない。tree.js の revealPaneDocument() が親を順に開くのに使う
         function setTreeSign(id, open) {
             var signImg = document.getElementById('s' + id);
             if (signImg) {
@@ -221,6 +219,14 @@ if (!sessionv('tree_sortdir')) {
             }
         }
 
+        // フォルダを閉じた状態として覚える（開閉の印と openedArray）。箱の表示は呼び出し側が決める
+        function markTreeFolderClosed(id) {
+            setTreeSign(id, false);
+            openedArray[id] = 0;
+        }
+
+        // 開いたときは、子が描けたら true で解決する Promise を返す（閉じた・取れなかったときは false）。
+        // ノードの onclick は戻り値を使わない。tree.js の revealPaneDocument() が親を順に開くのに使う
         function toggleNode(node, indent, id, expandAll, privatenode) {
             privatenode = (!privatenode || privatenode == '0') ? '0' : '1';
             var box = document.getElementById('c' + id);
@@ -228,10 +234,9 @@ if (!sessionv('tree_sortdir')) {
 
             var opened = Promise.resolve(false);
 
-            if (box.style.display === 'block' && box.dataset.closing !== '1') {
+            if (isTreeBoxOpen(box)) {
                 // collapse
-                setTreeSign(id, false);
-                openedArray[id] = 0;
+                markTreeFolderClosed(id);
                 slideTreeBox(box, false);
             } else {
                 // expand
@@ -266,6 +271,7 @@ if (!sessionv('tree_sortdir')) {
                             // 取得中に閉じられていたら、閉じたままにする
                             if (openedArray[id] != 1) {
                                 box.style.display = 'none';
+                                syncTreeToggleAll();
                                 return false;
                             }
                             slideTreeBox(box, true, true);
@@ -384,7 +390,8 @@ if (is_array($evtOut)) {
                         <tr>
                             <td><a href="#" class="treeButton" id="treeExpand" onclick="expandTree();return false;"
                                     title="<?= lang('expand_tree') ?>"><?= style('expand_tree') ?></a>
-                                <a href="#" class="treeButton" id="treeCollapse" onclick="collapseTree();return false;" hidden
+                            </td>
+                            <td hidden><a href="#" class="treeButton" id="treeCollapse" onclick="collapseTree();return false;"
                                     title="<?= lang('collapse_tree') ?>"><?= style('collapse_tree') ?></a>
                             </td>
                             <td><a href="#" role="button" class="treeButton" id="treeAutoCollapse" aria-pressed="false"

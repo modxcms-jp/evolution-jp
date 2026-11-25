@@ -162,11 +162,12 @@ function syncTreeToggleAll() {
         return isTreeBoxOpen(box) && isTreeBoxVisible(box);
     });
     var focused = document.activeElement;
-    collapse.hidden = !anyOpen;
-    expand.hidden = anyOpen;
-    if (focused === expand && expand.hidden) {
+    // 出し分けは <td> で行う（<a> の display をテーマが決めていても、両方出てしまわないように）
+    collapse.parentNode.hidden = !anyOpen;
+    expand.parentNode.hidden = anyOpen;
+    if (focused === expand && anyOpen) {
         collapse.focus();
-    } else if (focused === collapse && collapse.hidden) {
+    } else if (focused === collapse && !anyOpen) {
         expand.focus();
     }
 }
@@ -280,7 +281,7 @@ function revealPaneDocument() {
             if (!ok || !stillCurrent() || !box || !sign || box.dataset.loading === '1') {
                 return false;
             }
-            if (box.style.display === 'block' && box.dataset.closing !== '1') {
+            if (isTreeBoxOpen(box)) {
                 return true;
             }
             return toggleNode(sign, treeNodeIndent(box), pid, 0, 0);
@@ -302,7 +303,7 @@ function revealPaneDocument() {
 var TREE_AUTO_COLLAPSE_KEY = 'evo.tree.autoCollapse';
 
 // 開いているリソースのフォルダだけを開く切り替え。状態はボタンの aria-pressed を正とし、
-// ブラウザーの保存領域（人ごと）は、ツリーを描いたときにボタンへ戻すためだけに使う
+// ブラウザーの保存領域（ブラウザーごと）は、ツリーを描いたときにボタンへ戻すためだけに使う
 function treeAutoCollapseOn() {
     var button = document.getElementById('treeAutoCollapse');
     return !!button && button.getAttribute('aria-pressed') === 'true';
@@ -323,7 +324,7 @@ function syncTreeAutoCollapse() {
     try {
         on = window.localStorage.getItem(TREE_AUTO_COLLAPSE_KEY) === '1';
     } catch (e) {
-        // 保存領域が使えなくても、切り替えはこの画面のあいだ効く
+        // 保存領域が使えなくても、切り替えはツリーを読み直すまで効く
     }
     setTreeAutoCollapseButton(on);
 }
@@ -339,7 +340,7 @@ function toggleTreeAutoCollapse() {
             window.localStorage.removeItem(TREE_AUTO_COLLAPSE_KEY);
         }
     } catch (e) {
-        // 保存領域が使えなくても、切り替えはこの画面のあいだ効く
+        // 保存領域が使えなくても、切り替えはツリーを読み直すまで効く
     }
     if (on) {
         revealPaneDocument();
@@ -347,11 +348,13 @@ function toggleTreeAutoCollapse() {
 }
 
 // 開いている文書の親（根まで）と、文書自身がフォルダならそれを残し、ほかの開いているフォルダを閉じる。
-// 親がすべて開いていて文書の行が見つかるときだけ行う（「残り N 件」で省略・権限で見えないときは、今いる場所が分からないので閉じない）。
+// 親がすべて開いていて、親が 1 つ以上ある（根直下の文書は、その行がある）ときだけ行う。
+// 親がツリーに無い（権限で見えない）・根直下の文書の行が無いときは、今いる場所が分からないので閉じない。
+// 文書の行が「残り N 件を表示」で省かれていても、親が開けていれば閉じる（閉じたあとは省略の行を見せる）。
 // 見えているいちばん外側のフォルダだけを動かして閉じ、中のフォルダは動かさず閉じた状態にする。開閉の状態は 1 回だけ保存する
 function collapseTreeToDocument(doc) {
     var root = document.getElementById('treeRoot');
-    if (!root || !document.getElementById('node' + doc.id)) {
+    if (!root || (!doc.parents.length && !document.getElementById('node' + doc.id))) {
         return;
     }
     var keep = {};
@@ -384,18 +387,20 @@ function collapseTreeToDocument(doc) {
     inner.forEach(function (box) {
         var id = parseInt(box.id.slice(1), 10);
         box.style.display = 'none';
-        setTreeSign(id, false);
-        openedArray[id] = 0;
+        markTreeFolderClosed(id);
     });
     var rest = outer.length;
     outer.forEach(function (box) {
         var id = parseInt(box.id.slice(1), 10);
-        setTreeSign(id, false);
-        openedArray[id] = 0;
+        markTreeFolderClosed(id);
         slideTreeBox(box, false, false, function () {
-            // 閉じ終えると行の位置がずれるので、選んだ行を見せ直す
+            // 閉じ終えると行の位置がずれるので、今選ばれている行を見せ直す（選び直しはしない）
             if (--rest === 0) {
-                selectPaneDocument();
+                var selected = document.querySelector('#treeRoot span.treeNodeSelected');
+                var row = selected ? selected.closest('.tree-row') : null;
+                if (row) {
+                    scrollTreeRowIntoView(row);
+                }
             }
         });
     });
