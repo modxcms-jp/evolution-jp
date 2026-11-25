@@ -153,13 +153,6 @@ class ForgotManagerPassword
         }
         if ($this->isRecentlyIssued($user_id)) {
             // 送信の間隔の中の要求にも、送信したときと同じ応答にする（メールは送らない）
-            evo()->logEvent(
-                0,
-                1,
-                'パスワード再設定メールの送信の間隔の中に再度要求があったため、送信しませんでした。',
-                'ForgotManagerPassword',
-                ['user_id' => (int)$user_id]
-            );
             return true;
         }
         $this->sweepTransient($user_id);
