@@ -473,12 +473,13 @@ class DocManagerBackend
             return $this->dm->parseTemplate('update.tpl', $this->dm->ph);
         }
 
-        // 公開の状態（published・公開日・公開終了日）は文書ごとに本体と同じ規則で決める。
-        // 設定で使っているページを削除・非公開・公開終了日ありなどにする範囲は、1 件でもあれば何も変えずに止める
+        // 設定で使っているページ（トップページ・エラーページなど）を削除・非公開にする、公開日・公開終了日を指定する範囲は、
+        // 1 件でもあれば何も変えずに止める（判定は本体の DocAPI）。公開・非公開の操作は、日付を本体の
+        // docPublishExecute()・docUnpublishExecute() と同じに扱う。日付だけの操作では published を変えない
         $changesPublished = $fieldval === 'published' && $newvalue !== -1;
         $changesDeleted = $fieldval === 'deleted' && $newvalue === 1;
         $changesPubDates = isset($dateval['pub_date']) || isset($dateval['unpub_date']);
-        $pubStates = [];
+        $resetDates = [];
         $problems = [];
         if ($ids && ($changesPublished || $changesDeleted || $changesPubDates)) {
             evo()->loadExtension('DocAPI');
@@ -486,38 +487,43 @@ class DocManagerBackend
             $rs = db()->select('id,pagetitle,published,pub_date,unpub_date', $tbl_site_content, $values);
             while ($row = db()->getRow($rs)) {
                 $id = (int)$row['id'];
-                $guardKey = $changesDeleted ? evo()->doc->deleteGuardKey($id) : '';
-                if ($changesPublished || $changesPubDates) {
-                    $state = [
-                        'published' => (int)$row['published'],
-                        'pub_date' => (int)$row['pub_date'],
-                        'unpub_date' => (int)$row['unpub_date'],
-                    ];
-                    if ($changesPublished) {
-                        $state['published'] = $newvalue;
-                        if ($newvalue === 1) {
-                            $state['pub_date'] = $state['pub_date'] > $now ? 0 : $state['pub_date'];
-                            $state['unpub_date'] = $state['unpub_date'] < $now ? 0 : $state['unpub_date'];
-                        } elseif ($state['pub_date'] < $now) {
-                            $state['pub_date'] = 0;
-                        }
-                    }
-                    if ($changesPubDates) {
-                        $state = evo()->doc->setPubStatus(array_merge($state, array_intersect_key($dateval, $state)));
-                    }
-                    $pubStates[$id] = $state;
-                    $reason = evo()->doc->protectedPubError($id, $state['published'], $state['pub_date'], $state['unpub_date']);
-                    if ($reason !== '') {
-                        $problems[] = sprintf('ID:%d (%s) %s', $id, hsc($row['pagetitle']), hsc($reason));
-                    }
+                $guardKey = '';
+                if ($changesDeleted) {
+                    $guardKey = evo()->doc->deleteGuardKey($id);
+                } elseif ($changesPublished && $newvalue === 0) {
+                    $guardKey = evo()->doc->unpublishGuardKey($id);
                 }
-                if ($guardKey !== '') {
-                    $problems[] = sprintf('ID:%d (%s) %s', $id, hsc($row['pagetitle']), hsc(stripcslashes(lang($guardKey))));
+                $reason = $guardKey !== '' ? stripcslashes(lang($guardKey)) : '';
+                if ($reason === '' && $changesPubDates) {
+                    $reason = evo()->doc->protectedPubError(
+                        $id,
+                        $changesPublished ? $newvalue : (int)$row['published'],
+                        $dateval['pub_date'] ?? (int)$row['pub_date'],
+                        $dateval['unpub_date'] ?? (int)$row['unpub_date']
+                    );
+                }
+                if ($reason !== '') {
+                    $problems[] = sprintf('ID:%d (%s) %s', $id, hsc_for_tpl($row['pagetitle']), hsc_for_tpl($reason));
+                    continue;
+                }
+                if (!$changesPublished) {
+                    continue;
+                }
+                if ($newvalue === 0 && (int)$row['pub_date'] < $now && !isset($dateval['pub_date'])) {
+                    $resetDates['pub_date'][] = $id;
+                }
+                if ($newvalue === 1) {
+                    if ($now < (int)$row['pub_date'] && !isset($dateval['pub_date'])) {
+                        $resetDates['pub_date'][] = $id;
+                    }
+                    if ((int)$row['unpub_date'] < $now && !isset($dateval['unpub_date'])) {
+                        $resetDates['unpub_date'][] = $id;
+                    }
                 }
             }
         }
         if ($problems) {
-            $this->dm->ph['update.message'] = '<br />' . $this->dm->lang['DM_process_update_error']
+            $this->dm->ph['update.message'] = '<br />' . $this->dm->lang['DM_process_blocked']
                 . '<br />' . implode('<br />', $problems);
             return $this->dm->parseTemplate('update.tpl', $this->dm->ph);
         }
@@ -540,8 +546,8 @@ class DocManagerBackend
             $this->logDocumentChange('dates');
         }
 
-        foreach ($pubStates as $id => $state) {
-            db()->update(db()->escape($state), $tbl_site_content, where('id', '=', $id));
+        foreach ($resetDates as $column => $resetIds) {
+            db()->update([$column => 0], $tbl_site_content, 'id IN (' . implode(',', array_map('intval', $resetIds)) . ')');
         }
 
         if ($ids && count($authorval) > 0) {
