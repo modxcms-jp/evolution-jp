@@ -95,7 +95,7 @@ function setStandBy($docid, $pub_date)
 
 /**
  * 下書きを採用するときの値を、今の文書の公開の状態を起点にリソースの保存と同じ規則で決める
- * （DocAPI::draftForAdoption()。公開の権限が無いときは published だけ今の値を引き継ぐ）。
+ * （DocAPI::draftForAdoption()。公開の権限が無いときは published・日付を今の値のままにする）。
  * トップページで許さない公開の状態になるなら、文書も下書きも変えずに警告を出して下書きの編集画面へ戻す
  */
 function adoptableDraft($docid, $draft)

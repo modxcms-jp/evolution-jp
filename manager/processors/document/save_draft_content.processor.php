@@ -64,7 +64,7 @@ if (!hasPermission('publish_document')) {
 }
 
 // 採用で保存する TV の範囲は、通常の保存と同じにそろえる
-$fields = evo()->doc->limitDraftTmplvars($fields);
+$fields = evo()->doc->limitDraftTmplvars($fields, $modx->revision->getDraft($id));
 
 // 通常の保存（DocAPI::initValue()）と同じ規則で親を整える（数字だけなら整数、そうでなければ 0）
 $parent = trim((string)array_get($fields, 'parent', 0));

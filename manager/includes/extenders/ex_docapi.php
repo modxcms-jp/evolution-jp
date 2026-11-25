@@ -191,27 +191,30 @@ class DocAPI
     /**
      * 下書きを文書へ採用するときの値を決める（今すぐ採用・予約の受け付け・予約の時刻の採用の共通の規則）。
      * 今の文書の公開の状態を起点に、リソースの保存と同じ規則（setPubStatus()）で published と日付を決める。
-     * $canPublish が偽（公開の権限が無い）なら、published だけ今の値を引き継ぐ。
+     * $canPublish が偽（公開の権限が無い）なら、published・pub_date・unpub_date を今の値のままにする。
      * 設定で使っているページに許さない状態なら、その理由の文も返す（protectedPubError()。無ければ空文字）。
      * 下書きが空なら、日付を 0 で上書きしないよう規則をかけず、published だけ今の値を返す。
      * 返り値は [採用する値, 理由]。警告と差し戻し・ログは呼び出し側で行う
      */
     public function draftForAdoption($docid, $draft, $canPublish = true)
     {
-        $published = (int)db()->getValue(
-            db()->select('published', '[+prefix+]site_content', where('id', '=', (int)$docid))
-        );
+        $current = db()->getRow(
+            db()->select('published,pub_date,unpub_date', '[+prefix+]site_content', where('id', '=', (int)$docid))
+        ) ?: [];
+        $published = (int)array_get($current, 'published', 0);
         if (!$draft) {
             return [['published' => $published], ''];
         }
         $draft['published'] = $published;
-        $ruled = $this->setPubStatus($draft);
         if ($canPublish) {
-            $draft = $ruled;
+            $draft = $this->setPubStatus($draft);
+        } else {
+            $draft['pub_date'] = (int)array_get($current, 'pub_date', 0);
+            $draft['unpub_date'] = (int)array_get($current, 'unpub_date', 0);
         }
         return [
             $draft,
-            $this->protectedPubError($docid, $draft['published'], $ruled['pub_date'], $ruled['unpub_date'])
+            $this->protectedPubError($docid, $draft['published'], $draft['pub_date'], $draft['unpub_date'])
         ];
     }
 
@@ -243,9 +246,10 @@ class DocAPI
     /**
      * 下書きに入れる TV の値を、通常の保存と同じ範囲に絞る。
      * テンプレートに無い TV と、今のユーザーが変えられない TV は落とす。選ばなかった複数選択の TV は、
-     * 採用で空にできるよう空文字で残す（下書きの項目が無いことは「変えない」の意味にするため）
+     * 採用で空にできるよう空文字で残す（下書きの項目が無いことは「変えない」の意味にするため）。
+     * 変えられない TV の下書きの値は、$existing（保存済みの下書き）のものを引き継ぐ
      */
-    public function limitDraftTmplvars($fields)
+    public function limitDraftTmplvars($fields, $existing = [])
     {
         $allowed = [];
         foreach ($this->templateTmplvars($fields['template'] ?? 0) as $row) {
@@ -258,6 +262,11 @@ class DocAPI
         foreach (array_keys($fields) as $key) {
             if (preg_match('@^(tv[0-9]+)(_prefix)?$@', (string)$key, $m) && !isset($allowed[$m[1]])) {
                 unset($fields[$key]);
+            }
+        }
+        foreach ($existing as $key => $value) {
+            if (preg_match('@^tv[0-9]+$@', (string)$key) && !isset($allowed[$key])) {
+                $fields[$key] = $value;
             }
         }
         return $fields;
@@ -305,13 +314,14 @@ class DocAPI
      * TV の値を保存する形にする。配列は '||' でつなぐ。空か既定値と同じなら false（保存せず、あれば行を消す）。
      * リソースの保存と下書きの採用の共通の規則。URL 型の接頭辞は呼び出し側で整えてから渡す
      */
-    public function tmplvarValueForSave($tv, $value)
+    public function tmplvarValueForSave($row, $value)
     {
         if (is_array($value)) {
             $value = implode('||', $value);
         }
         $value = (string)$value;
-        $default = $tv['default_text'];
+        // @@EVAL の既定値は $row を読めるので、変数名は通常の保存のときと同じにしておく
+        $default = $row['default_text'];
         if (substr($default, 0, 6) === '@@EVAL') {
             $default = eval(trim(substr($default, 7)));
         }
