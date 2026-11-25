@@ -167,6 +167,31 @@ final class PreferenceResolver
         return $config;
     }
 
+    /**
+     * 本文の iframe に sandbox を付ける設定（TinyMCE の sandbox_iframes）を渡す。付けないときだけ false にする。
+     * 設定ファイルで sandbox_iframes を指定していればそちらを使う
+     */
+    public function applySandboxIframes(array $config): array
+    {
+        if (array_key_exists('sandbox_iframes', $config)) {
+            return $config;
+        }
+
+        if (!$this->detectSandboxIframes()) {
+            $config['sandbox_iframes'] = false;
+        }
+
+        return $config;
+    }
+
+    /**
+     * 本文の iframe に sandbox を付けるか。未設定なら付ける
+     */
+    public function detectSandboxIframes(): bool
+    {
+        return $this->detectBool(['tinymce7_sandbox_iframes']) ?? true;
+    }
+
     public function detectLinkRel(): string
     {
         return $this->detectString(['tinymce7_link_rel']);

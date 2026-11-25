@@ -26,6 +26,11 @@ $_lang['tinymce7_css_selectors_description'] = 'ツールバーの「書式」�
 $_lang['tinymce7_link_rel_label'] = 'リンクの rel';
 $_lang['tinymce7_link_rel_description'] = 'リンクの編集画面の「Rel」で選べる値を指定します。「表示名=値」の形式で、複数指定するときは「;」で区切ります（例：画像を拡大=lightbox;外部サイト=nofollow）。空欄のときは「Rel」の欄を出しません。';
 
+$_lang['tinymce7_sandbox_iframes_label'] = 'iframe の sandbox';
+$_lang['tinymce7_sandbox_iframes_on'] = '付ける';
+$_lang['tinymce7_sandbox_iframes_off'] = '付けない';
+$_lang['tinymce7_sandbox_iframes_description'] = '本文の iframe に sandbox 属性を付けるか指定します。「付ける」にすると、保存したときに Google マップなどの埋め込みが動かなくなることがあります（youtube.com・vimeo.com などの埋め込みには付きません）。「付けない」にすると、埋め込みの中のスクリプトの制限がなくなります。すでに付いた sandbox は残るので、ソースコードの編集で消します。';
+
 $_lang['tinymce7_template_label'] = 'ひな形';
 $_lang['tinymce7_template_docs'] = 'リソースID';
 $_lang['tinymce7_template_chunks'] = 'チャンク名';

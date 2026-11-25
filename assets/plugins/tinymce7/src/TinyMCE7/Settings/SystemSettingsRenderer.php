@@ -110,7 +110,7 @@ final class SystemSettingsRenderer
         $html[] = '    </td>';
         $html[] = '  </tr>';
 
-        // 編集欄の body の id・クラス、CSSスタイルセレクタ、ひな形はサイト共通の設定なので、システム設定画面だけに出す
+        // 編集欄の body の id・クラス、CSSスタイルセレクタ、リンクの rel、iframe の sandbox、ひな形はサイト共通の設定なので、システム設定画面だけに出す
         if ($isSystemSettingsScreen) {
             $bodyFields = [
                 'tinymce7_body_id' => [
@@ -145,6 +145,19 @@ final class SystemSettingsRenderer
             $html[] = '    <td>';
             $html[] = '      <input type="text" name="tinymce7_link_rel" id="tinymce7_link_rel" class="inputBox" style="width:400px;" value="' . hsc($preferences->detectLinkRel()) . '">';
             $html[] = '      <div>' . hsc($this->t('tinymce7_link_rel_description', 'Values offered in the Rel list of the link dialog, as "Display name=value;Display name 2=value2".')) . '</div>';
+            $html[] = '    </td>';
+            $html[] = '  </tr>';
+            $sandboxValue = $preferences->detectSandboxIframes() ? '1' : '0';
+            $html[] = '  <tr class="row1">';
+            $html[] = '    <th><label for="tinymce7_sandbox_iframes">' . hsc($this->t('tinymce7_sandbox_iframes_label', 'iframe sandbox')) . '</label></th>';
+            $html[] = '    <td>';
+            $html[] = '      <select name="tinymce7_sandbox_iframes" id="tinymce7_sandbox_iframes" class="inputBox">';
+            foreach (['1' => $this->t('tinymce7_sandbox_iframes_on', 'Add'), '0' => $this->t('tinymce7_sandbox_iframes_off', 'Do not add')] as $value => $label) {
+                $selected = ($sandboxValue === (string)$value) ? ' selected="selected"' : '';
+                $html[] = '            <option value="' . $value . '"' . $selected . '>' . hsc($label) . '</option>';
+            }
+            $html[] = '      </select>';
+            $html[] = '      <div>' . hsc($this->t('tinymce7_sandbox_iframes_description', 'Whether to add the sandbox attribute to iframes in the content.')) . '</div>';
             $html[] = '    </td>';
             $html[] = '  </tr>';
             $html[] = '  <tr class="row1">';
