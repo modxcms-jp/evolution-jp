@@ -34,7 +34,7 @@ if ($keep_login) {
 $cleanup_token = '';
 if ($can_remove_installer) {
     $cleanup_token = bin2hex(random_bytes(16));
-    $_SESSION['installer_cleanup'] = $cleanup_token;
+    sessionv('*installer_cleanup', $cleanup_token);
 } elseif (!$keep_login) {
     session_destroy();
 }
