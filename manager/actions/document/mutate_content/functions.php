@@ -190,6 +190,7 @@ function getUDGroups($id)
     $permissions = []; // New Permissions array list (this contains the HTML)
     $permissions_yes = 0; // count permissions the current mgr user has
     $permissions_no = 0; // count permissions the current mgr user doesn't have
+    $notPublic = false; // true if the document belongs to any of the listed groups
 
     // Query the permissions and names from above
     if ($docid) {
@@ -245,7 +246,6 @@ function getUDGroups($id)
             $notPublic = true;
             $inputAttributes['checked'] = 'checked';
         } else {
-            $notPublic = false;
             unset($inputAttributes['checked']);
         }
 

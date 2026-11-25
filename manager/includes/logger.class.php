@@ -1,6 +1,6 @@
 <?php
 
-class Logger
+class EvoLogger
 {
     public const EMERGENCY = 'emergency';
     public const ALERT = 'alert';
@@ -298,7 +298,7 @@ class Logger
         $function = $frame['function'] ?? '';
         $class = $frame['class'] ?? '';
 
-        if ($class === 'Logger' || $file === 'manager/includes/logger.class.php') {
+        if ($class === 'EvoLogger' || $file === 'manager/includes/logger.class.php') {
             return true;
         }
 

@@ -60,7 +60,7 @@ if (evo()->config['use_udperms'] == 1 && $current_parent != $new_parent) {
     if (!evo()->checkPermissions($new_parent)) {
         include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
         ?>
-        <script type="text/javascript">parent.tree.ca = '';</script>
+        <script type="text/javascript">parent.tree.ca = 'open';</script>
         <div class="sectionHeader"><?= lang('access_permissions') ?></div>
         <div class="sectionBody">
             <p><?= lang('access_permission_parent_denied') ?></p>

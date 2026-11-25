@@ -23,6 +23,8 @@ $ph = array_merge(
         // 保存済みのパスワードは画面に出さない（毎回入力してもらう）
         'database_password' => '',
         'dbase'             => sessionv('dbase') ?: env('DB_DATABASE') ?: '',
+        'connection_error'  => $ph['connection_error'] ?? '',
+        'auh_display'       => empty($ph['connection_error']) ? 'none' : 'block',
     ]
 );
 if ($ph['database_server'] === '127.0.0.1') {

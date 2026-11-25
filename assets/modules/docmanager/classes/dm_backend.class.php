@@ -162,6 +162,7 @@ class DocManagerBackend
     {
         $tbl_site_tmplvar_contentvalues = evo()->getFullTableName('site_tmplvar_contentvalues');
         $updateError = '';
+        $updated = false;
 
         $results = $this->processRange($pids, 'id', 0);
         $pids = $results[0];
@@ -185,12 +186,13 @@ class DocManagerBackend
                 $row = db()->getRow($typeSQL);
                 if ($row['type'] === 'url') {
                     $tmplvar = postv("tv" . $row['id']);
-                    if (postv("tv" . $row['id' . '_prefix']) != '--') {
-                        $tmplvar = str_replace([
-                            "ftp://",
-                            "http://"
-                        ], "", $tmplvar);
-                        $tmplvar = postv("tv" . $row['id' . '_prefix']) . $tmplvar;
+                    $prefix = postv("tv{$row['id']}_prefix", '--');
+                    if ($prefix !== '--') {
+                        $tmplvar = $prefix . str_replace(
+                            ['ftp://', 'http://', 'https://', 'mailto:'],
+                            '',
+                            $tmplvar
+                        );
                     }
                 } elseif ($row['type'] === 'file') {
                     $tmplvar = postv("tv" . $row['id']);

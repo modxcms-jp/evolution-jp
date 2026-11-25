@@ -16,6 +16,7 @@ final class EditorInitializer
     private Language $language;
     private FileBrowserResolver $fileBrowserResolver;
     private ScriptFactory $scriptFactory;
+    private TemplateRepository $templateRepository;
 
     public function __construct(
         ?ElementSelector $elementSelector = null,
@@ -23,7 +24,8 @@ final class EditorInitializer
         ?PreferenceResolver $preferences = null,
         ?Language $language = null,
         ?FileBrowserResolver $fileBrowserResolver = null,
-        ?ScriptFactory $scriptFactory = null
+        ?ScriptFactory $scriptFactory = null,
+        ?TemplateRepository $templateRepository = null
     ) {
         $this->elementSelector = $elementSelector ?? new ElementSelector();
         $this->configRepository = $configRepository ?? new ConfigRepository();
@@ -31,6 +33,7 @@ final class EditorInitializer
         $this->language = $language ?? new Language();
         $this->fileBrowserResolver = $fileBrowserResolver ?? new FileBrowserResolver();
         $this->scriptFactory = $scriptFactory ?? new ScriptFactory();
+        $this->templateRepository = $templateRepository ?? new TemplateRepository($this->preferences);
     }
 
     public function handle($event): void
@@ -96,8 +99,10 @@ final class EditorInitializer
         $config = $this->preferences->applyToolbarPreset($config);
         $config = $this->preferences->applyMenubarPreference($config);
         $config = $this->preferences->applyEnterMode($config);
+        $config = $this->preferences->applyCssSelectors($config);
 
         $config = $this->applyEditorCssPath($config);
+        $config = $this->applyTemplates($config, empty($params['forfrontend']));
 
         [$config, $fileBrowser] = $this->fileBrowserResolver->resolve($config, $params);
 
@@ -145,11 +150,115 @@ final class EditorInitializer
         $output[] = '                delete config.file_picker_callback;';
         $output[] = '            }';
         $output[] = '    }';
+        $output[] = '    config.setup = function(editor) {';
+        // リンクのダイアログの「クラス」は、一覧に無い値を保てず、そのまま保存すると class を消す。
+        // 開く前に、本文のリンクの class のうち一覧に無いものを選択肢に足す。
+        // ダイアログが編集するリンクは選び方で変わるため、本文のすべてのリンクを見る
+        $output[] = '        let baseLinkClasses = null;';
+        $output[] = '        editor.on("BeforeExecCommand", function(e) {';
+        $output[] = '            if (e.command !== "mceLink") {';
+        $output[] = '                return;';
+        $output[] = '            }';
+        $output[] = '            if (baseLinkClasses === null) {';
+        $output[] = '                const list = editor.options.get("link_class_list");';
+        $output[] = '                baseLinkClasses = Array.isArray(list) ? list : [];';
+        $output[] = '            }';
+        $output[] = '            if (baseLinkClasses.length === 0) {';
+        $output[] = '                return;';
+        $output[] = '            }';
+        $output[] = '            const listed = new Set(baseLinkClasses.map(function(item) {';
+        $output[] = '                return item ? item.value : undefined;';
+        $output[] = '            }));';
+        $output[] = '            const extra = [];';
+        $output[] = '            editor.dom.select("a[href]").forEach(function(link) {';
+        $output[] = '                const linkClass = link.getAttribute("class") || "";';
+        $output[] = '                if (linkClass !== "" && !listed.has(linkClass)) {';
+        $output[] = '                    listed.add(linkClass);';
+        $output[] = '                    extra.push({title: linkClass, value: linkClass});';
+        $output[] = '                }';
+        $output[] = '            });';
+        $output[] = '            editor.options.set("link_class_list", baseLinkClasses.concat(extra));';
+        $output[] = '        });';
+        $output[] = '    };';
         $output[] = '    tinymce.init(config);';
         $output[] = '})();';
         $output[] = '</script>';
 
         $event->output(implode("\n", $output));
+    }
+
+    /**
+     * 「ひな形の挿入」（TinyMCE 7 で廃止された template プラグインの代替）を組み込む。
+     * ひな形の本文はページに埋め込むため、管理画面のエディターに限る。
+     */
+    private function applyTemplates(array $config, bool $isManager): array
+    {
+        $templates = $isManager ? $this->templateRepository->all() : [];
+
+        if ($templates === []) {
+            if (isset($config['toolbar'])) {
+                $config['toolbar'] = $this->removeToolbarItem($config['toolbar'], 'template');
+            }
+
+            return $config;
+        }
+
+        $config['plugins'] = $this->appendPlugin($config['plugins'] ?? [], 'modxtemplate');
+        $externalPlugins = is_array($config['external_plugins'] ?? null) ? $config['external_plugins'] : [];
+        $externalPlugins['modxtemplate'] = MODX_BASE_URL . 'assets/plugins/tinymce7/js/modx-template.js';
+        $config['external_plugins'] = $externalPlugins;
+        $config['modx_templates'] = $templates;
+        $config['modx_template_labels'] = [
+            'button' => $this->language->translate('tinymce7_template_button', 'Insert template'),
+            'title' => $this->language->translate('tinymce7_template_dialog_title', 'Insert template'),
+            'select' => $this->language->translate('tinymce7_template_select', 'Template'),
+            'preview' => $this->language->translate('tinymce7_template_preview', 'Preview'),
+            'insert' => $this->language->translate('tinymce7_template_insert', 'Insert'),
+            'cancel' => $this->language->translate('tinymce7_template_cancel', 'Cancel'),
+        ];
+
+        return $config;
+    }
+
+    /**
+     * @param string|array $plugins
+     * @return string|array
+     */
+    private function appendPlugin($plugins, string $name)
+    {
+        if (is_array($plugins)) {
+            if (!in_array($name, $plugins, true)) {
+                $plugins[] = $name;
+            }
+
+            return $plugins;
+        }
+
+        $list = preg_split('/[\s,]+/', trim((string)$plugins), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        if (!in_array($name, $list, true)) {
+            $list[] = $name;
+        }
+
+        return implode(' ', $list);
+    }
+
+    /**
+     * @param mixed $toolbar
+     * @return mixed
+     */
+    private function removeToolbarItem($toolbar, string $item)
+    {
+        if (is_array($toolbar)) {
+            return array_map(fn($row) => $this->removeToolbarItem($row, $item), $toolbar);
+        }
+
+        if (!is_string($toolbar)) {
+            return $toolbar;
+        }
+
+        $pattern = '/(^|\s)' . preg_quote($item, '/') . '(?=\s|$)/';
+
+        return trim(preg_replace('/\s{2,}/', ' ', preg_replace($pattern, '$1', $toolbar) ?? $toolbar) ?? $toolbar);
     }
 
     private function applyEditorCssPath(array $config): array

@@ -8,7 +8,12 @@ if (!isset($modx)) {
     $modx->getSettings();
 }
 $vword = new VeriWord();
-$word = $vword->pick_word($modx->config['captcha_words']);
+// captcha_words は設定画面を保存するまでDBに無いため、既定値で補う
+$captcha_words = $modx->config['captcha_words'] ?? '';
+if ($captcha_words === '') {
+    $captcha_words = include MODX_CORE_PATH . 'captcha_words.default.php';
+}
+$word = $vword->pick_word($captcha_words);
 $vword->set_veriword($word);
 $vword->output_image($word, 135, 43);
 exit;
@@ -26,6 +31,7 @@ class VeriWord
 {
     /* path to font directory*/
     public $font_path;
+    public $bg_image;
 
     function __construct()
     {
@@ -61,7 +67,7 @@ class VeriWord
         $text_height = $box[5] - $box[3]; //text height
 
         /* adjust text size */
-        $text_size = round((20 * $img_width) / $text_width);
+        $text_size = (int)round((20 * $img_width) / $text_width);
 
         /* recalculate text width and height */
         $box = imagettfbbox($text_size, $text_angle, $this->font_path, $word);
@@ -69,8 +75,8 @@ class VeriWord
         $text_height = $box[5] - $box[3]; //text height
 
         /* calculate center position of text */
-        $text_x = ($img_width - $text_width) / 2;
-        $text_y = ($img_height - $text_height) / 2;
+        $text_x = (int)(($img_width - $text_width) / 2);
+        $text_y = (int)(($img_height - $text_height) / 2);
 
         /* create canvas for text drawing */
         $im_text = imagecreate($img_width, $img_height);

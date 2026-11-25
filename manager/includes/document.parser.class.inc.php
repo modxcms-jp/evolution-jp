@@ -271,7 +271,7 @@ class DocumentParser
     public function executeParser()
     {
         ob_start();
-        Logger::pushEvent('parser.execute.start');
+        EvoLogger::pushEvent('parser.execute.start');
 
         $this->http_status_code = '200';
 
@@ -551,18 +551,18 @@ class DocumentParser
                 $this->config['cache_type'] = 0;
                 $GLOBALS['cache_type'] = 0;
                 $this->documentContent = '';
-                Logger::pushEvent('cache.disabled', ['id' => $this->documentIdentifier]);
+                EvoLogger::pushEvent('cache.disabled', ['id' => $this->documentIdentifier]);
             } else {
-                Logger::pushEvent('cache.hit', ['id' => $this->documentIdentifier]);
+                EvoLogger::pushEvent('cache.hit', ['id' => $this->documentIdentifier]);
             }
         }
 
         if ($this->documentContent == '') {
             if (!$cacheChecked) {
                 if ($this->config('cache_type')) {
-                    Logger::pushEvent('cache.miss', ['id' => $this->documentIdentifier]);
+                    EvoLogger::pushEvent('cache.miss', ['id' => $this->documentIdentifier]);
                 } else {
-                    Logger::pushEvent('cache.disabled', ['id' => $this->documentIdentifier]);
+                    EvoLogger::pushEvent('cache.disabled', ['id' => $this->documentIdentifier]);
                 }
             }
             // get document object
@@ -848,7 +848,7 @@ class DocumentParser
 
     private function postProcess()
     {
-        Logger::pushEvent('parser.post_process.start');
+        EvoLogger::pushEvent('parser.post_process.start');
         try {
             // if the current document was generated, cache it!
             if (
@@ -912,15 +912,11 @@ class DocumentParser
                         break;
                 }
 
-                if (!is_dir(MODX_CACHE_PATH . $this->uaType)) {
-                    mkdir(MODX_CACHE_PATH . $this->uaType, 0777);
-                }
+                $this->ensureDir(MODX_CACHE_PATH . $this->uaType);
 
                 if ($this->config['cache_type'] == 1) {
                     $path = MODX_CACHE_PATH . sprintf("%s/%s", $this->uaType, $this->uri_parent_dir);
-                    if (!is_dir($path)) {
-                        mkdir($path, 0777, true);
-                    }
+                    $this->ensureDir($path);
                 }
                 $this->saveToFile(
                     MODX_CACHE_PATH . sprintf('%s/%s.pageCache.php', $this->uaType, $filename),
@@ -945,7 +941,7 @@ class DocumentParser
                 ? frontend_system_log_trace($trace)
                 : $this->normalizeTraceFrames($trace);
 
-            $logger = new Logger();
+            $logger = new EvoLogger();
             $logger->critical($exception->getMessage(), [
                 'source' => 'postProcess execution',
                 'exception' => [
@@ -1081,7 +1077,7 @@ class DocumentParser
 
         $content = file_get_contents($filepath);
         if ($content) {
-            Logger::pushEvent('cache.static.hit');
+            EvoLogger::pushEvent('cache.static.hit');
             $this->documentOutput = $this->parseDocumentSource($content);
             $this->invokeEvent('OnWebPagePrerender');
             header("Content-type: " . $get_mime_type($ext));
@@ -5774,6 +5770,12 @@ class DocumentParser
      * @return bool
      *
      */
+    // 同時に別のリクエストが同じディレクトリを作っても警告を出さない
+    protected function ensureDir($dir)
+    {
+        return is_dir($dir) || @mkdir($dir, 0777, true) || is_dir($dir);
+    }
+
     public function saveToFile($filename, $data)
     {
         if (!$filename) {

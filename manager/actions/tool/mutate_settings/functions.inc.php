@@ -6,9 +6,9 @@
  */
 function get_lang_keys($filename)
 {
-    global $_lang;
     $path = sprintf('%slang/%s', MODX_CORE_PATH, $filename);
     if (is_file($path) && is_readable($path)) {
+        $_lang = []; // 画面で使っているグローバルの $_lang を上書きしない
         include($path);
         return array_keys($_lang);
     }

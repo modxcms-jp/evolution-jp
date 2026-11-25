@@ -52,7 +52,7 @@ class logHandler
                 'timestamp' => time(),
                 'internalKey' => $this->entry['internalKey'],
                 'username' => $this->entry['username'],
-                'action' => $action_id,
+                'action' => (int)$action_id,
                 'itemid' => $item_id,
                 'itemname' => $this->entry['itemName'],
                 'message' => $this->entry['msg']

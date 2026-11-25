@@ -56,7 +56,7 @@ if ($total > 0) {
             $row['id'],
             $row['default_text'],
             $row['elements'],
-            $row['value'],
+            $row['default_text'],
             ' style="width:300px;"'
         );
         $output .= '</td></tr>';
@@ -134,7 +134,7 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
             );
             $index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
             foreach ($index_list as $item => $itemvalue) {
-                [$item, $itemvalue] = (is_array($itemvalue)) ? $itemvalue : explode("==", $itemvalue);
+                [$item, $itemvalue] = splitInputOption($itemvalue);
                 if (strlen($itemvalue) == 0) {
                     $itemvalue = $item;
                 }
@@ -155,7 +155,7 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
             );
             $index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
             foreach ($index_list as $item => $itemvalue) {
-                [$item, $itemvalue] = (is_array($itemvalue)) ? $itemvalue : explode("==", $itemvalue);
+                [$item, $itemvalue] = splitInputOption($itemvalue);
                 if (strlen($itemvalue) == 0) {
                     $itemvalue = $item;
                 }
@@ -176,7 +176,7 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
             );
             $index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
             foreach ($index_list as $item => $itemvalue) {
-                [$item, $itemvalue] = (is_array($itemvalue)) ? $itemvalue : explode('==', $itemvalue);
+                [$item, $itemvalue] = splitInputOption($itemvalue);
                 if (strlen($itemvalue) == 0) {
                     $itemvalue = $item;
                 }
@@ -218,7 +218,7 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
             $index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
             static $i = 0;
             foreach ($index_list as $item => $itemvalue) {
-                [$item, $itemvalue] = (is_array($itemvalue)) ? $itemvalue : explode("==", $itemvalue);
+                [$item, $itemvalue] = splitInputOption($itemvalue);
                 if (strlen($itemvalue) == 0) {
                     $itemvalue = $item;
                 }
@@ -237,7 +237,7 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
         case 'option': // handles radio buttons
             $index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
             foreach ($index_list as $item => $itemvalue) {
-                [$item, $itemvalue] = (is_array($itemvalue)) ? $itemvalue : explode("==", $itemvalue);
+                [$item, $itemvalue] = splitInputOption($itemvalue);
                 if (strlen($itemvalue) == 0) {
                     $itemvalue = $item;
                 }
@@ -247,7 +247,7 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
         case 'image':    // handles image fields using htmlarea image manager
             global $ResourceManagerLoaded;
             global $content, $use_editor, $which_editor;
-            if (!$ResourceManagerLoaded && !(($content['richtext'] == 1 || getv('a') == 4) && $use_editor == 1 && $which_editor == 3)) {
+            if (!$ResourceManagerLoaded && !((($content['richtext'] ?? 0) == 1 || getv('a') == 4) && $use_editor == 1 && $which_editor == 3)) {
                 $field_html .= "
 				<script type=\"text/javascript\">
 						var lastImageCtrl;
@@ -306,7 +306,7 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
             /* Modified by Timon for use with resource browser */
             global $ResourceManagerLoaded;
             global $content, $use_editor, $which_editor;
-            if (!$ResourceManagerLoaded && !(($content['richtext'] == 1 || getv('a') == 4) && $use_editor == 1 && $which_editor == 3)) {
+            if (!$ResourceManagerLoaded && !((($content['richtext'] ?? 0) == 1 || getv('a') == 4) && $use_editor == 1 && $which_editor == 3)) {
                 /* I didn't understand the meaning of the condition above, so I left it untouched ;-) */
                 $field_html .= "
 				<script type=\"text/javascript\">
@@ -393,4 +393,11 @@ function ParseIntputOptions($v)
         $a[] = $cols;
     }
     return $a;
+}
+
+// 「表示名==値」の選択肢を分ける。値の無い選択肢は、表示名を値として使う
+function splitInputOption($option)
+{
+    $cols = is_array($option) ? array_values($option) : explode('==', $option);
+    return [(string)($cols[0] ?? ''), (string)($cols[1] ?? '')];
 }
