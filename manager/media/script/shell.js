@@ -19,6 +19,9 @@
     let modalDirty = false;
     // openPicker/openFilePickerで開いたピッカーの選択結果を受け取るコールバック
     let pickerCallback = null;
+    // 画面を差し替える要求（request()）を始めた順の番号。本体(#mainPane)とモーダルは別に数える。
+    // 応答が届いたとき、番号が最後でなければ、その後に別の画面を始めている（または閉じた）ので画面を差し替えない
+    const generations = { main: 0, modal: 0 };
 
     function resolveUrl(url) {
         return new URL(url, window.location.href).href;
@@ -88,14 +91,20 @@
         return ok;
     }
 
+    // 「処理中」の表示は、始めた request() の数が 0 に戻るまで出す
+    // （応答が後から届く要求が重なっても、先に終わった要求が消さないように）
+    let workCount = 0;
+
     function startWork() {
+        workCount++;
         if (window.mainMenu && typeof window.mainMenu.work === 'function') {
             window.mainMenu.work();
         }
     }
 
     function stopWork() {
-        if (window.mainMenu && typeof window.mainMenu.stopWork === 'function') {
+        workCount = Math.max(0, workCount - 1);
+        if (workCount === 0 && window.mainMenu && typeof window.mainMenu.stopWork === 'function') {
             window.mainMenu.stopWork();
         }
     }
@@ -244,6 +253,7 @@
     // 応答全体でドキュメントを書き換える(断片でない完全HTMLが返った場合の保険)。
     // document.writeはアドレスバーを更新しないため、応答先URLをhistoryへ反映する
     function replaceDocument(html, finalUrl) {
+        window.documentDirty = false;
         if (finalUrl && finalUrl !== window.location.href) {
             window.history.replaceState({ url: finalUrl }, '', finalUrl);
         }
@@ -300,6 +310,7 @@
         }
 
         teardownPane(pane);
+        // 未保存の印は、画面を実際に差し替えるここで消す（送信を始めた時点では消さない）
         window.documentDirty = false;
         pane.classList.add('evo-pane-pending');
         pane.innerHTML = html;
@@ -382,7 +393,8 @@
     }
 
     // reloadMain=falseなら、モーダル内の保存(modalDirty)があっても背後の#mainPaneを再取得しない
-    // (閉じた直後に別の画面へnavigateする場合、再取得と競合して古い画面が残るのを防ぐ)
+    // (閉じた直後に別の画面へnavigateする場合、再取得と競合して古い画面が残るのを防ぐ)。
+    // 背後が未保存(documentDirty)のときも再取得しない
     function closeModal(reloadMain) {
         const overlay = document.getElementById('evoShellModalOverlay');
         if (!overlay || overlay.classList.contains('hidden')) {
@@ -395,11 +407,14 @@
         }
         currentModalUrl = '';
         pickerCallback = null;
+        // 閉じたあとに届く、モーダルの応答では開き直さない
+        generations.modal++;
         overlay.classList.add('hidden');
         if (modalDirty) {
-            // モーダルで保存された変更を背後の画面へ反映する(#mainPaneを黙って再取得)
+            // モーダルで保存された変更を背後の画面へ反映する(#mainPaneを黙って再取得)。
+            // 背後が未保存なら、取り直すと書きかけが消えるので取り直さない
             modalDirty = false;
-            if (reloadMain !== false) {
+            if (reloadMain !== false && !window.documentDirty) {
                 request(currentUrl, { method: 'GET' }, false);
             }
         }
@@ -642,17 +657,44 @@
         return formData;
     }
 
-    // targetが'modal'の場合、断片はEvoShellモーダルへ差し込む(#mainPaneやhistoryは触らない)
+    // POSTが届かなかった・結果を受け取れなかったときは、画面と入力をそのまま残して知らせる。
+    // 入力が保存されていないままなので、未保存の印を戻す（インラインの onclick などが送信前に消していても、ここで戻る）
+    function reportFailedPost(message, keepDirty) {
+        stopWork();
+        if (keepDirty) {
+            window.documentDirty = true;
+        }
+        EvoDialog.alert(message, '', null, { icon: 'warning' });
+    }
+
+    // targetが'modal'の場合、断片はEvoShellモーダルへ差し込む(#mainPaneやhistoryは触らない)。
+    // 画面を差し替えるのは、最後に始めた要求の応答だけ。POSTは中断しないが、その後に別の画面を始めていれば、
+    // 結果の画面では上書きしない（保存は済んでいる）
     function request(url, options, push, target) {
         startWork();
         const isModalTarget = target === 'modal';
+        const isPost = options.method === 'POST';
+        const slot = isModalTarget ? 'modal' : 'main';
+        const generation = ++generations[slot];
+        const isLatest = function () {
+            return generation === generations[slot];
+        };
         const headers = Object.assign({ 'X-Requested-With': 'XMLHttpRequest', 'X-Evo-Shell': '1' }, options.headers || {});
         return fetch(url, Object.assign({}, options, { headers: headers, credentials: 'same-origin' }))
             .then(function (response) {
                 if (response.headers.get('X-Evo-Login') === 'required') {
-                    // セッション切れ。開こうとした画面（POST・モーダルなら今の画面）をフルリロードしてログイン画面を出す。
+                    if (isPost) {
+                        // セッション切れ。画面を変えずに入力を残し、別のタブでログインしてから保存し直すよう知らせる
+                        reportFailedPost(EvoShell.sessionExpiredMessage, !isModalTarget && isLatest());
+                        return null;
+                    }
+                    if (!isLatest()) {
+                        stopWork();
+                        return null;
+                    }
+                    // 開こうとした画面（モーダルなら今の画面）をフルリロードしてログイン画面を出す。
                     // ログイン画面はその URL のまま出て、ログイン後にその画面へ戻る
-                    reloadForLogin(options.method === 'POST' || isModalTarget ? window.location.href : url);
+                    reloadForLogin(isModalTarget ? window.location.href : url);
                     return null;
                 }
                 if (/attachment/i.test(response.headers.get('Content-Disposition') || '')) {
@@ -660,20 +702,32 @@
                 }
                 // POSTがリダイレクトせずに結果を返したときは、アドレスバーと履歴を操作のURLにしない。
                 // 状態を変える操作のURLはGETで開けない(405)ため、再読み込みや戻るで失敗しないよう、元の画面のURLのままにする
-                const keepUrl = options.method === 'POST' && !response.redirected && !isModalTarget;
+                const keepUrl = isPost && !response.redirected && !isModalTarget;
                 const screenUrl = responseUrlWithRequestHash(response.url, url);
                 const finalUrl = keepUrl ? currentUrl : screenUrl;
                 return response.text().then(function (text) {
+                    if (!isLatest()) {
+                        stopWork();
+                        if (isPost) {
+                            // 保存の結果が求めるツリー・メニューの読み直しだけは行う
+                            handleRefreshParam(screenUrl);
+                        }
+                        return null;
+                    }
                     if (response.headers.get('X-Evo-Pane') === '1') {
                         if (isModalTarget) {
-                            if (options.method === 'POST') {
+                            if (isPost) {
                                 modalDirty = true;
                             }
                             applyModalFragment(text, finalUrl);
                         } else {
                             applyFragment(text, finalUrl, push && !keepUrl, screenUrl);
                         }
-                    } else if (options.method === 'POST' || isFullDocumentHtml(text)) {
+                    } else if (isPost && !response.ok && /^text\/plain/i.test(response.headers.get('Content-Type') || '')) {
+                        // CSRFトークンの不一致（ログインし直したあとの保存など）のように、文字だけのエラー。
+                        // 画面と入力は残して知らせる
+                        reportFailedPost(EvoShell.saveRejectedMessage, !isModalTarget);
+                    } else if (isPost || isFullDocumentHtml(text)) {
                         // 断片で返せない応答(モジュール実行等)はドキュメントごと差し替える。
                         // document.writeはアドレスバーを更新しないため、応答先のURLで補正する
                         replaceDocument(text, finalUrl);
@@ -684,13 +738,13 @@
                 });
             })
             .catch(function () {
+                if (isPost) {
+                    // POST(保存等)の通信失敗を無反応のまま放置しない。再送信も再読み込みもせず、入力を残す
+                    reportFailedPost(EvoShell.networkErrorMessage, !isModalTarget && isLatest());
+                    return;
+                }
                 stopWork();
-                if (options.method === 'POST') {
-                    // POST(保存等)の通信失敗を無反応のまま放置しない。
-                    // フォームの再送信は避け、現在の画面を再取得して復旧させる
-                    window.alert(EvoShell.networkErrorMessage);
-                    fullReload(window.location.href);
-                } else {
+                if (isLatest()) {
                     fullReload(url);
                 }
             });
@@ -734,7 +788,9 @@
     const EvoShell = {
         // header.inc.phpが言語別メッセージで上書きする
         unsavedMessage: 'Your changes are not saved. Continue?',
-        networkErrorMessage: 'A network error occurred. The page will be reloaded.',
+        networkErrorMessage: 'The request failed, so it is not known whether your changes were saved. What you entered is still on this screen. Check your connection and save again.',
+        sessionExpiredMessage: 'Your session has expired, so your changes were not saved. What you entered is still on this screen. After you log in again in another tab, this screen can no longer save, so copy your input first. Then reload the screen after logging in and paste it back.',
+        saveRejectedMessage: 'This screen can no longer save. Its permission to save is no longer valid, for example because you logged in again. What you entered is still on this screen: copy it, reload the screen and paste it back.',
 
         // ツリーの上のピン（manager/frames/tree.php の #treePin）。押すと自動の拡縮を止め、もう一度押すと戻す
         toggleTreePin: function () {
@@ -791,14 +847,17 @@
                 || window.location.href;
 
             if (method === 'GET') {
+                // 本体の画面を差し替えるので、未保存なら確認する（モーダルのフォームは背後に触れない）
+                if (!isModalForm && !confirmIfDirty()) {
+                    return;
+                }
                 const params = new URLSearchParams(formData);
                 const url = action.split('?')[0] + '?' + params.toString();
-                window.documentDirty = false;
                 request(url, { method: 'GET' }, push, target);
                 return;
             }
 
-            window.documentDirty = false;
+            // 未保存の印は送信では消さない。応答で画面を差し替えるとき（applyFragment）に消える
             // 応答・エラー・同期の例外のどれでも印を外す
             const clear = function () {
                 setSubmitting(form, false);
