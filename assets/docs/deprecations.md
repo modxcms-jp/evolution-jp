@@ -8,7 +8,7 @@
 
 - 同じ `$name` は 1 回の要求につき 1 回だけ記録する
 - コンテキストに `deprecated`（`$name`）・`file`・`line`（呼び出し元）だけを入れる。スニペット・プラグイン・URL は全ログ共通の `current_snippet`・`active_plugin`・`decoded_request_uri`・`request.url` に入る
-- `$modx` の非推奨メソッド（`DeprecatedAPI`）は、これとは別に `__call()` が別の条件で警告を残す
+- `$modx` の非推奨メソッド（`DeprecatedAPI`）は、これとは別に、`__call()` が別の条件で情報（type 1）のログを残す。`--level=warning` の検索には出ない
 - 確認は `php evo.php log:search "deprecated" --level=warning`
 
 ## 一覧
