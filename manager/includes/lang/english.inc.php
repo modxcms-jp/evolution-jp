@@ -1378,6 +1378,7 @@ return [
     "update_in_progress_title" => 'We are performing maintenance',
     "update_in_progress_message" => 'The system is being updated. Please try again later, or ask an administrator.',
     "update_upload_installer_message" => 'The database needs to be updated. Upload the updater (the install/ folder) to the site and run it.',
+    "remove_installer_manual" => 'The install folder could not be removed automatically. Delete the install folder manually, for example over FTP.',
     "go_back" => 'Back',
     "fb_title_images" => 'File Picker (Images)',
     "fb_title_media" => 'File Picker (Media)',
