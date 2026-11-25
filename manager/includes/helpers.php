@@ -1633,3 +1633,42 @@ function image_display_size_by_orientation($width, $height, $orientation)
 {
     return ((int) $orientation >= 5) ? [$height, $width] : [$width, $height];
 }
+
+/**
+ * 非推奨の機能が使われたことを、1 回の要求につき 1 回だけシステムログに警告（type 2）で残す。
+ * 呼び出し元のファイルと行、スニペットやプラグインの中ならその名前をコンテキストに入れる。
+ *
+ * @param string $name 非推奨の機能の名前（同じ名前は 1 回の要求で 1 回だけ記録する）
+ * @param string $message 非推奨である理由と代わりの手段
+ */
+function logDeprecated($name, $message)
+{
+    static $logged = [];
+    if (isset($logged[$name])) {
+        return;
+    }
+    $logged[$name] = true;
+
+    $skip = [
+        str_replace('\\', '/', __FILE__),
+        str_replace('\\', '/', MODX_CORE_PATH . 'document.parser.class.inc.php'),
+    ];
+    $context = ['deprecated' => $name];
+    foreach (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS) as $frame) {
+        $file = str_replace('\\', '/', $frame['file'] ?? '');
+        if ($file === '' || in_array($file, $skip, true)) {
+            continue;
+        }
+        $context['file'] = $file;
+        $context['line'] = $frame['line'] ?? 0;
+        break;
+    }
+    if (evo()->currentSnippet) {
+        $context['snippet'] = evo()->currentSnippet;
+    } elseif (!empty(evo()->event->activePlugin)) {
+        $context['plugin'] = evo()->event->activePlugin;
+    }
+    $context['uri'] = evo()->decoded_request_uri;
+
+    evo()->logEvent(0, 2, $message, 'Call deprecated feature', $context);
+}
