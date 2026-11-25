@@ -60,6 +60,15 @@ if (!empty($ids)) {
             WHERE {$tbl_site_content}.id IN ({$ids_list}) AND {$tbl_site_content}.deleted=1";
     db()->query($sql);
     
+    // remove the drafts and scheduled drafts (IDs can be reused by other documents).
+    $tbl_site_revision = evo()->getFullTableName('site_revision');
+    $sql = "DELETE {$tbl_site_revision}
+            FROM {$tbl_site_revision}
+            INNER JOIN {$tbl_site_content} ON {$tbl_site_content}.id = {$tbl_site_revision}.elmid
+            WHERE {$tbl_site_content}.id IN ({$ids_list}) AND {$tbl_site_content}.deleted=1
+            AND {$tbl_site_revision}.element='resource'";
+    db()->query($sql);
+
     // permanently delete the document.
     $rs = db()->delete($tbl_site_content, "id IN ({$ids_list}) AND deleted=1");
 } else {

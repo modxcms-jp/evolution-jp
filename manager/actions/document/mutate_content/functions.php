@@ -347,11 +347,10 @@ function mergeDraft($content, $draft)
             continue;
         }
         $tvid = 'tv' . $v['id'];
+        // 下書きに項目が無い TV は文書の値のまま（採用で変えない TV と同じ読み方）
         if (isset($draft[$tvid])) {
             $content[$k]['value'] = $draft[$tvid];
             unset($draft[$tvid]);
-        } else {
-            $content[$k]['value'] = null;
         }
     }
     $content = array_merge($content, $draft);

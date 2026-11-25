@@ -3162,7 +3162,7 @@ trait DocumentParserSubParserTrait
             $draft['editedon'] = $row['editedon'];
             $draft['editedby'] = $row['editedby'];
 
-            if ($modx->doc->update($draft, $row['elmid']) !== false) {
+            if ($modx->doc->updateFromDraft($draft, $row['elmid']) !== false) {
                 db()->delete(
                     '[+prefix+]site_revision',
                     sprintf('internalKey=%d', $row['internalKey'])
