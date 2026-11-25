@@ -79,7 +79,7 @@
             [+captcha_input+]
             <input type="checkbox" id="rememberme" name="rememberme" tabindex="4" value="1" class="checkbox"
                    [+remember_me+]/><label for="rememberme"
-                                           style="cursor:pointer;display:inline;">[+remember_username+]</label>
+                                           style="cursor:pointer;display:inline;white-space:nowrap;">[+remember_username+]</label>
             <input type="submit" class="login" onclick="return false;" id="submitButton" value="[+login_button+]"/>
             <!-- anything to output before the login box via a plugin ... like the forgot password link? -->
             [+OnManagerLoginFormRender+]
