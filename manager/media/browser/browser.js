@@ -5,11 +5,13 @@ var lastFileCtrl;
 // currentValue: ピッカーを開く場所を決める値（省略したら ctrl の欄の値）
 function BrowseServer(ctrl, currentValue) {
     lastImageCtrl = ctrl;
+    lastFileCtrl = '';
     window.evoOpenFilePicker(imanager_url, pickerCurrentValue(ctrl, currentValue));
 }
 
 function BrowseFileServer(ctrl, currentValue) {
     lastFileCtrl = ctrl;
+    lastImageCtrl = '';
     window.evoOpenFilePicker(fmanager_url, pickerCurrentValue(ctrl, currentValue));
 }
 
@@ -20,15 +22,12 @@ function pickerCurrentValue(ctrl, currentValue) {
 }
 
 function SetUrl(url, width, height, alt) {
-    if (lastFileCtrl) {
-        var c = document.getElementById(lastFileCtrl);
-        if (c) c.value = url;
-        lastFileCtrl = '';
-    } else if (lastImageCtrl) {
-        var c = document.getElementById(lastImageCtrl);
-        if (c) c.value = url;
-        lastImageCtrl = '';
-    } else {
-
-    }
+    var ctrl = lastFileCtrl || lastImageCtrl;
+    lastFileCtrl = '';
+    lastImageCtrl = '';
+    var c = ctrl ? document.getElementById(ctrl) : null;
+    if (!c) return;
+    c.value = url;
+    // 素の change を起こす（管理画面の未保存の検知と、欄の change のリスナーに届く）
+    c.dispatchEvent(new Event('change', {bubbles: true}));
 }
