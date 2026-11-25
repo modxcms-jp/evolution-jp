@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/retired_files.class.inc.php';
+
 /**
  * マイグレーションの失敗。ログに残すコンテキストを持ち、ランナーが 1 回だけ記録する
  * （マイグレーション側はログせずに投げるだけでよい）
@@ -674,6 +676,29 @@ class EvoMigrationHelper
             db()->escape($name)
         ));
         return true;
+    }
+
+    /**
+     * 配布から外したファイル（EvoRetiredFiles の一覧）を消し、結果をログに残す。消せなかったファイルは警告で知らせる
+     * （残っているあいだは、設定の確認の画面も知らせる）。2 回目は何もしない。消したファイルがあれば true
+     */
+    public function removeRetiredFiles($group): bool
+    {
+        $result = EvoRetiredFiles::remove($group);
+        if ($result['removed']) {
+            $this->log('Removed files that are no longer distributed', [
+                'group' => $group,
+                'count' => count($result['removed']),
+                'folder_kept' => $result['kept'],
+            ]);
+        }
+        if ($result['failed']) {
+            $this->log('Could not remove files that are no longer distributed. Delete them by hand', [
+                'group' => $group,
+                'files' => $result['failed'],
+            ], 2);
+        }
+        return (bool)$result['removed'];
     }
 
     /**

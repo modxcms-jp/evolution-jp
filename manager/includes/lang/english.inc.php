@@ -1210,6 +1210,8 @@ return [
 
     "configcheck_del_actionphp" => 'Security alert: existing action.php. Shold be delete.',
     "configcheck_del_actionphp_msg" => 'action.php used by captcha function what is unnecessary.',
+    "configcheck_retired_files" => 'Old files that are no longer distributed remain',
+    "configcheck_retired_files_msg" => 'Old files that this version does not use remain in the following folders. Delete them: [+folders+]',
 
     "a16_use_resources" => 'The resources that uses this template',
     "a16_many_resources" => 'Because there is much number of the resources, do not display it here.',
@@ -1538,6 +1540,8 @@ return [
     "fb_unzip_failed" => 'Could not extract: %s',
     "fb_unzip_done" => 'Extracted %s files.',
     "fb_unzip_entry_failed" => 'Files that could not be extracted:',
+    "fb_unzip_renamed" => 'Extracted under a different name (original name → new name):',
+    "fb_unzip_renamed_more" => '%s more',
     "fb_content_format_title" => 'The extension is .%s, but the content is a %s image',
     "styleguide_title" => 'Style guide',
     "styleguide_msg" => 'A page that lists the manager UI parts. Choose a theme to check how the parts look and line up. Settings are not changed.',

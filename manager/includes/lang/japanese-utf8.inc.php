@@ -1212,6 +1212,8 @@ return [
 
     "configcheck_del_actionphp" => 'セキュリティ警告: action.phpが存在します',
     "configcheck_del_actionphp_msg" => 'Captcha画像の表示に使っていたaction.phpは、今は使いません。セキュリティ上の問題があるため削除してください。',
+    "configcheck_retired_files" => '配布から外した古いファイルが残っています',
+    "configcheck_retired_files_msg" => '次のフォルダーに、今の版では使わない古いファイルが残っています。削除してください: [+folders+]',
 
     "a16_use_resources" => 'このテンプレートを使用しているリソース',
     "a16_many_resources" => 'リソース数が多いためここでは表示しません。',
@@ -1539,6 +1541,8 @@ return [
     "fb_unzip_failed" => '展開できませんでした: %s',
     "fb_unzip_done" => '%s 件のファイルを展開しました。',
     "fb_unzip_entry_failed" => '展開できなかったファイル:',
+    "fb_unzip_renamed" => '名前を変えて展開したもの（元の名前 → 展開後の名前）:',
+    "fb_unzip_renamed_more" => 'ほか %s 件',
     "fb_content_format_title" => '拡張子は .%s ですが、中身は %s の画像です',
     "styleguide_title" => 'スタイルガイド',
     "styleguide_msg" => '管理画面の部品を並べた確認用の画面です。テーマを選んで、部品の見た目と寸法を確かめます。設定は変わりません。',
