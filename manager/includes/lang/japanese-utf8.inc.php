@@ -1379,6 +1379,7 @@ return [
     "update_in_progress_title" => 'メンテナンス中です',
     "update_in_progress_message" => 'システムのアップデート中です。しばらくしてからもう一度お試しいただくか、管理者にお問い合わせください。',
     "update_upload_installer_message" => 'データベースの更新が必要です。アップデーター（install/ フォルダー）をサイトに置いて実行してください。',
+    "remove_installer_manual" => 'install フォルダーを自動で削除できませんでした。FTP などで、install フォルダーを手で削除してください。',
     "go_back" => '戻る',
     "fb_title_images" => 'ファイルピッカー（画像）',
     "fb_title_media" => 'ファイルピッカー（メディア）',

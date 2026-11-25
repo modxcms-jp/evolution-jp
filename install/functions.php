@@ -1030,7 +1030,7 @@ function installerSessionKeys()
         'database_collation', 'database_charset', 'database_connection_method',
         'adminname', 'adminemail', 'adminpass', 'adminpassconfirm', 'managerlanguage',
         'chkagree', 'installdata', 'template', 'tv', 'chunk', 'snippet', 'plugin', 'module',
-        'convert_to_utf8mb4', 'install_log_path',
+        'convert_to_utf8mb4', 'install_log_path', 'installer_cleanup',
     ];
 }
 

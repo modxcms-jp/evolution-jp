@@ -406,14 +406,17 @@ function checkCaptcha()
         return true;
     }
 
-    if (!sessionv('veriword')) {
+    $veriword = sessionv('veriword');
+    if (!$veriword) {
         jsAlert(lang('login_captcha_missing'));
         return false;
     }
 
-    if (sessionv('veriword') != input('captcha_code')) {
+    // 画像は 1 回限り。正誤にかかわらず、ここで使い切る
+    sessionv('*veriword', null);
+    $code = input('captcha_code');
+    if (!is_string($code) || !hash_equals((string)$veriword, $code)) {
         jsAlert(alert()->errors[905]);
-        failedLogin(user('internalKey'), user('failedlogincount'));
         return false;
     }
     return true;

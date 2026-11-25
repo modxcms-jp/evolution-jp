@@ -59,12 +59,13 @@ if (!OnManagerAuthentication()) {
         rejectBlockedUser();
         return;
     }
+    // CAPTCHA を先に確かめる。通らないうちはパスワードを確かめず、失敗回数にも数えない
+    if (!checkCaptcha()) {
+        return;
+    }
     if (!validPassword(input('password'), user('password'))) {
         jsAlert(alert()->errors[901]);
         failedLogin();
-        return;
-    }
-    if (!checkCaptcha()) {
         return;
     }
 }
