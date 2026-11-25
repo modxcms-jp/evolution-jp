@@ -46,7 +46,7 @@
 シェルの body（`body.evo-shell`）はグリッドで、メニュー・ツリー・本文の 3 つを並べる。ほかの body 直下の要素は、ライブラリが足すオーバーレイなどでレイアウトが崩れないよう、本文の領域に重ねた幅 0・高さ 0 の要素になる（`manager/media/style/common/shell.css` の `body.evo-shell > :not(...)`）。
 
 - 画面の部品は `#mainPane` の中に置く。body 直下に要素を足すと、幅 0 になって見えない（`position: fixed` でも、幅を決めていなければ潰れる）。
-- 例外は、この規則の `:not(...)` に並べたものだけ（`#preLoader`・`#evoShellModalOverlay`・ダイアログの `.evo-dialog`・ツールチップの `#evoTooltip`・ツリーの幅を変えるつまみの `#evoTreeResizer`）。ダイアログは自前で作らず `EvoDialog` を使う（`manager-dialog.md`）。body 直下に置くしかない部品を本体に足すときは、この規則に足して理由をコメントに書く。
+- 例外は、この規則の `:not(...)` に並べたものだけ（`#preLoader`・`#evoShellModalOverlay`・ダイアログの `.evo-dialog`・ツールチップの `#evoTooltip`・ツリーの幅を変えるつまみの `#evoTreeResizer`・権限の無い人へのエラーの案内 `.evo-error-guide`。#mainPane より前の失敗では body 直下に出るので、本文の領域に置く）。ダイアログは自前で作らず `EvoDialog` を使う（`manager-dialog.md`）。body 直下に置くしかない部品を本体に足すときは、この規則に足して理由をコメントに書く。
 
 ## JS・CSS の読み込みと版
 

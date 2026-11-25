@@ -373,6 +373,52 @@ function manager_safe_mode_button_html()
     );
 }
 
+// 管理画面でログイン中の、プラグインの権限が無い人か（エラーの詳細でなく案内を出す相手）
+function manager_error_guide_applies()
+{
+    return defined('IN_MANAGER_MODE')
+        && IN_MANAGER_MODE === 'true'
+        && evo()
+        && evo()->isLoggedin()
+        && !manager_safe_mode_can_toggle();
+}
+
+// 権限の無い人に出すエラーの案内。詳細は出さず、システムログと突き合わせる手がかり（エラーの番号 = trace_id、日時、画面）を添える。
+// 途中まで出した画面（編集画面のフォームの中など）にも出るので、フォーム・ボタンは置かず、通常のリンクだけにする。
+// 言語ファイルが読めないこともあるので、lang() には既定の文を渡す。見た目は sections.css の .evo-error-guide
+function manager_error_guide_html()
+{
+    $action = get_intvar('a') ?: post_intvar('a');
+    $screen = '';
+    if ($action) {
+        include_once(MODX_CORE_PATH . 'actionlist.inc.php');
+        $actionName = $GLOBALS['action_list'][$action] ?? '';
+        $screen = trim($action . ' - ' . $actionName, ' -');
+    }
+
+    $rows = [
+        [lang('manager_error_guide_datetime', '日時'), date(DATE_ATOM)],
+        [lang('manager_error_guide_trace_id', 'エラーの番号'), EvoLogger::traceId()],
+    ];
+    if ($screen !== '') {
+        $rows[] = [lang('manager_error_guide_action', '開いた画面'), 'a=' . $screen];
+    }
+    $rowsHtml = '';
+    foreach ($rows as [$label, $value]) {
+        $rowsHtml .= sprintf('<dt>%s</dt><dd>%s</dd>', hsc($label), hsc($value));
+    }
+
+    // ペインや iframe の中にも出るので最上位の画面で開き（target="_top"）、シェルに横取りさせない（data-no-ajax）
+    return sprintf(
+        '<div class="evo-error-guide" role="alert"><p>%s</p><dl>%s</dl>'
+        . '<p><a href="%s" target="_top" data-no-ajax>%s</a></p></div>',
+        hsc(lang('manager_error_guide_message', '管理画面でエラーが起きました。サイトの管理者に連絡してください。')),
+        $rowsHtml,
+        hsc(MODX_MANAGER_URL),
+        hsc(lang('manager_error_guide_home', '管理画面のトップを開く'))
+    );
+}
+
 // ログイン画面の守りの目印。ログイン画面を出す前に置き、出せたら消す（accesscontrol-not-mgr.inc.php）
 function manager_login_guard_path()
 {
