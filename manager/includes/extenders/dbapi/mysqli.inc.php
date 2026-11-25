@@ -182,7 +182,7 @@ class DBAPI
             }
             // 文字セットが空（config.inc.php で NULL など）なら設定せず、サーバの既定の文字セットのまま使う。
             // 指定があって設定できなければ、違う文字セットのまま続けないよう止める
-            if ($this->charset && !$this->conn->query(sprintf('%s %s', $this->connection_method, $this->charset))) {
+            if (!$this->applyConnectionCharset()) {
                 $this->connectError = sprintf(
                     'Failed to set the connection charset (%s %s). Check $database_connection_charset (DB_CHARSET) in manager/includes/config.inc.php',
                     $this->connection_method,
@@ -210,6 +210,19 @@ class DBAPI
         }
         evo()->queryTime += $totaltime;
         return $this->conn;
+    }
+
+    /**
+     * 接続の文字セットを設定する。文字セットが空なら何もせず true を返す。
+     * SET CHARACTER SET は character_set_connection を DB の既定の文字セットにするので、
+     * DB の既定を変えたあとは、同じ接続でこれを呼び直す
+     */
+    public function applyConnectionCharset()
+    {
+        if (!$this->charset) {
+            return true;
+        }
+        return (bool) $this->conn->query(sprintf('%s %s', $this->connection_method, $this->charset));
     }
 
     public function select_db($dbase = '')

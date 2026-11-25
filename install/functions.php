@@ -978,8 +978,53 @@ function hasInstallableElement($items, $selected, $installSampleData = false)
     return false;
 }
 
+// DB の既定の文字セットを utf8mb4 にする。変更できなくても止めず、画面とログで知らせる
+function convertDatabaseDefault($convert, $collation)
+{
+    if ($convert->convertDb($collation)) {
+        return true;
+    }
+    log_install_event('Failed to change the database default charset to utf8mb4', [
+        'collation' => $collation,
+        'error' => db()->conn->error
+    ]);
+    printf(
+        '<p><span class="notok">%s</span></p>',
+        sprintf(
+            lang('database_default_charset_failed'),
+            hsc(db()->dbase),
+            hsc($collation)
+        )
+    );
+    return false;
+}
+
+// 新規インストールで、表を作る前に呼ぶ。選んだ文字セットが utf8mb4 で、DB の既定がそうでないとき、既定を utf8mb4 にする
+// （既定が latin1 などのままだと、接続の character_set_connection がそれになり、日本語が ? で保存される）
+function prepareDatabaseDefaultForInstall()
+{
+    if (sessionv('database_charset') !== 'utf8mb4') {
+        return;
+    }
+    include_once MODX_SETUP_PATH . 'convert2utf8mb4.php';
+    $convert = new convert2utf8mb4();
+    if ($convert->getDefaultCharset() === 'utf8mb4') {
+        return;
+    }
+    $before = [$convert->getDefaultCharset(), $convert->getDefaultCollation()];
+    if (!convertDatabaseDefault($convert, sessionv('database_collation'))) {
+        return;
+    }
+    // SET CHARACTER SET は character_set_connection を DB の既定にするので、変えたあとの既定でやり直す
+    db()->applyConnectionCharset();
+    log_install_event('Changed the database default charset to utf8mb4', [
+        'from' => $before,
+        'to' => ['utf8mb4', sessionv('database_collation')]
+    ]);
+}
+
 function convert2utf8mb4() {
-    include MODX_SETUP_PATH . 'convert2utf8mb4.php';
+    include_once MODX_SETUP_PATH . 'convert2utf8mb4.php';
     $convert = new convert2utf8mb4();
 
     if (!$convert->isAvailable()) {
@@ -999,14 +1044,13 @@ function convert2utf8mb4() {
     }
 
     echo "<p>tableのcollationをutf8mb4_general_ciに変換します。</p>";
-    if ($collation !== 'utf8mb4_general_ci') {
-        $convert->convertDb();
-    }
+    $databaseConverted = $collation === 'utf8mb4_general_ci' || convertDatabaseDefault($convert, 'utf8mb4_general_ci');
 
     $count = $convert->convertTablesWithPrefix(sessionv('table_prefix', 'modx_'));
     if ($count) {
         echo sprintf(
-            "<p>Database and tables collation have been changed to utf8mb4_general_ci. %d tables have been converted.</p>",
+            "<p>%s collation have been changed to utf8mb4_general_ci. %d tables have been converted.</p>",
+            $databaseConverted ? 'Database and tables' : 'Tables',
             $count
         );
     } else {

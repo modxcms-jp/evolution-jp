@@ -208,6 +208,21 @@ class ConfigCheck {
         return $result !== false ? $result : null;
     }
 
+    /**
+     * config.inc.php で Unicode の接続を指定しているのに、接続の文字コードが Unicode でないときの、DB の名前。それ以外は null。
+     * SET CHARACTER SET は接続の文字コードを DB の既定にするので、原因は DB の既定の文字セット
+     */
+    private function nonUnicodeConnectionDatabase() {
+        if (strpos((string) db()->charset, 'utf8') !== 0) {
+            return null;
+        }
+        $charset = (string) db()->getValue(db()->query('SELECT @@character_set_connection'));
+        if ($charset === '' || strpos($charset, 'utf8') === 0) {
+            return null;
+        }
+        return db()->dbase;
+    }
+
     private function generateWarnings() {
         $warnings = [];
 
@@ -295,6 +310,17 @@ class ConfigCheck {
             $warnings[] = [
                 'title' => 'configcheck_templateswitcher_present',
                 'message' => $this->templateSwitcherWarning($tplSwitchPlugins)
+            ];
+        }
+
+        $nonUnicodeDb = $this->nonUnicodeConnectionDatabase();
+        if ($nonUnicodeDb !== null) {
+            $warnings[] = [
+                'title' => 'configcheck_connection_charset',
+                'message' => evo()->parseText(
+                    $this->_lang['configcheck_connection_charset_msg'],
+                    ['dbase' => hsc_for_tpl($nonUnicodeDb)]
+                )
             ];
         }
 

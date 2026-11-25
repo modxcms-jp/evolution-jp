@@ -172,6 +172,7 @@ $_lang['utf8mb4_conversion_enable'] = 'アップデート時に既存のutf8テ�
 $_lang['utf8mb4_conversion_skip'] = '変換せず、utf8のままにする';
 $_lang['utf8mb4_conversion_tables_intro'] = '変換するテーブル:';
 $_lang['utf8mb4_conversion_tables_none'] = '変換するテーブルはありません。';
+$_lang['database_default_charset_failed'] = 'データベースの既定の文字セットを utf8mb4 に変更できませんでした（権限が足りない可能性があります）。このままだと、日本語などが「?」で保存されるおそれがあります。データベースの管理者に、次の SQL の実行を依頼してください: ALTER DATABASE `%s` CHARACTER SET utf8mb4 COLLATE %s';
 
 $_lang['checking_if_content_exists'] = '<span class="mono">/content</span>ディレクトリの存在（なければ転送に失敗しています）: ';
 $_lang['checking_if_content_writable'] = '<span class="mono">/content</span>ディレクトリの書き込み属性: ';
