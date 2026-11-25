@@ -358,6 +358,11 @@ function manager_render_uncaught_error(Throwable $exception, bool $isRawSystemLo
         http_response_code(500);
     }
 
+    if (manager_error_guide_applies()) {
+        echo manager_error_guide_html();
+        return;
+    }
+
     $message = hsc(str_replace(MODX_BASE_PATH, '{BASE_PATH}/', $exception->getMessage()));
     $file = hsc(str_replace(MODX_BASE_PATH, '{BASE_PATH}/', $exception->getFile()));
     $line = (int)$exception->getLine();

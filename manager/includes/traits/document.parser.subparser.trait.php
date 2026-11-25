@@ -587,8 +587,12 @@ trait DocumentParserSubParserTrait
                 echo '<style type="text/css">body { padding:10px; } td {font:inherit;}</style>';
                 echo '</head><body>';
             }
-            echo manager_safe_mode_button_html();
-            echo '<div style="text-align:left;">' . $str . '</div>';
+            if (manager_error_guide_applies()) {
+                echo manager_error_guide_html();
+            } else {
+                echo manager_safe_mode_button_html();
+                echo '<div style="text-align:left;">' . $str . '</div>';
+            }
             if ($modx->event->name !== 'OnWebPageComplete') {
                 echo '</body></html>';
             }
