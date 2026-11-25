@@ -35,9 +35,10 @@ $tbl_user_settings = evo()->getFullTableName('user_settings');
 $tbl_user_attributes = evo()->getFullTableName('user_attributes');
 
 // get user name
-$rs = db()->select('username', $tbl_manager_users, "id='{$id}'", '', 1);
-if ($rs) {
-    $username = db()->getValue($rs);
+$username = db()->getValue(db()->select('username', $tbl_manager_users, "id='{$id}'", '', 1));
+if ($username === false || $username === null) {
+    alert()->setError(7);
+    alert()->dumpError();
 }
 
 // invoke OnBeforeUserFormDelete event

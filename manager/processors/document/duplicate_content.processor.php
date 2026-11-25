@@ -16,9 +16,10 @@ if (!$id) {
 }
 
 // 複製元と、複製の置き場所（複製元の親）が、許可するリソースの範囲の中かも確かめる
-$parentOfSource = (int)db()->getValue(
+$source = db()->getRow(
     db()->select('parent', '[+prefix+]site_content', sprintf("id='%d'", $id))
 );
+$parentOfSource = (int)($source['parent'] ?? 0);
 
 // check permissions on the document
 if (
@@ -34,6 +35,12 @@ if (
     <?php
     include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
     exit;
+}
+
+// 存在の有無は、権限の確かめのあとに返す（権限の無い利用者に、文書の有無を知らせない）
+if (!$source) {
+    alert()->setError(7);
+    alert()->dumpError();
 }
 
 // Run the duplicator
