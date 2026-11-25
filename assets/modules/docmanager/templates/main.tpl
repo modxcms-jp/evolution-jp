@@ -10,22 +10,25 @@
 
     function BrowseServer(ctrl) {
         lastImageCtrl = ctrl;
+        lastFileCtrl = '';
         window.evoOpenFilePicker(baseurl + 'manager/media/browser/evo/browser.php?type=images');
     }
 
     function BrowseFileServer(ctrl) {
         lastFileCtrl = ctrl;
+        lastImageCtrl = '';
         window.evoOpenFilePicker(baseurl + 'manager/media/browser/evo/browser.php?type=files');
     }
 
     function SetUrl(url, width, height, alt) {
         var fieldName = lastFileCtrl || lastImageCtrl;
         var field = fieldName ? document.templatevariables[fieldName] : null;
-        if (field) {
-            field.value = url;
-        }
         lastFileCtrl = '';
         lastImageCtrl = '';
+        if (field) {
+            field.value = url;
+            field.dispatchEvent(new Event('change', {bubbles: true}));
+        }
     }
 
     function loadTemplateVars(tplId) {

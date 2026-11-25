@@ -84,6 +84,8 @@ function init(root, entry, behaviors) {
     var isInitialLoad = true;
     // 一覧を一度でも出したか。開いたとき（最初の一覧）は、選んだファイルへのスクロールをスムーズにしない
     var hasShownList = false;
+    // 最後に頼んだ一覧の番号。遅れて届いた前の一覧の応答は、番号が違うので捨てる
+    var loadSeq = 0;
 
     var prefs = createPrefs(config.entry, config.defaults);
 
@@ -162,16 +164,22 @@ function init(root, entry, behaviors) {
             });
     }
 
+    // 応答が届くまでに別のフォルダーへ移っていたら、後のフォルダーの同名のものを選ばない
+    function nameIfStillIn(folder, name) {
+        return state.folder === folder ? name : undefined;
+    }
+
     function performRename(name, newName) {
         if (!newName || newName === name) {
             return;
         }
+        var folder = state.folder;
         postForm(config, state, 'rename', { target: name, newName: newName })
-            .then(function (result) { load((result && result.name) || newName, { instant: true }); })
+            .then(function (result) { load(nameIfStillIn(folder, (result && result.name) || newName), { instant: true }); })
             .catch(function (err) {
                 window.alert(failureMessage(err, 'fb_rename_failed'));
                 // その場の入力欄が残らないよう、元の名前を選んだまま読み直す
-                load(name, { instant: true });
+                load(nameIfStillIn(folder, name), { instant: true });
             });
     }
 
@@ -211,11 +219,12 @@ function init(root, entry, behaviors) {
 
     // 同じフォルダへコピーする(サーバーが 名前(1).拡張子 のように空いている名前を付ける)。できたら一覧を読み直して、複製を選ぶ
     function duplicateEntry(name) {
-        postForm(config, state, 'copy', { 'files[]': [name], dest: state.folder })
+        var folder = state.folder;
+        postForm(config, state, 'copy', { 'files[]': [name], dest: folder })
             .then(function (result) {
                 alertPartialErrors('fb_copy_partial_failed', result.errors);
                 var copied = (result.copied || [])[0];
-                load(copied ? copied.name : undefined, { instant: true });
+                load(copied ? nameIfStillIn(folder, copied.name) : undefined, { instant: true });
             })
             .catch(function (err) {
                 window.alert(failureMessage(err, 'fb_copy_failed'));
@@ -535,6 +544,10 @@ function init(root, entry, behaviors) {
         isInitialLoad = false;
         // 描き直すとフォーカスが body に落ちるので、ファイルブラウザの中にあったときだけ覚えておき、後で戻す
         var hadFocus = root.contains(document.activeElement);
+        var seq = ++loadSeq;
+        // 読み込み中は前のフォルダーの項目を残さない(名前で探す操作が、後のフォルダーの同名のものに効かないように)
+        state.rawFolders = [];
+        state.rawFiles = [];
         grid.renderLoading();
         renderPath();
         state.selection.clear();
@@ -544,6 +557,9 @@ function init(root, entry, behaviors) {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
             .then(function (data) {
+                if (seq !== loadSeq) {
+                    return;
+                }
                 state.rawFolders = data.folders;
                 state.rawFiles = data.files;
                 state.writable = data.writable !== false;
@@ -576,6 +592,9 @@ function init(root, entry, behaviors) {
                 }
             })
             .catch(function (err) {
+                if (seq !== loadSeq) {
+                    return;
+                }
                 if (allowInitialFallback && !initialFallbackTried && initialFolder !== '') {
                     initialFallbackTried = true;
                     // 初期フォルダーが無いとき。根に同じ名前のファイルがあっても、別のファイルを編集させないので編集は開かず、理由だけ出す

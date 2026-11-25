@@ -48,7 +48,7 @@
  * GET  action=readText (folder, file)                          -> {name,content,hash,readOnly,readOnlyReason,encoding}
  * POST action=saveText (folder, target, content, hash)         -> {name,hash}(hash は開いたときの中身の sha1。違えば 409 modified)
  * POST action=newfile  (folder, name)                          -> {name}(空のテキストファイルを作る)
- * POST action=unzip    (folder, target)                        -> {extracted,failed:[...]}(zip を同じフォルダへ展開する)
+ * POST action=unzip    (folder, target)                        -> {extracted,failed:[...],renamed:[{from,to}]}(zip を同じフォルダへ展開する)
  *
  * 成功した変更は、ChangeLog::record() が管理操作ログ(1 件ごとに 1 行)に残す。管理操作ログに書けなかったパスだけをシステムログに残す。表示系は記録しない。
  * 守る場所(権限によって触らせないパス)に当たる操作は 403 protected(複数の名前を受ける操作は、その名前の errors)。
