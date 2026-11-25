@@ -78,7 +78,7 @@ git push origin "release-${VERSION}"
 1. リポジトリをチェックアウト
 2. `git archive` でタグのコミットから zip ファイルを作成
 3. `.gitattributes` の `export-ignore` に従って、配布対象外のファイルを除外
-4. `evo-release-1.3.0J.zip` を作成
+4. `evo-release-1.3.0J.zip` を作成し、必須ファイル（`.github/scripts/release-required-files.txt`）が入っているかを確認（欠けていればここで止まる）
 5. GitHub Release を**ドラフト状態**で自動作成し、zip ファイルを添付（リリースノートは手順4で明示した比較範囲から生成して適用）
 
 リリースパッケージの生成方式は `git archive` です。配布対象外のパスは `.github/workflows/release.yml` ではなく、リポジトリルートの `.gitattributes` に `export-ignore` を追加して管理します。
@@ -260,15 +260,8 @@ gh release view "${TAG}" --json isDraft,tagName,assets,url
 # GitHub Release のZIPを取得
 gh release download "${TAG}" --pattern "evo-${TAG}.zip" --dir "${CHECK_DIR}"
 
-# 必須ファイルを確認（未検出時は終了）
-if ! unzip -Z1 "${ZIP_PATH}" | rg -q '^index\.php$'; then
-    echo 'index.php が見つかりません'
-    exit 1
-fi
-if ! unzip -Z1 "${ZIP_PATH}" | rg -q '^manager/includes/version\.inc\.php$'; then
-    echo 'manager/includes/version.inc.php が見つかりません'
-    exit 1
-fi
+# 必須ファイルを確認（一覧は .github/scripts/release-required-files.txt。欠けがあれば終了コード 1）
+bash .github/scripts/release-archive-check.sh "${ZIP_PATH}" || exit 1
 
 # 配布対象外のパスが含まれていないことを確認（該当時は終了）
 if unzip -Z1 "${ZIP_PATH}" | rg '(^|/)(\.github|\.agent|\.agents|\.claude|\.codex|\.vscode|\.work|docs|custom-instructions|manager/docker)(/|$)|(^|/)(\.gitignore|\.gitkeep|\.editorconfig|\.coderabbit\.yaml|\.gitattributes|AGENTS\.md|CLAUDE\.md|compose\.yml|readme[^/]*|README[^/]*)$'; then
@@ -380,6 +373,9 @@ git archive --format=zip HEAD -o evo-test.zip
 
 # zip の内容を確認
 unzip -l evo-test.zip
+
+# 必須ファイルが入っているか確認（一覧は .github/scripts/release-required-files.txt）
+bash .github/scripts/release-archive-check.sh evo-test.zip
 
 # 確認後に zip を削除
 rm evo-test.zip
