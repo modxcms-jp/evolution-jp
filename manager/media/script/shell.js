@@ -63,6 +63,18 @@
         return resolved.pathname === base + 'index.php' || resolved.pathname === base;
     }
 
+    // シェルで受けず、ページ全体で移る画面。モジュールの実行（a=112）は、外部のコードが完全な HTML を出すことがあり、
+    // 断片として取りに行くとモジュールの出力で文書ごと差し替わって、履歴が壊れる
+    function isFullPageUrl(url) {
+        return new URL(url, window.location.href).searchParams.get('a') === '112';
+    }
+
+    // target="main" は frameset 時代の「本文のフレーム」。シェルでは本文が #mainPane なので、target の無いリンク・フォームと同じに扱う
+    function hasOwnTarget(el) {
+        const target = el.getAttribute('target');
+        return !!target && target !== 'main';
+    }
+
     function normalizeManagerUrl(url) {
         const resolved = new URL(url, window.location.href);
         if (!isManagerUrl(resolved.href)) {
@@ -843,6 +855,10 @@
             if (!confirmIfDirty()) {
                 return;
             }
+            if (isFullPageUrl(url)) {
+                fullReload(url);
+                return;
+            }
             request(normalizeManagerUrl(url), { method: 'GET' }, push);
         },
 
@@ -989,7 +1005,7 @@
             document.body.classList.contains('evo-shell')
             && this.closest('#mainPane, #evoShellModal')
             && !this.hasAttribute('data-no-ajax')
-            && !this.hasAttribute('target')
+            && !hasOwnTarget(this)
             && isManagerUrl(action)
         ) {
             EvoShell.submit(this);
@@ -1381,7 +1397,7 @@
                 return;
             }
             const link = e.target.closest('a[href]');
-            if (!link || link.hasAttribute('data-no-ajax') || link.hasAttribute('target') || link.hasAttribute('download')) {
+            if (!link || link.hasAttribute('data-no-ajax') || hasOwnTarget(link) || link.hasAttribute('download')) {
                 return;
             }
             const href = link.getAttribute('href');
@@ -1429,7 +1445,7 @@
             if (form.tagName !== 'FORM' || !form.closest('#mainPane, #evoShellModal')) {
                 return;
             }
-            if (form.hasAttribute('data-no-ajax') || form.hasAttribute('target')) {
+            if (form.hasAttribute('data-no-ajax') || hasOwnTarget(form)) {
                 return;
             }
             const action = (e.submitter && e.submitter.getAttribute('formaction')) || form.getAttribute('action') || window.location.href;

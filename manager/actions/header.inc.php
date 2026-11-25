@@ -69,6 +69,8 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <script type="text/javascript">
         // 旧フレーム参照(top.main / parent.main)互換: シェルではmainは自ウィンドウ
         window.main = window;
+        // 完全な HTML を出すモジュールは、ページ全体で開く。その中の target="main" が、この窓に届くようにする
+        window.name = 'main';
 
         if (window.EvoShell) {
             EvoShell.unsavedMessage = <?= js_literal(lang('warning_not_saved')) ?>;

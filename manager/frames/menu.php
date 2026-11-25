@@ -315,8 +315,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                         }
 
                         while ($content = db()->getRow($rs)) {
-                            // 断片出力のモジュールはシェル内に表示される。
-                            // 完全HTMLを出すモジュールはshell.jsが自動でフルページ表示へフォールバックする
+                            // モジュールの実行（a=112）は、shell.js がページ全体で移る（断片を出すモジュールは枠の中に出る）
                             $item['modules'][$content['name']] = item(hsc($content['name']),
                                 "index.php?a=112&amp;id={$content['id']}");
                         }
