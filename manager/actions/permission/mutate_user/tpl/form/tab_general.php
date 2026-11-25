@@ -31,13 +31,16 @@
         $where,
         'save_role DESC, new_role DESC, id ASC'
     );
+    // 新規は、入力エラーで差し戻されたときの選択、なければ default_role。どちらも無ければ、選ぶまで空にする（先頭の管理者を黙って選ばない）
+    $selectedRole = user('role');
+    if ($action === 11 && ($selectedRole === null || $selectedRole === '')) {
+        $selectedRole = config('default_role');
+    }
     $options = [];
+    $hasSelected = false;
     while ($row = db()->getRow($rs)) {
-        if ($action === 11) {
-            $selected = ($row['id'] == config('default_role'));
-        } else {
-            $selected = ($row['id'] == user('role'));
-        }
+        $selected = $selectedRole !== null && $selectedRole !== '' && $row['id'] == $selectedRole;
+        $hasSelected = $hasSelected || $selected;
         $options[] = html_tag(
             'option',
             [
@@ -47,9 +50,14 @@
             hsc($row['name'])
         );
     }
+    $isUnselected = $action === 11 && !$hasSelected;
+    if ($isUnselected) {
+        // value="" の先頭の項目は、required の入力欄では「選択済みではない」扱いになる（html_tag() は空の value を出さない）
+        array_unshift($options, '<option value="" selected disabled>' . hsc(lang('user_role_choose')) . '</option>');
+    }
     echo EvoFieldRow::render([
         'label' => lang('user_role'),
-        'body' => '<select name="role" class="inputBox">' . implode("\n", $options) . '</select>',
+        'body' => '<select name="role" class="inputBox"' . ($isUnselected ? ' required' : '') . '>' . implode("\n", $options) . '</select>',
     ]);
     ?>
 </table>
