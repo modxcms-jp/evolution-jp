@@ -45,13 +45,13 @@ function validateLoginInput()
     $password = loginPassword();
 
     if (!$username || trim((string)$username) === '') {
-        jsAlert('ユーザー名とパスワードを入力してください');
+        jsAlert(lang('login_input_required'));
         return false;
     }
 
     // パスワード再設定メールのリンク（fmpkey付きGET）はパスワードなしで来る。認証はOnManagerAuthenticationに任せる
     if (!$password && !getv('fmpkey')) {
-        jsAlert('ユーザー名とパスワードを入力してください');
+        jsAlert(lang('login_input_required'));
         return false;
     }
 
@@ -372,7 +372,7 @@ function checkAllowedIp()
     $hostname = gethostbyaddr(serverv('REMOTE_ADDR'));
     if ($hostname !== false && $hostname != serverv('REMOTE_ADDR')) {
         if (gethostbyname($hostname) != serverv('REMOTE_ADDR')) {
-            jsAlert(lang('login_allowed_ip_denied'));
+            jsAlert(lang('login_allowed_ip_hostname_mismatch'));
             return false;
         }
     }
@@ -418,7 +418,7 @@ function checkCaptcha()
     }
 
     if (!sessionv('veriword')) {
-        jsAlert(lang('login_captcha_not_configured'));
+        jsAlert(lang('login_captcha_missing'));
         return false;
     }
 
