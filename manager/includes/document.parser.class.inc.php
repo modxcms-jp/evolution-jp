@@ -2205,6 +2205,8 @@ class DocumentParser
                 $key = substr($key, 1);
             }
 
+            [$key, $modifiers] = $this->splitKeyAndFilter($key);
+
             if (strpos($key, '|') !== false) {
                 $keys = explode('|', $key);
                 foreach ($keys as $k) {
@@ -2215,7 +2217,6 @@ class DocumentParser
                 }
             }
 
-            [$key, $modifiers] = $this->splitKeyAndFilter($key);
             if (strpos($key, '@') !== false) {
                 [$key, $context] = explode('@', $key, 2);
             } else {
