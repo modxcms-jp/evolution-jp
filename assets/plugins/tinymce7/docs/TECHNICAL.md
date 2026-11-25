@@ -212,9 +212,9 @@ TinyMCE 7 ではオープンソース版の `template` プラグインが廃止�
 
 ## 保存すると失われるものの通知
 管理画面のエディター（リソースの本文・リッチテキストの TV・チャンク・Quick Manager+）だけが対象で、フロントのエディターには出しません（`EditorInitializer::lossNoticeLabels()` が `modx_loss_notice` を渡したときだけ有効）。
-- 開いた時点で 1 回だけ、元の欄（textarea）の値と、初期化後の `getContent()`（保存するときの値）を、実行も読み込みもされない文書（`DOMParser`）に読み込んで比べます（`js/editor-setup.js` の `bindLossNotice()`）。元の欄の値は、TinyMCE が取り込む前の `setup` の時点で控えます。エディターを開き直したとき（差し戻し・エディターやテンプレートの切り替え）も、その時点の値で 1 回です。
-- 数えるのは、要素（script・style・iframe・object・embed・svg・form・noscript）、`on` で始まる属性、`javascript:` で始まる属性の値、iframe の `sandbox` の値です。減った要素と属性は「失われるもの」、保存後に元の iframe に無い `sandbox` の値が現れたときは「sandbox が付く」として、警告の通知（`type: 'warning'`）にまとめます。差が無ければ出しません。設定ごとの条件は持たないので、`protect`（`tinymce7_keep_scripts`）や `sandbox_iframes`（`tinymce7_sandbox_iframes`）で残している分は差になりません。
-- 通知は閉じるまで残し、操作は止めず、未保存の印も立てません。通知の本文は HTML として解釈されるため、本文の断片は混ぜず、件数と言語ファイル（`tinymce7_loss_*`）の言葉だけを escape して出します。
+- 開いた時点で 1 回だけ、元の欄（textarea）の値と、初期化後の `getContent()`（保存するときの値）を、実行も読み込みもされない文書（`DOMParser`）に読み込んで比べます（`js/editor-setup.js` の `bindLossNotice()`）。元の欄の値は、TinyMCE が取り込む前の `setup` の時点で控えます。差し戻し・エディターやテンプレートの切り替えは、送信のときに欄の値が TinyMCE の値に置き換わるので、そのあとの画面では差が無く、出ません。
+- 数えるのは、要素（script・style・iframe・object・embed・svg・form・noscript・link・meta・template・math）、`on` で始まる属性、`javascript:` で始まる属性の値、iframe の `sandbox` の値です。独自要素、スキーマに無い属性、`data:` の値などは数えません。減った要素と属性は「失われるもの」、保存後に元の iframe に無い `sandbox` の値が現れたときは「sandbox が付く」として、警告の帯にまとめます。差が無ければ出しません。設定ごとの条件は持たないので、`protect`（`tinymce7_keep_scripts`）や `sandbox_iframes`（`tinymce7_sandbox_iframes`）で残している分は差になりません。
+- 警告は、エディターのすぐ前に置くページの流れの中の帯（`.tinymce7-loss-notice`、`css/loss-notice.css`）です。TinyMCE の通知は位置を計算して重ねるため、本文の枠のスクロールやタブの切り替えに追従しないので使いません。帯は閉じるボタンで消え、エディターの破棄でも消えます。操作は止めず、未保存の印も立てません。文は `textContent` で入れ、本文の断片は混ぜず、件数と言語ファイル（`tinymce7_loss_*`）の言葉だけを出します。
 - 比べるのは `DOMParser` で 2 回の解析と要素の走査で、2MB ほどの本文でも 0.4 秒ほどです（TinyMCE の初期化は数秒）。
 
 ## リンクのダイアログの「クラス」と「Rel」

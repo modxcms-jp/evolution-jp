@@ -154,6 +154,9 @@ final class EditorInitializer
             $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/mcpuk-picker.js'));
         }
 
+        if ($isManager) {
+            $scripts[] = '<link rel="stylesheet" href="' . hsc($this->scriptFactory->bundledAssetUrl('css/loss-notice.css')) . '">';
+        }
         $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/editor-setup.js'));
 
         $output = [];
@@ -292,7 +295,7 @@ final class EditorInitializer
         return [
             'lost' => $this->language->translate(
                 'tinymce7_loss_lost',
-                'If you save now, the following will be removed from the content: %s.'
+                'If you save now, the following will be removed: %s.'
             ),
             'item' => $this->language->translate('tinymce7_loss_item', '%s (%d)'),
             'separator' => $this->language->translate('tinymce7_loss_separator', ', '),
@@ -306,7 +309,7 @@ final class EditorInitializer
             ),
             'consult' => $this->language->translate(
                 'tinymce7_loss_consult',
-                'If you want to keep them, please consult the site administrator.'
+                'If you do not want this change, please consult the site administrator.'
             ),
         ];
     }
