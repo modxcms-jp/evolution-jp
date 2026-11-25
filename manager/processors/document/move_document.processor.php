@@ -86,17 +86,30 @@ if ($current_parent == $new_parent) {
     exit;
 }
 
-$rs = db()->update(
-    'isfolder=1',
-    '[+prefix+]site_content',
-    "id='" . $new_parent . "'"
-);
-if (!$rs) {
-    alertAndQuit(
-        'An error occured while attempting to change the new parent to a folder.',
-        $doc_id
+// 先に全件のエイリアスの重なりを確かめる。1 件でも重なれば、何も変えずに止める
+$duplicates = findDuplicateAliases($doc_ids, $new_parent);
+if ($duplicates) {
+    $messages = [];
+    foreach ($duplicates as $d) {
+        $messages[] = sprintf(lang('duplicate_alias_found'), $d['target_id'], $d['alias']);
+    }
+    $editUrl = EvoFormFlow::url(['a' => EvoFormFlow::screen('document', 'edit'), 'id' => $duplicates[0]['doc_id']]);
+    evo()->webAlertAndQuit(
+        implode("\n", $messages),
+        "javascript:parent.tree.ca='open';window.location.href=" . js_literal($editUrl) . ';'
     );
     exit;
+}
+
+// 移動する文書の元の親（移動の後に、子が残らない親の isfolder を直す）
+$old_parents = [];
+$rs = db()->select(
+    'DISTINCT parent',
+    '[+prefix+]site_content',
+    sprintf('id IN (%s)', implode(',', $doc_ids))
+);
+while ($row = db()->getRow($rs)) {
+    $old_parents[] = (int) $row['parent'];
 }
 
 // increase menu index
@@ -113,40 +126,53 @@ if (evo()->config('auto_menuindex') === null || evo()->config('auto_menuindex'))
 }
 
 $user_id = evo()->getLoginUserID();
-if (is_array($doc_ids)) {
-    foreach ($doc_ids as $v) {
-        update_parentid($v, $new_parent, $user_id, $menuindex);
-        $menuindex++;
-    }
+foreach ($doc_ids as $v) {
+    update_parentid($v, $new_parent, $user_id, $menuindex);
+    $menuindex++;
 }
 
-// finished moving the resource, now check to see if the old_parent should no longer be a folder.
-$rs = db()->select(
-    'count(*) as count',
+$rs = db()->update(
+    'isfolder=1',
     '[+prefix+]site_content',
-    "parent='" . $current_parent . "'"
+    "id='" . $new_parent . "'"
 );
 if (!$rs) {
     alertAndQuit(
-        "An error occured while attempting to find the old parents' children.",
+        'An error occured while attempting to change the new parent to a folder.',
         $doc_id
     );
     exit;
 }
 
-$row = db()->getRow($rs);
-if (!$row['count']) {
-    $rs = db()->update(
-        'isfolder=0',
+// finished moving the resource, now check to see if the old_parent should no longer be a folder.
+foreach ($old_parents as $old_parent) {
+    $rs = db()->select(
+        'count(*) as count',
         '[+prefix+]site_content',
-        sprintf("id='%s'", $current_parent)
+        "parent='" . $old_parent . "'"
     );
     if (!$rs) {
         alertAndQuit(
-            'An error occured while attempting to change the old parent to a regular resource.',
+            "An error occured while attempting to find the old parents' children.",
             $doc_id
         );
         exit;
+    }
+
+    $row = db()->getRow($rs);
+    if (!$row['count']) {
+        $rs = db()->update(
+            'isfolder=0',
+            '[+prefix+]site_content',
+            sprintf("id='%s'", $old_parent)
+        );
+        if (!$rs) {
+            alertAndQuit(
+                'An error occured while attempting to change the old parent to a regular resource.',
+                $doc_id
+            );
+            exit;
+        }
     }
 }
 
@@ -192,23 +218,36 @@ function alertAndQuit($string, $docid)
     exit;
 }
 
-function update_parentid($doc_id, $new_parent, $user_id, $menuindex)
+// 移動先で同じエイリアスになる文書を返す（移動先に既にある文書との重なりと、移動する文書どうしの重なり）
+function findDuplicateAliases($doc_ids, $new_parent)
 {
-    if (!evo()->config('allow_duplicate_alias')) {
+    if (evo()->config('allow_duplicate_alias')) {
+        return [];
+    }
+    $duplicates = [];
+    $moving = []; // 移動する文書で、先に出てきたもののエイリアス => id
+    foreach ($doc_ids as $doc_id) {
         $rs = db()->select("IF(alias='', id, alias) AS alias", '[+prefix+]site_content', "id='{$doc_id}'");
-        $alias = db()->getValue($rs);
-        $alias_sql = db()->escape((string) $alias);
+        $alias = (string) db()->getValue($rs);
+        $alias_sql = db()->escape($alias);
         $rs = db()->select('id', '[+prefix+]site_content',
             "parent='{$new_parent}' AND (alias='{$alias_sql}' OR (alias='' AND id='{$alias_sql}'))");
-        $find = db()->count($rs);
-        if (0 < $find) {
-            $target_id = db()->getValue($rs);
-            $editUrl = EvoFormFlow::url(['a' => EvoFormFlow::screen('document', 'edit'), 'id' => $doc_id]);
-            $url = "javascript:parent.tree.ca='open';window.location.href=" . js_literal($editUrl) . ';';
-            evo()->webAlertAndQuit(sprintf(lang('duplicate_alias_found'), $target_id, $alias), $url);
-            exit;
+        if (0 < db()->count($rs)) {
+            $duplicates[] = ['doc_id' => $doc_id, 'target_id' => db()->getValue($rs), 'alias' => $alias];
+            continue;
         }
+        $key = mb_strtolower($alias);
+        if (isset($moving[$key])) {
+            $duplicates[] = ['doc_id' => $doc_id, 'target_id' => $moving[$key], 'alias' => $alias];
+            continue;
+        }
+        $moving[$key] = $doc_id;
     }
+    return $duplicates;
+}
+
+function update_parentid($doc_id, $new_parent, $user_id, $menuindex)
+{
     $rs = db()->update(
         [
             'parent' => $new_parent,
