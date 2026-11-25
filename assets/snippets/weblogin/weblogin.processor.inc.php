@@ -385,8 +385,11 @@ if (isset($newloginerror) && $newloginerror == 1) {
     return;
 }
 
-// ログイン前のセッション ID を引き継がない（管理画面のログインと同じ）
-session_regenerate_id(true);
+// ログイン前のセッション ID を引き継がない（管理画面のログインと同じ）。
+// 管理画面にログイン中のセッションは、管理画面のログインで作り直し済み。ここで作り直すと、開いている管理画面の keepalive の値が合わなくなる
+if (sessionv('mgrValidated') === null) {
+    session_regenerate_id(true);
+}
 $currentsessionid = session_id();
 
 if (sessionv('webValidated') === null) {
