@@ -1421,7 +1421,7 @@ if (!empty($tplOuter)) {
     $outerTpl = $tplOuter;
 }
 if (!empty($outerTpl)) {
-    if (!$resource) {
+    if (empty($resource)) {
         $output = '';
     } elseif (substr($outerTpl, 0, 5) === '@CODE') {
         $outerTpl = trim(substr($outerTpl, 6));
