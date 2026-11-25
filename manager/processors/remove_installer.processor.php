@@ -18,6 +18,13 @@ $modx->getSettings();
 
 require_once __DIR__ . '/../includes/filesystem.class.inc.php';
 
+// 消す対象が無ければ、案内を出さずに戻る（二重の送信や、戻る操作からの再送）
+$install_dir = MODX_BASE_PATH . 'install';
+if (!is_dir($install_dir)) {
+    echo "<script>window.location='../index.php?a=2';</script>";
+    exit;
+}
+
 $expected = sessionv('installer_cleanup');
 $given = post_strvar('token');
 if (
@@ -31,12 +38,9 @@ if (
 // 1 回限り
 sessionv('*installer_cleanup', null);
 
-$install_dir = MODX_BASE_PATH . 'install';
-if (is_dir($install_dir)) {
-    $failures = [];
-    if (!Filesystem::deleteTree($install_dir, $failures)) {
-        removeInstallerNotice(lang('remove_installer_manual'));
-    }
+$failures = [];
+if (!Filesystem::deleteTree($install_dir, $failures)) {
+    removeInstallerNotice(lang('remove_installer_manual'));
 }
 echo "<script>window.location='../index.php?a=2';</script>";
 
