@@ -748,8 +748,8 @@ function init(root, entry, behaviors) {
     });
 
     // Enter: 一覧でファイルを 1 件選んでいるときに、ダブルクリックと同じく openFile を呼ぶ。
-    // フォーカスが一覧そのものか、選んでいるファイルの名前・サムネイルのボタンにあるときだけ受ける(サムネイルのボタンも同じ)。
-    // 入力欄・ダイアログ・右クリックメニューが開いているとき、ほかのボタン(Enter でそのボタンを押す)では動かさない
+    // フォーカスが一覧そのものか、選んでいるファイルの名前・サムネイルのボタンにあるときだけ受ける。
+    // 入力欄・ダイアログ・右クリックメニューが開いているとき、ほかのボタンでは動かさない(Enter でそのボタンを押す)
     root.addEventListener('keydown', function (e) {
         if (e.key !== 'Enter' || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || e.defaultPrevented || e.isComposing) {
             return;
@@ -829,22 +829,22 @@ function init(root, entry, behaviors) {
         return Array.from(state.selection).map(findFile).filter(Boolean);
     }
 
-    function isActionVisible(action, files) {
-        return files.length > 0 && (!action.when || action.when(files));
-    }
-
-    function isActionEnabled(action, files) {
-        return (!action.single || files.length === 1) && (!action.enabled || action.enabled(files));
+    // 出す条件(when)と押せる条件(single・enabled)の両方を満たす操作。メニュー・帯・帯のボタンの実行がこの判定を使う
+    function isActionAvailable(action, files) {
+        return files.length > 0
+            && (!action.when || action.when(files))
+            && (!action.single || files.length === 1)
+            && (!action.enabled || action.enabled(files));
     }
 
     // メニューに出す操作
     function actionsFor(files) {
         return SELECTION_ACTIONS.filter(function (action) {
-            return isActionVisible(action, files) && isActionEnabled(action, files);
+            return isActionAvailable(action, files);
         });
     }
 
-    // 帯のボタンは入口の画面を作るときに 1 度だけ並べ、選択が変わるたびに出し入れと押せるかどうかだけを更新する
+    // 帯のボタンは入口の画面を作るときに 1 度だけ並べ、選択が変わるたびに出し入れだけを更新する
     var selectionActionBtns = SELECTION_ACTIONS.map(function (action) {
         var li = document.createElement('li');
         var btn = document.createElement('button');
@@ -857,7 +857,7 @@ function init(root, entry, behaviors) {
         }
         btn.addEventListener('click', function () {
             var files = selectedFiles();
-            if (isActionVisible(action, files) && isActionEnabled(action, files)) {
+            if (isActionAvailable(action, files)) {
                 action.run(files);
             }
         });
@@ -873,18 +873,15 @@ function init(root, entry, behaviors) {
         }
         var files = selectedFiles();
         SELECTION_ACTIONS.forEach(function (action, i) {
-            var btn = selectionActionBtns[i];
-            var visible = isActionVisible(action, files);
-            var enabled = visible && isActionEnabled(action, files);
-            // 未選択のときは全部を並べたまま押せない状態にする(帯は見えていない)。選んだら右クリックメニューと同じ条件で並べる
-            btn.parentNode.hidden = files.length > 0 && !enabled;
-            btn.disabled = !enabled;
+            selectionActionBtns[i].parentNode.hidden = !isActionAvailable(action, files);
         });
     }
 
     // 並ぶボタンが選択で変わると、狭い幅では横スクロールバーの有無が変わり、帯の高さが動く。
     // そこで、帯がいちばん長くなる状態(全部のボタン・件数あり)の高さを測って min-height にする。
-    // 帯・ボタンの欄の大きさが変わったら(幅・フォントの読み込み・テーマの切り替え・非表示のモーダルが見えたとき)測り直す。
+    // 帯を包む欄・ボタンの欄の大きさが変わったら(幅・フォントの読み込み・テーマの切り替え・非表示のモーダルが見えたとき)測り直す。
+    // 帯自身は監視しない(測り直しで帯の高さを書き換えるので、同じ配信の中で大きさが変わって ResizeObserver の loop エラーになる)。
+    // 帯の高さは、包む欄(高さは親の flex で決まる)にもボタンの欄(横幅は中身で決まる)にも入らない。observe() は登録のときにも 1 回呼ぶ
     // 非表示で 0 のときは予約しない(次に大きさが変わったとき測る)
     function reserveSelectionBarHeight() {
         var hidden = selectionActionBtns.map(function (btn) { return btn.parentNode.hidden; });
@@ -899,12 +896,9 @@ function init(root, entry, behaviors) {
             selectionBarEl.style.minHeight = height + 'px';
         }
     }
-    reserveSelectionBarHeight();
-    if (typeof ResizeObserver === 'function') {
-        var barObserver = new ResizeObserver(reserveSelectionBarHeight);
-        barObserver.observe(selectionBarEl);
-        barObserver.observe(selectionActionsEl);
-    }
+    var barObserver = new ResizeObserver(reserveSelectionBarHeight);
+    barObserver.observe(selectionBarEl.parentNode);
+    barObserver.observe(selectionActionsEl);
 
     // --- 右クリックメニュー ---
     // 項目は既存の処理(ボタンと同じ関数)を呼ぶだけ。対象は右クリックした所で決める。

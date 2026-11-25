@@ -122,10 +122,13 @@ export function createGrid(ctx) {
             : fileIcon(40);
         var meta = listMetaHtml(file, false);
         var formatBadge = '';
+        var nameDescription = '';
         if (file.contentFormat) {
             var ext = (file.name.split('.').pop() || '').toUpperCase();
             var formatTitle = escapeHtml(t('fb_content_format_title', ext, String(file.contentFormat).toUpperCase()));
             formatBadge = '<span class="evo-fb-format-badge" role="img" title="' + formatTitle + '" aria-label="' + formatTitle + '">!</span>';
+            // サムネイルのボタンの名前は、中の印の名前を読み上げに出さない(aria-label が勝つ)。Tab が止まる名前のボタンに注意を足す
+            nameDescription = ' aria-description="' + formatTitle + '"';
         }
 
         return '' +
@@ -136,7 +139,7 @@ export function createGrid(ctx) {
             formatBadge +
             '    </span>' +
             '  </button>' +
-            '  <button type="button" class="evo-fb-item-name-btn" data-role="name">' +
+            '  <button type="button" class="evo-fb-item-name-btn" data-role="name"' + nameDescription + '>' +
             '    <span class="evo-fb-name">' + escapeHtml(file.name) + '</span>' +
             meta +
             '  </button>' +
