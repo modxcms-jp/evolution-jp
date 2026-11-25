@@ -49,6 +49,7 @@
 | `loadExtension('EXPORT_SITE')`（クラス `EXPORT_SITE`、`$modx->export`） | `loadExtension()` が `false` を返す。警告: なし | `EvoSiteExporter`・`EvoSiteExportJob`、`php evo.php export:site` | #910 |
 | `top.mainMenu.reloadPane()`・`doRefresh()`（管理画面の JS） | 関数が無い。呼ぶと JS のエラーになる。再読み込みを求める URL の引数も `r=1`・`r=2`・`r=3`・`r=9`・`r=10` から `refresh=tree`・`menu`・`all`・`page` に変わり、`r` は読まない。戻さない（#1824 の決定）。警告: なし | `EvoShell.refresh()`、リダイレクト先の URL に `refresh` を付ける（`manager-shell.md`） | #1296・#1824 |
 | ログインの「ユーザー名:roleid=N」（`login.processor.functions.php`） | ユーザー名の後ろに `:roleid=N` を付けると、ロール 1 のユーザーが、そのセッションだけロール N の権限で入る動き。管理画面はリクエストごとにロールを DB から読み直す（`refreshMgrPermissions()`、#46）ので、ログイン直後の次のリクエストから効かなくなっていた。#1821 でコードを消した。警告: なし | ロールを変えて確かめるときは、そのロールのユーザーでログインする | #1821・#46 |
+| `$modx->contentTypes` | 宣言は残るが、値が入らなくなる（本体のどこからも使っていなかった、キャッシュからの書き出しをやめた）。読むと空。警告: なし | `$modx->config('custom_contenttype')` などの設定を読む | #1814 |
 
 ### DB の API
 
@@ -61,8 +62,8 @@
 
 | もの | 1.3 での動き | 代わり | PR・Issue |
 | --- | --- | --- | --- |
-| ファイル系の修飾子（`is_file`・`is_dir`・`file_exists`・`is_readable`・`is_writable`・`is_image`・`imageinfo`（別名 `getimageinfo`）・`filesize`・`file_get_contents`（別名 `readfile`）） | サイトのルートの下のパスだけを見る（#1823 で、`rb_base_dir` の実体の下も読める）。サイトの外、管理画面の下、`.` で始まる区切りを含む場所、バックアップ・スナップショットの置き場所は、存在しない扱い（`file_get_contents` は空、値がファイルでなければ値のまま）。1.2.6J では `is_file` 系・`is_image`・`imageinfo` は任意のパスを見ていた。ファイルブラウザが返す URL エンコードした名前も探せる。条件の修飾子（`is_file` 系）に管理画面の下の絶対パスを渡すと、`exit('Can not read core path')` でページを止める（1.2.6J から）。警告: なし | サイトの中に置く | #959・#1823 |
-| `@FILE`・`@INCLUDE`・`@DIRECTORY`（`@DIR`）（バインド）、Ditto・Wayfinder・eForm の `@FILE` | `@FILE`・`@INCLUDE` は 1.2.6J で場所の制限が入っている（それより古い版から上げるときの変更）。実パスがサイトのルートか `rb_base_dir` の実体の下にあり、管理画面の下・`.` で始まる区切り・バックアップ・スナップショットの置き場所のどれでもないときだけ読む。1.3 では `@DIRECTORY`・`@DIR` も同じ判定を通し、フォルダーが無い・読まない場所のときは空を返す（#1823）。`@FILE` で `.php` は読まない。警告: なし | サイトの中の `assets/` などに置く | #1823 |
+| ファイル系の修飾子（`is_file`・`is_dir`・`file_exists`・`is_readable`・`is_writable`・`is_image`・`imageinfo`（別名 `getimageinfo`）・`filesize`・`file_get_contents`（別名 `readfile`）） | サイトのルートの下のパスだけを見る。`content/` をサイトの外へのシンボリックリンクにした構成では、実体がサイトの外になるので読めない（#1833 で扱う）。サイトの外、管理画面の下、`.` で始まる区切りを含む場所、バックアップ・スナップショットの置き場所は、存在しない扱い（`file_get_contents` は空、値がファイルでなければ値のまま）。1.2.6J では `is_file` 系・`is_image`・`imageinfo` は任意のパスを見ていた。ファイルブラウザが返す URL エンコードした名前も探せる。条件の修飾子（`is_file` 系）に管理画面の下の絶対パスを渡すと、`exit('Can not read core path')` でページを止める（1.2.6J から）。警告: なし | サイトの中に置く | #959・#1833 |
+| `@FILE`・`@INCLUDE`・`@DIRECTORY`（`@DIR`）（バインド）、Ditto・Wayfinder・eForm の `@FILE` | `@FILE`・`@INCLUDE` は 1.2.6J で場所の制限が入っている（それより古い版から上げるときの変更）。実パスがサイトのルートの下にあり、管理画面の下・`.` で始まる区切り・バックアップ・スナップショットの置き場所のどれでもないときだけ読む。1.3 では `@DIRECTORY`・`@DIR` も同じ判定を通し、フォルダーが無い・読まない場所のときは空を返す（#1823）。`content/` がサイトの外へのシンボリックリンクの構成では、実体がサイトの外なので読めない（#1833 で扱う）。`@FILE` で `.php` は読まない。警告: なし | サイトの中の `assets/` などに置く | #1823 |
 
 ### 管理画面の機能
 
