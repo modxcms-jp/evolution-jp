@@ -1136,3 +1136,27 @@ function buildConfigFile($template, array $values)
     }
     return strtr($template, $replacePairs);
 }
+
+/**
+ * 管理者のパスワード（セッションの adminpass）が決まりに合わなければエラー文、合えば ''。
+ * 決まりは管理画面と同じ EvoPasswordPolicy（assets/docs/password-policy.md）
+ */
+function installerAdminPasswordError()
+{
+    require_once MODX_CORE_PATH . 'password_policy.class.inc.php';
+    $password = (string) sessionv('adminpass', '');
+    if ($password === '') {
+        return lang('alert_enter_adminpassword');
+    }
+    if ($password !== (string) sessionv('adminpassconfirm', '')) {
+        return lang('alert_adminpassword_mismatch');
+    }
+    $reason = EvoPasswordPolicy::check($password, [
+        (string) sessionv('adminname', ''),
+        (string) sessionv('adminemail', ''),
+    ]);
+    if ($reason === '') {
+        return '';
+    }
+    return sprintf(lang('password_error_' . $reason), EvoPasswordPolicy::MIN_LENGTH, EvoPasswordPolicy::MAX_BYTES);
+}

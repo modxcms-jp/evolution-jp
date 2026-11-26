@@ -39,9 +39,11 @@ if ($action === 12) {
 require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
 
 // restore saved form
-$formRestored = false;
+// パスワードは差し戻さない（saveFormValues() が残さない）。変えようとしていたかだけを、欄を開き直すために見る
+$passwordRestored = false;
 if (manager()->hasFormValues()) {
     $form_v = manager()->loadFormValues();
+    $passwordRestored = ($form_v['newpassword'] ?? '') === '1';
     // 差し戻す値は文字列だけにする（配列は、配列で受ける項目だけ）
     $form_v = restorableFormValues($form_v, ['user_groups', 'allowed_days']);
     // 欄の形の値は保存の形に戻す（読めない値は入力のまま残す）

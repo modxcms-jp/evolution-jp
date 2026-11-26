@@ -1,6 +1,7 @@
 <?php
 require_once MODX_CORE_PATH . 'form_flow.class.inc.php';
 require_once MODX_CORE_PATH . 'field_row.class.inc.php';
+require_once MODX_CORE_PATH . 'password_policy.class.inc.php';
 require_once MODX_CORE_PATH . 'error_reporting.class.inc.php';
 require_once MODX_CORE_PATH . 'element_types.class.inc.php';
 
@@ -121,7 +122,9 @@ class ManagerAPI
             return false;
         }
         $actionId = $id ?: $this->action;
-        $_SESSION['mgrFormValues'][$actionId] = array_merge($_POST, $override);
+        // パスワードは差し戻さない（セッションに平文を残さない）
+        $values = array_diff_key(array_merge($_POST, $override), array_flip(EvoPasswordPolicy::FORM_FIELDS));
+        $_SESSION['mgrFormValues'][$actionId] = $values;
         return true;
     }
 
@@ -350,32 +353,31 @@ class ManagerAPI
     }
 
     /**
-     * 管理画面の利用者のパスワードを保存用のハッシュにする（作る処理の置き場所はここだけ）
+     * 管理画面の利用者のパスワードを保存用のハッシュにする（作り方は EvoPasswordPolicy::hash()）
      */
     public function hashPassword($password)
     {
-        return password_hash((string) $password, PASSWORD_DEFAULT);
+        return EvoPasswordPolicy::hash((string) $password);
     }
 
     /**
-     * 新しいパスワードが決まりに合うかを確かめる（判定の置き場所はここだけ）
-     * 決まり: 半角の印字できる文字（ASCII の 0x20〜0x7E）だけで 6〜72 文字。
-     * 半角だけなら文字数とバイト数が一致し、上限は bcrypt が照合する 72 バイトとそのまま合う。
-     * 戻り値は '' (問題なし) か、利用者に見せるエラー文
+     * 新しいパスワードが決まりに合うかを確かめる（決まりは EvoPasswordPolicy::check()）。
+     * 戻り値は '' (問題なし) か、利用者に見せるエラー文（HTML。言語ファイルの文）
+     *
+     * @param string[] $context 推測されやすい値（ログイン名・メールアドレス・氏名など）。サイト名はここで足す
      */
-    public function passwordError($password)
+    public function passwordError($password, array $context = [])
     {
-        $password = (string) $password;
-        if (!preg_match('/\A[\x20-\x7E]*\z/', $password)) {
-            return lang('password_error_not_ascii');
+        $context[] = (string) config('site_name');
+        $reason = EvoPasswordPolicy::check((string) $password, $context);
+        if ($reason === '') {
+            return '';
         }
-        if (strlen($password) < 6) {
-            return lang('password_error_too_short');
-        }
-        if (strlen($password) > 72) {
-            return lang('password_error_too_long');
-        }
-        return '';
+        return sprintf(
+            lang('password_error_' . $reason),
+            EvoPasswordPolicy::MIN_LENGTH,
+            EvoPasswordPolicy::MAX_BYTES
+        ) . ($reason === 'common' || $reason === 'context' ? ' ' . lang('password_advice') : '');
     }
 
     public function getHashType($db_value = '')

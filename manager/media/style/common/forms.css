@@ -200,4 +200,166 @@
         overflow: auto;
         line-height: 1.5;
     }
+
+    /* パスワードの欄（user_form_rows.php の userFormPasswordRow()、動きは media/script/password-field.js） */
+    .password-setting {
+        max-width: 560px;
+        min-width: 0;
+    }
+
+    .password-setting-current,
+    .password-setting-field,
+    .password-setting-length {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2, 8px);
+    }
+
+    .password-setting-field {
+        flex-wrap: wrap;
+    }
+
+    /* 欄の右端の内側に目のアイコン（ログイン画面と同じアイコン・同じ aria-pressed の切り替え） */
+    /* 包みは欄の幅（theme-base.css の .sectionBody input.inputBox の 350px）に合わせ、アイコンを欄の右端に置く。狭い画面では欄を縮める */
+    .password-setting-input {
+        position: relative;
+        flex: 0 1 auto;
+        max-width: 100%;
+    }
+
+    .password-setting-input input[data-password-input] {
+        box-sizing: border-box;
+        max-width: 100%;
+        padding-right: 32px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .password-setting-input input[data-password-input]::placeholder {
+        font-family: inherit;
+    }
+
+    .password-setting .toggle-password {
+        position: absolute;
+        top: 50%;
+        right: 4px;
+        width: 24px;
+        height: 24px;
+        margin-top: -12px;
+        padding: 3px;
+        border: 0;
+        background: none;
+        color: var(--color-text-muted, #777);
+        cursor: pointer;
+    }
+
+    .password-setting .toggle-password:hover,
+    .password-setting .toggle-password:focus-visible {
+        color: var(--color-text-primary, #333);
+    }
+
+    .password-setting .toggle-password svg {
+        display: block;
+        width: 18px;
+        height: 18px;
+    }
+
+    .password-setting .toggle-password[aria-pressed="true"] .icon-hidden,
+    .password-setting .toggle-password[aria-pressed="false"] .icon-visible {
+        display: none;
+    }
+
+    .password-setting .button {
+        gap: var(--space-1, 4px);
+    }
+
+    .password-setting-note,
+    .password-setting-status {
+        margin-top: var(--space-1, 4px);
+    }
+
+    .password-setting-note.is-warning,
+    .password-setting-status.is-warning {
+        color: var(--color-warning, #8a5a00);
+    }
+
+    .password-setting-note.is-error,
+    .password-setting-status.is-error {
+        color: var(--color-error, #900);
+    }
+
+    .password-setting-status.is-success {
+        color: var(--color-success, #090);
+    }
+
+    .password-setting-status:empty {
+        display: none;
+    }
+
+    .password-setting-options {
+        --password-step-size: 28px;
+        margin: var(--space-3, 12px) 0 var(--space-2, 8px);
+        padding: var(--space-3, 12px);
+        border: 1px solid var(--color-border-light, #ddd);
+        border-radius: 4px;
+    }
+
+    .password-setting-options-head {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--space-4, 16px);
+        margin-bottom: var(--space-2, 8px);
+        font-weight: bold;
+    }
+
+    .password-setting-length .button {
+        flex: 0 0 auto;
+        justify-content: center;
+        width: var(--password-step-size);
+        height: var(--password-step-size);
+        padding: 0;
+    }
+
+    .password-setting-length input[type="range"] {
+        flex: 1 1 auto;
+        min-width: 0;
+        height: var(--password-step-size);
+        margin: 0;
+        accent-color: var(--color-primary, #375665);
+    }
+
+    /* 目盛りの端は、スライダーの端（±ボタンとその間の内側）に合わせる */
+    .password-setting-scale {
+        display: flex;
+        justify-content: space-between;
+        margin: var(--space-1, 4px) calc(var(--password-step-size) + var(--space-2, 8px)) var(--space-3, 12px);
+        color: var(--color-text-muted, #777);
+    }
+
+    .password-setting-classes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2, 8px) var(--space-4, 16px);
+    }
+
+    .password-setting-classes label {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1, 4px);
+        cursor: pointer;
+    }
+
+    .password-setting-classes input {
+        margin: 0;
+    }
+
+    .password-setting-generate,
+    .password-setting-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: var(--space-3, 12px);
+    }
+
+    .password-setting [hidden] {
+        display: none;
+    }
 }

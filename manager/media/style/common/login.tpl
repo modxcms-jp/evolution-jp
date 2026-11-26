@@ -70,8 +70,7 @@
                 <input type="password" class="text" name="password" id="password" tabindex="2" value=""/>
                 <button type="button" class="toggle-password" tabindex="2" aria-controls="password" aria-pressed="false"
                         aria-label="[+show_password+]" title="[+show_password+]">
-                    <svg class="icon-hidden" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="3" y1="21" x2="21" y2="3"/></svg>
-                    <svg class="icon-visible" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    [+password_toggle_icons+]
                 </button>
             </div>
             [+login_captcha_message+]

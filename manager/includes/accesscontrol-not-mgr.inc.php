@@ -114,6 +114,8 @@ evo()->setPlaceholder(
 evo()->setPlaceholder('username', lang("username"));
 evo()->setPlaceholder('password', lang("password"));
 evo()->setPlaceholder('show_password', lang('show_password'));
+// 目のアイコン（伏せ字・表示）。ユーザーの編集画面のパスワードの欄と同じもの
+evo()->setPlaceholder('password_toggle_icons', file_get_contents(MODX_MANAGER_PATH . 'media/style/common/password_toggle_icons.tpl'));
 
 // remember me
 evo()->setPlaceholder(

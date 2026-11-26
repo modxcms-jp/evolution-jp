@@ -1,5 +1,7 @@
 <?php
 
+require_once MODX_CORE_PATH . 'password_policy.class.inc.php';
+
 // MySQL Dump Parser
 // SNUFFKIN/ Alex 2004
 
@@ -55,7 +57,7 @@ class SqlParser
                 [
                     'PREFIX' => $this->prefix,
                     'ADMINNAME' => db()->escape($this->adminname),
-                    'ADMINPASS' => md5($this->adminpass),
+                    'ADMINPASS' => EvoPasswordPolicy::hash((string) $this->adminpass),
                     'ADMINEMAIL' => db()->escape($this->adminemail),
                     'ADMINFULLNAME' => db()->escape(
                         ($atPos = strpos($this->adminemail, '@')) !== false

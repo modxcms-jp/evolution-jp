@@ -25,6 +25,16 @@ if (!sessionv('is_upgradeable') && trim(sessionv('adminemail', '')) === '') {
     return;
 }
 
+// 管理者のパスワードは、管理画面で設定するときと同じ決まりで確かめる
+if (!sessionv('is_upgradeable')) {
+    $adminPasswordError = installerAdminPasswordError();
+    if ($adminPasswordError !== '') {
+        $ph['connection_error'] = $adminPasswordError;
+        include MODX_SETUP_PATH . 'actions/connection.php';
+        return;
+    }
+}
+
 if (!isset($_SESSION['convert_to_utf8mb4'])) {
     $_SESSION['convert_to_utf8mb4'] = 1;
 }

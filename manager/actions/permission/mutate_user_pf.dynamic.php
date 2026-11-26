@@ -47,8 +47,11 @@ sessionv('*itemname', $usernamedata['username']);
 
 // restore saved form
 $formRestored = false;
+// パスワードは差し戻さない（saveFormValues() が残さない）。変えようとしていたかだけを、欄を開き直すために見る
+$passwordRestored = false;
 if (manager()->hasFormValues()) {
     $form_v = manager()->loadFormValues();
+    $passwordRestored = ($form_v['newpassword'] ?? '') === '1';
     // 差し戻す値は文字列だけにする（配列は、配列で受ける項目だけ）
     $form_v = restorableFormValues($form_v, ['user_groups', 'allowed_days']);
     // restore post values
@@ -123,7 +126,15 @@ if (config('manager_language') != "english" && is_file($lang_path)) {
                 <h2 class="tab"><?= lang("profile") ?></h2>
                 <table class="settings">
                     <?php
-                    echo userFormPasswordRow(false, false);
+                    // パスワードを変えるには save_password 権限も要る（保存側の canSaveUser() と同じ）
+                    echo userFormPasswordRow(
+                        evo()->hasPermission('save_password') ? 'set' : 'readonly',
+                        [
+                            'restored' => $passwordRestored,
+                            'self' => true,
+                            'username' => (string) $usernamedata['username'],
+                        ]
+                    );
                     echo userFormEmailRow($userdata);
                     echo userFormProfileRows($userdata, $_country_lang);
                     ?>

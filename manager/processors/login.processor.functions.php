@@ -81,10 +81,11 @@ function failedLogin()
 
 function loginPasswordHash($givenPassword, $dbasePassword, $internalKey)
 {
-    if (!password_verify($givenPassword, $dbasePassword)) {
+    [$matched, $needsRehash] = EvoPasswordPolicy::verify($givenPassword, $dbasePassword);
+    if (!$matched) {
         return false;
     }
-    if (password_needs_rehash($dbasePassword, PASSWORD_DEFAULT)) {
+    if ($needsRehash) {
         updateNewHash($internalKey, $givenPassword);
     }
     return true;

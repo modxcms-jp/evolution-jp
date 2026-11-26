@@ -116,68 +116,149 @@ function userFormProfileRows(array $data, array $countries): string
 }
 
 /**
- * パスワードの行（変更のチェックと、自動生成・指定の欄と、通知の方法）。
- * 初めは自動生成（g）・画面に表示（s）を選んでおく。
+ * パスワードの行（管理ユーザー・Web ユーザー・プロフィール・パスワードの変更で共通）。
+ * 欄（右端に目のアイコン）とコピー、決まりの一言、文字数の案内、自動生成のオプションの枠（文字数・文字種・自動生成のボタン）、保存後の注意の順に並べる。
+ * 動きは manager/media/script/password-field.js、決まりは EvoPasswordPolicy（assets/docs/password-policy.md）。
+ * 送る値: newpassword（変えるとき 1）と userpassword（新しいパスワード。閉じているときは送らない）
  *
- * @param bool $isNew  新規（見出しは「パスワード」で、チェックは無く欄を初めから出す）
- * @param bool $notify 通知の方法を選ばせる。false は通知の方法を画面に出さず、画面で見せる（s）を送る
+ * @param string $state new（新規。欄を出し、初めに自動生成する）/ set（すでにある。「設定済み」と変更のボタン）/
+ *                      readonly（すでにあり、変える権限が無い。「設定済み」だけ）/ change（パスワードの変更の画面。欄を出し、自動生成はしない）
+ * @param array  $o     restored（入力エラーで戻した画面で、パスワードを変えようとしていた。欄を開き、消したことを知らせる）/
+ *                      self（自分のパスワード。本人へ伝える注意を出さない）/
+ *                      username（パスワード管理ツールに、どの利用者のパスワードかを知らせる名前。画面にログイン名の欄が無いとき）
  */
-function userFormPasswordRow(bool $isNew, bool $notify): string
+function userFormPasswordRow(string $state, array $o = []): string
 {
-    $genMethod = 'g';
-    $notifyMethod = 's';
+    $restored = !empty($o['restored']);
+    $username = (string) ($o['username'] ?? '');
+    $open = $state === 'new' || $state === 'change' || ($state === 'set' && $restored);
+    $labels = [
+        'new' => lang('password_initial'),
+        'change' => lang('change_password_new'),
+    ];
+    $messages = [
+        'copied' => lang('password_copied'),
+        'copyFailed' => lang('password_copy_failed'),
+        'generated' => lang('password_generated'),
+        'generateUnavailable' => lang('password_generate_unavailable'),
+        'restored' => lang('password_restored'),
+        'required' => lang('password_required'),
+        'tooShort' => lang('password_too_short_notice'),
+        'belowRecommended' => lang('password_below_recommended'),
+        'tooLong' => lang('password_too_long_notice'),
+        'lengthValue' => lang('password_length_value'),
+    ];
+    $button = static function (string $action, string $html, string $title, string $class = 'button', string $extra = ''): string {
+        return sprintf(
+            '<button type="button" class="%s" data-password-action="%s" title="%s" aria-label="%s"%s>%s</button>',
+            $class,
+            $action,
+            hsc($title),
+            hsc($title),
+            $extra,
+            $html
+        );
+    };
+    $icon = static function (string $src): string {
+        return sprintf('<img src="%s" alt="" aria-hidden="true" />', hsc($src));
+    };
+    $lengthText = static function (int $count): string {
+        return hsc(str_replace('%count%', (string) $count, lang('password_length_value')));
+    };
+    $notice = lang('password_not_recoverable') . (empty($o['self']) ? ' ' . lang('password_tell_safely') : '');
     ob_start();
-    if (!$isNew) {
-        ?>
-        <input name="newpasswordcheck" type="checkbox"
-            onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"><br/>
-        <?php
-    }
     ?>
-    <input name="newpassword" value="<?= $isNew ? 1 : 0 ?>" type="hidden" />
-    <?php // 枠は欄の幅 300px で、枠の中の余白は付けない。指定の欄（div）は、ラジオの文字の下に 20px 字下げする（欄ごとの値） ?>
-    <div id="passwordBlock" style="display:<?= $isNew ? 'block' : 'none' ?>">
-        <fieldset style="width:300px;padding:0;">
-            <label>
-                <input name="passwordgenmethod" value="g" type="radio"
-                    <?= $genMethod === 'spec' ? '' : 'checked="checked"' ?> />
-                <?= lang('password_gen_gen') ?>
-            </label><br/>
-            <label>
-                <input name="passwordgenmethod" value="spec" type="radio"
-                    <?= $genMethod === 'spec' ? 'checked="checked"' : '' ?>>
-                <?= lang('password_gen_specify') ?>
-            </label><br/>
-            <div style="padding-left:20px">
-                <label for="specifiedpassword"><?= lang('change_password_new') ?>:</label>
-                <input id="specifiedpassword" name="specifiedpassword" type="password"
-                    onkeypress="document.userform.passwordgenmethod[1].checked=true;"
-                    size="20" autocomplete="new-password" /><br/>
-                <label for="confirmpassword"><?= lang('change_password_confirm') ?>:</label>
-                <input id="confirmpassword" name="confirmpassword" type="password"
-                    onkeypress="document.userform.passwordgenmethod[1].checked=true;"
-                    size="20" autocomplete="new-password" /><br/>
-                <div class="form-text"><?= lang('password_rule') ?></div>
+    <div class="password-setting" id="passwordSetting"
+        data-password-open="<?= $open ? 1 : 0 ?>"
+        data-password-generate="<?= $state === 'new' ? 1 : 0 ?>"
+        data-password-restored="<?= $restored && $open ? 1 : 0 ?>">
+        <input type="hidden" name="newpassword" value="<?= $open ? 1 : 0 ?>" data-password-flag />
+        <?php if ($username !== '') { ?>
+            <input type="text" hidden readonly autocomplete="username" value="<?= hsc($username) ?>" />
+        <?php } ?>
+        <?php if ($state === 'set' || $state === 'readonly') { ?>
+            <div class="password-setting-current" data-password-current<?= $open ? ' hidden' : '' ?>>
+                <span><?= lang('password_is_set') ?></span>
+                <?php if ($state === 'set') {
+                    echo $button('open', hsc(lang('password_change_button')), lang('password_change_button'));
+                } ?>
             </div>
-        </fieldset>
-        <?php if ($notify) { ?>
-            <fieldset style="width:300px;padding:0;">
-                <label>
-                    <input name="passwordnotifymethod" value="e" type="radio"
-                        <?= $notifyMethod === 'e' ? 'checked="checked"' : '' ?> /><?= lang('password_method_email') ?>
-                </label><br/>
-                <label>
-                    <input name="passwordnotifymethod" value="s" type="radio"
-                        <?= $notifyMethod === 'e' ? '' : 'checked="checked"' ?> /><?= lang('password_method_screen') ?>
-                </label>
-            </fieldset>
-        <?php } else { ?>
-            <input type="hidden" name="passwordnotifymethod" value="s" />
+        <?php } ?>
+        <?php if ($state !== 'readonly') { ?>
+            <div class="password-setting-panel" data-password-panel<?= $open ? '' : ' hidden' ?>>
+                <div class="password-setting-field">
+                    <?php // 目のアイコンはログイン画面と同じもの・同じ状態の表し方（aria-pressed。押すと表示） ?>
+                    <div class="password-setting-input">
+                        <input type="password" name="userpassword" id="userpassword" class="inputBox" value=""
+                            placeholder="<?= hsc(lang($state === 'new' ? 'password_placeholder_new' : 'password_placeholder_change')) ?>"
+                            autocomplete="new-password" spellcheck="false" autocapitalize="off" autocorrect="off"
+                            aria-describedby="passwordSettingRule passwordSettingNote passwordSettingStatus"
+                            data-password-input<?= $open ? '' : ' disabled' ?> />
+                        <?= $button(
+                            'toggle',
+                            file_get_contents(MODX_MANAGER_PATH . 'media/style/common/password_toggle_icons.tpl'),
+                            lang('show_password'),
+                            'toggle-password',
+                            ' aria-controls="userpassword" aria-pressed="false"'
+                        ) ?>
+                    </div>
+                    <?= $button('copy', $icon(style('icons_resource_duplicate')) . ' ' . hsc(lang('password_copy')), lang('password_copy_title'), 'button', ' disabled') ?>
+                </div>
+                <div class="form-text" id="passwordSettingRule">
+                    <?= hsc(sprintf(lang('password_rule'), EvoPasswordPolicy::MIN_LENGTH, EvoPasswordPolicy::RECOMMENDED_LENGTH)) ?>
+                    <img src="<?= hsc(style('icons_tooltip_over')) ?>" class="tooltip" tabindex="0"
+                        title="<?= hsc(lang('password_rule_detail')) ?>" alt="<?= hsc(lang('password_rule_detail')) ?>" />
+                </div>
+                <div class="password-setting-note" id="passwordSettingNote" data-password-note aria-live="polite" hidden></div>
+                <div class="password-setting-note is-warning" data-password-fullwidth hidden><?= lang('password_fullwidth_notice') ?></div>
+                <div class="password-setting-status" id="passwordSettingStatus" data-password-status role="status" aria-live="polite"></div>
+                <div class="password-setting-options" role="group" aria-labelledby="passwordSettingOptions">
+                    <div class="password-setting-options-head">
+                        <span id="passwordSettingOptions"><?= lang('password_generate_options') ?></span>
+                        <output data-password-length-value for="passwordLength"><?= $lengthText(EvoPasswordPolicy::GENERATE_LENGTH) ?></output>
+                    </div>
+                    <div class="password-setting-length">
+                        <?= $button('shorter', '−', lang('password_length_shorter')) ?>
+                        <input type="range" id="passwordLength" data-password-length
+                            min="<?= EvoPasswordPolicy::GENERATE_MIN ?>" max="<?= EvoPasswordPolicy::GENERATE_MAX ?>"
+                            step="1" value="<?= EvoPasswordPolicy::GENERATE_LENGTH ?>"
+                            aria-label="<?= hsc(lang('password_length_label')) ?>" />
+                        <?= $button('longer', '+', lang('password_length_longer')) ?>
+                    </div>
+                    <div class="password-setting-scale" aria-hidden="true">
+                        <span><?= $lengthText(EvoPasswordPolicy::GENERATE_MIN) ?></span>
+                        <span><?= $lengthText(EvoPasswordPolicy::GENERATE_MAX) ?></span>
+                    </div>
+                    <div class="password-setting-classes">
+                        <label><input type="checkbox" data-password-class="symbols" /><?= lang('password_class_symbols') ?></label>
+                        <label><input type="checkbox" data-password-class="upper" checked /><?= lang('password_class_upper') ?></label>
+                        <label><input type="checkbox" data-password-class="digits" checked /><?= lang('password_class_digits') ?></label>
+                    </div>
+                    <div class="password-setting-generate">
+                        <?= $button('generate', $icon(style('icons_refresh')) . ' ' . hsc(lang('password_generate')), lang('password_generate_title'), 'button primary') ?>
+                    </div>
+                </div>
+                <div class="form-text"><?= $notice ?></div>
+                <?php if ($state === 'set') { ?>
+                    <div class="password-setting-actions">
+                        <?= $button('cancel', hsc(lang('password_change_cancel')), lang('password_change_cancel')) ?>
+                    </div>
+                <?php } ?>
+            </div>
+            <script src="<?= manager_asset('media/script/password-field.js') ?>"></script>
+            <script>
+                EvoPasswordField.init(
+                    document.getElementById('passwordSetting'),
+                    <?= js_value(EvoPasswordPolicy::clientConfig()) ?>,
+                    <?= js_value($messages) ?>
+                );
+            </script>
         <?php } ?>
     </div>
     <?php
     return EvoFieldRow::render([
-        'label' => $isNew ? lang('password') : lang('change_password_new'),
+        'field' => 'password',
+        'label' => $labels[$state] ?? lang('password'),
         'body' => ob_get_clean(),
     ]);
 }
@@ -317,31 +398,13 @@ function userFormLoginStateRows(array $data): string
 }
 
 /**
- * 3 画面が同じ処理を使う JS（パスワードの欄・名前の変更・ブロック・失敗回数のリセット・写真の選択）
+ * 3 画面が同じ処理を使う JS（名前の変更・ブロック・失敗回数のリセット・写真の選択。パスワードの欄は password-field.js）
  */
 function userFormScript(): string
 {
     ob_start();
     ?>
 <script type="text/javascript">
-    function changestate(element) {
-        documentDirty = true;
-        currval = eval(element).value;
-        if (currval == 1) {
-            eval(element).value = 0;
-        } else {
-            eval(element).value = 1;
-        }
-    }
-
-    function changePasswordState(element) {
-        currval = eval(element).value;
-        var passwordBlock = document.getElementById('passwordBlock');
-        if (passwordBlock) {
-            passwordBlock.style.display = currval == 1 ? '' : 'none';
-        }
-    }
-
     function changeblockstate(element, checkelement) {
         var blocked = document.getElementById('blocked');
         currval = eval(element).value;
