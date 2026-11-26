@@ -235,20 +235,28 @@ $givenPassword = post_strvar('password');
 $captcha_code = post_strvar('captcha_code');
 $rememberme = post_strvar('rememberme');
 
-// キャプチャを使う設定で、セッションに単語が無いとき（画像を表示していない）は、
-// 失敗回数に数えずに案内だけを出す。ユーザー名やパスワードに関わらず同じ応答にするため、ユーザーを探す前に行う
-$sessionVeriword = sessionv('veriword');
-if ((int)config('use_captcha', 0) === 1 && (!is_string($sessionVeriword) || $sessionVeriword === '')) {
-    $output = webLoginAlert('Please enter the security code shown in the image.');
-    return;
-}
-
 // invoke OnBeforeWebLogin event
 $v = [];
 $v['username'] = $username;
 $v['userpassword'] = $givenPassword;
 $v['rememberme'] = $rememberme;
 evo()->invokeEvent('OnBeforeWebLogin', $v);
+
+// CAPTCHA は、ユーザーの検索・ブロックの判定・認証より前に確かめる。
+// ユーザー名やパスワードに関わらず同じ応答にするため。通らないうちは失敗回数に数えない。
+// 単語が無いとき（画像を表示していない）は案内だけを出し、単語は正誤にかかわらず使い切る
+if ((int)config('use_captcha', 0) === 1) {
+    $sessionVeriword = sessionv('veriword');
+    if (!is_string($sessionVeriword) || $sessionVeriword === '') {
+        $output = webLoginAlert('Please enter the security code shown in the image.');
+        return;
+    }
+    sessionv('*veriword', null);
+    if (!hash_equals($sessionVeriword, $captcha_code)) {
+        $output = webLoginAlert("The security code you entered didn't validate! Please try to login again!");
+        return;
+    }
+}
 
 // 2 つの表に同じ名前の列 id があるので、* でまとめて読まずに列を挙げる。ユーザーの ID は web_users.id
 $field = 'web_users.id AS internalKey, web_users.password'
@@ -290,7 +298,6 @@ $failedLoginLimit = (int)config('failed_login_attempts', 5);
 $blockMinutes = (int)config('blocked_minutes', 10);
 $allowedIp = config('allowed_ip', '');
 $allowedDays = config('allowed_days', '');
-$useCaptcha = (int)config('use_captcha', 0);
 
 if ($failedlogins >= $failedLoginLimit && $blockeduntildate > time()) {
     // blocked due to number of login errors.
@@ -336,16 +343,6 @@ if ($allowedDays !== '') {
     $day = $date['wday'] + 1;
     if (!list_has_item($allowedDays, $day)) {
         $output = webLoginAlert('You are not allowed to login at this time. Please try again later.');
-        return;
-    }
-}
-
-// CAPTCHA は、プラグインの認証も含めた認証より前に確かめる。通らないうちは認証せず、失敗回数にも数えない。
-// 単語は正誤にかかわらず使い切る
-if ($useCaptcha === 1) {
-    sessionv('*veriword', null);
-    if (!is_string($sessionVeriword) || !hash_equals($sessionVeriword, $captcha_code)) {
-        $output = webLoginAlert("The security code you entered didn't validate! Please try to login again!");
         return;
     }
 }

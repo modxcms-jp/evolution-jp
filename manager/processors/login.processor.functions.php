@@ -45,6 +45,12 @@ function isPasswordResetLinkRequest()
     return getv('fmpkey') && (string)loginPassword() === '';
 }
 
+// パスワード再設定のリンクが使えないことを伝える。ユーザーの有無・認証の失敗のどちらでも同じ文言にする
+function rejectInvalidResetLink()
+{
+    jsAlert(lang('fmp_link_invalid', 'This password reset link is invalid or has expired. Please request a new one.'));
+}
+
 function validateLoginInput()
 {
     $username = loginUsername();
@@ -206,6 +212,11 @@ function user($key, $default = null)
 
     $user = evo()->getUserFromName(input('username'));
     if (!$user) {
+        // パスワード再設定のリンクの要求は、存在しない名前も存在する名前と同じ応答（リンク無効）にする
+        if (isPasswordResetLinkRequest()) {
+            rejectInvalidResetLink();
+            exit;
+        }
         include_once(MODX_CORE_PATH . 'error.class.inc.php');
         $e = new errorHandler;
         jsAlert($e->errors[900]);
