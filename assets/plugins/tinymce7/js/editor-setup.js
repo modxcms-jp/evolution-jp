@@ -387,6 +387,9 @@
     if (typeof global.mceModxPastedUpload === 'function') {
       global.mceModxPastedUpload(editor);
     }
+    if (typeof global.mceModxTagAssist === 'function') {
+      global.mceModxTagAssist(editor);
+    }
     bindLossNotice(editor);
   };
 })(window);

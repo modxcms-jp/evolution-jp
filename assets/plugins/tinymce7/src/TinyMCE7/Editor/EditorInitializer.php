@@ -104,6 +104,10 @@ final class EditorInitializer
             // ダイアログを開くたびに、ログイン中の利用者のセッションで取りに行く
             $config['link_list'] = MODX_BASE_URL . 'assets/plugins/tinymce7/link-list.php';
         }
+        if (empty($params['forfrontend']) && !isset($config['modx_tag_names_url'])) {
+            // 本文のタグの補完と色付けに使う名前の一覧。エディターの初期化のときに取りに行き、同じ画面のエディターで分け合う（js/tag-assist.js）
+            $config['modx_tag_names_url'] = MODX_BASE_URL . 'assets/plugins/tinymce7/tag-names.php';
+        }
         $config = $this->preferences->applyCssSelectors($config);
         $config = $this->preferences->applyLinkRel($config);
         $config = $this->preferences->applySandboxIframes($config);
@@ -156,6 +160,7 @@ final class EditorInitializer
 
         if ($isManager) {
             $scripts[] = '<link rel="stylesheet" href="' . hsc($this->scriptFactory->bundledAssetUrl('css/loss-notice.css')) . '">';
+            $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/tag-assist.js'));
         }
         $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/editor-setup.js'));
 
