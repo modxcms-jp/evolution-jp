@@ -1300,11 +1300,11 @@ return [
     "tree_pane_open_default_title" => 'Tree pane default',
     "tree_pane_open_default_message" => 'Tree pane default',
     "setting_manager_tree_narrow" => 'Narrow tree pane',
-    "setting_manager_tree_narrow_desc" => 'On screens other than the dashboard and Move Resource, the tree pane is narrowed so the content area gets more room. Hover over the tree pane or move the keyboard focus into it to return it to full width; the content shifts to the right. The pin button above the tree pane turns narrowing off in that browser. Not applied on devices without hover (touch).',
+    "setting_manager_tree_narrow_desc" => 'Set to Half width or One-third width to narrow the tree pane to that width on screens other than the dashboard and Move Resource, so the content area gets more room. Hover over the tree pane or move the keyboard focus into it to return it to full width; the content shifts to the right. The pin button at the top of the tree pane turns narrowing off in that browser. Not applied on devices without hover (touch).',
     "setting_manager_tree_narrow_off" => 'Off',
     "setting_manager_tree_narrow_half" => 'Half width',
     "setting_manager_tree_narrow_third" => 'One-third width',
-    "tree_narrow_restore_hint" => 'Double-click, or use the pin button above the tree pane, to turn automatic tree pane narrowing back on',
+    "tree_narrow_restore_hint" => 'Double-click, or use the pin button at the top of the tree pane, to turn automatic tree pane narrowing back on',
     "tree_auto_collapse" => 'Keep only the current resource\'s folders open (close the others automatically)',
     "tree_pin" => 'Pin the tree pane width (stop narrowing it automatically)',
 
