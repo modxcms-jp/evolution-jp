@@ -64,10 +64,6 @@ if (!OnManagerAuthentication()) {
         jsAlert(lang('fmp_link_invalid', 'This password reset link is invalid or has expired. Please request a new one.'));
         return;
     }
-    if ($isBlocked) {
-        rejectBlockedUser();
-        return;
-    }
     if (!validPassword(input('password'), user('password'))) {
         jsAlert(alert()->errors[901]);
         failedLogin();
