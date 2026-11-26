@@ -143,6 +143,10 @@ function compare_check($params)
     }
 
     $row = db()->getRow($rs);
+    // DB にまだ行が無い部品は、比べるまでもなく入れる
+    if (!$row) {
+        return 'no exists';
+    }
 
     if (mode($category) === 'version_compare') {
         $strongPos = strpos($row['description'], '</strong>');
