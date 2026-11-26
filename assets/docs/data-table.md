@@ -41,7 +41,7 @@
 | `html` | bool | セルを HTML のまま出す（既定 false） |
 | `class` | string | `th` と `td` に付ける class（`is-shrink`・`is-center` など） |
 | `sort` | string | 並べ替えのキー（URL の `orderby` の値）。無ければ並べ替えない |
-| `sortFirst` | string | `sort` の列を最初にクリックしたときの向き（`asc` か `desc`）。既定は `asc`。今その列で並べているときは、書いてあっても今の向きの逆にする。子リソースの一覧は ID・公開日時・更新日時を `desc` にしている |
+| `sortFirst` | string | `sort` の列を最初にクリックしたときの向き（`asc` か `desc`）。既定は `asc`。今その列で並べているときは、書いてあっても今の向きの逆にする |
 
 ## options
 
@@ -138,7 +138,7 @@
 
 ## 戻り先で状態を引き継ぐ
 
-一覧の操作（公開・削除など）のあとで一覧へ戻すときは、今のページと並べ替えを引き継ぐ。引数の読み方（`orderby` の許可リストなど）を画面ごとに書かず、一覧ごとに 1 か所へまとめ、画面と processor の両方がそれを使う。例は子リソースの一覧（並べ替えのキーは `id`・`pagetitle`・`publishedon`・`editedon`・`menuindex`・`status`。`status` は `published` の値で並べ、一覧の表示も同じ値を見る）の `manager/includes/controls/child_document_list_state.class.php`（`ChildDocumentListState`）。子リソースの一覧は、並べ替えに加えて検索語 `q`（`get_strvar('q')`、100 文字まで）も URL に持ち、ページ送り・並べ替え・処理のあとの戻り先へ引き継ぐ。絞り込みは `pagetitle`・`longtitle`・`alias`・`content`（本文。HTML のタグ名にも一致する）の部分一致（数字だけなら `id` の一致も。数字だけのときは `ChildDocumentListState::prependIdMatch()` が ID の一致した文書を先頭に並べる。LIKE の `%`・`_`・`\` は無害化してから `db()->escape()`）。表の上の検索欄（GET のフォームで、ページ番号は送らない）と「既定の並び順に戻す」（`orderby`・`orderdir`・ページを外し、`q` は残す）は、表を包む POST のフォームの外に置く。
+一覧の操作（公開・削除など）のあとで一覧へ戻すときは、今のページと並べ替えを引き継ぐ。引数の読み方（`orderby` の許可リストなど）を画面ごとに書かず、一覧ごとに 1 か所へまとめ、画面と processor の両方がそれを使う。例は子リソースの一覧（並べ替えのキーは `id`・`pagetitle`・`publishedon`・`editedon`・`menuindex`・`status`。`status` は `published` の値で並べ、一覧の表示も同じ値を見る。見出しを最初にクリックしたときの向きは、`id`・`publishedon`・`editedon` を `sortFirst` で `desc` にしている）の `manager/includes/controls/child_document_list_state.class.php`（`ChildDocumentListState`）。子リソースの一覧は、並べ替えに加えて検索語 `q`（`get_strvar('q')`、100 文字まで）も URL に持ち、ページ送り・並べ替え・処理のあとの戻り先へ引き継ぐ。絞り込みは `pagetitle`・`longtitle`・`alias`・`content`（本文。HTML のタグ名にも一致する）の部分一致（数字だけなら `id` の一致も。数字だけのときは `ChildDocumentListState::prependIdMatch()` が ID の一致した文書を先頭に並べる。LIKE の `%`・`_`・`\` は無害化してから `db()->escape()`）。表の上の検索欄（GET のフォームで、ページ番号は送らない）と「既定の並び順に戻す」（`orderby`・`orderdir`・ページを外し、`q` は残す）は、表を包む POST のフォームの外に置く。
 
 ユーザー管理・Web ユーザー管理・モジュールの一覧は、検索語（`search`）・ページ番号（`page`）・一覧モード（`listmode`）を URL だけで決め、画面状態（セッション）には覚えない。ページ送りのリンクは検索語を引き継ぎ、ユーザー管理・Web ユーザー管理の検索フォームはページ番号を送らない（検索すると 1 ページ目。モジュールの一覧には検索フォームが無い）。編集画面のキャンセルなど、パラメータなしで開いた一覧は絞り込みなしの 1 ページ目になる。検索した一覧へはブラウザの「戻る」で戻る（例: `manager/actions/permission/user_management.static.php`）。この 3 つの一覧は、削除・複製・保存などの処理のあとも、絞り込みなしの 1 ページ目に戻る（上の「今のページと並べ替えを引き継ぐ」の例外）。処理のあとの戻り先の URL に状態を載せる必要がある一覧だけが、専用の状態のクラス（`ChildDocumentListState`）を持つ。
 
