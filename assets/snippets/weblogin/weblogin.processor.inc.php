@@ -340,6 +340,16 @@ if ($allowedDays !== '') {
     }
 }
 
+// CAPTCHA は、プラグインの認証も含めた認証より前に確かめる。通らないうちは認証せず、失敗回数にも数えない。
+// 単語は正誤にかかわらず使い切る
+if ($useCaptcha === 1) {
+    sessionv('*veriword', null);
+    if (!is_string($sessionVeriword) || !hash_equals($sessionVeriword, $captcha_code)) {
+        $output = webLoginAlert("The security code you entered didn't validate! Please try to login again!");
+        return;
+    }
+}
+
 // invoke OnWebAuthentication event
 $tmp = [
     "userid" => $internalKey,
@@ -354,13 +364,6 @@ if (!$rt || (is_array($rt) && !in_array(TRUE, $rt))) {
     // check user password - local authentication
     if (!hash_equals((string)$dbasePassword, md5($givenPassword))) {
         $output = webLoginAlert("Incorrect username or password entered!");
-        $newloginerror = 1;
-    }
-}
-
-if ($useCaptcha === 1) {
-    if (!is_string($sessionVeriword) || !hash_equals($sessionVeriword, $captcha_code)) {
-        $output = webLoginAlert("The security code you entered didn't validate! Please try to login again!");
         $newloginerror = 1;
     }
 }
