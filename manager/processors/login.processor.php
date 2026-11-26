@@ -31,12 +31,13 @@ $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 OnBeforeManagerLogin();
 
 // ブロック中は処理をここで止める。
-// パスワード再設定リンク（fmpkey）だけは OnManagerAuthentication（FMP）に判定を任せ、
-// FMP がブロックを解除した場合だけログインさせる（下で DB を確かめる）
+// パスワード再設定のリンクの要求（isPasswordResetLinkRequest）だけは OnManagerAuthentication（FMP）に判定を任せ、
+// FMP がブロックを解除した場合だけログインさせる（下で DB を確かめる）。
+// パスワードを送る要求は、fmpkey があっても普通のログインとして先に止める
 // 以前の版の一時ロック（マイグレーションの前）は止めずに認証へ進め、認証が通った後で外す
 $legacyLock = isLegacyLoginLockAwaitingMigration();
 $isBlocked = isBlockedUser($legacyLock);
-if ($isBlocked && !getv('fmpkey')) {
+if ($isBlocked && !isPasswordResetLinkRequest()) {
     rejectBlockedUser();
     return;
 }
@@ -56,9 +57,10 @@ evo()->loadExtension('ManagerAPI');
 
 // invoke OnManagerAuthentication event
 if (!OnManagerAuthentication()) {
-    // 再設定リンクの認証に失敗した場合は、パスワード違いではなくリンクが無効だと伝える。
-    // 期限切れのリンクを開いただけでブロックが延びないよう、失敗回数は増やさない
-    if (getv('fmpkey')) {
+    // パスワード再設定のリンクの要求で認証に失敗した場合は、パスワード違いではなくリンクが無効だと伝える。
+    // 期限切れのリンクを開いただけでブロックが延びないよう、失敗回数は増やさない。
+    // パスワードを送る要求は普通のログインとして、パスワードを確かめて失敗回数に数える
+    if (isPasswordResetLinkRequest()) {
         jsAlert(lang('fmp_link_invalid', 'This password reset link is invalid or has expired. Please request a new one.'));
         return;
     }
