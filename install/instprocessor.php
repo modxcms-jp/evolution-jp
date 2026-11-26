@@ -220,9 +220,9 @@ include_once MODX_SETUP_PATH . 'sqlParser.class.php';
 $sqlParser = new SqlParser();
 
 $sqlParser->prefix = sessionv('table_prefix');
-$sqlParser->adminname = sessionv('adminname');
+$sqlParser->adminname = (string) sessionv('adminname', '');
 $sqlParser->adminpassHash = (string) sessionv('adminpass_hash');
-$sqlParser->adminemail = sessionv('adminemail');
+$sqlParser->adminemail = (string) sessionv('adminemail', '');
 $sqlParser->connection_charset = sessionv('database_charset');
 $sqlParser->connection_collation = sessionv('database_collation');
 $sqlParser->managerlanguage = sessionv('managerlanguage');
