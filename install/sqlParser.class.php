@@ -1,7 +1,5 @@
 <?php
 
-require_once MODX_CORE_PATH . 'password_policy.class.inc.php';
-
 // MySQL Dump Parser
 // SNUFFKIN/ Alex 2004
 
@@ -11,7 +9,8 @@ class SqlParser
     public $installFailed = false;
     public $adminname;
     public $adminemail = 'example@example.com';
-    public $adminpass;
+    /** 管理者のパスワードのハッシュ（インストーラーが確かめて作ったもの。平文は受け取らない） */
+    public $adminpassHash = '';
     public $connection_charset = 'utf8mb4';
     public $connection_collation = 'utf8mb4_general_ci';
     public $managerlanguage = 'english';
@@ -57,7 +56,7 @@ class SqlParser
                 [
                     'PREFIX' => $this->prefix,
                     'ADMINNAME' => db()->escape($this->adminname),
-                    'ADMINPASS' => EvoPasswordPolicy::hash((string) $this->adminpass),
+                    'ADMINPASS' => db()->escape($this->adminpassHash),
                     'ADMINEMAIL' => db()->escape($this->adminemail),
                     'ADMINFULLNAME' => db()->escape(
                         ($atPos = strpos($this->adminemail, '@')) !== false

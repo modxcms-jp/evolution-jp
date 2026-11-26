@@ -55,6 +55,9 @@
         ['servertest', 'databasetest'].forEach(function (id) {
             document.getElementById(id).addEventListener('click', function () {
                 var footer = document.getElementById('footer');
+                if (!footer) {
+                    return;
+                }
                 window.scrollTo({
                     top: footer.getBoundingClientRect().top + window.scrollY,
                     behavior: 'smooth'
@@ -75,11 +78,11 @@
                 <span class="warning">[+connection_error+]</span>
             </p>
             <p class="labelHolder"><label for="adminpass">[+connection_screen_default_admin_password+]</label>
-                <input id="adminpass" type="password" name="adminpass" value="[+adminpass+]"/>
+                <input id="adminpass" type="password" name="adminpass" value="" autocomplete="new-password" placeholder="[+adminpass_placeholder+]"/>
             </p>
             <p class="labelHolder"><label
                         for="adminpassconfirm">[+connection_screen_default_admin_password_confirm+]</label>
-                <input id="adminpassconfirm" type="password" name="adminpassconfirm" value="[+adminpassconfirm+]"/>
+                <input id="adminpassconfirm" type="password" name="adminpassconfirm" value="" autocomplete="new-password" placeholder="[+adminpass_placeholder+]"/>
             </p>
         </div>
     </div>
@@ -178,7 +181,7 @@
             el.style.display = 'block';
         });
     };
-    if (document.getElementById('adminpassconfirm').value != '') {
+    if (document.getElementById('adminpassconfirm').value != '' || '[+adminpass_set+]' === '1') {
         showNextButton();
     }
 

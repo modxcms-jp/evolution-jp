@@ -61,6 +61,7 @@ $_lang["connection_screen_default_admin_login"] = 'Administrator username:';
 $_lang["connection_screen_default_admin_note"] = 'Now you\'ll need to enter some details for the main administrator account. You can fill in your own name here, and a password you\'re not likely to forget. You\'ll need these to log into Admin once setup is complete.';
 $_lang["connection_screen_default_admin_password"] = 'Administrator password:';
 $_lang["connection_screen_default_admin_password_confirm"] = 'Confirm password:';
+$_lang["connection_screen_admin_password_kept"] = 'Already set (enter only to change)';
 $_lang["connection_screen_default_admin_user"] = 'Default Admin User';
 $_lang["connection_screen_defaults"] = 'Default Manager Settings';
 $_lang["connection_screen_server_connection_information"] = 'Server connection and login information';

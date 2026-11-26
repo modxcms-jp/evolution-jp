@@ -4,11 +4,8 @@
 if (post_textvar('adminemail') !== null) {
     sessionv('*adminemail', post_textvar('adminemail'));
 }
-if (post_textvar('adminpass') !== null) {
-    sessionv('*adminpass', post_textvar('adminpass'));
-}
-if (post_textvar('adminpassconfirm') !== null) {
-    sessionv('*adminpassconfirm', post_textvar('adminpassconfirm'));
+if (!sessionv('is_upgradeable')) {
+    installerTakeAdminPassword(false);
 }
 
 $ph['is_upgradeable'] = sessionv('is_upgradeable');

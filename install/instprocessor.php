@@ -221,7 +221,7 @@ $sqlParser = new SqlParser();
 
 $sqlParser->prefix = sessionv('table_prefix');
 $sqlParser->adminname = sessionv('adminname');
-$sqlParser->adminpass = sessionv('adminpass');
+$sqlParser->adminpassHash = (string) sessionv('adminpass_hash');
 $sqlParser->adminemail = sessionv('adminemail');
 $sqlParser->connection_charset = sessionv('database_charset');
 $sqlParser->connection_collation = sessionv('database_collation');

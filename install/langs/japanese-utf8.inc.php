@@ -61,6 +61,7 @@ $_lang["connection_screen_default_admin_login"] = 'ログイン名（半角英�
 $_lang["connection_screen_default_admin_note"] = 'デフォルトの管理アカウントを作成します。';
 $_lang["connection_screen_default_admin_password"] = 'パスワード:';
 $_lang["connection_screen_default_admin_password_confirm"] = 'パスワード（確認入力）:';
+$_lang["connection_screen_admin_password_kept"] = '設定済み（変えるときだけ入力）';
 $_lang["connection_screen_default_admin_user"] = 'デフォルトの管理アカウント作成';
 $_lang["connection_screen_defaults"] = '管理アカウントの初期設定';
 $_lang["connection_screen_server_connection_information"] = 'データベースホストへの接続';

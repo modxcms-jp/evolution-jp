@@ -16,7 +16,7 @@ final class EvoPasswordPolicy
     public const RECOMMENDED_LENGTH = 15;
 
     /**
-     * 最大のバイト数（NFC にそろえた後の UTF-8）。bcrypt は先頭の 72 バイトしか照合しないので、超える値は切り捨てずに断る。
+     * 最大のバイト数（UTF-8）。bcrypt は先頭の 72 バイトしか照合しないので、超える値は切り捨てずに断る。
      * 半角の文字だけなら 72 文字まで、全角の文字（3 バイト）だけなら 24 文字まで
      */
     public const MAX_BYTES = 72;
@@ -44,19 +44,6 @@ final class EvoPasswordPolicy
     /** 繰り返しとみなす単位の最大の長さ（"abcabc…" のような値を断る） */
     private const REPEAT_UNIT_MAX = 4;
 
-    /**
-     * 照合とハッシュの前にそろえる。Normalizer（intl）があれば NFC にする。無ければそのまま。
-     * 前後の空白を削る・大文字小文字をそろえる、といった加工はしない
-     */
-    public static function normalize(string $password): string
-    {
-        if ($password === '' || !class_exists('Normalizer') || !preg_match('/[^\x00-\x7F]/', $password)) {
-            return $password;
-        }
-        $normalized = Normalizer::normalize($password, Normalizer::FORM_C);
-        return is_string($normalized) ? $normalized : $password;
-    }
-
     /** 文字数（Unicode のコードポイントの数）。正しい UTF-8 でなければ -1 */
     public static function length(string $password): int
     {
@@ -78,7 +65,6 @@ final class EvoPasswordPolicy
      */
     public static function check(string $password, array $context = []): string
     {
-        $password = self::normalize($password);
         $length = self::length($password);
         if ($length < 0 || preg_match('/[\x00-\x1F\x7F]|\xC2[\x80-\x9F]/', $password)) {
             return 'invalid';
@@ -102,28 +88,43 @@ final class EvoPasswordPolicy
         return '';
     }
 
-    /** 保存用のハッシュ（ソルトとコストは password_hash() が値に含める） */
-    public static function hash(string $password): string
+    /**
+     * 保存用のハッシュにできるか。bcrypt（PASSWORD_DEFAULT）は 72 バイトを超えると後ろを無視するので、超える値はハッシュにしない
+     */
+    public static function fitsHash(string $password): bool
     {
-        return password_hash(self::normalize($password), PASSWORD_DEFAULT);
+        return strlen($password) <= self::MAX_BYTES;
     }
 
     /**
-     * password_hash() のハッシュと照合する。
-     * NFC にそろえた値で照合し、合わなければ送られたままの値でも照合する（正規化を入れる前に、全角の文字を含む値で保存したユーザーのため）。
+     * 保存用のハッシュ（ソルトとコストは password_hash() が値に含める）。
+     * 値は加工しない（正規化・trim をしない。設定・照合・Web ユーザーの MD5 で同じバイト列を使い、サーバーの環境で結果を変えない）
      *
-     * @return array{0: bool, 1: bool} [合ったか, 作り直すか（コストの変更・そろえていない値で保存されていたとき）]
+     * @throws InvalidArgumentException 72 バイトを超える値（切り捨てて保存しない。呼び出し側が check() か fitsHash() で先に確かめる）
+     */
+    public static function hash(string $password): string
+    {
+        if (!self::fitsHash($password)) {
+            throw new InvalidArgumentException('The password is longer than the hash can verify.');
+        }
+        return password_hash($password, PASSWORD_DEFAULT);
+    }
+
+    /**
+     * password_hash() のハッシュと照合する。bcrypt のハッシュには、72 バイトを超える入力を合わせない
+     * （後ろを無視して照合すると、保存した値に何を足しても通ってしまう。72 バイトを超える値は bcrypt で保存しない）
+     *
+     * @return array{0: bool, 1: bool} [合ったか, 作り直すか（コストや方式の変更）]
      */
     public static function verify(string $password, string $hash): array
     {
-        $normalized = self::normalize($password);
-        if (password_verify($normalized, $hash)) {
-            return [true, password_needs_rehash($hash, PASSWORD_DEFAULT)];
+        if (strpos($hash, '$2') === 0 && !self::fitsHash($password)) {
+            return [false, false];
         }
-        if ($normalized !== $password && password_verify($password, $hash)) {
-            return [true, true];
+        if (!password_verify($password, $hash)) {
+            return [false, false];
         }
-        return [false, false];
+        return [true, password_needs_rehash($hash, PASSWORD_DEFAULT)];
     }
 
     /** パスワードの欄の JS に渡す決まり（文字数・文字集合）。js_value() で埋め込む */
@@ -157,10 +158,10 @@ final class EvoPasswordPolicy
             if (!is_string($value) || $value === '') {
                 continue;
             }
-            $values[] = self::compareKey(self::normalize($value));
+            $values[] = self::compareKey($value);
             $at = strpos($value, '@');
             if ($at > 0) {
-                $values[] = self::compareKey(self::normalize(substr($value, 0, $at)));
+                $values[] = self::compareKey(substr($value, 0, $at));
             }
         }
         return $values;

@@ -63,17 +63,13 @@
         }
     }
 
-    // サーバーと同じく NFC にそろえてから、コードポイントの数・UTF-8 のバイト数を数える
-    function normalized(value) {
-        return typeof value.normalize === 'function' ? value.normalize('NFC') : value;
-    }
-
+    // サーバーと同じく、入力のまま（正規化しない）コードポイントの数・UTF-8 のバイト数を数える
     function charCount(value) {
-        return Array.from(normalized(value)).length;
+        return Array.from(value).length;
     }
 
     function byteCount(value) {
-        return new TextEncoder().encode(normalized(value)).length;
+        return new TextEncoder().encode(value).length;
     }
 
     // 伏せたまま写す。Clipboard API が使えない（HTTP のサイトなど）ときは、部品の中に一時的に置いた見えない textarea から写す
