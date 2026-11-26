@@ -15,6 +15,7 @@ final class ChildDocumentListState
         'publishedon' => 'sc.publishedon',
         'editedon' => 'sc.editedon',
         'menuindex' => 'sc.menuindex',
+        'status' => 'sc.published',
     ];
 
     /** 検索語の最大の長さ（文字数） */
