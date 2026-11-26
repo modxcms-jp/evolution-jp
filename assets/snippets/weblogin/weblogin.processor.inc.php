@@ -351,16 +351,18 @@ $tmp = [
 $rt = evo()->invokeEvent("OnWebAuthentication", $tmp);
 // check if plugin authenticated the user
 if (!$rt || (is_array($rt) && !in_array(TRUE, $rt))) {
+    // CAPTCHA を先に確かめる。通らないうちはパスワードを確かめず、失敗回数にも数えない（管理画面のログインと同じ）。
+    // 単語は正誤にかかわらず使い切る
+    if ($useCaptcha === 1) {
+        sessionv('*veriword', null);
+        if (!is_string($sessionVeriword) || !hash_equals($sessionVeriword, $captcha_code)) {
+            $output = webLoginAlert("The security code you entered didn't validate! Please try to login again!");
+            return;
+        }
+    }
     // check user password - local authentication
     if (!hash_equals((string)$dbasePassword, md5($givenPassword))) {
         $output = webLoginAlert("Incorrect username or password entered!");
-        $newloginerror = 1;
-    }
-}
-
-if ($useCaptcha === 1) {
-    if (!is_string($sessionVeriword) || !hash_equals($sessionVeriword, $captcha_code)) {
-        $output = webLoginAlert("The security code you entered didn't validate! Please try to login again!");
         $newloginerror = 1;
     }
 }
