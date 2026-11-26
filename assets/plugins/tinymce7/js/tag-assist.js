@@ -181,10 +181,14 @@
 
   // 名前の残りに数える文字（引数・フィルターの記号 ` ' " = & ? : などで止める。外側のタグの閉じ記号を取り込まない）
   const NAME_REST = /^[^\s{}\[\]()*!~+`'"=&?:|@#]*/;
+  // 名前は空白を含んでよい（{{my chunk}}）。改行を除く空白も名前の残りに数えたうえで、すぐあとが閉じ記号かを見る
+  const NAME_REST_WITH_SPACES = /^[^\n{}\[\]()*!~+`'"=&?:|@#]*/;
 
   // 既にあるタグの名前の途中で選んだときに、入力位置のあとの名前の残りまでを置き換える範囲にし、閉じ記号を付けるかを返す。
-  // - 名前の残りのあとが閉じ記号: 閉じ記号まで置き換え、閉じ記号を付ける（{{bread_cr|umb}} → {{bread_crumb}}）
-  // - 名前の残りのあとが :、または空白に続く ?・&: 名前の残りだけを置き換え、閉じ記号を付けない（[[Wayf|inder? &x=1]] → [[Wayfinder? &x=1]]）
+  // 名前は空白を含んでよい（_getSplitPosition）ので、名前の残りは空白も含めて見る。
+  // - 名前の残りのあとが閉じ記号: 閉じ記号まで置き換え、閉じ記号を付ける（{{bread_cr|umb}} → {{bread_crumb}}、{{my| chunk}} → {{my chunk}}）
+  // - 名前の残りのあとが ?・&（前に空白があってもよい）: 名前の残りだけを置き換え、閉じ記号を付けない（[[Wayf|inder? &x=1]] → [[Wayfinder? &x=1]]）
+  // - 空白を挟まずに : が続く: フィルターとして残す（{{bread_cr|umb:upper}} → {{bread_crumb:upper}}）。文中の「時刻: 」を名前に取り込まないよう、空白のあとの : は見ない
   // - それ以外（新しく書いている途中）: 置き換えを広げず、閉じ記号を付ける
   function extendRangeToName(range, kind) {
     const node = range.endContainer;
@@ -192,13 +196,18 @@
       return true;
     }
     const after = node.nodeValue.slice(range.endOffset);
-    const rest = NAME_REST.exec(after)[0];
-    const next = after.slice(rest.length);
-    if (next.indexOf(kind.close) === 0) {
-      range.setEnd(node, range.endOffset + rest.length + kind.close.length);
+    const spaced = NAME_REST_WITH_SPACES.exec(after)[0];
+    if (after.slice(spaced.length).indexOf(kind.close) === 0) {
+      range.setEnd(node, range.endOffset + spaced.length + kind.close.length);
       return true;
     }
-    if (/^(:|\s*[?&])/.test(next)) {
+    const trimmed = spaced.replace(/\s+$/, '');
+    if (/^\s*[?&]/.test(after.slice(trimmed.length))) {
+      range.setEnd(node, range.endOffset + trimmed.length);
+      return false;
+    }
+    const rest = NAME_REST.exec(after)[0];
+    if (after.slice(rest.length).charAt(0) === ':') {
       range.setEnd(node, range.endOffset + rest.length);
       return false;
     }
