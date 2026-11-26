@@ -44,8 +44,8 @@ final class TagNameRepository
 
         return array_map(static function (array $row) use ($publishedColumn): array {
             // 説明に HTML を書くエレメント（同梱のスニペットの版の表記など）があるので、候補には文字だけを出す。
-            // 不正な UTF-8 では /u の置き換えが null を返すので、文字列で受ける（出口の json_encode が置き換える）
-            $note = trim((string)preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags((string)$row['note']), ENT_QUOTES, 'UTF-8')));
+            // 空白の詰めは /u を付けない（不正な UTF-8 でも説明を残し、出口の json_encode が置き換える）
+            $note = trim((string)preg_replace('/\s+/', ' ', html_entity_decode(strip_tags((string)$row['note']), ENT_QUOTES, 'UTF-8')));
             return [
                 'name' => (string)$row['name'],
                 'note' => $note,

@@ -22,10 +22,12 @@
   // 補完中の名前に使わない文字。打ったら補完を終える
   const NAME_STOP = /[\s{}\[\]()*!~+]/;
 
-  // 本文の中のタグ。{{ のあと・}} の前が空白のものは、本体がタグとして扱わない（mergeChunkContent）
+  // 本文の中のタグ。本体がタグとして扱わないものには色を付けない:
+  // {{ のあと・}} の前が半角スペースのチャンク（mergeChunkContent）、先頭が空白のスニペット（_get_snip_result）。
+  // 古いブラウザーでも読めるように、後読みは使わない
   const TAG_PATTERNS = [
-    {kind: 'chunk', pattern: /\{\{(?!\s)([^{}]+?)(?<!\s)\}\}/g},
-    {kind: 'snippet', pattern: /\[\[([^\[\]]+?)\]\]|\[!([^\[\]!]+?)!\]/g},
+    {kind: 'chunk', pattern: /\{\{(?! )([^{}]*?[^{} ])\}\}/g},
+    {kind: 'snippet', pattern: /\[\[(?!\s)([^\[\]]+?)\]\]|\[!(?!\s)([^\[\]!]+?)!\]/g},
     {kind: 'field', pattern: /\[\*([^\[\]*]+?)\*\]/g},
     {kind: 'setting', pattern: /\[\(([^\[\]()]+?)\)\]/g}
   ];
@@ -59,9 +61,14 @@
     return store;
   }
 
+  // 取得に失敗したあと、取り直すまでの間（ログインが切れているあいだ、打鍵のたびに取りに行かない）
+  const NAME_RETRY_MS = 5000;
+
   function createNameStore(url) {
     let promise = null;
     let data = null;
+    let failedAt = 0;
+    const listeners = [];
 
     function index(names) {
       const result = {};
@@ -78,9 +85,12 @@
 
     return {
       load: function () {
+        if (!promise && Date.now() - failedAt < NAME_RETRY_MS) {
+          return Promise.resolve(null);
+        }
         if (!promise) {
           // 取れなかったとき（ログインが切れた・エラー）は data を null のままにし、照らさない（全部を無い名前にしない）。
-          // 次に補完を開いたときに取り直す
+          // しばらくしてから補完を開いたときに取り直し、取れたら同じ一覧を使うエディターに知らせる（色付けを直す）
           promise = fetch(url, {credentials: 'same-origin', headers: {Accept: 'application/json'}})
             .then(function (response) {
               if (!response.ok) {
@@ -93,10 +103,14 @@
                 throw new Error('tag-names: unexpected response');
               }
               data = {kinds: index(json.names), labels: json.labels || {}};
+              listeners.forEach(function (listener) {
+                listener();
+              });
               return data;
             })
             .catch(function () {
               promise = null;
+              failedAt = Date.now();
               return null;
             });
         }
@@ -104,6 +118,9 @@
       },
       get: function () {
         return data;
+      },
+      subscribe: function (listener) {
+        listeners.push(listener);
       }
     };
   }
@@ -162,22 +179,30 @@
     }
   }
 
-  function escapeRegExp(text) {
-    return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
+  // 名前の残りに数える文字（引数・フィルターの記号 ` ' " = & ? : などで止める。外側のタグの閉じ記号を取り込まない）
+  const NAME_REST = /^[^\s{}\[\]()*!~+`'"=&?:|@#]*/;
 
-  // 既にあるタグの名前の途中で選んだときは、入力位置のあとの名前の残りと閉じ記号までを置き換える（閉じ記号を二重にしない）
-  function extendRangeToClose(range, kind) {
+  // 既にあるタグの名前の途中で選んだときに、入力位置のあとの名前の残りまでを置き換える範囲にし、閉じ記号を付けるかを返す。
+  // - 名前の残りのあとが閉じ記号: 閉じ記号まで置き換え、閉じ記号を付ける（{{bread_cr|umb}} → {{bread_crumb}}）
+  // - 名前の残りのあとが :、または空白に続く ?・&: 名前の残りだけを置き換え、閉じ記号を付けない（[[Wayf|inder? &x=1]] → [[Wayfinder? &x=1]]）
+  // - それ以外（新しく書いている途中）: 置き換えを広げず、閉じ記号を付ける
+  function extendRangeToName(range, kind) {
     const node = range.endContainer;
     if (node.nodeType !== Node.TEXT_NODE) {
-      return;
+      return true;
     }
     const after = node.nodeValue.slice(range.endOffset);
-    // 名前の残りに数えるのは、名前に使う文字だけ（引数の記号 ` ' " = & ? : などで止める。外側のタグの閉じ記号を取り込まない）
-    const match = new RegExp('^[^\\s{}\\[\\]()*!~+`\'"=&?:|@#]*' + escapeRegExp(kind.close)).exec(after);
-    if (match) {
-      range.setEnd(node, range.endOffset + match[0].length);
+    const rest = NAME_REST.exec(after)[0];
+    const next = after.slice(rest.length);
+    if (next.indexOf(kind.close) === 0) {
+      range.setEnd(node, range.endOffset + rest.length + kind.close.length);
+      return true;
     }
+    if (/^(:|\s*[?&])/.test(next)) {
+      range.setEnd(node, range.endOffset + rest.length);
+      return false;
+    }
+    return true;
   }
 
   function bindAutocomplete(editor, store) {
@@ -219,9 +244,9 @@
           }
           const target = rng.cloneRange();
           moveRangeStart(editor.getDoc(), target, input.start);
-          extendRangeToClose(target, input.kind);
+          const withClose = extendRangeToName(target, input.kind);
           editor.selection.setRng(target);
-          editor.insertContent(editor.dom.encode(input.kind.open + value + input.kind.close));
+          editor.insertContent(editor.dom.encode(input.kind.open + value + (withClose ? input.kind.close : '')));
         }
       });
     });
@@ -284,14 +309,14 @@
 
   // タグの中身から、本体が探す名前を取り出す（_split_snip_call・splitKeyAndFilter・mergeDocumentContent と同じ順）。
   // 名前の表と照らせないものは null で、照らさない:
-  // @FILE などの @、プラグインが足す #name（チャンク・スニペット）、[[$_GET.x]] のようなスーパーグローバル、
+  // @FILE などの @、プラグインが足す #name（チャンク・スニペット）、[[$_GET(x)]] のようなスーパーグローバル、
   // [*a|b*] の候補の並び、[*name@context*]、本体が置く [*phx*]・[*dummy*]
   function tagName(kind, inner) {
     let name = inner;
     if (kind === 'chunk' || kind === 'snippet') {
       const pos = splitPosition(name);
       name = pos ? name.slice(0, pos) : name;
-      if (/^\s*(#|\$_)/.test(name)) {
+      if (/^(#|\$_)/.test(name)) {
         return null;
       }
     }
@@ -386,7 +411,8 @@
       refresh();
       editor.on('SetContent input Undo Redo ExecCommand compositionend', schedule);
       if (store) {
-        store.load().then(schedule);
+        store.subscribe(schedule);
+        store.load();
       }
     });
   }
