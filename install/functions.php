@@ -1158,5 +1158,10 @@ function installerAdminPasswordError()
     if ($reason === '') {
         return '';
     }
-    return sprintf(lang('password_error_' . $reason), EvoPasswordPolicy::MIN_LENGTH, EvoPasswordPolicy::MAX_BYTES);
+    return sprintf(
+        lang('password_error_' . $reason),
+        EvoPasswordPolicy::MIN_LENGTH,
+        EvoPasswordPolicy::MAX_BYTES,
+        EvoPasswordPolicy::RECOMMENDED_LENGTH
+    );
 }

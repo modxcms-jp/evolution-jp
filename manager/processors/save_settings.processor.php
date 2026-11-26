@@ -172,7 +172,6 @@ function nonSettingKeys()
         'captcha_words_default',
         'emailsubject_default',
         'siteunavailable_message_default',
-        'system_email_signup_default',
         'system_email_websignup_default',
         'system_email_webreminder_default',
     ];

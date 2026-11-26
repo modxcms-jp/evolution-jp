@@ -207,7 +207,8 @@ function userFormPasswordRow(string $state, array $o = []): string
                 <div class="form-text" id="passwordSettingRule">
                     <?= hsc(sprintf(lang('password_rule'), EvoPasswordPolicy::MIN_LENGTH, EvoPasswordPolicy::RECOMMENDED_LENGTH)) ?>
                     <img src="<?= hsc(style('icons_tooltip_over')) ?>" class="tooltip" tabindex="0"
-                        title="<?= hsc(lang('password_rule_detail')) ?>" alt="<?= hsc(lang('password_rule_detail')) ?>" />
+                        title="<?= hsc(sprintf(lang('password_rule_detail'), EvoPasswordPolicy::MAX_BYTES)) ?>"
+                        alt="<?= hsc(sprintf(lang('password_rule_detail'), EvoPasswordPolicy::MAX_BYTES)) ?>" />
                 </div>
                 <div class="password-setting-note" id="passwordSettingNote" data-password-note aria-live="polite" hidden></div>
                 <div class="password-setting-note is-warning" data-password-fullwidth hidden><?= lang('password_fullwidth_notice') ?></div>

@@ -76,8 +76,9 @@
         return new TextEncoder().encode(normalized(value)).length;
     }
 
-    // 伏せたまま写す。Clipboard API が使えない（HTTP のサイトなど）ときは、画面の外の textarea から写す
-    function copyText(text) {
+    // 伏せたまま写す。Clipboard API が使えない（HTTP のサイトなど）ときは、部品の中に一時的に置いた見えない textarea から写す
+    // （body の直下には足さない。manager-shell.md）
+    function copyText(text, container) {
         if (navigator.clipboard && window.isSecureContext) {
             return navigator.clipboard.writeText(text);
         }
@@ -87,7 +88,7 @@
             area.setAttribute('readonly', '');
             area.setAttribute('aria-hidden', 'true');
             area.style.cssText = 'position:fixed;top:0;left:-9999px;opacity:0;';
-            document.body.appendChild(area);
+            container.appendChild(area);
             area.select();
             let ok = false;
             try {
@@ -233,12 +234,15 @@
             return result;
         }
 
-        function fill() {
+        // markDirty が false のときは未保存の印を立てない（新規の画面を開いたときの初めの生成）
+        function fill(markDirty) {
             const length = range ? parseInt(range.value, 10) : config.generateLength;
             input.value = generate(length, sets());
             mask();
             updateNote();
-            dirty();
+            if (markDirty !== false) {
+                dirty();
+            }
         }
 
         // 自動生成のオプションを初めの値（20 文字・大文字と数字）に戻す
@@ -284,7 +288,7 @@
                 if (input.value === '') {
                     return;
                 }
-                copyText(input.value).then(function () {
+                copyText(input.value, root).then(function () {
                     say(messages.copied, 'success');
                 }, function () {
                     // 失敗しても欄を表示に切り替えない（表示は利用者が表示のボタンで選ぶ）
@@ -360,21 +364,28 @@
                 }
                 event.preventDefault();
                 event.stopImmediatePropagation();
+                // 保存のボタンは送る前に未保存の印を下ろすので、送らなかったときは立て直す
+                dirty();
                 say(notice.text, 'error');
                 input.focus();
             }, true);
         }
 
         setOpen(root.dataset.passwordOpen === '1');
+        const notices = [];
+        if (root.dataset.passwordRestored === '1') {
+            notices.push(messages.restored);
+        }
         if (!canGenerate()) {
             if (regenerate) {
                 regenerate.disabled = true;
             }
-            say(messages.generateUnavailable, 'warning');
-        } else if (root.dataset.passwordRestored === '1') {
-            say(messages.restored, 'warning');
-        } else if (root.dataset.passwordGenerate === '1') {
-            fill();
+            notices.push(messages.generateUnavailable);
+        } else if (!notices.length && root.dataset.passwordGenerate === '1') {
+            fill(false);
+        }
+        if (notices.length) {
+            say(notices.join(' '), 'warning');
         }
     }
 

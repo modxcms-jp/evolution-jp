@@ -1247,7 +1247,7 @@ return [
     "default_role_message" => 'ユーザーを新しく作るときに選ばれているロールです。',
     "change_password_success" => 'パスワードを更新しました。',
     "password_rule" => '%1$d文字以上（%2$d文字以上を推奨）',
-    "password_rule_detail" => '英字・数字・記号・空白・全角の文字が使えます。文字の種類の組み合わせは問いません。長さの上限は半角で72文字分です（全角の文字は1文字を3文字分として数えます）。',
+    "password_rule_detail" => '英字・数字・記号・空白・全角の文字が使えます。文字の種類の組み合わせは問いません。長さの上限は半角で%1$d文字分です（全角の文字は1文字を3文字分として数えます）。',
     "password_placeholder_new" => 'パスワードを入力',
     "password_placeholder_change" => '新しいパスワードを入力',
     "password_tell_safely" => '本人へは安全な方法で伝えてください（メールに平文で書かない など）。',

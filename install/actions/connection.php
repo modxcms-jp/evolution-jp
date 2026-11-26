@@ -6,7 +6,7 @@ if (sessionv('prevAction') === 'options') {
 
 $ph = array_merge(
     $ph, [
-        'adminname'         => 'admin',
+        'adminname'         => sessionv('adminname') ?: 'admin',
         'database_server'   => sessionv('database_server') ?: env('DB_HOST') ?: 'localhost',
         'table_prefix'      => sessionv('table_prefix') ?: env('TABLE_PREFIX') ?: 'modx_',
         'is_upgradeable'    => sessionv('is_upgradeable'),

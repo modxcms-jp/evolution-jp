@@ -1245,7 +1245,7 @@ return [
     "default_role_message" => 'Default role at create the user settings',
     "change_password_success" => 'Change password success!',
     "password_rule" => 'At least %1$d characters (%2$d or more recommended)',
-    "password_rule_detail" => 'Letters, numbers, symbols, spaces and non-ASCII characters can be used, in any combination. The maximum is 72 bytes (ASCII characters count as 1, most non-ASCII characters as 3).',
+    "password_rule_detail" => 'Letters, numbers, symbols, spaces and non-ASCII characters can be used, in any combination. The maximum is %1$d bytes (ASCII characters count as 1, most non-ASCII characters as 3).',
     "password_placeholder_new" => 'Enter a password',
     "password_placeholder_change" => 'Enter a new password',
     "password_tell_safely" => 'Pass it to the user in a safe way (not in plain text by e-mail).',
