@@ -30,6 +30,13 @@ $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
 OnBeforeManagerLogin();
 
+// CAPTCHA は、ユーザーの読み込み・ブロックの判定・認証より前に確かめる。
+// ユーザー名によって応答が変わらないようにするため。通らないうちはユーザーを確かめず、失敗回数にも数えない。
+// パスワード再設定のリンクでは求めない（パスワードを送るログインは、fmpkey があっても確かめる）
+if (!isPasswordResetLinkRequest() && !checkCaptcha()) {
+    return;
+}
+
 // ブロック中は処理をここで止める。
 // パスワード再設定のリンクの要求（isPasswordResetLinkRequest）だけは OnManagerAuthentication（FMP）に判定を任せ、
 // FMP がブロックを解除した場合だけログインさせる（下で DB を確かめる）。
@@ -43,13 +50,6 @@ if ($isBlocked && !isPasswordResetLinkRequest()) {
 }
 
 if (!checkAllowedIp() || !checkAllowedDays()) {
-    return;
-}
-
-// CAPTCHA は、プラグインの認証も含めた認証より前に確かめる。
-// 通らないうちは認証せず、失敗回数にも数えない。パスワード再設定のリンクでは求めない
-// （パスワードを送るログインは、fmpkey があっても確かめる）
-if (!isPasswordResetLinkRequest() && !checkCaptcha()) {
     return;
 }
 
