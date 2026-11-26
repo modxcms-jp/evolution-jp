@@ -84,10 +84,6 @@ class ForgotManagerPassword
         }
         if ($user_id) {
             sessionv('*goto_pwd_edit', '1');
-            $captchaCode = get_strvar('captcha_code');
-            if ($captchaCode) {
-                sessionv('*veriword', $captchaCode);
-            }
             $this->unBlock($user_id);
         }
         return $user_id ? true : false;
@@ -129,11 +125,10 @@ class ForgotManagerPassword
         }
         header(
             sprintf(
-                'Location:%s/processors/login.processor.php?username=%s&fmpkey=%s%s',
+                'Location:%s/processors/login.processor.php?username=%s&fmpkey=%s',
                 rtrim(MODX_MANAGER_URL, '/'),
                 urlencode($user['email']),
-                urlencode($fmpkey),
-                evo()->config('use_captcha') ? '&captcha_code=ignore' : ''
+                urlencode($fmpkey)
             )
         );
         exit;
@@ -199,7 +194,7 @@ class ForgotManagerPassword
                     file_get_contents($this->tpl_path . 'sendmail.tpl'),
                     [
                         'intro' => $this->lang('forgot_password_email_intro'),
-                        'fmpkey' => $fmpkey . (evo()->config('use_captcha') ? '&captcha_code=ignore' : ''),
+                        'fmpkey' => $fmpkey,
                         'link' => $this->lang('forgot_password_email_link'),
                         'instructions' => $this->lang('forgot_password_email_instructions'),
                         'fine_print' => $this->lang('forgot_password_email_fine_print')
