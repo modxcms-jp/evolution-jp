@@ -72,11 +72,11 @@
             </p>
             <p class="labelHolder"><label for="adminemail">[+connection_screen_default_admin_email+]</label>
                 <input id="adminemail" type="email" value="[+adminemail+]" name="adminemail" style="width:300px;" required/>
-                <span class="warning">[+connection_error+]</span>
+                <span class="notok">[+connection_error+]</span>
             </p>
             <p class="labelHolder"><label for="adminpass">[+connection_screen_default_admin_password+]</label>
                 <input id="adminpass" type="password" name="adminpass" value="" autocomplete="new-password" placeholder="[+adminpass_placeholder+]"/>
-                <span class="warning">[+adminpass_error+]</span>
+                <span class="notok">[+adminpass_error+]</span>
             </p>
             <p class="labelHolder"><label
                         for="adminpassconfirm">[+connection_screen_default_admin_password_confirm+]</label>
