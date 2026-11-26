@@ -55,9 +55,6 @@
         ['servertest', 'databasetest'].forEach(function (id) {
             document.getElementById(id).addEventListener('click', function () {
                 var footer = document.getElementById('footer');
-                if (!footer) {
-                    return;
-                }
                 window.scrollTo({
                     top: footer.getBoundingClientRect().top + window.scrollY,
                     behavior: 'smooth'
@@ -79,6 +76,7 @@
             </p>
             <p class="labelHolder"><label for="adminpass">[+connection_screen_default_admin_password+]</label>
                 <input id="adminpass" type="password" name="adminpass" value="" autocomplete="new-password" placeholder="[+adminpass_placeholder+]"/>
+                <span class="warning">[+adminpass_error+]</span>
             </p>
             <p class="labelHolder"><label
                         for="adminpassconfirm">[+connection_screen_default_admin_password_confirm+]</label>
@@ -199,7 +197,7 @@
             if (is_upgradeable != 1 && document.getElementById('adminemail').value.trim() === '')
                 alert("[+alert_enter_adminemail+]");
             else if (document.getElementById('adminpass').value !== document.getElementById('adminpassconfirm').value)
-                alert("[+alert_enter_adminpassword+]");
+                alert("[+alert_adminpassword_mismatch+]");
             else
                 document.getElementById('install').submit();
         });

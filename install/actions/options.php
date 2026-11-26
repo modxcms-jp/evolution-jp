@@ -22,7 +22,7 @@ if (!sessionv('is_upgradeable') && trim(sessionv('adminemail', '')) === '') {
 }
 
 if ($adminPasswordError !== '') {
-    $ph['connection_error'] = $adminPasswordError;
+    $ph['adminpass_error'] = $adminPasswordError;
     include MODX_SETUP_PATH . 'actions/connection.php';
     return;
 }

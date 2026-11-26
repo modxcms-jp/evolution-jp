@@ -19,7 +19,8 @@ $ph = array_merge(
         'database_password' => '',
         'dbase'             => sessionv('dbase') ?: env('DB_DATABASE') ?: '',
         'connection_error'  => $ph['connection_error'] ?? '',
-        'auh_display'       => empty($ph['connection_error']) ? 'none' : 'block',
+        'adminpass_error'   => $ph['adminpass_error'] ?? '',
+        'auh_display'       => empty($ph['connection_error']) && empty($ph['adminpass_error']) ? 'none' : 'block',
     ]
 );
 if ($ph['database_server'] === '127.0.0.1') {

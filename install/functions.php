@@ -1139,7 +1139,7 @@ function buildConfigFile($template, array $values)
 
 /**
  * 送られた管理者のパスワードを確かめ、通ればハッシュだけをセッション（adminpass_hash）に持つ。平文はセッションにも画面にも残さない。
- * 欄が空で、すでにハッシュがあれば（前の画面へ戻ってまた進んだとき）そのまま使う。
+ * 欄が空で、すでにハッシュがあれば（前の画面へ戻ってまた進んだとき）そのまま使う。入れた値が通らなければ、持っていたハッシュも捨てる。
  * 決まりは管理画面と同じ EvoPasswordPolicy（assets/docs/password-policy.md）
  *
  * @param bool $required 進むとき true（決まりに合わなければエラー文を返す）。戻るときは false（合ったときだけ持ち、エラーにしない）
@@ -1154,10 +1154,8 @@ function installerTakeAdminPassword($required)
         return !$required || sessionv('adminpass_hash') ? '' : lang('alert_enter_adminpassword');
     }
     $error = installerAdminPasswordError($password, $confirm);
-    if ($error === '') {
-        sessionv('*adminpass_hash', EvoPasswordPolicy::hash($password));
-        return '';
-    }
+    // 入れた値が通らなければ、前に通ったものも捨てる（変えようとした値が断られたのに、前の値が黙って残らないように）
+    sessionv('*adminpass_hash', $error === '' ? EvoPasswordPolicy::hash($password) : null);
     return $required ? $error : '';
 }
 
