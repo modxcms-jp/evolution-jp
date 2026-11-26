@@ -8,12 +8,6 @@ if (!canSaveUser()) {
     alert()->dumpError();
 }
 
-// verify password
-if (!confirmPassword()) {
-    webAlert(lang('password_error_mismatch'));
-    exit;
-}
-
 // verify email
 if (!validEmail()) {
     webAlert("E-mail address doesn't seem to be valid!");
@@ -59,18 +53,9 @@ if ($mode === 'new') { // new user
         webAlert(lang('user_role_required'));
         exit;
     }
-    if (post_strvar('passwordgenmethod') === 'spec') {
-        if (!post_strvar('specifiedpassword')) {
-            webAlert("You didn't specify a password for this user!");
-            exit;
-        }
-        $passwordError = manager()->passwordError(post_strvar('specifiedpassword'));
-        if ($passwordError !== '') {
-            webAlert($passwordError);
-            exit;
-        }
-    } elseif (post_strvar('passwordgenmethod') !== 'g') {
-        webAlert('No password generation method specified!');
+    $passwordError = newPasswordError();
+    if ($passwordError !== '') {
+        webAlert($passwordError);
         exit;
     }
     newUser();
@@ -102,20 +87,11 @@ if (in_array($mode, ['edit', 'profile'], true)) {
         exit;
     }
 
-    // generate a new password for this user
-    if (post_intvar('newpassword') === 1) {
-        if (post_strvar('passwordgenmethod') === 'spec') {
-            if (!post_strvar('specifiedpassword')) {
-                webAlert("You didn't specify a password for this user!");
-                exit;
-            }
-            $passwordError = manager()->passwordError(post_strvar('specifiedpassword'));
-            if ($passwordError !== '') {
-                webAlert($passwordError);
-                exit;
-            }
-        } elseif (post_strvar('passwordgenmethod') !== 'g') {
-            webAlert('No password generation method specified!');
+    // パスワードを変えるときだけ、新しいパスワードを確かめる
+    if (changesPassword()) {
+        $passwordError = newPasswordError();
+        if ($passwordError !== '') {
+            webAlert($passwordError);
             exit;
         }
     }

@@ -10,16 +10,16 @@ if (!sessionv('is_upgradeable') && is_dir($templatePath) && is_readable($templat
         if (!is_array($params) || !$params) {
             continue;
         }
-        if ($params['version']) {
+        if (!empty($params['version'])) {
             $params['description'] = add_version_strings($params);
         }
         $tplTemplates[] = [
             'templatename'  => $params['name'],
             'description'   => $params['description'],
-            'type'          => $params['type'],
+            'type'          => $params['type'] ?? null,
             'tpl_file_path' => $tplfile,
-            'category'      => $params['modx_category'],
-            'locked'        => $params['lock_template'],
+            'category'      => $params['modx_category'] ?? null,
+            'locked'        => $params['lock_template'] ?? null,
             'installset'    => get_installset($params)
         ];
     }
@@ -35,23 +35,23 @@ if (!sessionv('is_upgradeable') && is_dir($tvPath) && is_readable($tvPath)) {
         if (!is_array($params) || !$params) {
             continue;
         }
-        if ($params['version']) {
+        if (!empty($params['version'])) {
             $params['description'] = add_version_strings($params);
         }
         $tplTVs[] = [
             'name'                 => $params['name'],
-            'caption'              => $params['caption'],
+            'caption'              => $params['caption'] ?? null,
             'description'          => $params['description'],
-            'input_type'           => $params['input_type'],
-            'elements'             => $params['input_options'],
-            'default_text'         => $params['input_default'],
-            'display'              => $params['output_widget'],
-            'display_params'       => $params['output_widget_params'],
+            'input_type'           => $params['input_type'] ?? null,
+            'elements'             => $params['input_options'] ?? null,
+            'default_text'         => $params['input_default'] ?? null,
+            'display'              => $params['output_widget'] ?? null,
+            'display_params'       => $params['output_widget_params'] ?? null,
             'tpl_file_path'        => $tplfile /* not currently used */,
-            'category'             => $params['modx_category'],
-            'locked'               => $params['lock_tv']  /* value should be 1 or 0 */,
+            'category'             => $params['modx_category'] ?? null,
+            'locked'               => $params['lock_tv'] ?? null  /* value should be 1 or 0 */,
             'installset'           => get_installset($params),
-            'template_assignments' => $params['template_assignments']
+            'template_assignments' => $params['template_assignments'] ?? null
         ];
     }
 }
@@ -73,10 +73,9 @@ if (is_dir($chunkPath) && is_readable($chunkPath)) {
             'name'          => $params['name'],
             'description'   => $params['description'],
             'tpl_file_path' => $tpl_file_path,
-            'category'      => $params['modx_category'],
-            'overwrite'     => $params['overwrite']
-                ? $params['overwrite']
-                : 'true', 'installset' => get_installset($params)
+            'category'      => $params['modx_category'] ?? null,
+            'overwrite'     => ($params['overwrite'] ?? '') ?: 'true',
+            'installset'    => get_installset($params)
             ];
     }
 }
@@ -95,15 +94,15 @@ if (is_dir($snippetPath) && is_readable($snippetPath)) {
         if (sessionv('is_upgradeable') && compare_check($params) === 'same') {
             continue;
         }
-        if ($params['version']) {
+        if (!empty($params['version'])) {
             $params['description'] = add_version_strings($params);
         }
         $tplSnippets[] = [
             'name'          => $params['name'],
             'description'   => $params['description'],
             'tpl_file_path' => $tplfile,
-            'properties'    => $params['properties'],
-            'category'      => $params['modx_category'],
+            'properties'    => $params['properties'] ?? null,
+            'category'      => $params['modx_category'] ?? null,
             'installset'    => get_installset($params)
         ];
     }
@@ -146,18 +145,18 @@ if (is_dir($pluginPath) && is_readable($pluginPath)) {
         if ($compare === 'same') {
             continue;
         }
-        if ($params['version']) {
+        if (!empty($params['version'])) {
             $params['description'] = add_version_strings($params);
         }
         $tplPlugins[] = [
             'name'          => $params['name'],
             'description'   => $params['description'],
             'tpl_file_path' => $tplfile,
-            'properties'    => $params['properties'],
-            'events'        => $params['events'],
-            'guid'          => $params['guid'],
-            'category'      => $params['modx_category'],
-            'legacy_names'  => $params['legacy_names'],
+            'properties'    => $params['properties'] ?? null,
+            'events'        => $params['events'] ?? null,
+            'guid'          => $params['guid'] ?? null,
+            'category'      => $params['modx_category'] ?? null,
+            'legacy_names'  => $params['legacy_names'] ?? null,
             'user_disabled' => $compare === 'disabled',
             'disabled'      => isset($params['disabled'])
                 ? $params['disabled']
@@ -180,17 +179,17 @@ if (is_dir($modulePath) && is_readable($modulePath)) {
         if (sessionv('is_upgradeable') && compare_check($params) === 'same') {
             continue;
         }
-        if ($params['version']) {
+        if (!empty($params['version'])) {
             $params['description'] = add_version_strings($params);
         }
         $tplModules[] = [
             'name'          => $params['name'],
             'description'   => $params['description'],
             'tpl_file_path' => $tplfile,
-            'properties'    => $params['properties'],
-            'guid'          => $params['guid'],
-            'shareparams'   => (int)$params['shareparams'],
-            'category'      => $params['modx_category'],
+            'properties'    => $params['properties'] ?? null,
+            'guid'          => $params['guid'] ?? null,
+            'shareparams'   => (int)($params['shareparams'] ?? 0),
+            'category'      => $params['modx_category'] ?? null,
             'installset'    => get_installset($params)
         ];
     }

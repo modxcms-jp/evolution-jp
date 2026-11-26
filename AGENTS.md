@@ -160,6 +160,7 @@ fix(db): 実行直前でエスケープ処理を統一
 | `manager-form-row.md`   | 管理画面のフォームの行（EvoFieldRow）・直書きの style の振り分け |
 | `ui-wording.md`         | 管理画面の文言（言語ファイルの書き方・表記） |
 | `backup.md`             | DB のバックアップ・スナップショット・復元 |
+| `password-policy.md`    | パスワードの決まり・設定の画面・保存と照合 |
 
 ---
 

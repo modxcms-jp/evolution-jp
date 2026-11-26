@@ -15,7 +15,10 @@
         'editing' => $action === 11 || ($oldUsername && $oldUsername != user('username')),
     ]);
 
-    echo userFormPasswordRow($action === 11, true);
+    echo userFormPasswordRow($action === 11 ? 'new' : 'set', [
+        'restored' => $passwordRestored,
+        'self' => $userid === (int) evo()->getLoginUserID(),
+    ]);
 
     echo userFormEmailRow($user);
 

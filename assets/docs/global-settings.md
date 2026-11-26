@@ -12,7 +12,7 @@
 
 新しい設定は原則ここに足す（既定値の正本は `default.config.php` の 1 か所。読み込み時に補われ、DB には書かない）。
 
-言語ごとに文面が違うもの（メールの文面 `signupemail_message`・`websignupemail_message`・`webpwdreminder_message`）は `default.config.php` に置けない。インストーラーとアップデーター（`install/instprocessor.php`）が、`system_settings` に行が無いときだけ、そのサイトの管理画面の言語ファイルの文面を入れる（設定を保存しなくてよい。既にある行は、空にしたものも書き換えない）。設定名と言語キーの対応は `EvoSettingsForm::MAIL_TEXT_LANG_KEYS` が正本で、設定画面の定義もこれを使う。
+言語ごとに文面が違うもの（メールの文面 `websignupemail_message`・`webpwdreminder_message`）は `default.config.php` に置けない。インストーラーとアップデーター（`install/instprocessor.php`）が、`system_settings` に行が無いときだけ、そのサイトの管理画面の言語ファイルの文面を入れる（設定を保存しなくてよい。既にある行は、空にしたものも書き換えない）。設定名と言語キーの対応は `EvoSettingsForm::MAIL_TEXT_LANG_KEYS` が正本で、設定画面の定義もこれを使う。
 
 ## 2. 言語ファイルへの追加
 

@@ -12,15 +12,17 @@ if (post_textvar('adminname') !== null) {
 if (post_textvar('adminemail') !== null) {
     sessionv('*adminemail', post_textvar('adminemail'));
 }
-if (post_textvar('adminpass') !== null) {
-    sessionv('*adminpass', post_textvar('adminpass'));
-}
-if (post_textvar('adminpassconfirm') !== null) {
-    sessionv('*adminpassconfirm', post_textvar('adminpassconfirm'));
-}
+// 管理者のパスワードは、確かめて通ればハッシュだけを持つ（管理画面で設定するときと同じ決まり）
+$adminPasswordError = sessionv('is_upgradeable') ? '' : installerTakeAdminPassword(true);
 
 if (!sessionv('is_upgradeable') && trim(sessionv('adminemail', '')) === '') {
     $ph['connection_error'] = lang('alert_enter_adminemail');
+    include MODX_SETUP_PATH . 'actions/connection.php';
+    return;
+}
+
+if ($adminPasswordError !== '') {
+    $ph['adminpass_error'] = $adminPasswordError;
     include MODX_SETUP_PATH . 'actions/connection.php';
     return;
 }

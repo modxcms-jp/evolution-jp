@@ -81,10 +81,11 @@ function failedLogin()
 
 function loginPasswordHash($givenPassword, $dbasePassword, $internalKey)
 {
-    if (!password_verify($givenPassword, $dbasePassword)) {
+    [$matched, $needsRehash] = EvoPasswordPolicy::verify($givenPassword, $dbasePassword);
+    if (!$matched) {
         return false;
     }
-    if (password_needs_rehash($dbasePassword, PASSWORD_DEFAULT)) {
+    if ($needsRehash) {
         updateNewHash($internalKey, $givenPassword);
     }
     return true;
@@ -129,8 +130,16 @@ function loginMD5($givenPassword, $dbasePassword, $internalKey)
     return true;
 }
 
+// 照合できたパスワードを、今の形のハッシュで保存し直す。
+// 72 バイトを超えるパスワード（旧形式は切り捨てずに照合していた）は、bcrypt にすると後ろを無視するので作り直さず、今の形のまま残す
 function updateNewHash($internalKey, $password)
 {
+    if (!EvoPasswordPolicy::fitsHash((string) $password)) {
+        evo()->logEvent(0, 2, 'Kept the legacy password hash because the password is longer than bcrypt can verify', 'Login', [
+            'internalKey' => (int) $internalKey,
+        ]);
+        return;
+    }
     db()->update([
             'password' => db()->escape(
                 manager()->hashPassword($password)

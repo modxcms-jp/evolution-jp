@@ -7,6 +7,8 @@ if (!evo()->hasPermission('change_password')) {
     alert()->setError(3);
     alert()->dumpError();
 }
+require_once __DIR__ . '/mutate_user/user_form_rows.php';
+
 if (sessionv('onetime_msg') !== null) {
     $onetime_msg = sessionv('onetime_msg');
     sessionv('*onetime_msg', null);
@@ -27,33 +29,20 @@ if (sessionv('onetime_msg') !== null) {
         <?= $onetime_msg ?>
         <form action="index.php" method="post" name="userform">
             <input type="hidden" name="a" value="34"/>
-            <?php // パスワード管理ソフトが「この利用者の新しいパスワードの設定」と分かるように、ログイン名を添える（送信はしない） ?>
-            <input type="text" hidden readonly autocomplete="username" value="<?= hsc(evo()->getLoginUserName()) ?>"/>
-            <p><?= lang('password_rule') ?></p>
-            <table border="0" cellspacing="0" cellpadding="4">
-                <tr>
-                    <td><?= lang('username') ?>:</td>
-                    <td><b><?= hsc(evo()->getLoginUserName()) ?></b></td>
-                </tr>
-                <tr>
-                    <td><?= lang('change_password_new') ?>:</td>
-                    <td><input type="password" name="pass1" class="inputBox" style="width:150px" value=""
-                               autocomplete="new-password"/></td>
-                </tr>
-                <tr>
-                    <td><?= lang('change_password_confirm') ?>:</td>
-                    <td><input type="password" name="pass2" class="inputBox" style="width:150px" value=""
-                               autocomplete="new-password"/></td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <div class="actionButtons" style="float:right;">
-                            <a class="default" href="#"
-                               onclick="documentDirty=false; document.userform.save.click();"><?= lang('update') ?></a>
-                        </div>
-                    </td>
-                </tr>
+            <table class="settings">
+                <?php
+                echo EvoFieldRow::render([
+                    'label' => lang('username'),
+                    'body' => '<b>' . hsc(evo()->getLoginUserName()) . '</b>',
+                ]);
+                // パスワード管理ツールに、この利用者の新しいパスワードと分かるよう、ログイン名を添える（送信はしない）
+                echo userFormPasswordRow('change', ['self' => true, 'username' => (string) evo()->getLoginUserName()]);
+                ?>
             </table>
+            <div class="actionButtons">
+                <a class="default" href="#"
+                   onclick="documentDirty=false; document.userform.save.click(); return false;"><?= lang('update') ?></a>
+            </div>
             <input type="submit" name="save" class="hidden">
         </form>
     </div>

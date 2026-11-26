@@ -686,16 +686,6 @@ return [
                         'id' => 'emailsubject_field',
                     ],
                     [
-                        'key' => 'signupemail_message',
-                        'type' => 'lang_text',
-                        'label' => lang('signupemail_title'),
-                        'desc' => lang('signupemail_message'),
-                        'langKey' => EvoSettingsForm::MAIL_TEXT_LANG_KEYS['signupemail_message'],
-                        'reload' => 'reload_signupemail_message',
-                        'id' => 'signupemail_message_textarea',
-                        'attr' => ['style' => 'width:100%; height: 120px;'],
-                    ],
-                    [
                         'key' => 'websignupemail_message',
                         'type' => 'lang_text',
                         'label' => lang('websignupemail_title'),

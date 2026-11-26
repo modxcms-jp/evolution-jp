@@ -6,26 +6,28 @@ if (sessionv('prevAction') === 'options') {
 
 $ph = array_merge(
     $ph, [
-        'adminname'         => 'admin',
+        'adminname'         => sessionv('adminname') ?: 'admin',
         'database_server'   => sessionv('database_server') ?: env('DB_HOST') ?: 'localhost',
         'table_prefix'      => sessionv('table_prefix') ?: env('TABLE_PREFIX') ?: 'modx_',
         'is_upgradeable'    => sessionv('is_upgradeable'),
         'adminemail'        => sessionv('adminemail') ?: '',
-        'adminpass'         => sessionv('adminpass') ?: '',
-        'adminpassconfirm'  => sessionv('adminpassconfirm') ?: '',
+        // 管理者のパスワードは画面に出さない。確かめて通ったもの（ハッシュ）があれば、欄を空のまま進める
+        'adminpass_placeholder' => sessionv('adminpass_hash') ? lang('connection_screen_admin_password_kept') : '',
+        'adminpass_set'     => sessionv('adminpass_hash') ? '1' : '0',
         'database_user'     => sessionv('database_user') ?: env('DB_USERNAME') ?: '',
         // 保存済みのパスワードは画面に出さない（毎回入力してもらう）
         'database_password' => '',
         'dbase'             => sessionv('dbase') ?: env('DB_DATABASE') ?: '',
         'connection_error'  => $ph['connection_error'] ?? '',
-        'auh_display'       => empty($ph['connection_error']) ? 'none' : 'block',
+        'adminpass_error'   => $ph['adminpass_error'] ?? '',
+        'auh_display'       => empty($ph['connection_error']) && empty($ph['adminpass_error']) ? 'none' : 'block',
     ]
 );
 if ($ph['database_server'] === '127.0.0.1') {
     $ph['database_server'] = 'localhost';
 }
 // value="…" に入れる値は、出力の直前にエスケープする
-foreach (['adminname', 'database_server', 'table_prefix', 'adminemail', 'adminpass', 'adminpassconfirm', 'database_user', 'dbase'] as $key) {
+foreach (['adminname', 'database_server', 'table_prefix', 'adminemail', 'adminpass_placeholder', 'database_user', 'dbase'] as $key) {
     $ph[$key] = hsc($ph[$key]);
 }
 echo $modx->parseText(

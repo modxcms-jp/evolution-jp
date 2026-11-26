@@ -1072,7 +1072,7 @@ function installerSessionKeys()
         'test', 'currentAction', 'prevAction', 'install_language', 'is_upgradeable',
         'database_server', 'database_user', 'database_password', 'dbase', 'table_prefix',
         'database_collation', 'database_charset', 'database_connection_method',
-        'adminname', 'adminemail', 'adminpass', 'adminpassconfirm', 'managerlanguage',
+        'adminname', 'adminemail', 'adminpass', 'adminpassconfirm', 'adminpass_hash', 'managerlanguage',
         'chkagree', 'installdata', 'template', 'tv', 'chunk', 'snippet', 'plugin', 'module',
         'convert_to_utf8mb4', 'install_log_path', 'installer_cleanup',
     ];
@@ -1099,7 +1099,7 @@ function validateSessionValues() {
     : [
         'table_prefix',
         'adminname',
-        'adminpass',
+        'adminpass_hash',
         'adminemail',
         'database_charset',
         'database_collation',
@@ -1135,4 +1135,49 @@ function buildConfigFile($template, array $values)
         $replacePairs["[+{$key}+]"] = var_export($value, true);
     }
     return strtr($template, $replacePairs);
+}
+
+/**
+ * 送られた管理者のパスワードを確かめ、通ればハッシュだけをセッション（adminpass_hash）に持つ。平文はセッションにも画面にも残さない。
+ * 欄が空で、すでにハッシュがあれば（前の画面へ戻ってまた進んだとき）そのまま使う。入れた値が通らなければ、持っていたハッシュも捨てる。
+ * 決まりは管理画面と同じ EvoPasswordPolicy（assets/docs/password-policy.md）
+ *
+ * @param bool $required 進むとき true（決まりに合わなければエラー文を返す）。戻るときは false（合ったときだけ持ち、エラーにしない）
+ * @return string エラー文か ''
+ */
+function installerTakeAdminPassword($required)
+{
+    require_once MODX_CORE_PATH . 'password_policy.class.inc.php';
+    $password = post_textvar('adminpass', '');
+    $confirm = post_textvar('adminpassconfirm', '');
+    if ($password === '') {
+        return !$required || sessionv('adminpass_hash') ? '' : lang('alert_enter_adminpassword');
+    }
+    $error = installerAdminPasswordError($password, $confirm);
+    // 入れた値が通らなければ、前に通ったものも捨てる（変えようとした値が断られたのに、前の値が黙って残らないように）
+    sessionv('*adminpass_hash', $error === '' ? EvoPasswordPolicy::hash($password) : null);
+    return $required ? $error : '';
+}
+
+/**
+ * 管理者のパスワードが決まりに合わなければエラー文、合えば ''
+ */
+function installerAdminPasswordError($password, $confirm)
+{
+    if ($password !== $confirm) {
+        return lang('alert_adminpassword_mismatch');
+    }
+    $reason = EvoPasswordPolicy::check($password, [
+        (string) sessionv('adminname', ''),
+        (string) sessionv('adminemail', ''),
+    ]);
+    if ($reason === '') {
+        return '';
+    }
+    return sprintf(
+        lang('password_error_' . $reason),
+        EvoPasswordPolicy::MIN_LENGTH,
+        EvoPasswordPolicy::MAX_BYTES,
+        EvoPasswordPolicy::RECOMMENDED_LENGTH
+    );
 }

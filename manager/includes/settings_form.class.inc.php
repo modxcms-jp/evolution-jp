@@ -21,7 +21,6 @@ final class EvoSettingsForm
      * 行の無いときに言語ファイルの文面を入れる処理（install/instprocessor.php）の両方がこれを使う
      */
     const MAIL_TEXT_LANG_KEYS = [
-        'signupemail_message' => 'system_email_signup',
         'websignupemail_message' => 'system_email_websignup',
         'webpwdreminder_message' => 'system_email_webreminder',
     ];

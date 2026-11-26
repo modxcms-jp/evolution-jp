@@ -164,7 +164,6 @@ function nonSettingKeys()
         'reload_site_unavailable',
         'reload_captcha_words',
         'reload_emailsubject',
-        'reload_signupemail_message',
         'reload_websignupemail_message',
         'reload_system_email_webreminder_message',
         // 設定画面の補助項目（テンプレートの一括変更、言語ごとの初期文面）
@@ -173,7 +172,6 @@ function nonSettingKeys()
         'captcha_words_default',
         'emailsubject_default',
         'siteunavailable_message_default',
-        'system_email_signup_default',
         'system_email_websignup_default',
         'system_email_webreminder_default',
     ];

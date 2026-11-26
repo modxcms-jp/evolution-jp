@@ -81,8 +81,11 @@ if ($action === 88) {
 
 // restore saved form
 $formRestored = false;
+// パスワードは差し戻さない（saveFormValues() が残さない）。変えようとしていたかだけを、欄を開き直すために見る
+$passwordRestored = false;
 if (manager()->hasFormValues()) {
     $form_v = manager()->loadFormValues();
+    $passwordRestored = ($form_v['newpassword'] ?? '') === '1';
     // 差し戻す値は文字列だけにする（配列は、配列で受ける項目だけ）
     $form_v = restorableFormValues($form_v, ['user_groups', 'allowed_days']);
     // restore post values
@@ -188,7 +191,7 @@ if ($managerLanguage != "english" && is_file(MODX_CORE_PATH . "lang/country/{$ma
                         'confirmRename' => true,
                     ]);
 
-                    echo userFormPasswordRow($action === 87, true);
+                    echo userFormPasswordRow($action === 87 ? 'new' : 'set', ['restored' => $passwordRestored]);
 
                     echo userFormEmailRow($userdata);
                     ?>

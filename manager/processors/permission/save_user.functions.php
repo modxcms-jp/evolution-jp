@@ -16,7 +16,7 @@ function canSaveUser()
     if (saveUserMode() === 'profile') {
         return evo()->hasPermission('change_password')
             && post_intvar('userid') === (int)evo()->getLoginUserID()
-            && (post_intvar('newpassword') !== 1 || evo()->hasPermission('save_password'));
+            && (!changesPassword() || evo()->hasPermission('save_password'));
     }
     return evo()->hasPermission('save_user');
 }
@@ -79,35 +79,6 @@ function allowedSettingNames($scope)
         EvoSettingsForm::names($scope),
         (array)sessionv('pluginSettingNames.' . $scope, [])
     )));
-}
-
-// Send an email to the user
-function sendMailMessage($email, $uid, $pwd, $ufn)
-{
-    $message = evo()->mergeSettingsContent(
-        evo()->parseText(
-            config('signupemail_message'),
-            [
-                'username' => $uid,
-                'uid' => $uid,
-                'password' => $pwd,
-                'pwd' => $pwd,
-                'fullname' => $ufn,
-                'ufn' => $ufn,
-                'site_name' => config('site_name'),
-                'sname' => config('site_name'),
-                'manager_email' => config('emailsender'),
-                'saddr' => config('emailsender'),
-                'semail' => config('emailsender'),
-                'site_url' => MODX_SITE_URL,
-                'surl' => MODX_SITE_URL . 'manager/'
-            ]
-        )
-    );
-    if (!evo()->sendmail($email, $message)) {
-        webAlert(sprintf('%s - %s', $email, lang('error_sending_email')));
-        exit;
-    }
 }
 
 // Save User Settings
@@ -263,16 +234,6 @@ function webAlert($msg)
     );
 }
 
-// Generate password
-function generate_password($length = 10)
-{
-    static $password = null;
-    if ($password) {
-        return $password;
-    }
-    return substr(str_shuffle('abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, $length);
-}
-
 function verifyPermission()
 {
     if (manager()->isAdmin()) {
@@ -345,38 +306,29 @@ function hasOldUserEmail()
     return (post_strvar('oldemail') !== post_strvar('email'));
 }
 
-function newPassword()
+// パスワードを変えるか（新規は画面が常に 1 を送る。すでにあるユーザーは「パスワードを変更」を押したとき）
+function changesPassword()
 {
-    static $password = null;
-
-    if ($password) {
-        return $password;
-    }
-
-    switch (post_choicevar('passwordgenmethod', ['spec', 'g'], '')) {
-        case 'spec':
-            $password = post_strvar('specifiedpassword');
-            break;
-        case 'g':
-            $password = generate_password(8);
-            break;
-        default:
-            webAlert('No password generation method specified!');
-            exit;
-    }
-
-    return $password;
+    return saveUserMode() === 'new' || post_intvar('newpassword') === 1;
 }
 
-function confirmPassword()
+// 新しいパスワード（加工しない）。変えないときは ''
+function newPassword()
 {
-    if (post_strvar('passwordgenmethod') !== 'spec') {
-        return true;
+    return changesPassword() ? post_textvar('userpassword', '') : '';
+}
+
+// 新しいパスワードが決まりに合わなければ、利用者に見せるエラー文。合えば ''
+function newPasswordError()
+{
+    if (newPassword() === '') {
+        return lang('password_required');
     }
-    if (post_strvar('specifiedpassword') === post_strvar('confirmpassword')) {
-        return true;
-    }
-    return false;
+    return manager()->passwordError(newPassword(), [
+        userformv_str('newusername'),
+        post_strvar('email'),
+        post_strvar('fullname'),
+    ]);
 }
 
 function validEmail()
@@ -535,53 +487,16 @@ function newUser()
     }
     // end of user_groups stuff!
 
-    $stayUrl = EvoFormFlow::afterSaveUrl('user', (int)$internalKey, EvoFormFlow::postedAfterSave(), ['refresh' => 'tree']);
-
-    if (post_strvar('passwordnotifymethod') === 'e') {
-        sendMailMessage(
-            post_strvar('email'),
-            userformv_str('newusername'),
-            newPassword(),
-            post_strvar('fullname')
-        );
-        header('Location: ' . $stayUrl);
-        exit;
-    }
-
-    include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
-?>
-    <h1><?= lang('user_title') ?></h1>
-
-    <div id="actions">
-        <ul class="actionButtons">
-            <li class="mutate"><a href="<?= hsc($stayUrl) ?>"><?= lang('close') ?>
-                </a></li>
-        </ul>
-    </div>
-
-    <div class="section">
-        <div class="sectionHeader"><?= lang('user_title') ?></div>
-        <div class="sectionBody">
-            <div id="disp">
-                <p>
-                    <?php
-                    echo sprintf(lang('password_msg'), hsc(userformv_str('newusername')), hsc(newPassword()));
-                    ?>
-                </p>
-            </div>
-        </div>
-    </div>
-    <?php
-
-    include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
+    // パスワードは画面にもメールにも出さず、ほかの保存と同じ行き先へ戻す
+    header('Location: ' . EvoFormFlow::afterSaveUrl('user', (int)$internalKey, EvoFormFlow::postedAfterSave(), ['refresh' => 'tree']));
+    exit;
 }
 
 function updateUser()
 {
     $userid = post_intvar('userid');
     $username = userformv_str('newusername');
-    $changePassword = post_intvar('newpassword') === 1;
-    $notifyMethod = post_strvar('passwordnotifymethod');
+    $changePassword = changesPassword();
     $isSelf = $userid === (int)evo()->getLoginUserID();
 
     // invoke OnBeforeUserFormSave event
@@ -645,10 +560,6 @@ function updateUser()
         evo()->invokeEvent('OnManagerChangePassword', $tmp);
     }
 
-    if ($notifyMethod === 'e' && $changePassword) {
-        sendMailMessage(post_strvar('email'), $username, newPassword(), post_strvar('fullname'));
-    }
-
     // invoke OnUserFormSave event
     $tmp = [
         'mode' => 'upd',
@@ -677,7 +588,8 @@ function updateUser()
         }
     }
     // end of user_groups stuff!
-    if ($isSelf && $notifyMethod !== 's') {
+    // 自分のパスワードを変えたら、ログインし直してもらう
+    if ($isSelf && $changePassword) {
     ?>
 
         <body bgcolor='#efefef'>
@@ -696,46 +608,10 @@ function updateUser()
         evo()->webAlertAndQuit(lang('save_user_relogin'), EvoFormFlow::url(['a' => EvoFormFlow::screen('user', 'close')]));
         exit;
     }
-    $afterSave = EvoFormFlow::postedAfterSave();
-    if (!$changePassword || $notifyMethod !== 's') {
-        if (saveUserMode() === 'profile') {
-            header('Location: ' . 'index.php?refresh=tree&a=2');
-            exit;
-        }
-        header('Location: ' . EvoFormFlow::afterSaveUrl('user', $userid, $afterSave, ['refresh' => 'tree']));
+    if (saveUserMode() === 'profile') {
+        header('Location: ' . 'index.php?refresh=tree&a=2');
         exit;
     }
-
-    // パスワードを画面に表示するときの「閉じる」。新規・メール通知と同じくツリーを読み直す
-    $stayUrl = $isSelf ? 'index.php?a=8' : EvoFormFlow::afterSaveUrl('user', $userid, $afterSave, ['refresh' => 'tree']);
-    include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
-    ?>
-    <h1><?= lang('user_title') ?></h1>
-
-    <div id="actions">
-        <ul class="actionButtons">
-            <li class="mutate">
-                <a href="<?= hsc($stayUrl) ?>"<?= $isSelf ? ' data-evo-post="full"' : '' ?>><?= $isSelf ? lang('logout') : lang('close') ?>
-                </a>
-            </li>
-        </ul>
-    </div>
-
-    <div class="section">
-        <div class="sectionHeader"><?= lang('user_title') ?></div>
-        <div class="sectionBody">
-            <div id="disp">
-                <p>
-                    <?= sprintf(
-                        lang('password_msg'),
-                        hsc($username),
-                        hsc(newPassword())
-                    ) . ($isSelf ? ' ' . lang('user_changeddata') : ''); ?>
-                </p>
-            </div>
-        </div>
-    </div>
-<?php
-
-    include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
+    header('Location: ' . EvoFormFlow::afterSaveUrl('user', $userid, EvoFormFlow::postedAfterSave(), ['refresh' => 'tree']));
+    exit;
 }
