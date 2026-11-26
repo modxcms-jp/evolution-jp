@@ -2,7 +2,7 @@
  * TinyMCE 7 の本文で、タグ（{{chunk}}・[[snippet]]・[*field*]・[(setting)]）を書くのを助ける（管理画面だけ）。
  * - 補完: 書き始め（{{ など）を打つと名前の候補を出し、選ぶと閉じ記号まで入れる
  * - 色付け: 本文の中のタグに種類ごとの地の色を付け、無い名前・無効のチャンクは別の見せ方にする
- * 名前は tag-names.php から、エディターごとに 1 回だけ取る。
+ * 名前は tag-names.php から取る（同じ画面のエディターで分け合う。nameStoreFor）。取れなかったときは照らさない。
  * editor-setup.js が window.mceModxTagAssist(editor) を呼ぶ。
  */
 (function (global) {
@@ -22,9 +22,9 @@
   // 補完中の名前に使わない文字。打ったら補完を終える
   const NAME_STOP = /[\s{}\[\]()*!~+]/;
 
-  // 本文の中のタグ。{{ のあとが空白のものは、本体がタグとして扱わない（mergeChunkContent）
+  // 本文の中のタグ。{{ のあと・}} の前が空白のものは、本体がタグとして扱わない（mergeChunkContent）
   const TAG_PATTERNS = [
-    {kind: 'chunk', pattern: /\{\{(?!\s)([^{}]+?)\}\}/g},
+    {kind: 'chunk', pattern: /\{\{(?!\s)([^{}]+?)(?<!\s)\}\}/g},
     {kind: 'snippet', pattern: /\[\[([^\[\]]+?)\]\]|\[!([^\[\]!]+?)!\]/g},
     {kind: 'field', pattern: /\[\*([^\[\]*]+?)\*\]/g},
     {kind: 'setting', pattern: /\[\(([^\[\]()]+?)\)\]/g}
@@ -37,6 +37,27 @@
     unknown: 'background-color:rgba(220, 38, 38, 0.14);color:#b91c1c;text-decoration:underline wavy #dc2626;',
     disabled: 'background-color:rgba(107, 114, 128, 0.16);color:#6b7280;text-decoration:line-through;'
   };
+  // 無い名前・無効の見せ方は、種類の色より上に重ねる
+  const STATE_HIGHLIGHTS = ['unknown', 'disabled'];
+  // 本体が名前の表とは別に値を置くリソース変数（mergeDocumentContent）
+  const BUILTIN_FIELDS = ['phx', 'dummy'];
+
+  // 同じ画面のエディター（リッチテキストのテンプレート変数など）は、まとめて初期化されるので 1 回の取得を分け合う。
+  // 管理画面は画面を移ってもこのスクリプトを読み直さない（シェルの遷移も、document.open() での書き直しも）。
+  // 分け合うのは作ってから短い間だけにし、画面ごとに取り直して、作ったばかりの要素を無い名前にしない
+  const NAME_STORE_SHARE_MS = 5000;
+  const nameStores = new Map();
+
+  function nameStoreFor(url) {
+    const now = Date.now();
+    const entry = nameStores.get(url);
+    if (entry && now - entry.createdAt < NAME_STORE_SHARE_MS) {
+      return entry.store;
+    }
+    const store = createNameStore(url);
+    nameStores.set(url, {store: store, createdAt: now});
+    return store;
+  }
 
   function createNameStore(url) {
     let promise = null;
@@ -58,16 +79,25 @@
     return {
       load: function () {
         if (!promise) {
+          // 取れなかったとき（ログインが切れた・エラー）は data を null のままにし、照らさない（全部を無い名前にしない）。
+          // 次に補完を開いたときに取り直す
           promise = fetch(url, {credentials: 'same-origin', headers: {Accept: 'application/json'}})
             .then(function (response) {
-              return response.ok ? response.json() : {};
-            })
-            .catch(function () {
-              return {};
+              if (!response.ok) {
+                throw new Error('tag-names: ' + response.status);
+              }
+              return response.json();
             })
             .then(function (json) {
-              data = {kinds: index(json.names || {}), labels: json.labels || {}};
+              if (!json || typeof json.names !== 'object' || json.names === null) {
+                throw new Error('tag-names: unexpected response');
+              }
+              data = {kinds: index(json.names), labels: json.labels || {}};
               return data;
+            })
+            .catch(function () {
+              promise = null;
+              return null;
             });
         }
         return promise;
@@ -132,6 +162,24 @@
     }
   }
 
+  function escapeRegExp(text) {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  // 既にあるタグの名前の途中で選んだときは、入力位置のあとの名前の残りと閉じ記号までを置き換える（閉じ記号を二重にしない）
+  function extendRangeToClose(range, kind) {
+    const node = range.endContainer;
+    if (node.nodeType !== Node.TEXT_NODE) {
+      return;
+    }
+    const after = node.nodeValue.slice(range.endOffset);
+    // 名前の残りに数えるのは、名前に使う文字だけ（引数の記号 ` ' " = & ? : などで止める。外側のタグの閉じ記号を取り込まない）
+    const match = new RegExp('^[^\\s{}\\[\\]()*!~+`\'"=&?:|@#]*' + escapeRegExp(kind.close)).exec(after);
+    if (match) {
+      range.setEnd(node, range.endOffset + match[0].length);
+    }
+  }
+
   function bindAutocomplete(editor, store) {
     TAG_KINDS.forEach(function (kind) {
       editor.ui.registry.addAutocompleter('modx_tag_' + kind.key, {
@@ -150,6 +198,9 @@
             return Promise.resolve([]);
           }
           return store.load().then(function (data) {
+            if (!data) {
+              return [];
+            }
             const disabledLabel = data.labels.disabled || '';
             return matchNames(data.kinds[input.kind.key].items, input.query).slice(0, MAX_RESULTS).map(function (item) {
               return {
@@ -168,6 +219,7 @@
           }
           const target = rng.cloneRange();
           moveRangeStart(editor.getDoc(), target, input.start);
+          extendRangeToClose(target, input.kind);
           editor.selection.setRng(target);
           editor.insertContent(editor.dom.encode(input.kind.open + value + input.kind.close));
         }
@@ -177,18 +229,80 @@
 
   // ---- 色付け ----
 
-  // タグの中身から、本体が探す名前を取り出す（document.parser.class.inc.php の _split_snip_call・splitKeyAndFilter と同じ区切り）。
-  // 本体の名前の表と照らせないもの（@FILE、[*a|b*] の候補、[*name@context*]）は null で、照らさない
+  // 名前と引数の境目。document.parser.class.inc.php の _getSplitPosition を写したもの（0 は境目にしない）。
+  // 名前は空白を含んでよく、? ・改行・&（直前が空白ならその空白）で切る。フィルター（: のあと）では ? が無ければ空白でも切る
+  function splitPosition(str) {
+    let closeOpt = '';
+    let maybePos = 0;
+    let inFilter = false;
+    const qpos = str.indexOf('?');
+    let pos = 0;
+    for (let i = 0; i < str.length; i++) {
+      const c = str.charAt(i);
+      const cc = str.substr(i, 2);
+      if (!inFilter) {
+        if (c === ':') {
+          inFilter = true;
+        } else if (c === '?') {
+          pos = i;
+        } else if (c === ' ') {
+          maybePos = i;
+        } else if (c === '&' && maybePos) {
+          pos = maybePos;
+        } else if (c === '&' && qpos <= 0) {
+          pos = i;
+        } else if (c === '\n') {
+          pos = i;
+        } else {
+          pos = 0;
+        }
+      } else if (closeOpt && (cc === closeOpt || c === closeOpt)) {
+        closeOpt = '';
+      } else if (closeOpt) {
+        continue;
+      } else if (cc === "('") {
+        closeOpt = "')";
+      } else if (cc === '("') {
+        closeOpt = '")';
+      } else if (cc === '(`') {
+        closeOpt = '`)';
+      } else if (c === '(') {
+        closeOpt = ')';
+      } else if (c === '?') {
+        pos = i;
+      } else if (c === ' ' && qpos === -1) {
+        pos = i;
+      } else {
+        pos = 0;
+      }
+      if (pos) {
+        break;
+      }
+    }
+    return pos;
+  }
+
+  // タグの中身から、本体が探す名前を取り出す（_split_snip_call・splitKeyAndFilter・mergeDocumentContent と同じ順）。
+  // 名前の表と照らせないものは null で、照らさない:
+  // @FILE などの @、プラグインが足す #name（チャンク・スニペット）、[[$_GET.x]] のようなスーパーグローバル、
+  // [*a|b*] の候補の並び、[*name@context*]、本体が置く [*phx*]・[*dummy*]
   function tagName(kind, inner) {
     let name = inner;
     if (kind === 'chunk' || kind === 'snippet') {
-      name = name.split(/[?&\s]/)[0];
+      const pos = splitPosition(name);
+      name = pos ? name.slice(0, pos) : name;
+      if (/^\s*(#|\$_)/.test(name)) {
+        return null;
+      }
     }
     if (kind === 'field' && name.charAt(0) === '#') {
       name = name.slice(1);
     }
     name = name.split(':')[0].trim();
     if (name === '' || name.charAt(0) === '@' || /[|@]/.test(name)) {
+      return null;
+    }
+    if (kind === 'field' && BUILTIN_FIELDS.indexOf(name) !== -1) {
       return null;
     }
     return name;
@@ -250,8 +364,7 @@
       }
       names.forEach(function (name) {
         const highlight = new win.Highlight(...ranges[name]);
-        // 無い名前・無効の見せ方を、種類の色より上に重ねる
-        highlight.priority = HIGHLIGHT_STYLES[name].indexOf('text-decoration') !== -1 ? 1 : 0;
+        highlight.priority = STATE_HIGHLIGHTS.indexOf(name) !== -1 ? 1 : 0;
         win.CSS.highlights.set('modx-tag-' + name, highlight);
       });
     }
@@ -281,7 +394,7 @@
   global.mceModxTagAssist = function (editor) {
     editor.options.register('modx_tag_names_url', {processor: 'string', default: ''});
     const url = editor.options.get('modx_tag_names_url');
-    const store = url ? createNameStore(url) : null;
+    const store = url ? nameStoreFor(url) : null;
     if (store) {
       bindAutocomplete(editor, store);
     }

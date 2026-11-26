@@ -105,7 +105,7 @@ final class EditorInitializer
             $config['link_list'] = MODX_BASE_URL . 'assets/plugins/tinymce7/link-list.php';
         }
         if (empty($params['forfrontend']) && !isset($config['modx_tag_names_url'])) {
-            // タグの補完の候補。最初に補完を開いたときに 1 回だけ取りに行く（js/editor-setup.js）
+            // 本文のタグの補完と色付けに使う名前の一覧。エディターの初期化のときに取りに行き、同じ画面のエディターで分け合う（js/tag-assist.js）
             $config['modx_tag_names_url'] = MODX_BASE_URL . 'assets/plugins/tinymce7/tag-names.php';
         }
         $config = $this->preferences->applyCssSelectors($config);

@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace TinyMCE7\Editor;
 
 /**
- * 本文でタグを入力するときの補完（js/editor-setup.js の bindTagAutocomplete）に出す名前を集める。
+ * 本文のタグの補完と色付け（js/tag-assist.js）に使う名前を集める。
  *
  * 種類ごとに {name, note, disabled} の並びを返す。note は候補の横に出す説明（無ければ空）。
  * disabled は、書いても中身が出ないもの（無効のチャンク）。本文の中のタグの見せ方を変えるのに使う。
@@ -21,7 +21,7 @@ final class TagNameRepository
     public function all(): array
     {
         return [
-            'chunk' => $this->elements('site_htmlsnippets', 'description', 'published=0'),
+            'chunk' => $this->elements('site_htmlsnippets', 'description', 'published'),
             'snippet' => $this->elements('site_snippets', 'description'),
             'field' => array_merge($this->resourceFields(), $this->elements('site_tmplvars', 'caption')),
             'setting' => $this->settings(),
@@ -29,22 +29,28 @@ final class TagNameRepository
     }
 
     /**
-     * @param string $disabledCondition 無効を表す条件（無効の無い種類は '0'）
+     * @param string $publishedColumn 0 のとき無効を表す列（無効の無い種類は空）。本体は published=1 のチャンクだけを読む
      * @return array<int, array{name: string, note: string, disabled: bool}>
      */
-    private function elements(string $table, string $noteColumn, string $disabledCondition = '0'): array
+    private function elements(string $table, string $noteColumn, string $publishedColumn = ''): array
     {
+        $columns = "name,{$noteColumn} AS note" . ($publishedColumn !== '' ? ",{$publishedColumn} AS published" : '');
         $rows = db()->getRows(db()->select(
-            "name,{$noteColumn} AS note,({$disabledCondition}) AS disabled",
+            $columns,
             "[+prefix+]{$table}",
             "name!=''",
             'name ASC'
         )) ?: [];
 
-        return array_map(static function (array $row): array {
-            // 説明に HTML を書くエレメント（同梱のスニペットの版の表記など）があるので、候補には文字だけを出す
-            $note = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags((string)$row['note']), ENT_QUOTES, 'UTF-8')));
-            return ['name' => (string)$row['name'], 'note' => $note, 'disabled' => (bool)$row['disabled']];
+        return array_map(static function (array $row) use ($publishedColumn): array {
+            // 説明に HTML を書くエレメント（同梱のスニペットの版の表記など）があるので、候補には文字だけを出す。
+            // 不正な UTF-8 では /u の置き換えが null を返すので、文字列で受ける（出口の json_encode が置き換える）
+            $note = trim((string)preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags((string)$row['note']), ENT_QUOTES, 'UTF-8')));
+            return [
+                'name' => (string)$row['name'],
+                'note' => $note,
+                'disabled' => $publishedColumn !== '' && (int)$row['published'] === 0,
+            ];
         }, $rows);
     }
 
