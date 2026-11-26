@@ -16,7 +16,7 @@
     </p>
 
     <!-- connection test action/status message -->
-    <div class="clickHere">
+    <div class="clickHere" id="servertestRow">
         &rarr; <a id="servertest" href="javascript:void(0)">[+connection_screen_server_test_connection+]</a>
     </div>
     <div class="status" id="serverstatus" style="display:none;"></div>
@@ -43,25 +43,13 @@
                        name="database_connection_method"/>
             </div>
             </p>
-            <div class="clickHere">
-                &rarr; <a id="databasetest" href="#footer">[+connection_screen_database_test_connection+]</a>
+            <div class="clickHere" id="databasetestRow">
+                &rarr; <a id="databasetest" href="javascript:void(0)">[+connection_screen_database_test_connection+]</a>
             </div>
             <div class="status" id="databasestatus" style="display:none;">&nbsp;</div>
         </div>
     </div>
 
-    <script type="text/javascript">
-        // 確認の結果が見えるよう、ページの下までスクロールする
-        ['servertest', 'databasetest'].forEach(function (id) {
-            document.getElementById(id).addEventListener('click', function () {
-                var footer = document.getElementById('footer');
-                window.scrollTo({
-                    top: footer.getBoundingClientRect().top + window.scrollY,
-                    behavior: 'smooth'
-                });
-            });
-        });
-    </script>
     <div id="AUH" style="margin-top:1.5em;display:[+auh_display+];">
         <div id="AUHMask">
             <h2>[+connection_screen_defaults+]</h2>
@@ -92,6 +80,8 @@
 </form>
 
 <script type="text/javascript">
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     // 出すときは軽く浮かび上がらせる（急に出ると、どこが増えたか分かりにくい。動きは style.css の .install-reveal）
     var showBlock = function (id) {
         var el = document.getElementById(id);
@@ -99,6 +89,19 @@
         el.classList.remove('install-reveal');
         void el.offsetWidth;
         el.classList.add('install-reveal');
+        return el;
+    };
+
+    // revealed が出終わってから、target が見えるところまでスクロールする（動きを減らす設定では、すぐに移る）
+    var scrollAfterReveal = function (revealed, target, block) {
+        var scroll = function () {
+            target.scrollIntoView({behavior: reduceMotion ? 'auto' : 'smooth', block: block});
+        };
+        if (reduceMotion || getComputedStyle(revealed).animationName === 'none') {
+            scroll();
+            return;
+        }
+        revealed.addEventListener('animationend', scroll, {once: true});
     };
     var hide = function (id) {
         document.getElementById(id).style.display = 'none';
@@ -136,9 +139,14 @@
         };
         postForm(url, pars).then(function (data) {
             setHtml(document.getElementById('serverstatus'), data);
-            showBlock('serverstatus');
-            if (0 < data.indexOf('server_pass'))
-                showBlock('setCollation');
+            var status = showBlock('serverstatus');
+            if (0 < data.indexOf('server_pass')) {
+                // つながったら、テストのリンクは隠し、結果と次のセクションが見えるところまで送る
+                hide('servertestRow');
+                scrollAfterReveal(showBlock('setCollation'), status, 'start');
+            } else {
+                scrollAfterReveal(status, status, 'nearest');
+            }
         }).catch(function () {
             // 失敗時は何もしない（従来どおり）
         });
@@ -146,7 +154,7 @@
 
     // database test
     document.getElementById('databasetest').addEventListener('click', function () {
-        hide('databasetest');
+        hide('databasetestRow');
         hide('AUH');
         var status = document.getElementById('databasestatus');
         status.innerHTML = '';
@@ -168,14 +176,28 @@
             setHtml(status, data);
             showBlock('databasestatus');
             if (0 < data.indexOf('database_pass')) {
-                showBlock('AUH');
+                scrollAfterReveal(showBlock('AUH'), status, 'start');
             } else {
-                document.getElementById('databasetest').style.display = '';
+                showBlock('databasetestRow');
+                scrollAfterReveal(status, status, 'nearest');
             }
         }).catch(function () {
-            status.innerHTML = '<span id="database_fail" style="background: #ffe6eb;padding:8px;border-radius:5px;color:#FF0000;">[+alert_database_test_connection_failed+]</span>';
+            status.innerHTML = '<div style="background: #ffe6eb;padding:8px;border-radius:5px;">[+status_checking_database+]<span id="database_fail" style="color:#FF0000;">[+alert_database_test_connection_failed+]</span></div>';
             showBlock('databasestatus');
-            document.getElementById('databasetest').style.display = '';
+            showBlock('databasetestRow');
+            scrollAfterReveal(status, status, 'nearest');
+        });
+    });
+
+    // 接続の情報を変えたら、テストし直せるようにリンクを出す
+    ['database_server', 'database_user', 'database_password'].forEach(function (id) {
+        document.getElementById(id).addEventListener('input', function () {
+            document.getElementById('servertestRow').style.display = '';
+        });
+    });
+    ['dbase', 'collation', 'table_prefix'].forEach(function (id) {
+        document.getElementById(id).addEventListener('input', function () {
+            document.getElementById('databasetestRow').style.display = '';
         });
     });
 
