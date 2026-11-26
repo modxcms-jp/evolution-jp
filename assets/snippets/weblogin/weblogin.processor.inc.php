@@ -299,15 +299,7 @@ $blockMinutes = (int)config('blocked_minutes', 10);
 $allowedIp = config('allowed_ip', '');
 $allowedDays = config('allowed_days', '');
 
-if ($failedlogins >= $failedLoginLimit && $blockeduntildate > time()) {
-    // blocked due to number of login errors.
-    session_destroy();
-    session_unset();
-    $output = webLoginAlert('You cannot log in right now. Please try again later.');
-    return;
-}
-
-if ($failedlogins >= $failedLoginLimit && $blockeduntildate < time()) {
+if ($failedlogins >= $failedLoginLimit && $blockeduntildate <= time()) {
     // blocked due to number of login errors, but get to try again
     $f = [];
     $f['failedlogincount'] = '0';
@@ -317,13 +309,13 @@ if ($failedlogins >= $failedLoginLimit && $blockeduntildate < time()) {
 }
 
 // ブロック中かは、管理画面の表示と同じ isUserBlocked() で決める
-if (isUserBlocked(['blocked' => $blocked, 'blockeduntil' => $blockeduntildate, 'blockedafter' => $blockedafterdate])) {
+$blockState = ['blocked' => $blocked, 'blockeduntil' => $blockeduntildate, 'blockedafter' => $blockedafterdate];
+if (isUserBlocked($blockState)) {
     session_destroy();
     session_unset();
-    // 待てば入れるもの（blockeduntil が未来）だけ知らせ、ほかはパスワード違いと同じ案内で伏せる
-    $isTemporary = (int)$blocked !== 1
-        && !((int)$blockedafterdate > 0 && (int)$blockedafterdate < time())
-        && (int)$blockeduntildate > time();
+    // blockeduntil だけが理由のブロック（失敗回数による一時ロック・休止の期限前）は待てば入れるので知らせ、
+    // ほかはパスワード違いと同じ案内で伏せる
+    $isTemporary = !isUserBlocked(array_merge($blockState, ['blockeduntil' => 0]));
     $output = webLoginAlert(
         $isTemporary
             ? 'You cannot log in right now. Please try again later.'
