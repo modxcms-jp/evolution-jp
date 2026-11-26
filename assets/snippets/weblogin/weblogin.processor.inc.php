@@ -303,7 +303,7 @@ if ($failedlogins >= $failedLoginLimit && $blockeduntildate > time()) {
     // blocked due to number of login errors.
     session_destroy();
     session_unset();
-    $output = webLoginAlert('Due to too many failed logins, you have been blocked.');
+    $output = webLoginAlert('You cannot log in right now. Please try again later.');
     return;
 }
 
@@ -320,11 +320,14 @@ if ($failedlogins >= $failedLoginLimit && $blockeduntildate < time()) {
 if (isUserBlocked(['blocked' => $blocked, 'blockeduntil' => $blockeduntildate, 'blockedafter' => $blockedafterdate])) {
     session_destroy();
     session_unset();
-    // 管理者によるブロックと、日時によるブロックで知らせ方を分ける
+    // 待てば入れるもの（blockeduntil が未来）だけ知らせ、ほかはパスワード違いと同じ案内で伏せる
+    $isTemporary = (int)$blocked !== 1
+        && !((int)$blockedafterdate > 0 && (int)$blockedafterdate < time())
+        && (int)$blockeduntildate > time();
     $output = webLoginAlert(
-        (int)$blocked === 1
-            ? 'You are blocked and cannot log in!'
-            : 'You are blocked and cannot log in! Please try again later.'
+        $isTemporary
+            ? 'You cannot log in right now. Please try again later.'
+            : 'Incorrect username or password entered!'
     );
     return;
 }

@@ -97,7 +97,7 @@ function fmplang($key, $ph = [])
         'Invalid password activation key. Your password was NOT activated.' => 'アクティベーションキーが無効になっています。',
         'Your new password was successfully activated.' => 'アクティベーションしました。新しいパスワードでログインできます。',
         'Incorrect username or password entered!' => 'メールアドレスまたはパスワードが間違っています。',
-        'You are blocked and cannot log in!' => 'メールアドレスまたはパスワードが間違っています。',
+        'You cannot log in right now. Please try again later.' => 'ただいまログインできません。しばらくしてからお試しください。',
         'Please enter the security code shown in the image.' => '画像のセキュリティコードを入力してください。',
         'Security code' => 'セキュリティコード'
     ];
