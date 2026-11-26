@@ -61,7 +61,7 @@ if (!OnManagerAuthentication()) {
     // 期限切れのリンクを開いただけでブロックが延びないよう、失敗回数は増やさない。
     // パスワードを送る要求は普通のログインとして、パスワードを確かめて失敗回数に数える
     if (isPasswordResetLinkRequest()) {
-        jsAlert(lang('fmp_link_invalid', 'This password reset link is invalid or has expired. Please request a new one.'));
+        rejectInvalidResetLink();
         return;
     }
     if (!validPassword(input('password'), user('password'))) {
