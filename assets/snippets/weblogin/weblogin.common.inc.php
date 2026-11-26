@@ -99,7 +99,18 @@ function fmplang($key, $ph = [])
         'Incorrect username or password entered!' => 'メールアドレスまたはパスワードが間違っています。',
         'You cannot log in right now. Please try again later.' => 'ただいまログインできません。しばらくしてからお試しください。',
         'Please enter the security code shown in the image.' => '画像のセキュリティコードを入力してください。',
-        'Security code' => 'セキュリティコード'
+        'Security code' => 'セキュリティコード',
+        'Error while loading user account. Please contact the Site Administrator' => 'ユーザー情報を読み込めませんでした。サイトの管理者に連絡してください。',
+        'It was over expiration time' => 'パスワード再設定の有効期限が切れています。もう一度、再設定の手続きをしてください。',
+        'Error while activating password.' => 'パスワードのアクティベーションに失敗しました。',
+        'Please enter your email address.' => 'メールアドレスを入力してください。',
+        'We are sorry! We cannot locate an account using that email.' => 'このメールアドレスのアカウントが見つかりません。',
+        'Error while sending mail to [+email+]. Please contact the Site Administrator' => '[+email+] へのメール送信に失敗しました。サイトの管理者に連絡してください。',
+        'Please check your email account ([+email+]) for login instructions.' => 'ログイン方法をメール([+email+])で送りました。ご確認ください。',
+        "The security code you entered didn't validate! Please try to login again!" => '入力されたセキュリティコードが間違っています。もう一度ログインしてください。',
+        'You are not allowed to login from this location.' => 'この場所からはログインできません。',
+        'You are not allowed to login at this time. Please try again later.' => 'この曜日はログインできません。',
+        'error replacing into active users!' => 'ログイン状態の記録に失敗しました。'
     ];
 
     // 翻訳が無いメッセージはそのまま返す
