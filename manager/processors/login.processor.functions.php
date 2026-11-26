@@ -39,6 +39,12 @@ function loginPassword()
     return post_textvar('password');
 }
 
+// パスワード再設定のリンクの要求か（fmpkey があり、パスワードを送っていない）
+function isPasswordResetLinkRequest()
+{
+    return getv('fmpkey') && (string)loginPassword() === '';
+}
+
 function validateLoginInput()
 {
     $username = loginUsername();
