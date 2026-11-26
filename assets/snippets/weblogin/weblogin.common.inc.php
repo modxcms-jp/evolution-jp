@@ -101,16 +101,16 @@ function fmplang($key, $ph = [])
         'Please enter the security code shown in the image.' => '画像のセキュリティコードを入力してください。',
         'Security code' => 'セキュリティコード',
         'Error while loading user account. Please contact the Site Administrator' => 'ユーザー情報を読み込めませんでした。サイトの管理者に連絡してください。',
-        'It was over expiration time' => 'パスワード再設定の有効期限が切れています。もう一度、再設定の手続きをしてください。',
+        'It was over expiration time' => 'パスワード再設定のリンクの有効期限が切れています。もう一度パスワードの再設定を申し込んでください。',
         'Error while activating password.' => 'パスワードのアクティベーションに失敗しました。',
         'Please enter your email address.' => 'メールアドレスを入力してください。',
         'We are sorry! We cannot locate an account using that email.' => 'このメールアドレスのアカウントが見つかりません。',
         'Error while sending mail to [+email+]. Please contact the Site Administrator' => '[+email+] へのメール送信に失敗しました。サイトの管理者に連絡してください。',
         'Please check your email account ([+email+]) for login instructions.' => '[+email+] へパスワード再設定のメールを送りました。メールを確認してください。',
         "The security code you entered didn't validate! Please try to login again!" => '入力されたセキュリティコードが間違っています。もう一度ログインしてください。',
-        'You are not allowed to login from this location.' => 'この場所からはログインできません。',
+        'You are not allowed to login from this location.' => 'このIPアドレスからはログインできません。',
         'You are not allowed to login at this time. Please try again later.' => 'この曜日はログインできません。',
-        'error replacing into active users!' => 'ログイン状態の記録に失敗しました。'
+        'error replacing into active users!' => 'ログイン状態の記録に失敗しました。サイトの管理者に連絡してください。'
     ];
 
     // 翻訳が無いメッセージはそのまま返す
