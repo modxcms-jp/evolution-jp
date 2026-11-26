@@ -59,3 +59,4 @@ $_lang['tinymce7_loss_consult'] = 'If you do not want this change, please consul
 $_lang['tinymce7_image_edit'] = 'Edit image';
 $_lang['tinymce7_link_list_unpublished'] = ' (unpublished)';
 $_lang['tinymce7_link_list_truncated'] = '(Documents deeper than this are omitted. Write [~ID~] in the URL field.)';
+$_lang['tinymce7_tag_disabled'] = ' (disabled)';
