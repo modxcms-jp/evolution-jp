@@ -92,8 +92,13 @@
 </form>
 
 <script type="text/javascript">
+    // 出すときは軽く浮かび上がらせる（急に出ると、どこが増えたか分かりにくい。動きは style.css の .install-reveal）
     var showBlock = function (id) {
-        document.getElementById(id).style.display = 'block';
+        var el = document.getElementById(id);
+        el.style.display = 'block';
+        el.classList.remove('install-reveal');
+        void el.offsetWidth;
+        el.classList.add('install-reveal');
     };
     var hide = function (id) {
         document.getElementById(id).style.display = 'none';
@@ -161,7 +166,7 @@
         };
         postForm(url, pars).then(function (data) {
             setHtml(status, data);
-            status.style.display = 'block';
+            showBlock('databasestatus');
             if (0 < data.indexOf('database_pass')) {
                 showBlock('AUH');
             } else {
@@ -169,7 +174,7 @@
             }
         }).catch(function () {
             status.innerHTML = '<span id="database_fail" style="background: #ffe6eb;padding:8px;border-radius:5px;color:#FF0000;">[+alert_database_test_connection_failed+]</span>';
-            status.style.display = 'block';
+            showBlock('databasestatus');
             document.getElementById('databasetest').style.display = '';
         });
     });
