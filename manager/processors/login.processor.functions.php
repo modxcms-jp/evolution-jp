@@ -454,7 +454,7 @@ function checkAllowedDays()
 
 function validPassword($inputPassword = '', $savedPassword = '')
 {
-    // fmpkey付きリクエストでは password が無い（null）ため文字列に揃える
+    // 送られていない（null）ときも文字列として比べる
     $inputPassword = (string)$inputPassword;
     evo()->loadExtension('phpass');
     switch (evo()->manager->getHashType($savedPassword)) {
