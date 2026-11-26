@@ -211,7 +211,7 @@ body.evo-shell.tree-animating > #evoTreeResizer {
     }
 }
 
-/* ツリーは細くして本文を広く使う（設定 manager_tree_narrow。header.inc.php が body に tree-narrow と、幅を割る数 --shell-tree-narrow を出す）。
+/* 設定で、ツリーペインを細くして本文を広く使う（設定 manager_tree_narrow。header.inc.php が body に tree-narrow と、幅を割る数 --shell-tree-narrow を出す）。
    ツリーを広く見せたい画面（#mainPane の中に data-shell-tree="full" がある。ダッシュボードとリソースの移動）は今までの幅にする。
    ツリーに乗る・キーボードでフォーカスすると、元の幅に戻して本文を右へ押し出す（本文を隠さない）。境目のつまみに乗っただけでは広げず、
    細い状態でつまみを動かすと細い幅を変え、元の幅まで広げると自動の拡縮を止める（shell.js が tree-narrow-off を付け、ダブルクリックで戻す）。広げている途中でつまみへ移ったときは、shell.js が tree-resizer-hold を付けて広げたままにする。

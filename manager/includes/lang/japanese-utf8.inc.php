@@ -1301,14 +1301,14 @@ return [
 
     "tree_pane_open_default_title" => 'ツリーペインの初期状態',
     "tree_pane_open_default_message" => '管理画面を開いたときにツリーペインを開いておくかを設定します。',
-    "setting_manager_tree_narrow" => 'ツリーを細くする',
-    "setting_manager_tree_narrow_desc" => 'ダッシュボードとリソースの移動以外の画面で、ツリーを細くして、本文を広く使います。ツリーにマウスを乗せると元の幅に戻り、本文は右へずれます。マウスを乗せられない端末（タッチ）では細くしません。',
+    "setting_manager_tree_narrow" => 'ツリーペインを細くする',
+    "setting_manager_tree_narrow_desc" => '「半分の幅」か「3分の1の幅」にすると、ダッシュボードとリソースの移動以外の画面で、ツリーペインをその幅に細くして、本文を広く使います。ツリーペインにマウスを乗せるか、キーボードでフォーカスを移すと元の幅に戻り、本文は右へずれます。ツリーペインの上部のピンのボタンで、そのブラウザーでは細くしないようにできます。マウスを乗せられない端末（タッチ）では細くしません。',
     "setting_manager_tree_narrow_off" => 'しない',
     "setting_manager_tree_narrow_half" => '半分の幅',
     "setting_manager_tree_narrow_third" => '3分の1の幅',
-    "tree_narrow_restore_hint" => 'ダブルクリックか、ツリーの上のピンのボタンで、ツリーを自動で細くする動きに戻します',
+    "tree_narrow_restore_hint" => 'ダブルクリックか、ツリーペインの上部のピンのボタンで、ツリーペインを自動で細くする動きに戻します',
     "tree_auto_collapse" => '開いているリソースのフォルダだけを開く（ほかは自動で閉じる）',
-    "tree_pin" => 'ツリーの幅を固定する（自動で細くしない）',
+    "tree_pin" => 'ツリーペインの幅を固定する（自動で細くしない）',
 
 
     "resources_list" => 'リソース一覧',
