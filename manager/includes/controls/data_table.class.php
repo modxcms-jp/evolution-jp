@@ -320,7 +320,11 @@ final class DataTable
             $sort = $col['sort'] ?? null;
             if ($sort !== null && $links) {
                 $current = $links->orderby() === $sort;
-                $dir = ($current && $links->orderdir() === 'asc') ? 'desc' : 'asc';
+                if ($current) {
+                    $dir = $links->orderdir() === 'asc' ? 'desc' : 'asc';
+                } else {
+                    $dir = ($col['sortFirst'] ?? 'asc') === 'desc' ? 'desc' : 'asc';
+                }
                 if ($current) {
                     $attr .= ' aria-sort="' . ($links->orderdir() === 'asc' ? 'ascending' : 'descending') . '"';
                 }

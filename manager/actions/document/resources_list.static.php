@@ -199,10 +199,10 @@ if (!$numRecords) {
         $columns[] = ['key' => 'checkbox', 'label' => '<input type="checkbox" data-select-all="batch[]" aria-label="' . hsc(lang('select_all')) . '">', 'labelHtml' => true, 'html' => true, 'class' => 'is-shrink'];
     }
     $columns = array_merge($columns, [
-        ['key' => 'docid', 'label' => lang('id'), 'class' => 'is-shrink', 'sort' => 'id'],
+        ['key' => 'docid', 'label' => lang('id'), 'class' => 'is-shrink', 'sort' => 'id', 'sortFirst' => 'desc'],
         ['key' => 'title', 'label' => lang('resource_title'), 'html' => true, 'sort' => 'pagetitle'],
-        ['key' => 'publishedon', 'label' => lang('publish_date'), 'html' => true, 'sort' => 'publishedon'],
-        ['key' => 'editedon', 'label' => lang('editedon'), 'html' => true, 'sort' => 'editedon'],
+        ['key' => 'publishedon', 'label' => lang('publish_date'), 'html' => true, 'sort' => 'publishedon', 'sortFirst' => 'desc'],
+        ['key' => 'editedon', 'label' => lang('editedon'), 'html' => true, 'sort' => 'editedon', 'sortFirst' => 'desc'],
         [
             'key' => 'menuindex',
             'label' => sprintf(
@@ -215,7 +215,7 @@ if (!$numRecords) {
             'class' => 'is-shrink',
             'sort' => 'menuindex',
         ],
-        ['key' => 'status', 'label' => lang('page_data_status'), 'html' => true],
+        ['key' => 'status', 'label' => lang('page_data_status'), 'html' => true, 'sort' => 'status'],
     ]);
     $table = new DataTable($columns, [
         'id' => 'children',
@@ -472,7 +472,7 @@ function getStatus($doc)
 {
     global $_lang;
 
-    if (!$doc['published'] && (request_time() < $doc['pub_date'] || $doc['unpub_date'] < request_time())) {
+    if (empty($doc['published'])) {
         return parseText('<span class="unpublishedDoc">[+page_data_unpublished+]</span>', $_lang);
     }
     return parseText('<span class="publishedDoc">[+page_data_published+]</span>', $_lang);
