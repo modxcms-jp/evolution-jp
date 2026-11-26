@@ -45,6 +45,12 @@ if (!checkAllowedIp() || !checkAllowedDays()) {
     return;
 }
 
+// CAPTCHA は、プラグインの認証も含めた認証より前に確かめる。
+// 通らないうちは認証せず、失敗回数にも数えない。パスワード再設定のリンク（fmpkey）では求めない
+if (!getv('fmpkey') && !checkCaptcha()) {
+    return;
+}
+
 evo()->loadExtension('ManagerAPI');
 
 // invoke OnManagerAuthentication event
@@ -57,10 +63,6 @@ if (!OnManagerAuthentication()) {
     }
     if ($isBlocked) {
         rejectBlockedUser();
-        return;
-    }
-    // CAPTCHA を先に確かめる。通らないうちはパスワードを確かめず、失敗回数にも数えない
-    if (!checkCaptcha()) {
         return;
     }
     if (!validPassword(input('password'), user('password'))) {
