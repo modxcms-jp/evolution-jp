@@ -46,8 +46,9 @@ if (!checkAllowedIp() || !checkAllowedDays()) {
 }
 
 // CAPTCHA は、プラグインの認証も含めた認証より前に確かめる。
-// 通らないうちは認証せず、失敗回数にも数えない。パスワード再設定のリンク（fmpkey）では求めない
-if (!getv('fmpkey') && !checkCaptcha()) {
+// 通らないうちは認証せず、失敗回数にも数えない。パスワード再設定のリンクでは求めない
+// （パスワードを送るログインは、fmpkey があっても確かめる）
+if (!isPasswordResetLinkRequest() && !checkCaptcha()) {
     return;
 }
 
