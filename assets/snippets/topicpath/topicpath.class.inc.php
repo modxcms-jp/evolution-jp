@@ -23,7 +23,6 @@ class TopicPath
 
     public function __construct()
     {
-        global $modx;
         $this->set('showTopicsAtHome', '0');
         $this->set('showAtLeastOneTopic', '0');
         $this->array_set('ignoreIDs', '');
@@ -35,38 +34,29 @@ class TopicPath
         $this->set('topicGap', '...');
         $this->array_set('titleField', 'menutitle,pagetitle');
         $this->array_set('descField', 'description,longtitle,pagetitle');
-        $this->set('homeId', config('site_start'));
+        $this->homeId = (int)array_get(event()->params, 'homeId', config('site_start'));
         $this->array_set('stopIds', '');
         $this->set('order', '');
+        $this->set('homeTopicTitle');
+        $this->set('homeTopicDesc');
 
-        if (event()->params) {
-            extract($modx->event->params);
-        }
-        if (isset($homeTopicTitle)) $this->homeTopicTitle = $homeTopicTitle;
-        if (isset($homeTopicDesc)) $this->homeTopicDesc = $homeTopicDesc;
-
-        $theme = $theme ?? '';
-        // 古い版のテーマ名を今の名前に読み替える（古い版は大文字・小文字を区別しなかった）。
+        // テーマ名は大文字・小文字を区別しない（古い版も区別しなかった）。古い版のテーマ名は今の名前に読み替える。
         // string は古い版のスニペットのプロパティの既定値で、アップデーターはプロパティを残すため、
         // 上げたサイトに残っている。書式は今の simple と同じ
         $legacyThemes = ['li' => 'list', 'string' => 'simple'];
-        $legacyKey = strtolower(trim((string)$theme));
-        if (isset($legacyThemes[$legacyKey])) {
-            $theme = $legacyThemes[$legacyKey];
-        }
-        if (!$theme) {
-            $theme = 'simple';
-        }
-        $this->theme = $theme;
+        $theme = strtolower(trim((string)array_get(event()->params, 'theme', '')));
+        $this->theme = ($legacyThemes[$theme] ?? $theme) ?: 'simple';
+
+        // 書式の引数の先頭の @CODE（後ろの : や空白も）を外す。区切りの判定（<li で始まるか）より前に外す
         $this->tpl = [];
-        if (isset($tplOuter)) $this->tpl['Outer'] = $tplOuter;
-        if (isset($tplHomeTopic)) $this->tpl['HomeTopic'] = $tplHomeTopic;
-        if (isset($tplCurrentTopic)) $this->tpl['CurrentTopic'] = $tplCurrentTopic;
-        if (isset($tplOtherTopic)) $this->tpl['OtherTopic'] = $tplOtherTopic;
-        if (isset($tplReferenceTopic)) $this->tpl['ReferenceTopic'] = $tplReferenceTopic;
-        if (isset($tplSeparator)) {
-            $this->tpl['Separator'] = $tplSeparator;
-        } elseif (isset($tplOtherTopic) && strpos(trim($tplOtherTopic), '<li') === 0) {
+        foreach (['Outer', 'HomeTopic', 'CurrentTopic', 'OtherTopic', 'ReferenceTopic', 'Separator'] as $name) {
+            $value = array_get(event()->params, "tpl{$name}");
+            if ($value !== null) {
+                $this->tpl[$name] = preg_replace('/^@CODE[:\s]?/', '', $value);
+            }
+        }
+        if (!isset($this->tpl['Separator']) && isset($this->tpl['OtherTopic'])
+            && strpos(trim($this->tpl['OtherTopic']), '<li') === 0) {
             $this->tpl['Separator'] = "\n";
         }
     }
@@ -75,18 +65,15 @@ class TopicPath
     {
         $this->disabledOn = $this->getDisableDocs();
 
-        if (!$this->showTopicsAtHome && docid() === $this->homeId) return;
+        if (!$this->showTopicsAtHome && (int)docid() === $this->homeId) return;
         elseif (in_array(docid(), $this->disabledOn)) return;
         $default = include(__DIR__ . '/config/default.php');
-        if (!isset($default[$this->theme])) {
-            $available = implode(', ', array_keys($default));
-            throw new Exception("設定に存在しないテーマ '{$this->theme}' が指定されています。利用可能なテーマ: {$available}");
+        $theme = $this->theme;
+        if (!isset($default[$theme])) {
+            evo()->logEvent(0, 2, 'TopicPath: 設定にないテーマ名のため simple で表示しました', 'TopicPath', ['theme' => $theme]);
+            $theme = 'simple';
         }
-        $tpl = $default[$this->theme];
-        $tpl = array_merge($tpl, $this->tpl);
-        foreach ($tpl as $i => $v) {
-            if (substr($v, 0, 5) === '@CODE') $tpl[$i] = substr($v, 6);
-        }
+        $tpl = array_merge($default[$theme], $this->tpl);
 
         $docs = $this->getDocs(docid());
         $topics = $this->setTopics($docs, $tpl);
@@ -147,29 +134,27 @@ class TopicPath
 
     private function getDocs($docid)
     {
-        global $modx;
-
         $docs = [];
         $c = 0;
-        while ($docid !== $this->homeId && $c < 1000) {
-            $doc = $modx->getPageInfo($docid, 0, '*');
+        while ((int)$docid !== $this->homeId && $c < 1000) {
+            $doc = evo()->getPageInfo($docid, 0, '*');
             // false when the visitor cannot see it (web private) or it does not exist
             if (!$doc) {
                 break;
             }
-            if ($doc['id'] == $modx->documentIdentifier) {
+            if ($doc['id'] == docid()) {
                 $doc['hidemenu'] = false;
             }
             if ($this->isEnable($doc)) {
                 $docs[] = $doc;
             }
-            $docid = $doc['parent'];
+            $docid = (int)$doc['parent'];
             if (!$docid) {
                 $docid = $this->homeId;
             }
             $c++;
         }
-        $home = $modx->getPageInfo($this->homeId, 0, '*');
+        $home = evo()->getPageInfo($this->homeId, 0, '*');
         if ($home) {
             $docs[] = $home;
         }
@@ -178,7 +163,6 @@ class TopicPath
 
     private function setTopics($docs, $tpl)
     {
-        global $modx;
         $topics = [];
         $docs = array_reverse($docs);
         $i = 0;
@@ -188,20 +172,20 @@ class TopicPath
             if (in_array($doc['id'], $this->stopIds)) {
                 break;
             }
-            $ph['url'] = $this->url($doc);
-            $ph['href'] = &$ph['url'];
+            $ph['url'] = hsc($this->url($doc), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, false);
+            $ph['href'] = $ph['url'];
 
             $ph['title'] = hsc($this->title($doc));
             $ph['desc'] = hsc($this->desc($doc));
 
-            if ($i === $total - 1 && $doc['id'] == $modx->documentIdentifier) {
-                $topics[$i] = $modx->parseText($tpl['CurrentTopic'], $ph);
+            if ($i === $total - 1 && $doc['id'] == docid()) {
+                $topics[$i] = evo()->parseText($tpl['CurrentTopic'], $ph);
             } elseif ($i === 0) {
-                $topics[$i] = $modx->parseText($tpl['HomeTopic'], $ph);
+                $topics[$i] = evo()->parseText($tpl['HomeTopic'], $ph);
             } elseif ($this->isReferenceTopic($doc, $tpl)) {
-                $topics[$i] = $modx->parseText($tpl['ReferenceTopic'], $ph);
+                $topics[$i] = evo()->parseText($tpl['ReferenceTopic'], $ph);
             } else {
-                $topics[$i] = $modx->parseText($tpl['OtherTopic'], $ph);
+                $topics[$i] = evo()->parseText($tpl['OtherTopic'], $ph);
             }
 
             $i++;
@@ -211,14 +195,14 @@ class TopicPath
 
     private function url($doc)
     {
-        return ($doc['id'] == $this->homeId)
-            ? MODX_SITE_URL
-            : evo()->makeUrl($doc['id'], '', '', 'full')
-        ;
+        if ((int)$doc['id'] === (int)config('site_start')) {
+            return MODX_SITE_URL;
+        }
+        return evo()->makeUrl($doc['id'], '', '', 'full');
     }
     private function title($doc)
     {
-        if ($this->homeTopicTitle !== null && $doc['id'] == $this->homeId) {
+        if ($this->homeTopicTitle !== null && (int)$doc['id'] === $this->homeId) {
             return $this->homeTopicTitle;
         }
 
@@ -234,7 +218,7 @@ class TopicPath
 
     private function desc($doc)
     {
-        if ($this->homeTopicDesc !== null && $doc['id'] == $this->homeId) {
+        if ($this->homeTopicDesc !== null && (int)$doc['id'] === $this->homeId) {
             return $this->homeTopicDesc;
         }
 
