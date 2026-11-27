@@ -663,10 +663,12 @@ function updateParentStatus($parent)
     );
 }
 
-// 保存後の行き先（after_save: new・stay・close）に従って移動する
+// 保存後の行き先（after_save: new・stay・close）に従って移動し、保存できたことを知らせる（manager()->notice()）
 function goNextAction($id, $parent, $afterSave, $type)
 {
-    if ($afterSave === 'new') {
+    EvoFormFlow::noticeSaved();
+    include_once MODX_CORE_PATH . 'controls/child_document_list_state.class.php';
+    if ($afterSave === 'new' && ChildDocumentListState::canOpen((int) $parent)) {
         $kind = $type === 'document' ? 'document' : 'weblink';
         header('Location: ' . EvoFormFlow::url([
             'a' => EvoFormFlow::screen($kind, 'new'),
@@ -686,9 +688,7 @@ function goNextAction($id, $parent, $afterSave, $type)
         return;
     }
     if ($parent) {
-        header(
-            sprintf('Location: index.php?a=120&id=%s&refresh=tree', $parent)
-        );
+        header('Location: ' . ChildDocumentListState::returnUrl((int) $parent));
         return;
     }
     header("Location: index.php?a=3&id=" . $id . "&refresh=tree");

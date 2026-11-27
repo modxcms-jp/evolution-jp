@@ -1475,7 +1475,7 @@ if (!function_exists('evoIsPaneResponse')) {
 
 if (!function_exists('evoRenderPaneFooterExtras')) {
     /**
-     * footer.inc.php相当の後処理(システムアラート表示とDatePicker読み込み)を出力する。
+     * footer.inc.php相当の後処理(システムアラート表示・知らせ(トースト)・DatePicker読み込み)を出力する。
      * AJAX断片応答(manager/index.php)と通常のフルページ応答(footer.inc.php)の
      * 両方から呼び出し、重複実装によるズレを防ぐ。
      * 断片応答ではprocessor等が読み込むfooter.inc.phpとindex.php末尾の両方から呼ばれ得るため、
@@ -1496,6 +1496,9 @@ if (!function_exists('evoRenderPaneFooterExtras')) {
         if (is_array($modx->SystemAlertMsgQueque) && count($modx->SystemAlertMsgQueque) > 0) {
             echo manager()->sysAlert($modx->SystemAlertMsgQueque);
         }
+
+        // 保存のあとなどに積んだ知らせ（トースト。ManagerAPI::notice()）
+        echo manager()->renderNotices();
 
         if (in_array(manager()->action, [85, 27, 4, 72, 131, 132, 133, 74, 13, 11, 12, 77, 78, 87, 88], true)) {
             echo manager()->loadDatePicker(

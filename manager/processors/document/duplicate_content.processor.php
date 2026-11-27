@@ -57,11 +57,13 @@ $pid = db()->getValue(
         sprintf("id='%s'", $newid)
     )
 );
+manager()->notice(lang('notice_duplicated'));
 if ($pid == 0) {
     header("Location: index.php?refresh=tree&a=3&id=" . $newid);
     return;
 }
-header("Location: index.php?refresh=tree&a=120&id=" . $pid);
+include_once MODX_CORE_PATH . 'controls/child_document_list_state.class.php';
+header('Location: ' . ChildDocumentListState::returnUrl((int) $pid));
 
 
 function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias = true)

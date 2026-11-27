@@ -87,6 +87,9 @@ if ($afterSave === 'save_standby') {
 } else {
     $rs = $modx->revision->save($id, $fields, 'draft');
 }
+if ($rs) {
+    EvoFormFlow::noticeSaved();
+}
 
 if ($afterSave === 'new') {
     header(

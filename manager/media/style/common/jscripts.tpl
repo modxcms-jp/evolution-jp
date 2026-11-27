@@ -3,7 +3,6 @@
     var imanager_url = [+imanager_url+];
     var fmanager_url = [+fmanager_url+];
     var prevWin;
-    var docMode = '[+docMode+]';
 
     // ツリーの開閉状態を保存する。ツリーが無い画面（QuickManager の編集など）では何もしない
     if (window.tree && typeof window.tree.saveFolderState === 'function') {
@@ -406,12 +405,7 @@
             sendManual(win, hide);
         });
         onClick('cancel', function () {
-            var docIsFolder = '[+docIsFolder+]';
-            var docParent = '[+docParent+]';
-            if (docMode === 'draft') EvoShell.go('index.php?a=3&id=' + '[+id+]');
-            else if (docIsFolder == 1) EvoShell.go('index.php?a=120&id=' + '[+id+]');
-            else if (docParent != 0) EvoShell.go('index.php?a=120&id=' + '[+docParent+]');
-            else EvoShell.go('index.php?a=2');
+            EvoShell.go([+cancelUrl+]);
         });
         bindClearDate('pub_date');
         bindClearDate('unpub_date');

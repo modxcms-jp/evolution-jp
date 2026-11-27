@@ -76,4 +76,4 @@ $tmp = [
 evo()->invokeEvent('OnTempFormSave', $tmp);
 
 evo()->clearCache();
-header('Location: ' . EvoFormFlow::afterSaveUrl('template', $savedId, EvoFormFlow::postedAfterSave()));
+EvoFormFlow::redirectAfterSave('template', $savedId, EvoFormFlow::postedAfterSave());

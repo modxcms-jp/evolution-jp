@@ -215,6 +215,24 @@ final class EvoFormFlow
     }
 
     /**
+     * 保存できたことを知らせて（manager()->notice()）、保存後の画面へ移る（afterSaveUrl() と同じ行き先）。
+     * 保存の processor は header('Location: ' . afterSaveUrl(...)) を書かず、これを呼ぶ。止める（exit）のは呼び出し側
+     *
+     * @param array $extra 足す引数（キー => 値）
+     */
+    public static function redirectAfterSave(string $kind, int $id, string $afterSave, array $extra = []): void
+    {
+        self::noticeSaved();
+        header('Location: ' . self::afterSaveUrl($kind, $id, $afterSave, $extra));
+    }
+
+    /** 「保存しました」の知らせを積む。行き先を自分で決める保存（文書・下書き・グローバル設定・プロフィール）は、移る前にこれを呼ぶ */
+    public static function noticeSaved(): void
+    {
+        manager()->notice(lang('notice_saved'));
+    }
+
+    /**
      * 入力エラーの差し戻し先の URL。mode が edit なら id を付ける。
      * mode が空なら close の画面へ戻す。選んだ行き先（after_save）はいつも引き継ぐ
      * （文書の選択欄の既定はセッションにも左右されるので、既定との比較で省かない）

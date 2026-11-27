@@ -114,10 +114,11 @@ function entity($key, $default = null)
     return $content[$key] ?? $default;
 }
 
+include_once MODX_CORE_PATH . 'controls/child_document_list_state.class.php';
 if (isset($content['parent']) && $content['parent'] != 0) {
-    $cancelUrl = 'index.php?a=120&id=' . (int) $content['parent'];
+    $cancelUrl = ChildDocumentListState::listUrl((int) $content['parent']);
 } elseif (get_intvar('pid')) {
-    $cancelUrl = 'index.php?a=120&id=' . get_intvar('pid');
+    $cancelUrl = ChildDocumentListState::listUrl(get_intvar('pid'));
 } else {
     $cancelUrl = 'index.php?a=2';
 }

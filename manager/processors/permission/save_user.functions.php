@@ -488,7 +488,7 @@ function newUser()
     // end of user_groups stuff!
 
     // パスワードは画面にもメールにも出さず、ほかの保存と同じ行き先へ戻す
-    header('Location: ' . EvoFormFlow::afterSaveUrl('user', (int)$internalKey, EvoFormFlow::postedAfterSave(), ['refresh' => 'tree']));
+    EvoFormFlow::redirectAfterSave('user', (int)$internalKey, EvoFormFlow::postedAfterSave(), ['refresh' => 'tree']);
     exit;
 }
 
@@ -609,9 +609,10 @@ function updateUser()
         exit;
     }
     if (saveUserMode() === 'profile') {
+        EvoFormFlow::noticeSaved();
         header('Location: ' . 'index.php?refresh=tree&a=2');
         exit;
     }
-    header('Location: ' . EvoFormFlow::afterSaveUrl('user', $userid, EvoFormFlow::postedAfterSave(), ['refresh' => 'tree']));
+    EvoFormFlow::redirectAfterSave('user', $userid, EvoFormFlow::postedAfterSave(), ['refresh' => 'tree']);
     exit;
 }

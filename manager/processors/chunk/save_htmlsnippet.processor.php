@@ -135,4 +135,4 @@ $tmp = [
 evo()->invokeEvent('OnChunkFormSave', $tmp);
 
 evo()->clearCache();
-header('Location: ' . EvoFormFlow::afterSaveUrl('chunk', $savedId, EvoFormFlow::postedAfterSave()));
+EvoFormFlow::redirectAfterSave('chunk', $savedId, EvoFormFlow::postedAfterSave());
