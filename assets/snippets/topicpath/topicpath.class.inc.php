@@ -20,11 +20,14 @@ class TopicPath
     private $order;
     private $theme;
     private $tpl;
+    private $jsonld;
+    private $crumbs = [];
 
     public function __construct()
     {
         $this->set('showTopicsAtHome', '0');
         $this->set('showAtLeastOneTopic', '0');
+        $this->set('jsonld', '0');
         $this->array_set('ignoreIDs', '');
         $this->array_set('disabledOn', '');
         $this->set('disabledUnder', '');
@@ -78,7 +81,8 @@ class TopicPath
         $docs = $this->getDocs(docid());
         $topics = $this->setTopics($docs, $tpl);
 
-        if ($this->limit < count($topics)) {
+        $trimmed = $this->limit < count($topics);
+        if ($trimmed) {
             $topics = $this->trimTopics($topics);
         }
 
@@ -86,10 +90,11 @@ class TopicPath
             if (strpos($this->order, 'r') === 0) {
                 $topics = array_reverse($topics);
             }
+            // 段を省略した（topicGap）ときは、段が欠けた BreadcrumbList になるので出さない
             return evo()->parseText(
                 $tpl['Outer'],
                 ['topics' => implode($tpl['Separator'], $topics)]
-            );
+            ) . ($trimmed ? '' : $this->jsonLd());
         }
 
         return '';
@@ -103,6 +108,38 @@ class TopicPath
     private function array_set($key, $default = null)
     {
         $this->$key = explode(',', array_get(event()->params, $key, $default));
+    }
+
+    // パン屑の HTML と同じ段を BreadcrumbList にする。段は 2 つ以上要る（Google の構造化データの決まり）
+    private function jsonLd()
+    {
+        if (!$this->jsonld || count($this->crumbs) < 2) {
+            return '';
+        }
+        $items = [];
+        foreach ($this->crumbs as $i => $crumb) {
+            $item = ['@type' => 'ListItem', 'position' => $i + 1, 'name' => $crumb['name']];
+            if ($crumb['item'] !== '') {
+                $item['item'] = $crumb['item'];
+            }
+            $items[] = $item;
+        }
+        $data = [
+            '@context' => 'https://schema.org',
+            '@type' => 'BreadcrumbList',
+            '@id' => $this->rawUrl(['id' => docid()]) . '#breadcrumb',
+            'itemListElement' => $items,
+        ];
+        // 出力はこのあとページのタグの解析を通るので、JSON の文字列の中にタグの書き始めを残さない
+        // （\u005B・\u007B は JSON として読むと [ { と同じ。JSON の構造からはこの並びはできない）
+        $json = preg_replace(['/\[(?=[\[!*(+~^])/', '/\{(?=\{)/'], ['\\u005B', '\\u007B'], js_value($data));
+        return "\n<script type=\"application/ld+json\">{$json}</script>";
+    }
+
+    // makeUrl() が xhtml_urls のときに書く &amp; を、HTML の外（JSON）に入れる URL では & に戻す
+    private function rawUrl($doc)
+    {
+        return str_replace('&amp;', '&', (string)$this->url($doc));
     }
 
     private function trimTopics($topics)
@@ -172,10 +209,18 @@ class TopicPath
             if (in_array($doc['id'], $this->stopIds)) {
                 break;
             }
-            $ph['url'] = hsc($this->url($doc), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, false);
+            $url = (string)$this->url($doc);
+            $title = $this->title($doc);
+            $ph['url'] = hsc($url, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, false);
             $ph['href'] = $ph['url'];
-
-            $ph['title'] = hsc($this->title($doc));
+            $ph['title'] = hsc($title);
+            if ($this->jsonld) {
+                // 画面のパン屑と同じ文字にする。題名のタグ（[(site_name)] など）は、画面ではページの解析で展開されるので、ここで展開しておく
+                $name = (strpos($title, '[') !== false || strpos($title, '{') !== false)
+                    ? evo()->parseDocumentSource($title)
+                    : $title;
+                $this->crumbs[] = ['name' => $name, 'item' => str_replace('&amp;', '&', $url)];
+            }
             $ph['desc'] = hsc($this->desc($doc));
 
             if ($i === $total - 1 && $doc['id'] == docid()) {
