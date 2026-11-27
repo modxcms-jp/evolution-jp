@@ -1,7 +1,7 @@
 <?php
 /**
- * 子リソースの一覧（a=120）の状態（ページ・並べ替え・検索語 q）の読み方と、一覧へ戻るときの引数の作り方。
- * 一覧の画面と、公開・非公開・削除・削除の取り消しの processor が同じ規則を使うための 1 か所。
+ * 子リソースの一覧（a=120）の状態（ページ・並べ替え・検索語 q）の読み方と、保存・複製・移動・一括操作のあとの戻り先・キャンセルのリンク、一覧を開けるかの判定（canOpen）。
+ * 一覧の画面と、各 processor・編集画面が同じ規則を使うための 1 か所。
  * 汎用の表の部品（data_table.class.php）には、一覧固有の知識を入れない。
  */
 include_once __DIR__ . '/data_table.class.php';
@@ -101,21 +101,24 @@ final class ChildDocumentListState
         return $id === 0 || evo()->checkPermissions($id);
     }
 
-    /** 親 $parent の一覧へ戻る URL（エスケープ前）。開けない親なら、ダッシュボード（a=2）。$extra は末尾に足す引数 */
-    public static function listUrl(int $parent, array $extra = []): string
+    /** 親 $parent の一覧へ戻る URL（エスケープ前）。開けない親なら、ダッシュボード（a=2） */
+    public static function listUrl(int $parent): string
     {
-        $q = (self::canOpen($parent) ? ['a' => 120, 'id' => $parent] : ['a' => 2]) + $extra;
-        return 'index.php?' . http_build_query($q, '', '&');
+        return self::url($parent, [], false);
     }
 
     /** 処理のあとに一覧へ戻る URL（エスケープ前）。今の page・並べ替え・検索語（q）を引き継ぐ。開けない親なら引き継がずダッシュボード */
     public static function returnUrl(int $parent): string
     {
-        $q = ['refresh' => 'tree'];
-        if (self::canOpen($parent)) {
-            $q += self::returnParams();
-        }
-        return self::listUrl($parent, $q);
+        return self::url($parent, ['refresh' => 'tree'], true);
+    }
+
+    private static function url(int $parent, array $extra, bool $keepState): string
+    {
+        $q = self::canOpen($parent)
+            ? ['a' => 120, 'id' => $parent] + $extra + ($keepState ? self::returnParams() : [])
+            : ['a' => 2] + $extra;
+        return 'index.php?' . http_build_query($q, '', '&');
     }
 
     /** URL の後ろに足す引数（`&page=2&orderby=…` の形。無ければ空）。JS に入れるときは js_literal() を通す */
