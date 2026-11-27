@@ -57,7 +57,6 @@ $_lang['tinymce7_loss_javascript'] = 'javascript: で始まる値';
 $_lang['tinymce7_loss_sandbox'] = '保存すると、iframe に sandbox が付き、埋め込みが動かなくなることがあります。';
 $_lang['tinymce7_loss_consult'] = '変えたくないときは、サイトの管理者に相談してください。';
 $_lang['tinymce7_image_edit'] = '画像を編集';
-$_lang['tinymce7_link_list_unpublished'] = '（未公開）';
 $_lang['tinymce7_link_list_truncated'] = '（ここより深い文書は省略。URL に [~ID~] を直接書く）';
 $_lang['tinymce7_tag_disabled'] = '（無効）';
 $_lang['tinymce7_link_open_missing'] = 'リンク先の文書が見つかりません。';

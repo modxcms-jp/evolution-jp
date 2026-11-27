@@ -8,19 +8,18 @@ namespace TinyMCE7\Editor;
  * 同じ範囲の文書について、公開側の URL も返す（url()。「リンクを開く」用）。
  *
  * 利用者が管理画面で見られる文書（文書グループと allowed_parents の範囲の中）だけを、メニュー名（無ければページタイトル）と ID で並べる。
- * 値は文書を移してもリンクが切れない `[~id~]`。未公開は表示名に添え、削除済みは出さない。
+ * 値は文書を移してもリンクが切れない `[~id~]`。未公開の文書は、下の文書ごと出さない（公開側でたどれないため）。削除済みは出さない。
+ * url() は未公開の文書も返す（本文にある未公開の文書へのリンクの中身を確かめられるように）。
  * 件数が MAX_ITEMS を超えるときは、MAX_ITEMS 件に収まる深さまでで打ち切る（最上位だけで超えるときは先頭の MAX_ITEMS 件）。
  */
 final class LinkListRepository
 {
     public const MAX_ITEMS = 1000;
 
-    private string $unpublishedLabel;
     private string $truncatedLabel;
 
-    public function __construct(string $unpublishedLabel = ' (unpublished)', string $truncatedLabel = '')
+    public function __construct(string $truncatedLabel = '')
     {
-        $this->unpublishedLabel = $unpublishedLabel;
         $this->truncatedLabel = $truncatedLabel;
     }
 
@@ -48,6 +47,7 @@ final class LinkListRepository
             $children[isset($byId[$parent]) ? $parent : 0][] = $row;
         }
 
+        $children = $this->publishedOnly($children);
         $depthLimit = $this->depthLimit($children);
         $items = $this->build($children, 0, $depthLimit);
         // 打ち切ったことを末尾に示す。選んでも URL が空になるだけの項目
@@ -118,6 +118,30 @@ final class LinkListRepository
     }
 
     /**
+     * 根からたどって、公開中の文書だけを残す。未公開の文書のところで止めるので、その下の文書（公開中のものも）は残らない
+     *
+     * @param array<int, array<int, array>> $children 親の id => 子の行
+     * @return array<int, array<int, array>>
+     */
+    private function publishedOnly(array $children): array
+    {
+        $result = [];
+        $parents = [0];
+        while ($parents) {
+            $parent = array_shift($parents);
+            foreach ($children[$parent] ?? [] as $row) {
+                if ((int)$row['published'] !== 1) {
+                    continue;
+                }
+                $result[$parent][] = $row;
+                $parents[] = (int)$row['id'];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * 全体が MAX_ITEMS 件以内なら制限なし（null）。超えるときは、深さ N までの件数が MAX_ITEMS 以内になる最大の N（最小 1）。
      *
      * @param array<int, array<int, array>> $children 親の id => 子の行
@@ -184,8 +208,6 @@ final class LinkListRepository
     private function title(array $row): string
     {
         $menutitle = (string)$row['menutitle'];
-        $title = sprintf('%s (%d)', $menutitle !== '' ? $menutitle : (string)$row['pagetitle'], (int)$row['id']);
-
-        return (int)$row['published'] === 1 ? $title : $title . $this->unpublishedLabel;
+        return sprintf('%s (%d)', $menutitle !== '' ? $menutitle : (string)$row['pagetitle'], (int)$row['id']);
     }
 }
