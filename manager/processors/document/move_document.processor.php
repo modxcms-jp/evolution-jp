@@ -188,12 +188,8 @@ evo()->clearCache();
 
 manager()->notice(lang('notice_moved'));
 if ($new_parent !== 0) {
-    header(
-        sprintf(
-            'Location: index.php?a=120&id=%s&refresh=tree',
-            $current_parent
-        )
-    );
+    include_once MODX_CORE_PATH . 'controls/child_document_list_state.class.php';
+    header('Location: ' . ChildDocumentListState::returnUrl((int) $current_parent));
     exit;
 }
 

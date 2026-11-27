@@ -713,6 +713,23 @@ function getAliasAtNew()
     return '';
 }
 
+// 編集画面の「キャンセル」の行き先。下書きは文書の表示、フォルダーは自分の一覧、親があれば親の一覧（開けない親ならダッシュボード）
+function getCancelUrl($docid)
+{
+    if (evo()->doc->mode === 'draft') {
+        return 'index.php?a=3&id=' . (int) $docid;
+    }
+    if ((int) doc('isfolder') === 1) {
+        return 'index.php?a=120&id=' . (int) $docid;
+    }
+    $parent = (int) doc('parent');
+    if ($parent) {
+        include_once MODX_CORE_PATH . 'controls/child_document_list_state.class.php';
+        return ChildDocumentListState::listUrl($parent);
+    }
+    return 'index.php?a=2';
+}
+
 function getJScripts($docid)
 {
     $ph = [];
@@ -734,12 +751,10 @@ function getJScripts($docid)
     }
     $ph['browser_js_ver'] = asset_version(MODX_MANAGER_PATH . 'media/browser/browser.js');
     $ph['id'] = $docid;
-    $ph['docParent'] = (int) doc('parent');
-    $ph['docIsFolder'] = (int) doc('isfolder');
+    $ph['cancelUrl'] = js_literal(getCancelUrl($docid));
     // 削除の確認に「サブリソースも…」の行を出すかは、isfolder ではなく実際の子の有無で決める
     evo()->loadExtension('DocAPI');
     $ph['docHasChildren'] = $docid && evo()->doc->hasLiveChildren($docid) ? 'true' : 'false';
-    $ph['docMode'] = evo()->doc->mode;
     $ph['style_tree_folder'] = style('tree_folder');
     $ph['style_icons_set_parent'] = style('icons_set_parent');
     $ph['action'] = manager()->action;

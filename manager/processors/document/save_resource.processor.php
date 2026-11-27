@@ -667,7 +667,8 @@ function updateParentStatus($parent)
 function goNextAction($id, $parent, $afterSave, $type)
 {
     EvoFormFlow::noticeSaved();
-    if ($afterSave === 'new') {
+    include_once MODX_CORE_PATH . 'controls/child_document_list_state.class.php';
+    if ($afterSave === 'new' && ChildDocumentListState::canOpen((int) $parent)) {
         $kind = $type === 'document' ? 'document' : 'weblink';
         header('Location: ' . EvoFormFlow::url([
             'a' => EvoFormFlow::screen($kind, 'new'),
@@ -687,9 +688,7 @@ function goNextAction($id, $parent, $afterSave, $type)
         return;
     }
     if ($parent) {
-        header(
-            sprintf('Location: index.php?a=120&id=%s&refresh=tree', $parent)
-        );
+        header('Location: ' . ChildDocumentListState::returnUrl((int) $parent));
         return;
     }
     header("Location: index.php?a=3&id=" . $id . "&refresh=tree");
