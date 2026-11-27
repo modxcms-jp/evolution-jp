@@ -31,7 +31,7 @@ final class LinkListRepository
         $rows = db()->getRows(db()->select(
             'sc.id,sc.pagetitle,sc.menutitle,sc.parent,sc.published',
             '[+prefix+]site_content AS sc',
-            'sc.deleted=0' . $this->accessCondition() . $this->allowedParentsCondition(),
+            $this->visibleCondition(),
             'sc.menuindex ASC, sc.id ASC'
         )) ?: [];
 
@@ -55,6 +55,25 @@ final class LinkListRepository
         }
 
         return $items;
+    }
+
+    /**
+     * 一覧に出る文書の公開側の URL（リンクを開くとき用）。一覧に出ない文書（無い・削除済み・権限なし・範囲外）は null。
+     */
+    public function url(int $id): ?string
+    {
+        $found = db()->getValue(db()->select(
+            'sc.id',
+            '[+prefix+]site_content AS sc',
+            'sc.id=' . $id . ' AND ' . $this->visibleCondition()
+        ));
+
+        return $found ? evo()->makeUrl($id, '', '', 'full') : null;
+    }
+
+    private function visibleCondition(): string
+    {
+        return 'sc.deleted=0' . $this->accessCondition() . $this->allowedParentsCondition();
     }
 
     /**

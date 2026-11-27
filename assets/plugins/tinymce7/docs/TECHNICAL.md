@@ -159,6 +159,7 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 - URL を直して Enter か「Link」で反映できます。ダイアログは開きません。クラス・Rel・開き方を変えるときは、ツールバーのリンクのボタンか Ctrl+K でダイアログを開きます（`link_quicklink` は既定の `false` のままなので、ツールバーのボタンと Ctrl+K はダイアログを開きます）。
 - リンクの文字を範囲選択したときも、quickbars の選択時ツールバーとは同時に出ず、リンクの操作の帯だけが出ます。
 - 帯で URL だけ直したときの class・target・rel の残り方は、ダイアログで URL だけ直したときと同じです（確かめた結果は下）。`link_rel_list`（システム設定「リンクの rel」）が空でも、本文のリンクに rel があれば、その値から選択肢を作るので、帯でもダイアログでも rel は残ります（`noopener` は `target="_blank"` のときに TinyMCE が付けます）。class も残ります。「リンクの rel」が空で、本文に noopener 以外の rel が無い文書では、新しいウィンドウのリンクを直すと `noopener` が外れます（`target="_blank"` は残ります。今のブラウザーは `_blank` を `noopener` として扱います）。
+- 「リンクを開く」は、href が `[~ID~]`（数字だけ）のリンクのとき、その文書の公開側の URL を開きます（`js/link-open.js`。管理画面だけ）。TinyMCE はそのままの `[~ID~]` をサイトの URL に付けて開き 404 になるため、link プラグインより先に、帯とメニューのボタン（`aria-label` が `Open link` の翻訳）の押下・Ctrl（Mac は Cmd）+ クリック・Alt+Enter を横取りします。URL は `link-list.php?id=` から取ります（`LinkListRepository::url()`。一覧に出る文書と同じ範囲で、無い・削除済み・権限なしは 404。ログインしていなければ 403）。押した時点で空の窓を開けておき（ポップアップを止められないため）、URL が分かったらその窓を移します。取れなかったときは窓を閉じ、エディターの通知（`tinymce7_link_open_missing`）で知らせます。ほかの href は TinyMCE に任せます。設定ファイルに `modx_link_open`（`{url, missing}`）を書いていれば、そちらを使います。
 
 ## リンクのダイアログの文書の一覧 (`link_list`)
 管理画面のエディターには、リンクの挿入/編集のダイアログに「リンクの一覧」が出ます。サイト内の文書を木の形で選ぶと、URL の欄に `[~id~]` が入ります（TinyMCE 3 の `tinymce.linklist.php` にあたります）。設定やシステム設定の項目は無く、いつも有効です。公開側のエディター（`frontend.json`・`forfrontend`）には出しません。設定ファイルに `link_list` を書いていれば、そちらを使います。

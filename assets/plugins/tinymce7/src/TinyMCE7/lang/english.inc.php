@@ -60,3 +60,4 @@ $_lang['tinymce7_image_edit'] = 'Edit image';
 $_lang['tinymce7_link_list_unpublished'] = ' (unpublished)';
 $_lang['tinymce7_link_list_truncated'] = '(Documents deeper than this are omitted. Write [~ID~] in the URL field.)';
 $_lang['tinymce7_tag_disabled'] = ' (disabled)';
+$_lang['tinymce7_link_open_missing'] = 'The linked document was not found.';

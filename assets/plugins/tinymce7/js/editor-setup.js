@@ -390,6 +390,9 @@
     if (typeof global.mceModxTagAssist === 'function') {
       global.mceModxTagAssist(editor);
     }
+    if (typeof global.mceModxLinkOpen === 'function') {
+      global.mceModxLinkOpen(editor);
+    }
     bindLossNotice(editor);
   };
 })(window);
