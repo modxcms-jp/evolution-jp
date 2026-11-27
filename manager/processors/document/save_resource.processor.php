@@ -663,9 +663,10 @@ function updateParentStatus($parent)
     );
 }
 
-// 保存後の行き先（after_save: new・stay・close）に従って移動する
+// 保存後の行き先（after_save: new・stay・close）に従って移動し、保存できたことを知らせる（manager()->notice()）
 function goNextAction($id, $parent, $afterSave, $type)
 {
+    EvoFormFlow::noticeSaved();
     if ($afterSave === 'new') {
         $kind = $type === 'document' ? 'document' : 'weblink';
         header('Location: ' . EvoFormFlow::url([
