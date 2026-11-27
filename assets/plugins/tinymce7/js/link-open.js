@@ -16,13 +16,16 @@
   // [~ID~]・[~ID?引数~] の後ろに ?クエリ や #フラグメント が続いてもよい。前には document_base_url が付く
   const TAG_HREF = /\[~\s*(\d+)\s*(?:\?([^~]*))?~\]([?#][\s\S]*)?$/;
 
+  // 引数は URL の後ろに足す。#… は本文の側にあればそれ、無ければ文書の URL のもの（ウェブリンクの #節 など）を残す
   function buildUrl(base, innerQuery, tail) {
-    const hashAt = tail.indexOf('#');
-    const tailQuery = (hashAt < 0 ? tail : tail.slice(0, hashAt)).replace(/^\?/, '');
-    const hash = hashAt < 0 ? '' : tail.slice(hashAt);
-    const query = [innerQuery, tailQuery].filter(Boolean).join('&');
-    const url = base.replace(/#.*$/, '');
-    return url + (query ? (url.indexOf('?') < 0 ? '?' : '&') + query : '') + hash;
+    const splitHash = function (value) {
+      const at = value.indexOf('#');
+      return at < 0 ? [value, ''] : [value.slice(0, at), value.slice(at)];
+    };
+    const [url, baseHash] = splitHash(base);
+    const [tailQuery, tailHash] = splitHash(tail);
+    const query = [innerQuery, tailQuery.replace(/^\?/, '')].filter(Boolean).join('&');
+    return url + (query ? (url.indexOf('?') < 0 ? '?' : '&') + query : '') + (tailHash || baseHash);
   }
 
   function notify(editor, text) {
