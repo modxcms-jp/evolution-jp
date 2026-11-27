@@ -92,11 +92,30 @@ final class ChildDocumentListState
         return sprintf('%s %s, sc.id DESC', $column, $links->orderdir() === 'desc' ? 'DESC' : 'ASC');
     }
 
-    /** 一覧へ戻る URL（エスケープ前）。今の page・並べ替え・検索語（q）を引き継ぐ */
+    /**
+     * 文書 $id の子リソースの一覧（a=120&id=$id）を、今のユーザーが開けるか。0（ルートの一覧）はいつも開ける。
+     * 一覧の画面の入口の確かめと、一覧へ戻る URL を決める判定の 1 か所
+     */
+    public static function canOpen(int $id): bool
+    {
+        return $id === 0 || evo()->checkPermissions($id);
+    }
+
+    /** 親 $parent の一覧へ戻る URL（エスケープ前）。開けない親なら、ダッシュボード（a=2）。$extra は末尾に足す引数 */
+    public static function listUrl(int $parent, array $extra = []): string
+    {
+        $q = (self::canOpen($parent) ? ['a' => 120, 'id' => $parent] : ['a' => 2]) + $extra;
+        return 'index.php?' . http_build_query($q, '', '&');
+    }
+
+    /** 処理のあとに一覧へ戻る URL（エスケープ前）。今の page・並べ替え・検索語（q）を引き継ぐ。開けない親なら引き継がずダッシュボード */
     public static function returnUrl(int $parent): string
     {
-        $q = ['refresh' => 'tree', 'a' => 120, 'id' => $parent] + self::returnParams();
-        return 'index.php?' . http_build_query($q, '', '&');
+        $q = ['refresh' => 'tree'];
+        if (self::canOpen($parent)) {
+            $q += self::returnParams();
+        }
+        return self::listUrl($parent, $q);
     }
 
     /** URL の後ろに足す引数（`&page=2&orderby=…` の形。無ければ空）。JS に入れるときは js_literal() を通す */

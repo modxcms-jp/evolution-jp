@@ -38,7 +38,8 @@ echo get_src_content($id, $parent);
 function get_src_content($id, $parent)
 {
     global $_lang;
-    $redirect = hsc($parent ? 'index.php?a=120&id=' . (int) $parent : 'index.php?a=2');
+    include_once MODX_CORE_PATH . 'controls/child_document_list_state.class.php';
+    $redirect = hsc($parent ? ChildDocumentListState::listUrl((int) $parent) : 'index.php?a=2');
     $pickerLabel = hsc(lang('parent_picker_open'));
     // 言語ファイルの文字列は JS の alert() 向けに \n を含むため、改行へ戻してから渡す
     $newParentLabel = hsc(lang('new_parent'));

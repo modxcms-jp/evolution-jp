@@ -8,13 +8,13 @@ if (!hasPermission('view_document')) {
     alert()->setError(3);
     alert()->dumpError();
 }
+include_once(MODX_CORE_PATH . 'controls/child_document_list_state.class.php');
+
 $id = get_intvar('id');
-if ($id && !evo()->checkPermissions($id)) {
+if (!ChildDocumentListState::canOpen($id)) {
     alert()->setError(3, lang('access_permission_denied'));
     alert()->dumpError();
 }
-
-include_once(MODX_CORE_PATH . 'controls/child_document_list_state.class.php');
 
 // 一括の操作。ボタンは操作ごとの権限があるものだけ出し、チェックボックスと選択の部品はどれか 1 つの権限があれば出す
 $canBatchMove = hasPermission('move_document');
@@ -538,7 +538,7 @@ function getReturnAction($current)
         return 'index.php?a=120';
     }
 
-    return 'index.php?a=120&id=' . $current['parent'];
+    return ChildDocumentListState::listUrl((int) $current['parent']);
 }
 
 function getTopicPath($id)

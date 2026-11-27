@@ -687,9 +687,8 @@ function goNextAction($id, $parent, $afterSave, $type)
         return;
     }
     if ($parent) {
-        header(
-            sprintf('Location: index.php?a=120&id=%s&refresh=tree', $parent)
-        );
+        include_once MODX_CORE_PATH . 'controls/child_document_list_state.class.php';
+        header('Location: ' . ChildDocumentListState::returnUrl((int) $parent));
         return;
     }
     header("Location: index.php?a=3&id=" . $id . "&refresh=tree");
