@@ -189,7 +189,7 @@ switch ($mode) {
         // end of user_groups stuff!
 
         // パスワードは画面にもメールにも出さず、ほかの保存と同じ行き先へ戻す
-        header('Location: ' . EvoFormFlow::afterSaveUrl('web_user', $internalKey, $afterSave));
+        EvoFormFlow::redirectAfterSave('web_user', $internalKey, $afterSave);
         break;
     case 'edit': // edit user
         if (!$id) {
@@ -367,7 +367,7 @@ switch ($mode) {
         // end of user_groups stuff!
         /*******************************************************************************/
 
-        header('Location: ' . EvoFormFlow::afterSaveUrl('web_user', $id, $afterSave));
+        EvoFormFlow::redirectAfterSave('web_user', $id, $afterSave);
         break;
     default:
         webAlert('Unauthorized access');

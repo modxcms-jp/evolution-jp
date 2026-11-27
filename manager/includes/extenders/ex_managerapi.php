@@ -865,6 +865,80 @@ class ManagerAPI
         );
     }
 
+    /**
+     * 次に描く画面で出す知らせ（トースト、manager/media/script/evo-notice.js）を積む。
+     * 保存のあとの移動（リダイレクト）をまたいで残すため、セッションに置く。出すのは renderNotices()。
+     * 決まりは assets/docs/manager-notice.md
+     *
+     * @param string $message 文字として出す（HTML にしない）
+     * @param array $options type（success・info・warning）・sticky（閉じるまで残す）・links（[['href' => 管理画面の URL, 'label' => 文言]]）
+     */
+    public function notice(string $message, array $options = []): void
+    {
+        if ($message === '') {
+            return;
+        }
+        $queue = sessionv('ManagerNoticeQueue', []);
+        if (!is_array($queue)) {
+            $queue = [];
+        }
+        $links = [];
+        foreach ((array)($options['links'] ?? []) as $link) {
+            if (!is_array($link) || empty($link['href'])) {
+                continue;
+            }
+            $links[] = ['href' => (string)$link['href'], 'label' => (string)($link['label'] ?? '')];
+        }
+        $queue[] = [
+            'message' => $message,
+            'type' => in_array($options['type'] ?? '', ['success', 'info', 'warning'], true) ? $options['type'] : 'success',
+            'sticky' => !empty($options['sticky']),
+            'links' => $links,
+        ];
+        sessionv('*ManagerNoticeQueue', $queue);
+    }
+
+    /**
+     * 積んだ知らせを出す <script>（無ければ空文字）。出したものはセッションから消す。
+     * ページ全体の応答でもシェルの部分の応答でも通る evoRenderPaneFooterExtras()（helpers.php）から呼ぶ
+     */
+    public function renderNotices(): string
+    {
+        // 管理画面ごと読み直す画面（refresh=page。グローバル設定の保存のあとの待ちの画面など）で出すと、読み直しで消える。
+        // 読まずに残し、読み直したあとの画面で出す
+        if (get_choicevar('refresh', ['page'], '') === 'page') {
+            return '';
+        }
+        // 移動の応答（保存の processor が Location を付けたあと、index.php の後処理がここへ来る）では出さない。
+        // ブラウザは移動の応答の本文を捨てるので、ここで読むと知らせが消える。移った先の画面で出す
+        foreach (headers_list() as $header) {
+            if (stripos($header, 'Location:') === 0) {
+                return '';
+            }
+        }
+        $queue = sessionv('ManagerNoticeQueue', []);
+        if (!$queue || !is_array($queue)) {
+            return '';
+        }
+        sessionv('*ManagerNoticeQueue', []);
+
+        $calls = [];
+        foreach ($queue as $notice) {
+            $calls[] = sprintf(
+                'EvoNotice.show(%s, %s);',
+                js_literal((string)$notice['message']),
+                js_value([
+                    'type' => $notice['type'],
+                    'sticky' => $notice['sticky'],
+                    'links' => $notice['links'],
+                ])
+            );
+        }
+        return "<script type=\"text/javascript\">\n    Evo.ready(function () {\n        if (window.EvoNotice) {\n            "
+            . implode("\n            ", $calls)
+            . "\n        }\n    });\n</script>\n";
+    }
+
     public function isAdmin()
     {
         if (!hasPermission('access_permissions')) {

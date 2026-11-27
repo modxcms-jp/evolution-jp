@@ -106,7 +106,7 @@ $tmp = [
 evo()->invokeEvent('OnTVFormSave', $tmp);
 
 evo()->clearCache();
-header('Location: ' . EvoFormFlow::afterSaveUrl('tmplvar', $savedId, EvoFormFlow::postedAfterSave()));
+EvoFormFlow::redirectAfterSave('tmplvar', $savedId, EvoFormFlow::postedAfterSave());
 
 function saveTemplateAccess($id)
 {

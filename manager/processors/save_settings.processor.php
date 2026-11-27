@@ -31,6 +31,7 @@ fix_pulishedon();
 repairDocs();
 evo()->clearCache();
 setPermission();
+EvoFormFlow::noticeSaved();
 header("Location: index.php?a=7&refresh=page");
 
 

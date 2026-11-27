@@ -90,7 +90,7 @@ $tmp = [
 evo()->invokeEvent('OnPluginFormSave', $tmp);
 
 evo()->clearCache();
-header('Location: ' . EvoFormFlow::afterSaveUrl('plugin', $savedId, EvoFormFlow::postedAfterSave()));
+EvoFormFlow::redirectAfterSave('plugin', $savedId, EvoFormFlow::postedAfterSave());
 
 
 # Save Plugin Event Listeners

@@ -57,6 +57,7 @@ $pid = db()->getValue(
         sprintf("id='%s'", $newid)
     )
 );
+manager()->notice(lang('notice_duplicated'));
 if ($pid == 0) {
     header("Location: index.php?refresh=tree&a=3&id=" . $newid);
     return;

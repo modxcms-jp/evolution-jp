@@ -65,8 +65,9 @@ body.evo-shell > #mainPane {
    グリッドのセルを占有してレイアウトを崩さないよう、ゼロサイズのアンカーとして
    メイン領域に重ねる。TinyMCE等の補助コンテナが透明レイヤー化して入力を奪うのを防ぐ。
    ダイアログ(evo-dialog.js の <dialog>)とツールチップ(evo-tooltip.js の #evoTooltip)は fixed で出すので、幅0にすると潰れる。対象から外す。
-   エラーの案内(.evo-error-guide)は、#mainPane より前の失敗(OnManagerPreFrameLoader など)では body 直下に出る。読めるよう対象から外し、本文の領域に置く */
-body.evo-shell > :not(#topMenu):not(#treePane):not(#mainPane):not(#preLoader):not(#evoShellModalOverlay):not(.evo-dialog):not(#evoTooltip):not(#evoTreeResizer):not(.evo-error-guide) {
+   エラーの案内(.evo-error-guide)は、#mainPane より前の失敗(OnManagerPreFrameLoader など)では body 直下に出る。読めるよう対象から外し、本文の領域に置く。
+   知らせ(evo-notice.js の #evoNotice)も fixed で出し、#mainPane を差し替えても残すため body 直下に置く。対象から外す */
+body.evo-shell > :not(#topMenu):not(#treePane):not(#mainPane):not(#preLoader):not(#evoShellModalOverlay):not(.evo-dialog):not(#evoTooltip):not(#evoTreeResizer):not(.evo-error-guide):not(#evoNotice) {
     grid-area: main;
     align-self: start;
     justify-self: start;

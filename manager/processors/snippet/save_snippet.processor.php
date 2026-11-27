@@ -94,4 +94,4 @@ $tmp = [
 evo()->invokeEvent('OnSnipFormSave', $tmp);
 
 evo()->clearCache();
-header('Location: ' . EvoFormFlow::afterSaveUrl('snippet', $savedId, EvoFormFlow::postedAfterSave()));
+EvoFormFlow::redirectAfterSave('snippet', $savedId, EvoFormFlow::postedAfterSave());
