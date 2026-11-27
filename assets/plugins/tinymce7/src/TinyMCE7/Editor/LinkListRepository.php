@@ -5,6 +5,7 @@ namespace TinyMCE7\Editor;
 
 /**
  * リンクのダイアログ（TinyMCE の link_list）に並べる、サイト内の文書の木を作る。
+ * 同じ範囲の文書について、公開側の URL も返す（url()。「リンクを開く」用）。
  *
  * 利用者が管理画面で見られる文書（文書グループと allowed_parents の範囲の中）だけを、メニュー名（無ければページタイトル）と ID で並べる。
  * 値は文書を移してもリンクが切れない `[~id~]`。未公開は表示名に添え、削除済みは出さない。
@@ -31,7 +32,7 @@ final class LinkListRepository
         $rows = db()->getRows(db()->select(
             'sc.id,sc.pagetitle,sc.menutitle,sc.parent,sc.published',
             '[+prefix+]site_content AS sc',
-            'sc.deleted=0' . $this->accessCondition() . $this->allowedParentsCondition(),
+            $this->visibleCondition(),
             'sc.menuindex ASC, sc.id ASC'
         )) ?: [];
 
@@ -55,6 +56,30 @@ final class LinkListRepository
         }
 
         return $items;
+    }
+
+    /**
+     * 一覧に出る文書の公開側の URL（リンクを開くとき用）。一覧に出ない文書（無い・削除済み・権限なし・範囲外）は null。
+     */
+    public function url(int $id): ?string
+    {
+        $found = db()->getValue(db()->select(
+            'sc.id',
+            '[+prefix+]site_content AS sc',
+            'sc.id=' . $id . ' AND ' . $this->visibleCondition()
+        ));
+
+        if (!$found) {
+            return null;
+        }
+        $url = evo()->makeUrl($id, '', '', 'full');
+
+        return is_string($url) && $url !== '' ? $url : null;
+    }
+
+    private function visibleCondition(): string
+    {
+        return 'sc.deleted=0' . $this->accessCondition() . $this->allowedParentsCondition();
     }
 
     /**

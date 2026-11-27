@@ -104,6 +104,15 @@ final class EditorInitializer
             // ダイアログを開くたびに、ログイン中の利用者のセッションで取りに行く
             $config['link_list'] = MODX_BASE_URL . 'assets/plugins/tinymce7/link-list.php';
         }
+        if (empty($params['forfrontend']) && !isset($config['modx_link_open'])) {
+            // 本文の [~id~] のリンクを開くときに、公開側の URL を聞く先（js/link-open.js）
+            $config['modx_link_open'] = [
+                'url' => MODX_BASE_URL . 'assets/plugins/tinymce7/link-list.php',
+                'missing' => $this->language->translate('tinymce7_link_open_missing', 'The linked document was not found.'),
+                'failed' => $this->language->translate('tinymce7_link_open_failed', 'Could not get the URL. Check that you are still logged in.'),
+                'blocked' => $this->language->translate('tinymce7_link_open_blocked', 'The browser blocked the new window.'),
+            ];
+        }
         if (empty($params['forfrontend']) && !isset($config['modx_tag_names_url'])) {
             // 本文のタグの補完と色付けに使う名前の一覧。エディターの初期化のときに取りに行き、同じ画面のエディターで分け合う（js/tag-assist.js）
             $config['modx_tag_names_url'] = MODX_BASE_URL . 'assets/plugins/tinymce7/tag-names.php';
@@ -161,6 +170,7 @@ final class EditorInitializer
         if ($isManager) {
             $scripts[] = '<link rel="stylesheet" href="' . hsc($this->scriptFactory->bundledAssetUrl('css/loss-notice.css')) . '">';
             $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/tag-assist.js'));
+            $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/link-open.js'));
         }
         $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/editor-setup.js'));
 
