@@ -14,32 +14,39 @@ if (($_GET['get'] ?? '') === 'captcha') {
     return;
 }
 
-// このリクエストで新しく作ったセッションに、MODX が自分で入れる値（evo_sid_hash）のほかに何も書かれなかったら、そのセッションを消す。
+// このリクエストで新しく作ったセッションに、MODX が自分で入れる値（evo_sid_hash）のほかに何も書かれなかったら、そのセッションのファイルを消す。
 // cookie を持ってきた訪問者のセッションは、既存の訪問者のものなので消さない。
-// 消す前に応答の Set-Cookie からセッションの cookie を外すので、ヘッダーを送る前（ob_start 中の出力の flush や echo の前）に呼ぶ。
-function evo_drop_empty_front_session()
-{
-    if (session_status() !== PHP_SESSION_ACTIVE || headers_sent() || isset($_COOKIE[session_name()])) {
-        return;
-    }
-    if (array_diff_key($_SESSION, ['evo_sid_hash' => true])) {
-        return;
-    }
-    session_destroy();
-    $prefix = session_name() . '=';
-    $cookies = array_filter(headers_list(), static function ($h) {
-        return stripos($h, 'Set-Cookie:') === 0;
-    });
-    header_remove('Set-Cookie');
-    foreach ($cookies as $h) {
-        if (stripos(ltrim(substr($h, 11)), $prefix) !== 0) {
-            header($h, false);
+// ヘッダーをまだ送っていなければ、応答の Set-Cookie からセッションの cookie も外す。送ったあと（ページを出し終えた後）は、ファイルだけを消す
+// （cookie を持ち帰ったブラウザには、次に来たときに新しいセッションが作られる）。
+if (!function_exists('evo_drop_empty_front_session')) {
+    function evo_drop_empty_front_session()
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE || isset($_COOKIE[session_name()])) {
+            return;
+        }
+        if (array_diff_key($_SESSION, ['evo_sid_hash' => true])) {
+            return;
+        }
+        session_destroy();
+        if (headers_sent()) {
+            return;
+        }
+        $prefix = session_name() . '=';
+        $cookies = array_filter(headers_list(), static function ($h) {
+            return stripos($h, 'Set-Cookie:') === 0;
+        });
+        header_remove('Set-Cookie');
+        foreach ($cookies as $h) {
+            if (stripos(ltrim(substr($h, 11)), $prefix) !== 0) {
+                header($h, false);
+            }
         }
     }
 }
+// ページの後処理（postProcess の OnWebPageComplete など）がセッションに書いた値を残すため、shutdown の中でもう一度登録して最後に回す
 register_shutdown_function(static function () {
     if (!defined('MODX_API_MODE') || !MODX_API_MODE) {
-        evo_drop_empty_front_session();
+        register_shutdown_function('evo_drop_empty_front_session');
     }
 });
 
