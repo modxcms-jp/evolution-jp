@@ -167,10 +167,8 @@ if (!$numRecords) {
     $trashedIds = array_keys(array_filter($docs, function ($doc) {
         return (int) $doc['deleted'] === 1;
     }));
-    $withChildren = array_merge(
-        evo()->doc->idsWithLiveChildren(array_diff(array_keys($docs), $trashedIds)),
-        evo()->doc->idsWithChildren($trashedIds)
-    );
+    $withLiveChildren = evo()->doc->idsWithLiveChildren(array_merge(array_keys($docs), $allChildIds));
+    $withAnyChildren = evo()->doc->idsWithChildren($trashedIds);
 
     $rows = [];
     $tpl = '<div class="title">[+icon+][+statusIcon+]</div><a href="[+link+]">[+title+][+description+]</a>';
@@ -189,7 +187,7 @@ if (!$numRecords) {
             'data-draft' => in_array($doc['status'], ['draft', 'standby'], true) ? 1 : 0,
             'data-title' => $doc['pagetitle'],
             'data-preview-url' => evo()->makeUrl($docid, '', '', 'full'),
-            'data-has-children' => in_array((int) $docid, $withChildren, true) ? 1 : 0,
+            'data-has-children' => in_array((int) $docid, (int) $doc['deleted'] ? $withAnyChildren : $withLiveChildren, true) ? 1 : 0,
         ];
         $doc = hsc($doc);
 
@@ -306,7 +304,7 @@ $menuId = 'cntxm';
 $cm = new ContextMenu($menuId, 180);
 echo getContextMenu($cm);
 
-echo get_jscript($menuId, array_unique(array_merge(array_keys($docs ?? []), $allChildIds)));
+echo get_jscript($menuId, $withLiveChildren ?? []);
 
 ?>
     <script type="text/javascript" src="<?= manager_asset('media/script/data-table.js') ?>"></script>
@@ -525,7 +523,8 @@ function _getIconPath($doc)
     return style('tree_folder');
 }
 
-function get_jscript($menuId, array $rowIds)
+// $withLiveChildren: 一覧のリソース（ほかのページの分も含む）のうち、削除していない子を持つものの ID（一括の削除の確認に使う）
+function get_jscript($menuId, array $withLiveChildren)
 {
     global $modx_textdir;
 
@@ -537,7 +536,7 @@ function get_jscript($menuId, array $rowIds)
         js_literal($menuId),
         $modx_textdir === 'rtl' ? 'true' : 'false',
         js_literal($returnQuery),
-        js_value(evo()->doc->idsWithLiveChildren($rowIds))
+        js_value($withLiveChildren)
     );
 
     return sprintf(

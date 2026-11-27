@@ -1604,6 +1604,7 @@ return [
     "cannot_delete_child_error_page" => 'A child Resource (ID: %d) is set as the error page, so this Resource cannot be deleted. Set another Resource as the error page and try again.',
     "cannot_delete_child_site_unavailable_page" => 'A child Resource (ID: %d) is set as the site unavailable page, so this Resource cannot be deleted. Set another Resource as the site unavailable page and try again.',
     "cannot_purge_live_child" => 'A child Resource (ID: %d) has not been deleted, so this Resource cannot be permanently deleted. Move or delete the child Resource and try again.',
+    "cannot_purge_child_no_permission" => 'You do not have the correct permissions for a child Resource (ID: %d), so this Resource cannot be permanently deleted.',
     "cannot_delete_linked_by" => 'This Resource is linked from the Resources with ID: %s, so it cannot be deleted. Remove the links and try again.',
     "required_field" => 'Required',
     "required_fields_missing" => 'The following required fields are empty. Please fill them in.',

@@ -1605,6 +1605,7 @@ return [
     "cannot_delete_child_error_page" => 'サブリソース（ID: %d）がエラーページに設定されているため、削除できません。別のリソースをエラーページに設定してから、もう一度削除してください。',
     "cannot_delete_child_site_unavailable_page" => 'サブリソース（ID: %d）がメンテナンス中ページに設定されているため、削除できません。別のリソースをメンテナンス中ページに設定してから、もう一度削除してください。',
     "cannot_purge_live_child" => '削除されていないサブリソース（ID: %d）があるため、完全に削除できません。サブリソースを移動するか削除してから、もう一度完全に削除してください。',
+    "cannot_purge_child_no_permission" => 'サブリソース（ID: %d）にアクセスする権限がないため、完全に削除できません。',
     "cannot_delete_linked_by" => 'このリソースは ID: %s のリソースからリンクされているため、削除できません。リンクを外してから、もう一度削除してください。',
     "required_field" => '必須',
     "required_fields_missing" => '次の必須の欄が空です。入力してください。',

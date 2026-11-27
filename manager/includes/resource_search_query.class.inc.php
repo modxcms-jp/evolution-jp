@@ -123,7 +123,9 @@ class ResourceSearchQuery
                     $where[] = sprintf('id=%d', $r['id']);
                     break;
                 case 'parent':
-                    $ids = self::descendants($c['value']);
+                    // そのフォルダの下（子孫すべて。削除済みも含む）
+                    evo()->loadExtension('DocAPI');
+                    $ids = array_keys(evo()->doc->descendants($c['value']));
                     $where[] = $ids ? 'id IN (' . implode(',', $ids) . ')' : '0=1';
                     break;
                 case 'template':
@@ -442,22 +444,5 @@ class ResourceSearchQuery
             return $value === '0' ? ['id' => 0, 'name' => '(blank)'] : null;
         }
         return ['id' => (int) $row['id'], 'name' => $row['templatename']];
-    }
-
-    /** そのフォルダの下（子孫すべて。getChildIds() は削除済みを含まないので、DB を 1 段ずつたどる） */
-    private static function descendants(int $parent): array
-    {
-        $ids = [];
-        $level = [$parent];
-        for ($depth = 0; $level && $depth < 50; $depth++) {
-            $children = array_map('intval', array_column(db()->makeArray(db()->select(
-                'id',
-                '[+prefix+]site_content',
-                'parent IN (' . implode(',', $level) . ')'
-            )), 'id'));
-            $level = array_values(array_diff($children, $ids));
-            $ids = array_merge($ids, $level);
-        }
-        return $ids;
     }
 }
