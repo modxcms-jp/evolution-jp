@@ -820,11 +820,12 @@ class DocAPI
         'confirm_delete_resource', 'confirm_delete_resource_children', 'confirm_batch_delete',
         'confirm_batch_publish', 'confirm_batch_unpublish',
         'confirm_publish', 'confirm_unpublish', 'confirm_resource_duplicate', 'confirm_undelete',
+        'confirm_purge_resource', 'confirm_purge_resource_children',
     ];
 
     /**
      * document-actions.js へ渡す設定（header.inc.php が EvoDocumentActions.config に入れる）。
-     * ids は「設定名 => リソースの ID」、lang は「言語キー => 文言」
+     * ids は「設定名 => リソースの ID」、lang は「言語キー => 文言」、menu は右クリックメニューの状態での出し分け（DocumentMenu::stateConfig()）
      */
     public function actionConfig()
     {
@@ -839,7 +840,8 @@ class DocAPI
         foreach ($keys as $key) {
             $lang[$key] = stripcslashes(lang($key));
         }
-        return js_value(['ids' => $ids, 'lang' => $lang]);
+        include_once(MODX_CORE_PATH . 'controls/document_menu.class.php');
+        return js_value(['ids' => $ids, 'lang' => $lang, 'menu' => DocumentMenu::stateConfig()]);
     }
 
     /**
@@ -855,6 +857,14 @@ class DocAPI
      */
     public function idsWithLiveChildren(array $ids)
     {
+        return $this->idsWithChildren($ids, true);
+    }
+
+    /**
+     * 渡した ID のうち、子を持つものの ID の配列。$liveOnly が false ならゴミ箱の子も数える
+     */
+    public function idsWithChildren(array $ids, $liveOnly = false)
+    {
         $ids = array_filter(array_map('intval', $ids));
         if (!$ids) {
             return [];
@@ -862,12 +872,128 @@ class DocAPI
         $rs = db()->select(
             'DISTINCT parent',
             '[+prefix+]site_content',
-            sprintf("parent IN (%s) AND deleted='0'", implode(',', $ids))
+            sprintf('parent IN (%s)%s', implode(',', $ids), $liveOnly ? " AND deleted='0'" : '')
         );
         $result = [];
         while ($row = db()->getRow($rs)) {
             $result[] = (int)$row['parent'];
         }
+        return $result;
+    }
+
+    /**
+     * リソース $id の子孫すべて（ゴミ箱のものも含む）を「ID => ゴミ箱にあるか」で返す。$id 自身は含まない
+     * （parent が循環していても含まない）。$id が 0 ならサイトの全リソース。
+     * evo()->getChildIds() はゴミ箱のリソースを含まないので、DB を 1 段ずつたどる
+     */
+    public function descendants($id)
+    {
+        $id = (int)$id;
+        $found = [$id => true];
+        $level = [$id];
+        while ($level) {
+            $rs = db()->select('id, deleted', '[+prefix+]site_content', sprintf('parent IN (%s)', implode(',', $level)));
+            $level = [];
+            while ($row = db()->getRow($rs)) {
+                if (!isset($found[(int)$row['id']])) {
+                    $found[(int)$row['id']] = (bool)$row['deleted'];
+                    $level[] = (int)$row['id'];
+                }
+            }
+        }
+        unset($found[$id]);
+        return $found;
+    }
+
+    /**
+     * ゴミ箱にあるリソースの ID の配列（ゴミ箱を空にするときの対象）
+     */
+    public function trashedIds()
+    {
+        $rs = db()->select('id', '[+prefix+]site_content', 'deleted=1');
+        $ids = [];
+        while ($row = db()->getRow($rs)) {
+            $ids[] = (int)$row['id'];
+        }
+        return $ids;
+    }
+
+    /**
+     * ゴミ箱のリソース $id を完全に削除するときの対象（$id と子孫）を集め、消せるかを確かめる。何も消さない。
+     * 子孫を残すと親の無いリソースになるので、完全な削除は子孫ごと行う。$id がゴミ箱に無いとき、
+     * ゴミ箱に無い子孫（個別に復活させたものなど）があるときは、消せない理由を返す。
+     * 利用者の権限は見ない（管理画面の処理は、呼び出し側で checkPermissions() などを確かめる）。
+     *
+     * @param int $id
+     * @return array ['warning' => 消せない理由（空なら消せる）, 'ids' => $id と子孫の ID（重なりなし。$id が先頭）, 'parent' => $id の親]
+     *     ids と parent は warning があっても返す（呼び出し側が、理由を見せる前に対象の権限を確かめられるように）。
+     *     $id のリソースが無いときは ids が空
+     */
+    public function purgeCheck($id)
+    {
+        $id = (int)$id;
+        $target = db()->getRow(db()->select('parent, deleted', '[+prefix+]site_content', 'id=' . $id));
+        if (!$target) {
+            return ['warning' => '', 'ids' => [], 'parent' => 0];
+        }
+        $descendants = $this->descendants($id);
+        $liveId = array_search(false, $descendants, true);
+        if (!(int)$target['deleted']) {
+            $warning = sprintf('ID: %d %s', $id, lang('not_deleted'));
+        } elseif ($liveId !== false) {
+            $warning = sprintf(lang('cannot_purge_live_child'), $liveId);
+        } else {
+            $warning = '';
+        }
+        return [
+            'warning' => $warning,
+            'ids' => array_merge([$id], array_keys($descendants)),
+            'parent' => (int)$target['parent'],
+        ];
+    }
+
+    /**
+     * ゴミ箱のリソースを完全に削除する（元に戻せない）。1 件（purgeCheck() の ids）でも、ゴミ箱の全件（trashedIds()）でも、ここを通す。
+     * 文書グループとの結び付き・テンプレート変数の値・下書きの行も消す。ゴミ箱に無いリソースは、ID を渡しても消さない。
+     * OnBeforeEmptyTrash・OnEmptyTrash を発火し、消す ID を ids で渡す（OnBeforeEmptyTrash のプラグインは ids を書き換えられる）。
+     * 権限・消せるかの確かめと、キャッシュの消去（evo()->clearCache()）は呼び出し側が行う。
+     *
+     * @param array $ids 消すリソースの ID
+     * @return bool 消せたら true（$ids が空のときも true）
+     */
+    public function purge(array $ids)
+    {
+        $ids = array_values(array_unique(array_map('intval', $ids)));
+        evo()->event->vars['ids'] = &$ids;
+        evo()->invokeEvent('OnBeforeEmptyTrash', evo()->event->vars);
+
+        $result = true;
+        if ($ids) {
+            $content = evo()->getFullTableName('site_content');
+            $trashed = sprintf('%s.id IN (%s) AND %s.deleted=1', $content, implode(',', array_map('intval', $ids)), $content);
+            // リソースの行を消す前に、結び付いた行を消す（リソースの ID は別のリソースで使い回されうる）。値は「表 => リソースの ID の列と追加の条件」
+            $related = [
+                'document_groups' => ['document', ''],
+                'site_tmplvar_contentvalues' => ['contentid', ''],
+                'site_revision' => ['elmid', " AND %s.element='resource'"],
+            ];
+            foreach ($related as $name => [$column, $extra]) {
+                $table = evo()->getFullTableName($name);
+                db()->query(sprintf(
+                    'DELETE %1$s FROM %1$s INNER JOIN %2$s ON %2$s.id = %1$s.%3$s WHERE %4$s%5$s',
+                    $table,
+                    $content,
+                    $column,
+                    $trashed,
+                    sprintf($extra, $table)
+                ));
+            }
+            $result = (bool)db()->delete($content, sprintf('id IN (%s) AND deleted=1', implode(',', array_map('intval', $ids))));
+        }
+        if ($result) {
+            evo()->invokeEvent('OnEmptyTrash', evo()->event->vars);
+        }
+        evo()->event->vars = [];
         return $result;
     }
 

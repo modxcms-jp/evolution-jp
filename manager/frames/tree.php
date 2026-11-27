@@ -79,45 +79,8 @@ if (!sessionv('tree_sortdir')) {
         function showPopup(id, title, pub, del, draft, hasChildren, e) {
             var x, y
             var mnu = document.getElementById('mx_contextmenu');
-            var permpub = <?= evo()->hasPermission('publish_document') ? 1 : 0 ?>;
-            var permdel = <?= evo()->hasPermission('delete_document') ? 1 : 0 ?>;
-            // 権限や設定によって出ない項目もあるため、あるときだけ切り替える
-            function showItem(id, shown) {
-                var item = document.getElementById(id);
-                if (item) item.style.display = shown ? '' : 'none';
-            }
-            if (draft == 1) {
-                showItem('itemcreateDraft', false);
-                showItem('itemeditDraft', true);
-            } else {
-                showItem('itemcreateDraft', true);
-                showItem('itemeditDraft', false);
-            }
-            if (permpub == 1) {
-                showItem('item61', true);
-                showItem('item62', true);
-                if (pub == 1) showItem('item61', false);
-                else showItem('item62', false);
-            } else {
-                showItem('item51', false);
-
-                if (draft == 1) showItem('item27', false);
-                else showItem('item27', true);
-            }
-
-            if (permdel == 1) {
-                showItem('item6', true);
-                showItem('item63', true);
-                showItem('item64', true);
-                if (del == 1) {
-                    showItem('item6', false);
-                    showItem('item61', false);
-                    showItem('item62', false);
-                } else {
-                    showItem('item63', false);
-                    showItem('item64', false);
-                }
-            }
+            // 項目は、リソースの状態で出し分ける（決まりは一覧の行メニューと同じ DocumentMenu の表）
+            EvoDocumentActions.applyMenuState(mnu, {published: pub == 1, deleted: del == 1, draft: draft == 1});
             // position:fixed のためビューポート座標をそのまま使う
             x = e.clientX > 0 ? e.clientX : e.pageX;
             y = e.clientY > 0 ? e.clientY : e.pageY;
@@ -598,12 +561,12 @@ if (is_array($evtOut)) {
                     break;
                 case '64' : // delete
                     if (selectedObjectDeleted == 1) {
-                        // 完全に削除するのは、削除済みのこのリソース 1 件だけ（子は巻き込まない）
+                        // ゴミ箱のこのリソースを、子孫ごと完全に削除する
                         EvoDocumentActions.run('purge', [Number(itemToChange)], function () {
                             EvoCsrf.post("index.php?a=64&id=" + itemToChange);
-                        }, {title: selectedObjectName});
+                        }, {hasChildren: selectedObjectHasChildren, title: selectedObjectName});
                     } else {
-                        EvoDialog.alert(Evo.escapeHtml("'" + selectedObjectName + "' ") + <?= js_literal(stripcslashes(lang('already_deleted'))) ?>, '', null, {icon: 'warning'});
+                        EvoDialog.alert(Evo.escapeHtml("'" + selectedObjectName + "' ") + <?= js_literal(stripcslashes(lang('not_deleted'))) ?>, '', null, {icon: 'warning'});
                     }
                     break;
                 case '61' : // publish
@@ -633,58 +596,26 @@ if (is_array($evtOut)) {
         }
 
     </script>
-    <?php
-    function getTplCtxMenu()
-    {
-        $tpl = <<< EOT
-<!-- Contextual Menu Popup Code -->
-<div id="mx_contextmenu" onselectstart="return false;">
-    <div id="nameHolder">&nbsp;</div>
-		[+itemEditDoc+]
-		[+itemDocList+]
-		[+itemNewDoc+]
-		[+itemMoveDoc+]
-		[+itemDuplicateDoc+]
-		[+=========1+]
-		[+itemPubDoc+][+itemUnPubDoc+]
-		[+itemDelDoc+][+itemUndelDoc+][+itemDelDocComplete+]
-		[+=========2+]
-		[+itemWebLink+]
-		[+=========3+]
-		[+itemCreateDraft+]
-		[+itemEditDraft+]
-		[+itemDocInfo+]
-		[+itemViewPage+]
-	</div>
+    <!-- Contextual Menu Popup Code -->
+    <div id="mx_contextmenu" onselectstart="return false;">
+        <div id="nameHolder">&nbsp;</div>
+        <?php
+        // 項目は DocumentMenu の表から描く（一覧の行メニューと同じ定義）。id は「item<キー>」
+        include_once(MODX_CORE_PATH . 'controls/document_menu.class.php');
+        foreach (DocumentMenu::items() as $item) {
+            if ($item['separator']) {
+                echo '<div class="seperator"></div>';
+            }
+            echo sprintf(
+                '<div class="menuLink" id="item%1$s" data-menu-item="%1$s" onclick="menuHandler(\'%1$s\'); hideMenu();"><img src="%2$s" />%3$s</div>',
+                hsc($item['key']),
+                hsc($item['icon']),
+                $item['text']
+            );
+        }
+        ?>
+    </div>
 </div>
-EOT;
-        return $tpl;
-    }
-
-    $ph = [];
-    $ph['itemEditDoc'] = itemEditDoc(); // edit
-    $ph['itemDocList'] = itemDocList(); // Resource list
-    $ph['itemNewDoc'] = itemNewDoc(); // new Resource
-    $ph['itemMoveDoc'] = itemMoveDoc(); // move
-    $ph['itemDuplicateDoc'] = itemDuplicateDoc(); // duplicate
-    $ph['=========1'] = itemSeperator1();
-    $ph['itemPubDoc'] = itemPubDoc(); // publish
-    $ph['itemUnPubDoc'] = itemUnPubDoc(); // unpublish
-    $ph['itemDelDoc'] = itemDelDoc(); // delete
-    $ph['itemUndelDoc'] = itemUndelDoc(); // undelete
-    $ph['itemDelDocComplete'] = itemDelDocComplete(); // undelete
-    $ph['=========2'] = itemSeperator2();
-    $ph['itemWebLink'] = itemWebLink(); //  new Weblink
-    $ph['=========3'] = itemSeperator3();
-    $ph['itemCreateDraft'] = itemCreateDraft(); // create draft
-    $ph['itemEditDraft'] = itemEditDraft(); // edit draft
-    $ph['itemDocInfo'] = itemDocInfo(); // undelete
-    $ph['itemViewPage'] = itemViewPage(); // preview
-
-    $tpl = getTplCtxMenu();
-    echo evo()->parseText($tpl, $ph);
-
-    ?>
 <script>
     // 旧フレーム参照(top.tree.X)互換のためツリー操作関数を公開する
     window.tree = window.tree || {};
@@ -705,209 +636,6 @@ EOT;
 function select($cond = false)
 {
     return ($cond) ? ' selected="selected"' : '';
-}
-
-function tplMenuItem()
-{
-    return <<< EOT
-<div class="menuLink" id="item[+action+]" onclick="menuHandler('[+action+]'); hideMenu();">
-	<img src="[+img+]" />[+text+]
-</div>
-EOT;
-}
-
-function itemEditDoc()
-{
-    if (!evo()->hasPermission('edit_document')) {
-        return '';
-    }
-    $ph['action'] = '27';
-    $ph['img'] = style('icons_edit_document');
-    $ph['text'] = lang('edit_resource');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemCreateDraft()
-{
-    if (!config('enable_draft')) {
-        return '';
-    }
-
-    $ph['action'] = 'createDraft';
-    $ph['img'] = style('icons_new_document');
-    $ph['text'] = lang("create_draft");
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemEditDraft()
-{
-    if (!config('enable_draft')) {
-        return '';
-    }
-
-    $ph['action'] = 'editDraft';
-    $ph['img'] = style('icons_edit_document');
-    $ph['text'] = lang("edit_draft");
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemDocList()
-{
-    if (!evo()->hasPermission('view_document')) {
-        return '';
-    }
-    $ph['action'] = '120';
-    $ph['img'] = style('icons_table');
-    $ph['text'] = lang('view_child_resources_in_container');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemNewDoc()
-{
-    if (!evo()->hasPermission('new_document')) {
-        return '';
-    }
-    $ph['action'] = '4';
-    $ph['img'] = style('icons_new_document');
-    $ph['text'] = lang('create_resource_here');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemMoveDoc()
-{
-    if (!evo()->hasPermission('move_document')) {
-        return '';
-    }
-    if (!evo()->hasPermission('save_document')) {
-        return '';
-    }
-    $ph['action'] = '51';
-    $ph['img'] = style('icons_move_document');
-    $ph['text'] = lang('move_resource');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemDuplicateDoc()
-{
-    if (!evo()->hasPermission('new_document') || !evo()->hasPermission('save_document')) {
-        return '';
-    }
-    $ph['action'] = '94';
-    $ph['img'] = style('icons_resource_duplicate');
-    $ph['text'] = lang('resource_duplicate');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemSeperator1()
-{
-    if (evo()->hasPermission('edit_document') || evo()->hasPermission('new_document') || evo()->hasPermission('save_document')) {
-        return '<div class="seperator"></div>';
-    }
-
-    return '';
-}
-
-function itemPubDoc()
-{
-    if (!evo()->hasPermission('publish_document')) {
-        return '';
-    }
-    $ph['action'] = '61';
-    $ph['img'] = style('icons_publish_document');
-    $ph['text'] = lang('publish_resource');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemUnPubDoc()
-{
-    if (!evo()->hasPermission('publish_document')) {
-        return '';
-    }
-    $ph['action'] = '62';
-    $ph['img'] = style('icons_unpublish_resource');
-    $ph['text'] = lang('unpublish_resource');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemDelDoc()
-{
-    if (!evo()->hasPermission('delete_document')) {
-        return '';
-    }
-    $ph['action'] = '6';
-    $ph['img'] = style('icons_delete');
-    $ph['text'] = lang('delete_resource');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemUndelDoc()
-{
-    if (!evo()->hasPermission('delete_document')) {
-        return '';
-    }
-    $ph['action'] = '63';
-    $ph['img'] = style('icons_undelete_resource');
-    $ph['text'] = lang('undelete_resource');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemDelDocComplete()
-{
-    if (!evo()->hasPermission('empty_trash')) {
-        return '';
-    }
-    $ph['action'] = '64';
-    $ph['img'] = style('icons_delete_complete');
-    $ph['text'] = lang('delete_resource_complete');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemSeperator2()
-{
-    if (evo()->hasPermission('publish_document') || evo()->hasPermission('delete_document')) {
-        return '<div class="seperator"></div>';
-    }
-
-    return '';
-}
-
-function itemWebLink()
-{
-    if (!evo()->hasPermission('new_document')) {
-        return '';
-    }
-    $ph['action'] = '72';
-    $ph['img'] = style('icons_weblink');
-    $ph['text'] = lang('create_weblink_here');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemSeperator3()
-{
-    if (evo()->hasPermission('new_document')) {
-        return '<div class="seperator"></div>';
-    }
-
-    return '';
-}
-
-function itemDocInfo()
-{
-    if (!evo()->hasPermission('view_document')) {
-        return '';
-    }
-    $ph['action'] = '3';
-    $ph['img'] = style('icons_information');
-    $ph['text'] = lang('resource_overview');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemViewPage()
-{
-    $ph['action'] = 'pv';
-    $ph['img'] = style('icons_information');
-    $ph['text'] = lang('preview_resource');
-    return evo()->parseText(tplMenuItem(), $ph);
 }
 
 function openedArray($allowed_parents)

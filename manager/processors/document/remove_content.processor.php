@@ -7,82 +7,60 @@ if (!evo()->hasPermission('empty_trash')) {
     alert()->dumpError();
 }
 
-// id があればその 1 件、無ければゴミ箱の全件。id が整数として読めないときは、全件の削除に進まないよう止める
-if (anyv('id') !== null && anyv('id') !== '') {
+// 消す処理は DocAPI の purge()。ここは、リクエストの受け取り・権限の確かめ・キャッシュの消去・戻り先だけを持つ
+evo()->loadExtension('DocAPI');
+
+$stop = function ($code, $message = '') {
+    alert()->setError($code, $message);
+    alert()->dumpError();
+    exit;
+};
+
+// id があればその 1 件とその子孫、無ければゴミ箱の全件。id が整数として読めないときは、全件の削除に進まないよう止める
+$single = anyv('id') !== null && anyv('id') !== '';
+if ($single) {
     $id = request_intvar('id');
     if (!$id) {
-        alert()->setError(2);
-        alert()->dumpError();
-        exit;
+        $stop(2);
     }
-    $ids = [$id];
-} else {
-    $rs = db()->select('id', '[+prefix+]site_content', 'deleted=1');
-    $ids = [];
-    if (db()->count($rs) > 0) {
-        while ($row = db()->getRow($rs)) {
-            $ids[] = (int)$row['id'];
+    // 1 件の完全な削除（右クリックメニューの項目）は、メニューの定義と同じ権限を求める
+    include_once(MODX_CORE_PATH . 'controls/document_menu.class.php');
+    if (!DocumentMenu::permitted('64')) {
+        $stop(3);
+    }
+    // 権限は、リソースの状態（有無・ゴミ箱にあるか・子孫）を知らせる前に確かめる。
+    // 許可するリソースの範囲は対象だけを見る（子孫は対象の下にある）
+    if (!evo()->checkPermissions($id) || !manager()->isInAllowedParents($id)) {
+        $stop(3, lang('access_permission_denied'));
+    }
+    $check = evo()->doc->purgeCheck($id);
+    if (!$check['ids']) {
+        $stop(2);
+    }
+    foreach (array_slice($check['ids'], 1) as $childId) {
+        if (!evo()->checkPermissions($childId)) {
+            $stop(3, sprintf(lang('cannot_purge_child_no_permission'), $childId));
         }
     }
-}
-
-// 対象の文書それぞれについて、ドキュメントグループと許可するリソースの範囲を確かめる。
-// 1 件でも通らなければ、何も消さずに全体を止める
-foreach ($ids as $docid) {
-    if (!evo()->checkPermissions($docid) || !manager()->isInAllowedParents($docid)) {
-        alert()->setError(3, lang('access_permission_denied'));
-        alert()->dumpError();
-        exit;
+    if ($check['warning'] !== '') {
+        $stop(3, $check['warning']);
     }
-}
-
-// invoke OnBeforeEmptyTrash event
-$modx->event->vars['ids'] = &$ids;
-evo()->invokeEvent('OnBeforeEmptyTrash', $modx->event->vars);
-
-if (!empty($ids)) {
-    $ids_list = implode(',', array_map('intval', $ids));
-    
-    // remove the document groups link.
-    $tbl_document_groups = evo()->getFullTableName('document_groups');
-    $tbl_site_content = evo()->getFullTableName('site_content');
-    $sql = "DELETE {$tbl_document_groups}
-            FROM {$tbl_document_groups}
-            INNER JOIN {$tbl_site_content} ON {$tbl_site_content}.id = {$tbl_document_groups}.document
-            WHERE {$tbl_site_content}.id IN ({$ids_list}) AND {$tbl_site_content}.deleted=1";
-    db()->query($sql);
-    
-    // remove the TV content values.
-    $tbl_site_tmplvar_contentvalues = evo()->getFullTableName('site_tmplvar_contentvalues');
-    $sql = "DELETE {$tbl_site_tmplvar_contentvalues}
-            FROM {$tbl_site_tmplvar_contentvalues}
-            INNER JOIN {$tbl_site_content} ON {$tbl_site_content}.id = {$tbl_site_tmplvar_contentvalues}.contentid
-            WHERE {$tbl_site_content}.id IN ({$ids_list}) AND {$tbl_site_content}.deleted=1";
-    db()->query($sql);
-    
-    // remove the drafts and scheduled drafts (IDs can be reused by other documents).
-    $tbl_site_revision = evo()->getFullTableName('site_revision');
-    $sql = "DELETE {$tbl_site_revision}
-            FROM {$tbl_site_revision}
-            INNER JOIN {$tbl_site_content} ON {$tbl_site_content}.id = {$tbl_site_revision}.elmid
-            WHERE {$tbl_site_content}.id IN ({$ids_list}) AND {$tbl_site_content}.deleted=1
-            AND {$tbl_site_revision}.element='resource'";
-    db()->query($sql);
-
-    // permanently delete the document.
-    $rs = db()->delete($tbl_site_content, "id IN ({$ids_list}) AND deleted=1");
+    $ids = $check['ids'];
+    include_once(MODX_CORE_PATH . 'controls/child_document_list_state.class.php');
+    $returnUrl = ChildDocumentListState::returnUrl($check['parent']);
 } else {
-    // No documents to delete - treat as successful operation
-    $rs = true;
+    $ids = evo()->doc->trashedIds();
+    // 1 件でも通らなければ、何も消さずに全体を止める
+    foreach ($ids as $docid) {
+        if (!evo()->checkPermissions($docid) || !manager()->isInAllowedParents($docid)) {
+            $stop(3, lang('access_permission_denied'));
+        }
+    }
+    $returnUrl = 'index.php?refresh=tree&a=7';
 }
-if (!$rs) {
+
+if (!evo()->doc->purge($ids)) {
     exit("Something went wrong while trying to remove deleted documents!");
-} else {
-    // invoke OnEmptyTrash event
-    evo()->invokeEvent('OnEmptyTrash', $modx->event->vars);
-    $modx->event->vars = [];
-    // empty cache
-    $modx->clearCache(); // first empty the cache
-    // finished emptying cache - redirect
-    header("Location: index.php?refresh=tree&a=7");
 }
+evo()->clearCache();
+header('Location: ' . $returnUrl);

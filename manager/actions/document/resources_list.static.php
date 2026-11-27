@@ -163,6 +163,13 @@ if (!$numRecords) {
         $docs[$row['id']] = $row;
     }
 
+    // 行メニューの確認に出す、操作に巻き込まれる子の有無。削除（ゴミ箱に無い行）では削除していない子、完全に削除（ゴミ箱の行）ではすべての子
+    $trashedIds = array_keys(array_filter($docs, function ($doc) {
+        return (int) $doc['deleted'] === 1;
+    }));
+    $withLiveChildren = evo()->doc->idsWithLiveChildren(array_merge(array_keys($docs), $allChildIds));
+    $withAnyChildren = evo()->doc->idsWithChildren($trashedIds);
+
     $rows = [];
     $tpl = '<div class="title">[+icon+][+statusIcon+]</div><a href="[+link+]">[+title+][+description+]</a>';
     foreach ($docs as $docid => $doc) {
@@ -173,6 +180,15 @@ if (!$numRecords) {
         if (manager()->isAdmin()) {
             $doc['has_access'] = 1;
         }
+        // 行メニューが開くときに読む行の状態（値は DataTable が出すときにエスケープする）。下書きの有無はツリー（nodes.php）と同じ見方
+        $menuState = [
+            'data-published' => (int) $doc['published'],
+            'data-deleted' => (int) $doc['deleted'],
+            'data-draft' => in_array($doc['status'], ['draft', 'standby'], true) ? 1 : 0,
+            'data-title' => $doc['pagetitle'],
+            'data-preview-url' => evo()->makeUrl($docid, '', '', 'full'),
+            'data-has-children' => in_array((int) $docid, (int) $doc['deleted'] ? $withAnyChildren : $withLiveChildren, true) ? 1 : 0,
+        ];
         $doc = hsc($doc);
 
         $doc['icon'] = getIcon($doc);
@@ -191,6 +207,7 @@ if (!$numRecords) {
         $col['editedon'] = getEditedon($doc['editedon']);
         $col['menuindex'] = (int) $doc['menuindex'];
         $col['status'] = getStatus($doc);
+        $col['menuState'] = $menuState;
         $rows[] = $col;
     }
 
@@ -220,6 +237,9 @@ if (!$numRecords) {
     $table = new DataTable($columns, [
         'id' => 'children',
         'tableClass' => 'grid',
+        'rowAttributes' => function (array $row) {
+            return $row['menuState'];
+        },
         'selection' => $canBatch ? [
             'name' => 'batch[]',
             'ids' => $allChildIds,
@@ -284,7 +304,7 @@ $menuId = 'cntxm';
 $cm = new ContextMenu($menuId, 180);
 echo getContextMenu($cm);
 
-echo get_jscript($menuId, array_unique(array_merge(array_keys($docs ?? []), $allChildIds)));
+echo get_jscript($menuId, $withLiveChildren ?? []);
 
 ?>
     <script type="text/javascript" src="<?= manager_asset('media/script/data-table.js') ?>"></script>
@@ -503,7 +523,8 @@ function _getIconPath($doc)
     return style('tree_folder');
 }
 
-function get_jscript($menuId, array $rowIds)
+// $withLiveChildren: 一覧のリソース（ほかのページの分も含む）のうち、削除していない子を持つものの ID（一括の削除の確認に使う）
+function get_jscript($menuId, array $withLiveChildren)
 {
     global $modx_textdir;
 
@@ -515,7 +536,7 @@ function get_jscript($menuId, array $rowIds)
         js_literal($menuId),
         $modx_textdir === 'rtl' ? 'true' : 'false',
         js_literal($returnQuery),
-        js_value(evo()->doc->idsWithLiveChildren($rowIds))
+        js_value($withLiveChildren)
     );
 
     return sprintf(
@@ -583,49 +604,21 @@ function getTopicPath($id)
     );
 }
 
+// 項目は DocumentMenu の表から描く（ツリーの右クリックメニューと同じ定義）。開くときに、行の状態で出し分ける
 function getContextMenu($cm)
 {
-    if (hasPermission('edit_document')) {
-        $cm->addItem(lang('edit_resource'), "js:EvoDocumentActions.menu(27)", style('icons_edit_document'));
-    }
-    if (hasPermission('new_document')) {
-        $cm->addItem(lang('create_resource_here'), "js:EvoDocumentActions.menu(4)", style('icons_new_document'));
-    }
-    if (hasPermission('move_document') && hasPermission('save_document') && hasPermission('publish_document')) {
-        $cm->addItem(lang('move_resource'), "js:EvoDocumentActions.menu(51)", style('icons_move_document'));
-    }
-    if (hasPermission('new_document')) {
-        $cm->addItem(lang('resource_duplicate'), "js:EvoDocumentActions.menu(94)", style('icons_resource_duplicate'));
-    }
-    if (0 < $cm->i) {
-        $cm->addSeparator();
-        $cm->i = 0;
-    }
-    if (hasPermission('publish_document')) {
-        $cm->addItem(lang('publish_resource'), "js:EvoDocumentActions.menu(61)", style('icons_publish_document'));
-    }
-    if (hasPermission('publish_document')) {
-        $cm->addItem(lang('unpublish_resource'), "js:EvoDocumentActions.menu(62)", style('icons_unpublish_resource'));
-    }
-    if (hasPermission('delete_document')) {
-        $cm->addItem(lang('delete_resource'), "js:EvoDocumentActions.menu(6)", style('icons_delete'));
-    }
-    if (hasPermission('delete_document')) {
-        $cm->addItem(lang('undelete_resource'), "js:EvoDocumentActions.menu(63)", style('icons_undelete_resource'));
-    }
-    if (0 < $cm->i) {
-        $cm->addSeparator();
-        $cm->i = 0;
-    }
-    if (hasPermission('new_document')) {
-        $cm->addItem(lang('create_weblink_here'), "js:EvoDocumentActions.menu(72)", style('icons_weblink'));
-    }
-    if (0 < $cm->i) {
-        $cm->addSeparator();
-        $cm->i = 0;
-    }
-    if (hasPermission('view_document')) {
-        $cm->addItem(lang('resource_overview'), "js:EvoDocumentActions.menu(3)", style('icons_resource_overview'));
+    include_once(MODX_CORE_PATH . 'controls/document_menu.class.php');
+    foreach (DocumentMenu::items() as $item) {
+        if ($item['separator']) {
+            $cm->addSeparator();
+        }
+        $cm->addItem(
+            $item['text'],
+            sprintf("js:EvoDocumentActions.menu('%s')", $item['key']),
+            $item['icon'],
+            0,
+            $item['key']
+        );
     }
     return $cm->render();
 }

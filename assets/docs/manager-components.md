@@ -20,6 +20,7 @@
 | ボタン（`.button`）・入力欄 | 共通の CSS | `manager/media/style/common/forms.css` | `theme-variables.md`（フォーム部品） |
 | 編集画面の行（見出しと値） | `EvoFieldRow` | `manager/includes/field_row.class.inc.php`・`manager/media/style/common/field_row.tpl` | `manager-form-row.md` |
 | 右クリック・行の操作のメニュー | `ContextMenu`（PHP。`addItem()` で項目を足す）・`EvoContextMenu`（JS。表示と非表示） | `manager/includes/controls/contextmenu.php`・`manager/media/script/context-menu.js`・`manager/media/style/common/context-menu.css` | `theme-variables.md`（右クリックメニュー） |
+| リソースの右クリックメニューの項目（ツリーと子リソースの一覧が同じ表から描く。権限・状態での出し分け） | `DocumentMenu`（PHP。項目の定義の表）・`EvoDocumentActions.applyMenuState()`（JS。状態での出し分け） | `manager/includes/controls/document_menu.class.php`・`manager/media/script/document-actions.js` | `manager-shell.md`（リソースの右クリックメニュー） |
 | タブ | `WebFXTabPane` | `manager/media/script/tabpane.js`・`manager/media/style/common/tabs.css` | `tabpane.js` の先頭の docblock・`theme-variables.md`（タブ） |
 | 行の並べ替え（`data-sortable`） | `MODXSortable` | `manager/media/script/dragdrop-sort.js` | `dragdrop-sort.js` の先頭近くのコメント |
 | 日付選び（`class="DatePicker"`） | `EvoDatePicker` | `manager/media/script/datepicker/datepicker.js`・`manager/media/script/datepicker/datepicker.css`（`loadDatePicker()` が読み込む） | 先頭のコメント |

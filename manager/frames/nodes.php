@@ -110,8 +110,10 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
         $field[] = '1 AS has_access';
     }
     $field[] = 'rev.status AS status';
-    // 右クリックメニューの削除の確認に出す、削除していない子の有無（DocAPI の hasLiveChildren() と同じ条件を行ごとに 1 回の問い合わせで取る）
-    $field[] = sprintf("EXISTS(SELECT 1 FROM %s AS ch WHERE ch.parent=sc.id AND ch.deleted='0') AS has_live_children", db()->getFullTableName('site_content'));
+    // 右クリックメニューの確認に出す、操作に巻き込まれる子の有無を行ごとに 1 回の問い合わせで取る。
+    // 条件の正本は DocAPI: 削除（ゴミ箱に無いリソース）では削除していない子（idsWithLiveChildren()）、
+    // 完全に削除（ゴミ箱のリソース）ではすべての子（idsWithChildren()）
+    $field[] = sprintf("EXISTS(SELECT 1 FROM %s AS ch WHERE ch.parent=sc.id AND (sc.deleted='1' OR ch.deleted='0')) AS has_affected_children", db()->getFullTableName('site_content'));
     $from = '[+prefix+]site_content AS sc';
     $from .= ' LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
     $from .= " LEFT JOIN [+prefix+]site_revision rev on rev.elmid = sc.id AND (rev.status='draft' OR rev.status='standby') AND rev.element='resource'";
@@ -180,14 +182,14 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
     $node_name_source = evo()->config('resource_tree_node_name');
     global $privateweb, $privatemgr;
     while ($row = db()->getRow($result, 'num')):
-        [$id, $pagetitle, $menutitle, $parent, $isfolder, $published, $deleted, $type, $menuindex, $hidemenu, $alias, $contenttype, $privateweb, $privatemgr, $hasAccess, $hasDraft, $hasLiveChildren] = $row;
+        [$id, $pagetitle, $menutitle, $parent, $isfolder, $published, $deleted, $type, $menuindex, $hidemenu, $alias, $contenttype, $privateweb, $privatemgr, $hasAccess, $hasDraft, $hasAffectedChildren] = $row;
         $nodetitle = getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder);
 
         $class = getClassName($published, $deleted, $hidemenu, $hasAccess);
 
         $ph['id'] = $id;
         $ph['hasdraft'] = !empty($hasDraft) ? 1 : 0;
-        $ph['haschildren'] = (int)$hasLiveChildren;
+        $ph['haschildren'] = (int)$hasAffectedChildren;
 
         $draftDisplay = '';
         if ($modx->config('enable_draft')) {
