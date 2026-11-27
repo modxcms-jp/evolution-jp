@@ -160,6 +160,7 @@ return [
     "confirm_delete_draft_resource" => 'この下書きを削除しますか？',
     "confirm_delete_resource" => 'このリソースを削除しますか？',
     "confirm_delete_resource_children" => 'サブリソースもすべて削除されます。',
+    "confirm_purge_resource" => 'このリソースを完全に削除しますか？\n元に戻せません。',
     "confirm_delete_role" => 'このロールを削除しますか？',
     "confirm_delete_snippet" => 'このスニペットを削除しますか？',
     "confirm_delete_template" => 'このテンプレートを削除しますか？',

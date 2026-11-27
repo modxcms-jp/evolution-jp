@@ -158,6 +158,7 @@ return [
     "confirm_delete_draft_resource" => 'Are you sure you want to delete this draft resource?',
     "confirm_delete_resource" => 'Are you sure you want to delete this Resource?',
     "confirm_delete_resource_children" => 'Any children Resources will also be deleted.',
+    "confirm_purge_resource" => 'Are you sure you want to permanently delete this Resource?\nThis cannot be undone.',
     "confirm_delete_role" => 'Are you sure you want to delete this role?',
     "confirm_delete_snippet" => 'Are you sure you want to delete this Snippet?',
     "confirm_delete_template" => 'Are you sure you want to delete this Template?',

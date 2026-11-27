@@ -167,7 +167,7 @@
 
 ## 右クリックメニュー
 
-ツリーの右クリックメニュー（`#mx_contextmenu`、`manager/frames/tree.php`）と、一覧の操作メニュー（`.contextMenu`、`manager/includes/controls/contextmenu.php`）は、`manager/media/style/common/context-menu.css`（`@layer evo-components`）が同じ見た目で描く。幅（ツリーは 180px、一覧は項目が折り返さない幅）・行の高さ（`1.4`）・余白・アイコンの薄さは全テーマ共通。テーマは `:root` で下の変数の値を決め、右クリックメニューの規則を書かない。
+ツリーの右クリックメニュー（`#mx_contextmenu`、`manager/frames/tree.php`）と、一覧の操作メニュー（`.contextMenu`、`manager/includes/controls/contextmenu.php`）は、`manager/media/style/common/context-menu.css`（`@layer evo-components`）が同じ見た目で描く。幅（ツリーは 180px、一覧は項目が折り返さない幅）・行の高さ（`1.4`）・余白・アイコンの薄さは全テーマ共通。テーマは `:root` で下の変数の値を決め、右クリックメニューの規則を書かない。リソースのメニューの項目（ツリーと子リソースの一覧）の定義は `manager-shell.md` の「リソースの右クリックメニュー」を見る。
 
 | 変数 | 意味 | 既定値（context-menu.css） |
 | --- | --- | --- |

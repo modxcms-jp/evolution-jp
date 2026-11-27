@@ -8,14 +8,24 @@ if (!evo()->hasPermission('empty_trash')) {
 }
 
 // id があればその 1 件、無ければゴミ箱の全件。id が整数として読めないときは、全件の削除に進まないよう止める
-if (anyv('id') !== null && anyv('id') !== '') {
+$single = anyv('id') !== null && anyv('id') !== '';
+if ($single) {
     $id = request_intvar('id');
     if (!$id) {
         alert()->setError(2);
         alert()->dumpError();
         exit;
     }
+    // 1 件の完全な削除（右クリックメニューの項目）は、メニューの定義と同じ権限を求める
+    include_once(MODX_CORE_PATH . 'controls/document_menu.class.php');
+    if (!DocumentMenu::permitted('64')) {
+        alert()->setError(3);
+        alert()->dumpError();
+        exit;
+    }
     $ids = [$id];
+    // 完全に削除したあとは親の一覧へ戻るので、消す前に親を読んでおく
+    $returnParent = (int) db()->getValue(db()->select('parent', '[+prefix+]site_content', 'id=' . $id));
 } else {
     $rs = db()->select('id', '[+prefix+]site_content', 'deleted=1');
     $ids = [];
@@ -84,5 +94,10 @@ if (!$rs) {
     // empty cache
     $modx->clearCache(); // first empty the cache
     // finished emptying cache - redirect
-    header("Location: index.php?refresh=tree&a=7");
+    if ($single) {
+        include_once(MODX_CORE_PATH . 'controls/child_document_list_state.class.php');
+        header('Location: ' . ChildDocumentListState::returnUrl($returnParent));
+    } else {
+        header("Location: index.php?refresh=tree&a=7");
+    }
 }

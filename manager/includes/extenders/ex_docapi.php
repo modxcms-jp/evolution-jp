@@ -819,12 +819,12 @@ class DocAPI
     const ACTION_LANG_KEYS = [
         'confirm_delete_resource', 'confirm_delete_resource_children', 'confirm_batch_delete',
         'confirm_batch_publish', 'confirm_batch_unpublish',
-        'confirm_publish', 'confirm_unpublish', 'confirm_resource_duplicate', 'confirm_undelete',
+        'confirm_publish', 'confirm_unpublish', 'confirm_resource_duplicate', 'confirm_undelete', 'confirm_purge_resource',
     ];
 
     /**
      * document-actions.js へ渡す設定（header.inc.php が EvoDocumentActions.config に入れる）。
-     * ids は「設定名 => リソースの ID」、lang は「言語キー => 文言」
+     * ids は「設定名 => リソースの ID」、lang は「言語キー => 文言」、menu は右クリックメニューの状態での出し分け（DocumentMenu::stateConfig()）
      */
     public function actionConfig()
     {
@@ -839,7 +839,8 @@ class DocAPI
         foreach ($keys as $key) {
             $lang[$key] = stripcslashes(lang($key));
         }
-        return js_value(['ids' => $ids, 'lang' => $lang]);
+        include_once(MODX_CORE_PATH . 'controls/document_menu.class.php');
+        return js_value(['ids' => $ids, 'lang' => $lang, 'menu' => DocumentMenu::stateConfig()]);
     }
 
     /**

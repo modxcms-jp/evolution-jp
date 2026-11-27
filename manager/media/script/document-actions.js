@@ -1,4 +1,4 @@
-// 文書の操作（編集・移動・複製・削除・公開・非公開・削除の取り消し）の確認と、子リソースの一覧の行メニュー。
+// 文書の操作（編集・移動・複製・削除・公開・非公開・削除の取り消し・完全に削除）の確認と、右クリックメニューの状態での出し分け、子リソースの一覧の行メニュー。
 // header.inc.php が全画面で読み込む。ツリーの右クリックメニュー・投稿画面・リソースの画面・一覧の行メニュー・一覧の一括操作が、
 // 確認とトップページなどの警告を operations の表から引く（入口ごとに確認の文言や if を持たない）。
 // シェルは画面を開き直すたびにスクリプトを動かし直すので、登録は 1 回だけにする。
@@ -7,7 +7,8 @@ if (!window.EvoDocumentActions) {
     (function () {
         // header.inc.php が ex_docapi.php の actionConfig() の値を入れる。
         // ids: 設定名（トップページ・エラーページなど、止めるページ。順に当てる）=> その設定のリソースの ID / lang: 言語キー => 文言
-        window.EvoDocumentActions.config = {ids: {}, lang: {}};
+        // menu: 右クリックメニューの状態での出し分け（document_menu.class.php の DocumentMenu::stateConfig()）
+        window.EvoDocumentActions.config = {ids: {}, lang: {}, menu: {hide: {}, canPublish: false}};
 
         // 操作ごとの定義の表。
         //   confirm: 1 件の確認の文言のキー
@@ -30,13 +31,55 @@ if (!window.EvoDocumentActions) {
             },
             duplicate: {confirm: 'confirm_resource_duplicate'},
             undelete: {confirm: 'confirm_undelete'},
-            // 削除済みのリソース 1 件を完全に削除する（ツリーの右クリックメニュー。子は巻き込まない）
-            purge: {confirm: 'confirm_delete_resource'}
+            // 削除済みのリソース 1 件を完全に削除する（ツリーの右クリックメニューと一覧の行メニュー。子は巻き込まない）
+            purge: {confirm: 'confirm_purge_resource'}
+        };
+
+        // 右クリックメニューの項目 key（DocumentMenu のキー）を、リソースの状態 state で出すか。
+        // state は published・deleted・draft（下書きがある）の真偽値。決まりは DocumentMenu の表の hide 列にあり、ここは当てはめるだけ:
+        // 隠す条件のどれか 1 つについて、キーがすべて状態と一致したら隠す。条件は利用者の権限（canPublish）も見られる
+        window.EvoDocumentActions.itemShown = function (key, state) {
+            const menu = window.EvoDocumentActions.config.menu;
+            const facts = Object.assign({canPublish: menu.canPublish}, state);
+            return !(menu.hide[key] || []).some(function (condition) {
+                return Object.keys(condition).every(function (name) {
+                    return !!facts[name] === condition[name];
+                });
+            });
+        };
+
+        // メニューの要素 menu の項目（[data-menu-item="<key>"]）を、リソースの状態 state で出し分ける。
+        // ツリー（tree.php の showPopup()）と一覧の行メニューが、開く直前に呼ぶ。
+        // 区切り線（ツリーは .seperator、一覧は .cntxMnuSeparator）は、前後に出ている項目があるときだけ出す
+        window.EvoDocumentActions.applyMenuState = function (menu, state) {
+            let separator = null;
+            let seen = false;
+            Array.from(menu.children).forEach(function (el) {
+                if (el.matches('.seperator, .cntxMnuSeparator')) {
+                    el.style.display = 'none';
+                    separator = seen ? el : null;
+                    return;
+                }
+                if (!el.hasAttribute('data-menu-item')) {
+                    return;
+                }
+                const shown = window.EvoDocumentActions.itemShown(el.dataset.menuItem, state);
+                el.style.display = shown ? '' : 'none';
+                if (!shown) {
+                    return;
+                }
+                if (separator) {
+                    separator.style.display = '';
+                    separator = null;
+                }
+                seen = true;
+            });
         };
 
         // 一覧の行メニューの設定（resources_list.static.php が initChildMenu() で渡す）
         let menuConfig = null;
-        let selectedId = 0;
+        // 行メニューを開いた行（id・title・previewUrl）
+        let selected = {id: 0};
 
         function documentUrl(a, id, suffix) {
             return 'index.php?a=' + a + '&id=' + id + (suffix || '');
@@ -96,12 +139,19 @@ if (!window.EvoDocumentActions) {
             }
         }
 
-        function showMenu(id, e) {
+        // el: 行の [data-row-menu] の要素。行（tr）の data-published・data-deleted・data-draft・data-title・data-preview-url に行の状態を持つ
+        function showMenu(id, e, el) {
             const menu = menuElement();
             if (!menu) {
                 return;
             }
-            selectedId = id;
+            const row = el.closest('tr').dataset;
+            selected = {id: id, title: row.title, previewUrl: row.previewUrl};
+            window.EvoDocumentActions.applyMenuState(menu, {
+                published: row.published === '1',
+                deleted: row.deleted === '1',
+                draft: row.draft === '1'
+            });
             // 右から左に書く言語では、メニューを左へずらす
             const offsetX = menuConfig.rtl ? -190 : 0;
             menu.style.left = (e.pageX + offsetX + 10) + 'px';
@@ -138,15 +188,17 @@ if (!window.EvoDocumentActions) {
             61: 'publish',
             62: 'unpublish',
             6: 'delete',
-            63: 'undelete'
+            63: 'undelete',
+            64: 'purge'
         };
 
-        // 一覧の行メニューの項目（resources_list.static.php の getContextMenu() が onclick から呼ぶ）
-        window.EvoDocumentActions.menu = function (a) {
+        // 一覧の行メニューの項目（resources_list.static.php の getContextMenu() が onclick から呼ぶ）。key は DocumentMenu のキー
+        window.EvoDocumentActions.menu = function (key) {
             if (!menuConfig) {
                 return;
             }
-            const id = selectedId;
+            const id = selected.id;
+            const a = String(key);
             if (postMenuActions[a]) {
                 window.EvoDocumentActions.run(
                     postMenuActions[a],
@@ -154,21 +206,31 @@ if (!window.EvoDocumentActions) {
                     function () {
                         EvoCsrf.post(documentUrl(a, id, menuConfig.returnQuery));
                     },
-                    {hasChildren: withChildren(id)}
+                    {hasChildren: withChildren(id), title: selected.title}
                 );
                 return;
             }
             switch (a) {
-                case 27: // edit
-                case 3:  // view
+                case '27':  // edit
+                case '3':   // view
+                case '120': // children list
                     EvoShell.go(documentUrl(a, id));
                     break;
-                case 51: // move
+                case '51': // move
                     EvoShell.go(documentUrl(a, id, menuConfig.returnQuery));
                     break;
-                case 4:  // new document
-                case 72: // new weblink
+                case '4':  // new document
+                case '72': // new weblink
                     EvoShell.go('index.php?a=' + a + '&pid=' + id);
+                    break;
+                case 'createDraft':
+                    EvoShell.go(documentUrl(132, id));
+                    break;
+                case 'editDraft':
+                    EvoShell.go(documentUrl(131, id));
+                    break;
+                case 'pv': // preview（ツリーと同じ窓を使い回す）
+                    window.open(selected.previewUrl, 'previeWin');
                     break;
             }
         };
@@ -186,14 +248,14 @@ if (!window.EvoDocumentActions) {
                     const el = e.target.closest('[data-row-menu]');
                     // タイトルのクリックはリンクとして動かす。メニューはアイコンのクリックで開く
                     if (el && el.tagName === 'IMG') {
-                        showMenu(Number(el.dataset.rowMenu), e);
+                        showMenu(Number(el.dataset.rowMenu), e, el);
                         e.preventDefault();
                     }
                 });
                 table.addEventListener('contextmenu', function (e) {
                     const el = e.target.closest('[data-row-menu]');
                     if (el) {
-                        showMenu(Number(el.dataset.rowMenu), e);
+                        showMenu(Number(el.dataset.rowMenu), e, el);
                         e.preventDefault();
                     }
                 });

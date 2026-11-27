@@ -24,7 +24,11 @@ class ContextMenu
         $this->i = 0;
     }
 
-    public function addItem($text, $action = "", $img = "", $disabled = 0)
+    /**
+     * $key を渡すと、項目に data-menu-item="$key" を付ける（開くときに、対象の状態で項目を出し分けるための印。
+     * リソースの行メニューでは DocumentMenu のキー。document-actions.js の EvoDocumentActions.applyMenuState() が使う）
+     */
+    public function addItem($text, $action = "", $img = "", $disabled = 0, $key = '')
     {
         if (!$img) {
             $img = config('base_url') . style('tx');
@@ -40,8 +44,9 @@ class ContextMenu
         if ($disabled) {
             $action = "";
         }
+        $keyAttr = (string) $key !== '' ? " data-menu-item='" . hsc((string) $key) . "'" : '';
         $this->html .= "
-            <div class='" . ($disabled ? "cntxMnuItemDisabled" : "cntxMnuItem") . "' {$action}>
+            <div class='" . ($disabled ? "cntxMnuItemDisabled" : "cntxMnuItem") . "'{$keyAttr} {$action}>
                 <img src='{$img}' align='absmiddle' />&nbsp;{$text}
             </div>
         ";

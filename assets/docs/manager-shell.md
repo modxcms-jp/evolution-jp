@@ -126,3 +126,13 @@ frameset の名前やしくみが残っているが、理由があって残し�
 ## 文書の操作の設定
 
 `document-actions.js` は header で全画面に 1 回だけ読み、確認と警告の文言・トップページ・エラーページ・メンテナンス中ページの ID（`EvoDocumentActions.config`、`ex_docapi.php` の `actionConfig()`）もページ全体を読んだときに決まる。システム設定でこれらを変えたあと、シェルの遷移だけで読み直さずにいると古い ID で判定されるが、サーバー側（`docDeleteCheck()`）が正しく断るので壊れない（断りの警告が確認のあとに出る）。
+
+## リソースの右クリックメニュー
+
+リソースツリーの右クリックメニュー（`manager/frames/tree.php` の `#mx_contextmenu`）と、子リソースの一覧（`a=120`）の行メニュー（`manager/actions/document/resources_list.static.php` の `getContextMenu()`）は、同じ項目を出す。項目の定義は `manager/includes/controls/document_menu.class.php` の `DocumentMenu::ITEMS` の 1 か所にあり、項目を足す・権限や出し分けを変えるときはこの表だけを直す（列の意味は表の docblock）。
+
+- **権限・設定**（`perms`・`setting`）で出さない項目は、PHP がメニューに入れない（`DocumentMenu::items()`）。1 件の完全な削除（`a=64&id=<id>`）の処理側（`remove_content.processor.php`）も、同じ表から `DocumentMenu::permitted('64')` で断る
+- **リソースの状態**（公開・ゴミ箱・下書きの有無）での出し分けは、表の `hide` 列を `EvoDocumentActions.config.menu` として JS へ渡し、メニューを開く直前に `EvoDocumentActions.applyMenuState(メニューの要素, {published, deleted, draft})` が当てはめる。項目の要素は `data-menu-item="<キー>"` を持つ。前後に出ている項目が無い区切り線は隠す
+- **状態の渡し方**: ツリーは `showPopup()` の引数、一覧は行（`tr`）の `data-published`・`data-deleted`・`data-draft`・`data-title`・`data-preview-url`（`DataTable` の `rowAttributes`）
+- **描く部品と、押したあとの処理**は入口ごとに持つ。ツリーは `tree.php` の `menuHandler()`、一覧は `document-actions.js` の `EvoDocumentActions.menu()` がキーで分ける。項目を足したら両方に処理を足す
+- ツリーの項目の id（`item<キー>`。`item27`・`itemcreateDraft` など）と `showPopup()`・`menuHandler()`・`hideMenu()`・`itemToChange` は、外部のプラグインが触れている可能性があるので変えない
