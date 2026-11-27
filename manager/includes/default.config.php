@@ -46,6 +46,7 @@ $default_config = [
     'publish_default' => '1',
     'rb_webuser' => '0',
     'remember_last_tab' => '1',
+    'after_save_default' => 'close',
     'resource_tree_sortby_default' => 'menuindex',
     'resource_tree_node_name' => 'pagetitle',
     'resource_tree_show_deleted_default' => '0',

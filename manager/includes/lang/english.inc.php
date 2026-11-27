@@ -634,6 +634,8 @@ return [
     "release_date" => 'Release date',
     "remember_last_tab" => 'Remember tabs',
     "remember_last_tab_message" => 'Tabbed Manager pages load with the last tab viewed instead of defaulting to the first tab',
+    "setting_after_save_default" => 'Default action after saving',
+    "setting_after_save_default_desc" => 'The action selected at first in the list next to "Save" on editing screens (resources, elements, users and so on). On the resource screen, if you saved with "Continue editing" or "Close" earlier in the same login, that choice is selected instead.',
     "remember_username" => 'Remember me',
     "remove" => 'Remove',
     "remove_date" => 'Remove date',

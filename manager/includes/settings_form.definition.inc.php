@@ -778,6 +778,16 @@ return [
                         ],
                         'desc' => lang('remember_last_tab_message'),
                     ],
+                    [
+                        'key' => 'after_save_default',
+                        'type' => 'radio',
+                        'label' => lang('setting_after_save_default'),
+                        'options' => [
+                            'stay' => lang('stay'),
+                            'close' => lang('close'),
+                        ],
+                        'desc' => lang('setting_after_save_default_desc'),
+                    ],
                 ],
             ],
             [
