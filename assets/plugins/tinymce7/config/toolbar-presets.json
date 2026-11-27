@@ -1,5 +1,30 @@
 {
   "simple": {},
+  "standard": {
+    "plugins": [
+      "advlist",
+      "anchor",
+      "autolink",
+      "charmap",
+      "code",
+      "fullscreen",
+      "help",
+      "image",
+      "link",
+      "lists",
+      "media",
+      "quickbars",
+      "searchreplace",
+      "table",
+      "visualblocks",
+      "wordcount"
+    ],
+    "menubar": "edit view insert format tools table help",
+    "quickbars_insert_toolbar": false,
+    "quickbars_selection_toolbar": "bold forecolor backcolor | quicklink | h2 h3 blockquote",
+    "toolbar": "undo redo styles bold forecolor backcolor link image table bullist numlist align pastetext visualblocks code fullscreen media template help",
+    "toolbar_mode": "sliding"
+  },
   "formats": {
     "plugins": [
       "code",

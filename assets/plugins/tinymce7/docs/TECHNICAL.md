@@ -38,7 +38,7 @@ Evolution CMS では `assets/plugins/tinymce7/` 配下に設置し、Composer �
 | --- | --- |
 | `manager.json` | 管理画面での TinyMCE 設定。高さ、プラグイン、ツールバーなどを定義。リソースの編集画面の本文だけは、内容の量に合わせて、この高さから画面に収まる高さまでの間で伸び縮みさせる（`js/editor-setup.js`）。|
 | `frontend.json` | `OnRichTextEditorInit` で `forfrontend` パラメーターが真の場合に読み込まれます。|
-| `toolbar-presets.json` | 管理画面のプリセット選択肢（simple/formats/legacy/full など）を定義します。キーの並びが設定画面の選択肢の並びになり、表示名は言語ファイルの `tinymce7_toolbar_<キー>` です。|
+| `toolbar-presets.json` | 管理画面のプリセット選択肢（simple/standard/formats/legacy/full など）を定義します。キーの並びが設定画面の選択肢の並びになり、表示名は言語ファイルの `tinymce7_toolbar_<キー>` です。|
 
 更新後は Evolution CMS のキャッシュをクリアして反映させます。
 
@@ -185,7 +185,7 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 
 | キー | 内容 |
 | --- | --- |
-| `tinymce7_toolbar_preset` | プリセットを `toolbar-presets.json` のキー（`simple` / `formats` / `legacy` / `full`）から選択します。旧プラグインの `classic`・`advanced` と、旧構成の `basic` は、`legacy`・`full`・`formats` と読み替えます。|
+| `tinymce7_toolbar_preset` | プリセットを `toolbar-presets.json` のキー（`simple` / `standard` / `formats` / `legacy` / `full`）から選択します。未設定なら `standard`（標準）です。標準は 1 行に収め、入りきらないボタンを右端の「…」に送ります（`toolbar_mode: sliding`）。旧プラグインの `classic`・`advanced` と、旧構成の `basic` は、`legacy`・`full`・`formats` と読み替えます。|
 | `tinymce7_toolbar` | ツールバーの表示制御（`1` = 表示、`0` = 非表示）。未設定なら表示します。非表示のときは TinyMCE の `toolbar` に `false` を渡し、ツールバー構成の並びより優先します。|
 | `tinymce7_menubar` | メニューバーの表示制御（`1` = 表示、`0` = 非表示）。未設定なら表示しません。表示のときはツールバー構成の `menubar` の並びを使い、無ければ TinyMCE 既定のメニューを出します。|
 | `tinymce7_entermode` | Enter キーで挿入する要素を `p` または `br` から選択します。|
