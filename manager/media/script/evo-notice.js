@@ -82,20 +82,35 @@
     function append(item) {
         getRegion().appendChild(item);
         let timer = null;
-        const start = function () {
+        let hovered = false;
+        let focused = false;
+        // 乗っている・中にフォーカスがある、のどちらかの間は止め、両方が外れたら数え直す
+        const update = function () {
             window.clearTimeout(timer);
+            if (hovered || focused) {
+                return;
+            }
             timer = window.setTimeout(function () {
                 close(item);
             }, DURATION);
         };
-        const stop = function () {
-            window.clearTimeout(timer);
-        };
-        item.addEventListener('mouseenter', stop);
-        item.addEventListener('mouseleave', start);
-        item.addEventListener('focusin', stop);
-        item.addEventListener('focusout', start);
-        start();
+        item.addEventListener('mouseenter', function () {
+            hovered = true;
+            update();
+        });
+        item.addEventListener('mouseleave', function () {
+            hovered = false;
+            update();
+        });
+        item.addEventListener('focusin', function () {
+            focused = true;
+            update();
+        });
+        item.addEventListener('focusout', function (event) {
+            focused = item.contains(event.relatedTarget);
+            update();
+        });
+        update();
     }
 
     function show(message) {
