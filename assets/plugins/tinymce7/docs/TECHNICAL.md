@@ -175,7 +175,7 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 
 - **受け方**: link プラグインの入口（リンクの操作の帯・右クリックのメニュー・メインのツールバーの `openlink`・キーボードとタッチでの操作・Ctrl（Mac は Cmd）+ クリック・Alt+Enter）は、どれも内部の `openLink(url)` に集まります。そこで `target="_blank" rel="noreferrer noopener"` の一時的な `<a>` を `document.body` の直下に足して click を送るので、document の捕捉（capture）の click で、その特徴の `<a>` のうち href が `[~ID~]` の形のものだけを止めます。開くリンクの選び方は TinyMCE のままです。ほかの href は TinyMCE に任せます。
 - **href の形**: `[~12~]`・`[~ 12 ~]`・`[~12?a=1~]`・`[~12~]#section`・`[~12~]?a=1`。`?` 以降と `#` 以降は、返ってきた URL に付けます（URL に `?` が既にあれば `&` でつなぎます）。`[~[*id*]~]` やエイリアスは対象外です。
-- **URL の取得**: `link-list.php?id=` から取ります（`LinkListRepository::url()`。一覧に出る文書と同じ範囲で、無い・削除済み・権限なしは 404 と `{}`。ログインしていなければ 403）。クリックの中で空の窓を開けておき（ポップアップを止められないため）、URL が分かったらその窓を移します。
+- **URL の取得**: `link-list.php?id=` から取ります（`LinkListRepository::url()`。一覧に出る文書と同じ範囲で、無い・削除済み・権限なしは 404 と `{}`。ログインしていなければ 403。`[~0~]` は `makeUrl()` と同じくトップページ（`site_start`）として扱い、範囲の確かめもトップページの文書で行います）。クリックの中で空の窓を開けておき（ポップアップを止められないため）、URL が分かったらその窓を移します。
 - **失敗**: 404 は「見つかりません」（`tinymce7_link_open_missing`）、403・通信のエラーは「取得できませんでした」（`tinymce7_link_open_failed`）、窓が開けなかったときは `tinymce7_link_open_blocked` を、エディターの通知で知らせます（窓は閉じます）。
 - **設定**: `modx_link_open`（`{url, missing, failed, blocked}`）を設定したエディターだけで働きます。`EditorInitializer` が管理画面のエディターに入れ、設定ファイルに書いていればそちらを使います。
 
