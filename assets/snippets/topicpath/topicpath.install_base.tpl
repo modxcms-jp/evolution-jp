@@ -8,7 +8,7 @@
  *   非公開の文書もパン屑に含める。0 で常に非公開の文書を除外する
  * 
  * @category	snippet
- * @version 	2.2.1
+ * @version 	2.2.0
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties &theme=Theme;list;simple,list,ol,bootstrap,bootstrap5,microdata,raw;simple
  * @internal	@modx_category Navigation

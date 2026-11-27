@@ -34,29 +34,25 @@ class TopicPath
         $this->set('topicGap', '...');
         $this->array_set('titleField', 'menutitle,pagetitle');
         $this->array_set('descField', 'description,longtitle,pagetitle');
-        $this->set('homeId', config('site_start'));
-        $this->homeId = (int)$this->homeId;
+        $this->homeId = (int)array_get(event()->params, 'homeId', config('site_start'));
         $this->array_set('stopIds', '');
         $this->set('order', '');
         $this->set('homeTopicTitle');
         $this->set('homeTopicDesc');
 
-        // 古い版のテーマ名を今の名前に読み替える（古い版は大文字・小文字を区別しなかった）。
+        // テーマ名は大文字・小文字を区別しない（古い版も区別しなかった）。古い版のテーマ名は今の名前に読み替える。
         // string は古い版のスニペットのプロパティの既定値で、アップデーターはプロパティを残すため、
         // 上げたサイトに残っている。書式は今の simple と同じ
         $legacyThemes = ['li' => 'list', 'string' => 'simple'];
-        $theme = (string)array_get(event()->params, 'theme', '');
-        $legacyKey = strtolower(trim($theme));
-        if (isset($legacyThemes[$legacyKey])) {
-            $theme = $legacyThemes[$legacyKey];
-        }
-        $this->theme = $theme ?: 'simple';
+        $theme = strtolower(trim((string)array_get(event()->params, 'theme', '')));
+        $this->theme = ($legacyThemes[$theme] ?? $theme) ?: 'simple';
 
+        // 書式の引数の先頭の @CODE（後ろの : や空白も）を外す。区切りの判定（<li で始まるか）より前に外す
         $this->tpl = [];
         foreach (['Outer', 'HomeTopic', 'CurrentTopic', 'OtherTopic', 'ReferenceTopic', 'Separator'] as $name) {
             $value = array_get(event()->params, "tpl{$name}");
             if ($value !== null) {
-                $this->tpl[$name] = $value;
+                $this->tpl[$name] = preg_replace('/^@CODE[:\s]?/', '', $value);
             }
         }
         if (!isset($this->tpl['Separator']) && isset($this->tpl['OtherTopic'])
@@ -74,18 +70,10 @@ class TopicPath
         $default = include(__DIR__ . '/config/default.php');
         $theme = $this->theme;
         if (!isset($default[$theme])) {
-            evo()->logEvent(
-                0,
-                2,
-                sprintf('TopicPath: 設定にないテーマ名 %s が指定されたため simple で表示しました', hsc($theme)),
-                'TopicPath'
-            );
+            evo()->logEvent(0, 2, 'TopicPath: 設定にないテーマ名のため simple で表示しました', 'TopicPath', ['theme' => $theme]);
             $theme = 'simple';
         }
         $tpl = array_merge($default[$theme], $this->tpl);
-        foreach ($tpl as $i => $v) {
-            $tpl[$i] = preg_replace('/^@CODE[:\s]?/', '', $v);
-        }
 
         $docs = $this->getDocs(docid());
         $topics = $this->setTopics($docs, $tpl);
@@ -207,7 +195,7 @@ class TopicPath
 
     private function url($doc)
     {
-        if ((int)$doc['id'] === $this->homeId && $this->homeId === (int)config('site_start')) {
+        if ((int)$doc['id'] === (int)config('site_start')) {
             return MODX_SITE_URL;
         }
         return evo()->makeUrl($doc['id'], '', '', 'full');
