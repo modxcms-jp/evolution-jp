@@ -7,7 +7,7 @@ if (!evo()->hasPermission('empty_trash')) {
     alert()->dumpError();
 }
 
-// id があればその 1 件、無ければゴミ箱の全件。id が整数として読めないときは、全件の削除に進まないよう止める
+// id があればその 1 件とその子孫、無ければゴミ箱の全件。id が整数として読めないときは、全件の削除に進まないよう止める
 $single = anyv('id') !== null && anyv('id') !== '';
 if ($single) {
     $id = request_intvar('id');
@@ -23,9 +23,24 @@ if ($single) {
         alert()->dumpError();
         exit;
     }
-    $ids = [$id];
     // 完全に削除したあとは親の一覧へ戻るので、消す前に親を読んでおく
-    $returnParent = (int) db()->getValue(db()->select('parent', '[+prefix+]site_content', 'id=' . $id));
+    $target = db()->getRow(db()->select('parent, deleted', '[+prefix+]site_content', 'id=' . $id));
+    if ($target && !(int) $target['deleted']) {
+        alert()->setError(3, sprintf('ID: %d %s', $id, lang('not_deleted')));
+        alert()->dumpError();
+        exit;
+    }
+    $returnParent = (int) ($target['parent'] ?? 0);
+    // 子孫を残すと親の無いリソースになるので、まとめて消す。ゴミ箱に無い子孫（個別に復活させたものなど）があれば、何も消さずに断る
+    evo()->loadExtension('DocAPI');
+    $descendants = evo()->doc->descendants($id);
+    $liveId = array_search(false, $descendants, true);
+    if ($liveId !== false) {
+        alert()->setError(3, sprintf(lang('cannot_purge_live_child'), $liveId));
+        alert()->dumpError();
+        exit;
+    }
+    $ids = array_merge([$id], array_keys($descendants));
 } else {
     $rs = db()->select('id', '[+prefix+]site_content', 'deleted=1');
     $ids = [];

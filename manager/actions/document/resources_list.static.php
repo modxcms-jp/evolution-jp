@@ -163,6 +163,15 @@ if (!$numRecords) {
         $docs[$row['id']] = $row;
     }
 
+    // 行メニューの確認に出す、操作に巻き込まれる子の有無。削除（ゴミ箱に無い行）では削除していない子、完全に削除（ゴミ箱の行）ではすべての子
+    $trashedIds = array_keys(array_filter($docs, function ($doc) {
+        return (int) $doc['deleted'] === 1;
+    }));
+    $withChildren = array_merge(
+        evo()->doc->idsWithLiveChildren(array_diff(array_keys($docs), $trashedIds)),
+        evo()->doc->idsWithChildren($trashedIds)
+    );
+
     $rows = [];
     $tpl = '<div class="title">[+icon+][+statusIcon+]</div><a href="[+link+]">[+title+][+description+]</a>';
     foreach ($docs as $docid => $doc) {
@@ -180,6 +189,7 @@ if (!$numRecords) {
             'data-draft' => in_array($doc['status'], ['draft', 'standby'], true) ? 1 : 0,
             'data-title' => $doc['pagetitle'],
             'data-preview-url' => evo()->makeUrl($docid, '', '', 'full'),
+            'data-has-children' => in_array((int) $docid, $withChildren, true) ? 1 : 0,
         ];
         $doc = hsc($doc);
 

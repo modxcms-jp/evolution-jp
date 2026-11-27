@@ -561,10 +561,10 @@ if (is_array($evtOut)) {
                     break;
                 case '64' : // delete
                     if (selectedObjectDeleted == 1) {
-                        // 完全に削除するのは、削除済みのこのリソース 1 件だけ（子は巻き込まない）
+                        // ゴミ箱のこのリソースを、子孫ごと完全に削除する
                         EvoDocumentActions.run('purge', [Number(itemToChange)], function () {
                             EvoCsrf.post("index.php?a=64&id=" + itemToChange);
-                        }, {title: selectedObjectName});
+                        }, {hasChildren: selectedObjectHasChildren, title: selectedObjectName});
                     } else {
                         EvoDialog.alert(Evo.escapeHtml("'" + selectedObjectName + "' ") + <?= js_literal(stripcslashes(lang('not_deleted'))) ?>, '', null, {icon: 'warning'});
                     }

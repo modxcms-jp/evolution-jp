@@ -31,8 +31,8 @@ if (!window.EvoDocumentActions) {
             },
             duplicate: {confirm: 'confirm_resource_duplicate'},
             undelete: {confirm: 'confirm_undelete'},
-            // 削除済みのリソース 1 件を完全に削除する（ツリーの右クリックメニューと一覧の行メニュー。子は巻き込まない）
-            purge: {confirm: 'confirm_purge_resource'}
+            // ゴミ箱のリソース 1 件を、子孫ごと完全に削除する（ツリーの右クリックメニューと一覧の行メニュー）
+            purge: {confirm: 'confirm_purge_resource', children: 'confirm_purge_resource_children'}
         };
 
         // 右クリックメニューの項目 key（DocumentMenu のキー）を、リソースの状態 state で出すか。
@@ -84,7 +84,7 @@ if (!window.EvoDocumentActions) {
 
         // 一覧の行メニューの設定（resources_list.static.php が initChildMenu() で渡す）
         let menuConfig = null;
-        // 行メニューを開いた行（id・title・previewUrl）
+        // 行メニューを開いた行（id・title・previewUrl・hasChildren）
         let selected = {id: 0};
 
         function documentUrl(a, id, suffix) {
@@ -145,14 +145,14 @@ if (!window.EvoDocumentActions) {
             }
         }
 
-        // el: 行の [data-row-menu] の要素。行（tr）の data-published・data-deleted・data-draft・data-title・data-preview-url に行の状態を持つ
+        // el: 行の [data-row-menu] の要素。行（tr）の data-published・data-deleted・data-draft・data-title・data-preview-url・data-has-children に行の状態を持つ
         function showMenu(id, e, el) {
             const menu = menuElement();
             if (!menu) {
                 return;
             }
             const row = el.closest('tr').dataset;
-            selected = {id: id, title: row.title, previewUrl: row.previewUrl};
+            selected = {id: id, title: row.title, previewUrl: row.previewUrl, hasChildren: row.hasChildren === '1'};
             window.EvoDocumentActions.applyMenuState(menu, {
                 published: row.published === '1',
                 deleted: row.deleted === '1',
@@ -212,7 +212,7 @@ if (!window.EvoDocumentActions) {
                     function () {
                         EvoCsrf.post(documentUrl(a, id, menuConfig.returnQuery));
                     },
-                    {hasChildren: withChildren(id), title: selected.title}
+                    {hasChildren: selected.hasChildren, title: selected.title}
                 );
                 return;
             }

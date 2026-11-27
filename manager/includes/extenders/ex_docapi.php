@@ -819,7 +819,8 @@ class DocAPI
     const ACTION_LANG_KEYS = [
         'confirm_delete_resource', 'confirm_delete_resource_children', 'confirm_batch_delete',
         'confirm_batch_publish', 'confirm_batch_unpublish',
-        'confirm_publish', 'confirm_unpublish', 'confirm_resource_duplicate', 'confirm_undelete', 'confirm_purge_resource',
+        'confirm_publish', 'confirm_unpublish', 'confirm_resource_duplicate', 'confirm_undelete',
+        'confirm_purge_resource', 'confirm_purge_resource_children',
     ];
 
     /**
@@ -856,6 +857,14 @@ class DocAPI
      */
     public function idsWithLiveChildren(array $ids)
     {
+        return $this->idsWithChildren($ids, "AND deleted='0'");
+    }
+
+    /**
+     * 渡した ID のうち、子（ゴミ箱の子も含む）を持つものの ID の配列。$condition は子を絞る SQL（固定の文字列だけを渡す）
+     */
+    public function idsWithChildren(array $ids, $condition = '')
+    {
         $ids = array_filter(array_map('intval', $ids));
         if (!$ids) {
             return [];
@@ -863,13 +872,34 @@ class DocAPI
         $rs = db()->select(
             'DISTINCT parent',
             '[+prefix+]site_content',
-            sprintf("parent IN (%s) AND deleted='0'", implode(',', $ids))
+            sprintf('parent IN (%s) %s', implode(',', $ids), $condition)
         );
         $result = [];
         while ($row = db()->getRow($rs)) {
             $result[] = (int)$row['parent'];
         }
         return $result;
+    }
+
+    /**
+     * リソース $id の子孫すべて（ゴミ箱のものも含む）を「ID => ゴミ箱にあるか」で返す。$id 自身は含まない。
+     * evo()->getChildIds() はゴミ箱のリソースを含まないので、DB を 1 段ずつたどる
+     */
+    public function descendants($id)
+    {
+        $found = [];
+        $level = [(int)$id];
+        while ($level) {
+            $rs = db()->select('id, deleted', '[+prefix+]site_content', sprintf('parent IN (%s)', implode(',', $level)));
+            $level = [];
+            while ($row = db()->getRow($rs)) {
+                if (!isset($found[(int)$row['id']])) {
+                    $found[(int)$row['id']] = (bool)$row['deleted'];
+                    $level[] = (int)$row['id'];
+                }
+            }
+        }
+        return $found;
     }
 
     public function canCreateDoc()

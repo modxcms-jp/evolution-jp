@@ -46,12 +46,12 @@ final class DocumentMenu
         ],
         '61' => [
             'group' => 'state', 'lang' => 'publish_resource', 'icon' => 'icons_publish_document',
-            'perms' => ['publish_document'],
+            'perms' => ['save_document', 'publish_document'],
             'hide' => [['published' => true], ['deleted' => true]],
         ],
         '62' => [
             'group' => 'state', 'lang' => 'unpublish_resource', 'icon' => 'icons_unpublish_resource',
-            'perms' => ['publish_document'],
+            'perms' => ['save_document', 'publish_document'],
             'hide' => [['published' => false], ['deleted' => true]],
         ],
         '6' => [
