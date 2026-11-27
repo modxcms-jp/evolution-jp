@@ -91,6 +91,10 @@
 
 `hsc()` などで出力するものは、生の値のまま渡さない。配列が来ると PHP 8 以降で警告や TypeError になるので、`*_strvar()` で取り出す（`hsc(get_strvar('q'))`）。選択状態を決めるための `==` の比較も、比べる値の型に合わせて `*_intvar()` / `*_strvar()` で取り出す。数値の比較は、値が無いときの 0 が 0 の行に一致しないよう、`get_intvar('x') && (int)$row['x'] === get_intvar('x')` の形にする。
 
+## ヘルパーを読み込む前の処理
+
+公開側の入口 `index.php` の先頭（キャプチャの画像を返す判定・空のセッションを消す `evo_drop_empty_front_session()`）と、キャッシュ済みのページを早く返す経路（`index.php`・`manager/includes/conditional_get.inc.php`）は、`manager/includes/helpers.php` を読み込む前に動く。クローラーなどの大量のアクセスがいちばん通る所なので、読み込むファイルを増やさないよう、ここだけはスーパーグローバル（`$_GET`・`$_COOKIE`・`$_SESSION`・`$_SERVER`）を直接読む（`assets/docs/cache-mechanism.md` の「basicConfig.php とセッション名」）。ヘルパーを読み込んだあとの処理では、この資料のヘルパーを使う。
+
 ## 起動時の無害化で値がどう変わるか
 
 システム設定 `sanitize_gpc` が有効なとき、起動時に `DocumentParser::sanitize_gpc()` が `$_GET`・`$_COOKIE`・`$_REQUEST` を書き換える（`$_POST` は、管理画面で文書を保存する権限が無いときだけ）。`$_SERVER` の `QUERY_STRING`・`PHP_SELF`・`HTTP_USER_AGENT`・`HTTP_REFERER` は `hsc()` される。

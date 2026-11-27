@@ -20,7 +20,7 @@ SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真�
 
 * **既存パターンの評価と改善**: 新機能追加時は既存パターンを必ず調査する。ただし不適切・冗長・設計的に弱い場合は改善を優先する。局所的な新方式導入は禁止し、改善は横断的に適用する前提で設計する。
 * **ヘルパー利用**: `manager/includes/helpers.php` の `evo()` / `db()` / `manager()` を経由してグローバルオブジェクトへアクセスする。
-* **スーパーグローバル変数の禁止**:
+* **スーパーグローバル変数の禁止**（ヘルパーを読み込む前に動く公開側の入口だけは例外。`assets/docs/request-input.md` の「ヘルパーを読み込む前の処理」）:
 
   * `$_GET` → `getv($key, $default)` / `$_POST` → `postv($key, $default)` / `$_REQUEST` → `anyv($key, $default)`（GET と POST だけ。cookie は含まない）
   * `$_SERVER` → `serverv($key, $default)` / `$_COOKIE` → `cookiev($key, $default)`
