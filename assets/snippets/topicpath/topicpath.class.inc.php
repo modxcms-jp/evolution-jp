@@ -90,6 +90,7 @@ class TopicPath
             if (strpos($this->order, 'r') === 0) {
                 $topics = array_reverse($topics);
             }
+            // 段を省略した（topicGap）ときは、段が欠けた BreadcrumbList になるので出さない
             return evo()->parseText(
                 $tpl['Outer'],
                 ['topics' => implode($tpl['Separator'], $topics)]
@@ -109,37 +110,33 @@ class TopicPath
         $this->$key = explode(',', array_get(event()->params, $key, $default));
     }
 
-    // パン屑の HTML と同じ段を BreadcrumbList にする。段が省略されている（topicGap）ときは出さない
+    // パン屑の HTML と同じ段を BreadcrumbList にする。段は 2 つ以上要る（Google の構造化データの決まり）
     private function jsonLd()
     {
-        if (!$this->jsonld) {
+        if (!$this->jsonld || count($this->crumbs) < 2) {
             return '';
         }
         $items = [];
         foreach ($this->crumbs as $i => $crumb) {
-            $items[] = [
-                '@type' => 'ListItem',
-                'position' => $i + 1,
-                'name' => $crumb['name'],
-                'item' => $crumb['item'],
-            ];
+            $item = ['@type' => 'ListItem', 'position' => $i + 1, 'name' => $crumb['name']];
+            if ($crumb['item'] !== '') {
+                $item['item'] = $crumb['item'];
+            }
+            $items[] = $item;
         }
-        $json = json_encode(
-            [
-                '@context' => 'https://schema.org',
-                '@type' => 'BreadcrumbList',
-                '@id' => $this->rawUrl(['id' => docid()]) . '#breadcrumb',
-                'itemListElement' => $items,
-            ],
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-            | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
-        );
-        return $json === false ? '' : "\n<script type=\"application/ld+json\">\n{$json}\n</script>";
+        $data = [
+            '@context' => 'https://schema.org',
+            '@type' => 'BreadcrumbList',
+            '@id' => $this->rawUrl(['id' => docid()]) . '#breadcrumb',
+            'itemListElement' => $items,
+        ];
+        return "\n<script type=\"application/ld+json\">" . js_value($data) . '</script>';
     }
 
+    // makeUrl() が xhtml_urls のときに書く &amp; を、HTML の外（JSON）に入れる URL では & に戻す
     private function rawUrl($doc)
     {
-        return str_replace('&amp;', '&', $this->url($doc));
+        return str_replace('&amp;', '&', (string)$this->url($doc));
     }
 
     private function trimTopics($topics)
@@ -209,15 +206,15 @@ class TopicPath
             if (in_array($doc['id'], $this->stopIds)) {
                 break;
             }
-            $ph['url'] = hsc($this->url($doc), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, false);
+            $url = (string)$this->url($doc);
+            $title = $this->title($doc);
+            $ph['url'] = hsc($url, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, false);
             $ph['href'] = $ph['url'];
-
-            $this->crumbs[] = [
-                'name' => html_entity_decode(strip_tags($this->title($doc)), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-                'item' => $this->rawUrl($doc),
-            ];
-
-            $ph['title'] = hsc($this->title($doc));
+            $ph['title'] = hsc($title);
+            if ($this->jsonld) {
+                // 画面のパン屑と同じ文字（題名はそのまま。JSON の中は js_value() が守る）
+                $this->crumbs[] = ['name' => $title, 'item' => str_replace('&amp;', '&', $url)];
+            }
             $ph['desc'] = hsc($this->desc($doc));
 
             if ($i === $total - 1 && $doc['id'] == docid()) {
