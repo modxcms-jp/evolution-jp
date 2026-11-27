@@ -426,7 +426,7 @@ final class PreferenceResolver
 
     public function detectToolbarPreset(): string
     {
-        return $this->detectToolbarPresetSetting() ?? 'legacy';
+        return $this->detectToolbarPresetSetting() ?? 'standard';
     }
 
     /**
