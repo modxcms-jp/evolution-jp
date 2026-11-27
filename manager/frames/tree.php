@@ -566,7 +566,7 @@ if (is_array($evtOut)) {
                             EvoCsrf.post("index.php?a=64&id=" + itemToChange);
                         }, {title: selectedObjectName});
                     } else {
-                        EvoDialog.alert(Evo.escapeHtml("'" + selectedObjectName + "' ") + <?= js_literal(stripcslashes(lang('already_deleted'))) ?>, '', null, {icon: 'warning'});
+                        EvoDialog.alert(Evo.escapeHtml("'" + selectedObjectName + "' ") + <?= js_literal(stripcslashes(lang('not_deleted'))) ?>, '', null, {icon: 'warning'});
                     }
                     break;
                 case '61' : // publish

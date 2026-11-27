@@ -3,10 +3,11 @@
 /**
  * リソースの右クリックメニューの項目の定義。
  * リソースツリー（manager/frames/tree.php）と子リソースの一覧（manager/actions/document/resources_list.static.php）が、
- * この表から同じ項目を描く。描く部品（マークアップ・開き方）は入口ごとに持つ。
+ * この表から同じ項目を描く。
  *
- * 項目を足す・権限や出し分けを変えるときは ITEMS だけを直す。押したあとの処理は、
+ * 権限や出し分けを変えるときは ITEMS だけを直す。描く部品と、押したあとの処理は入口ごとに持つ:
  * ツリーは tree.php の menuHandler()、一覧は document-actions.js の EvoDocumentActions.menu() がキーで分ける。
+ * 項目を足したら、ITEMS に加えて、この両方に処理を足す（assets/docs/manager-shell.md の「リソースの右クリックメニュー」）。
  */
 final class DocumentMenu
 {

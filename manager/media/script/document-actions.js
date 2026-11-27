@@ -50,8 +50,12 @@ if (!window.EvoDocumentActions) {
 
         // メニューの要素 menu の項目（[data-menu-item="<key>"]）を、リソースの状態 state で出し分ける。
         // ツリー（tree.php の showPopup()）と一覧の行メニューが、開く直前に呼ぶ。
-        // 区切り線（ツリーは .seperator、一覧は .cntxMnuSeparator）は、前後に出ている項目があるときだけ出す
+        // display を書くのは、表に hide の決まりがある項目だけ。決まりの無い項目と、印の無い項目（外部のプラグインが足したもの）の
+        // display は書かない（プラグインが隠した項目を出し直さない）。
+        // 区切り線（ツリーは .seperator、一覧は .cntxMnuSeparator）は、前後に出ている項目があるときだけ出す。
+        // 出ている項目には印の無い項目も数え、見出し（#nameHolder）は数えない
         window.EvoDocumentActions.applyMenuState = function (menu, state) {
+            const hide = window.EvoDocumentActions.config.menu.hide;
             let separator = null;
             let seen = false;
             Array.from(menu.children).forEach(function (el) {
@@ -60,12 +64,14 @@ if (!window.EvoDocumentActions) {
                     separator = seen ? el : null;
                     return;
                 }
-                if (!el.hasAttribute('data-menu-item')) {
+                if (el.id === 'nameHolder') {
                     return;
                 }
-                const shown = window.EvoDocumentActions.itemShown(el.dataset.menuItem, state);
-                el.style.display = shown ? '' : 'none';
-                if (!shown) {
+                const key = el.dataset.menuItem;
+                if (key !== undefined && hide[key]) {
+                    el.style.display = window.EvoDocumentActions.itemShown(key, state) ? '' : 'none';
+                }
+                if (el.style.display === 'none') {
                     return;
                 }
                 if (separator) {
