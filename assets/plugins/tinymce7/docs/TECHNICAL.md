@@ -159,17 +159,25 @@ Tiny Cloud 公式の言語パック配布はダウンロード前提で CDN は�
 - URL を直して Enter か「Link」で反映できます。ダイアログは開きません。クラス・Rel・開き方を変えるときは、ツールバーのリンクのボタンか Ctrl+K でダイアログを開きます（`link_quicklink` は既定の `false` のままなので、ツールバーのボタンと Ctrl+K はダイアログを開きます）。
 - リンクの文字を範囲選択したときも、quickbars の選択時ツールバーとは同時に出ず、リンクの操作の帯だけが出ます。
 - 帯で URL だけ直したときの class・target・rel の残り方は、ダイアログで URL だけ直したときと同じです（確かめた結果は下）。`link_rel_list`（システム設定「リンクの rel」）が空でも、本文のリンクに rel があれば、その値から選択肢を作るので、帯でもダイアログでも rel は残ります（`noopener` は `target="_blank"` のときに TinyMCE が付けます）。class も残ります。「リンクの rel」が空で、本文に noopener 以外の rel が無い文書では、新しいウィンドウのリンクを直すと `noopener` が外れます（`target="_blank"` は残ります。今のブラウザーは `_blank` を `noopener` として扱います）。
-- 「リンクを開く」は、href が `[~ID~]`（数字だけ）のリンクのとき、その文書の公開側の URL を開きます（`js/link-open.js`。管理画面だけ）。TinyMCE はそのままの `[~ID~]` をサイトの URL に付けて開き 404 になるため、link プラグインより先に、帯とメニューのボタン（`aria-label` が `Open link` の翻訳）の押下・Ctrl（Mac は Cmd）+ クリック・Alt+Enter を横取りします。URL は `link-list.php?id=` から取ります（`LinkListRepository::url()`。一覧に出る文書と同じ範囲で、無い・削除済み・権限なしは 404。ログインしていなければ 403）。押した時点で空の窓を開けておき（ポップアップを止められないため）、URL が分かったらその窓を移します。取れなかったときは窓を閉じ、エディターの通知（`tinymce7_link_open_missing`）で知らせます。ほかの href は TinyMCE に任せます。設定ファイルに `modx_link_open`（`{url, missing}`）を書いていれば、そちらを使います。
 
 ## リンクのダイアログの文書の一覧 (`link_list`)
 管理画面のエディターには、リンクの挿入/編集のダイアログに「リンクの一覧」が出ます。サイト内の文書を木の形で選ぶと、URL の欄に `[~id~]` が入ります（TinyMCE 3 の `tinymce.linklist.php` にあたります）。設定やシステム設定の項目は無く、いつも有効です。公開側のエディター（`frontend.json`・`forfrontend`）には出しません。設定ファイルに `link_list` を書いていれば、そちらを使います。
 
-- **入口**: `link-list.php` が JSON を返します。`EditorInitializer` が `link_list` に URL を渡すので、TinyMCE がダイアログを開くたびに、管理画面の利用者のセッションで取りに行きます。ファイルピッカー（`manager/media/browser/evo/api.php`）の一覧と同じく、読み取りだけで状態を変えないため、セッション（`mgrValidated`）の確認だけで CSRF トークンは要りません。ログインしていなければ 403 と `[]` を返します。
+- **入口**: `link-list.php` が JSON を返します。`EditorInitializer` が `link_list` に URL を渡すので、TinyMCE がダイアログを開くたびに、管理画面の利用者のセッションで取りに行きます。ファイルピッカー（`manager/media/browser/evo/api.php`）の一覧と同じく、読み取りだけで状態を変えないため、セッション（`mgrValidated`）の確認だけで CSRF トークンは要りません。ログインしていなければ 403 と `[]` を返します。`?id=` を付けると、その文書の公開側の URL を `{"url": ...}` で返します（「リンクを開く」用。下の項）。
 - **作り**: 文書の取り出しと木にする処理は `TinyMCE7\Editor\LinkListRepository`。入口は取り出しを呼んで JSON にするだけです。
 - **値と表示**: 値は文書を移してもリンクが切れない `[~id~]` で、`convert_urls: false`・`relative_urls: false` のため TinyMCE は書き換えず、本文には `href="[~id~]"` のまま保存され、公開側で URL になります。表示は「メニュータイトル（無ければページタイトル）(ID)」で、未公開の文書は末尾に「（未公開）」を添えます（言語ファイルの `tinymce7_link_list_unpublished`）。削除済みの文書は出しません。メニューに表示しない文書も出します。
 - **並び**: メニューオーダー順。子を持つ文書は入れ子のメニューになり、メニューの見出し自身は選べないので、先頭に同じ名前の項目を置いて、その文書を選べるようにします。親が見えない文書（削除済み・権限なし）は最上位に置きます。
 - **権限**: `use_udperms` が有効で、利用者が管理者（`access_permissions` と `web_access_permissions` を両方持つ）でないときは、`privatemgr=0`、または利用者の文書グループ（セッションの `mgrDocgroups`）に入る文書だけを返します。式の形はツリー（`manager/frames/nodes.php` の `tree_visibility_condition()`）と同じです。ただし `use_udperms` が無効なら絞りません（ツリーは `use_udperms` を見ずに `privatemgr` で絞ります。この一覧は保存の確かめ `ManagerAPI::canOpenWithDocumentGroups()` と同じ扱い）。`tree_show_protected` は見ません。一覧に出すのはリンクを張れる文書だけです。
 - **件数の上限**: 出す文書は 1000 件（`LinkListRepository::MAX_ITEMS`）までです。ダイアログを開くたびに、削除済みでない全件（軽い列だけ）を読んでから木にして打ち切ります。超えるときは、1000 件に収まる深さまでで打ち切ります（最上位だけで超えるときは、先頭の 1000 件）。深さで打ち切ったときは、末尾に選べない説明の項目（`tinymce7_link_list_truncated`。値は空で、選ぶと URL が空になるだけ）を足します。深いところの文書は一覧に出ないので、URL の欄に `[~id~]` を直接書いてください。遅延読み込みや検索はしません。
+
+## 「リンクを開く」と `[~ID~]` (`js/link-open.js`)
+管理画面のエディターで、href が `[~ID~]` のリンクを「リンクを開く」で開くと、その文書の公開側の URL を開きます。TinyMCE はそのままの `[~ID~]` をサイトの URL に付けて開き 404 になるためです。
+
+- **受け方**: link プラグインの入口（リンクの操作の帯・右クリックのメニュー・メインのツールバーの `openlink`・キーボードとタッチでの操作・Ctrl（Mac は Cmd）+ クリック・Alt+Enter）は、どれも内部の `openLink(url)` に集まります。そこで `target="_blank" rel="noreferrer noopener"` の一時的な `<a>` を `document.body` の直下に足して click を送るので、document の捕捉（capture）の click で、その特徴の `<a>` のうち href が `[~ID~]` の形のものだけを止めます。開くリンクの選び方は TinyMCE のままです。ほかの href は TinyMCE に任せます。
+- **href の形**: `[~12~]`・`[~ 12 ~]`・`[~12?a=1~]`・`[~12~]#section`・`[~12~]?a=1`。`?` 以降と `#` 以降は、返ってきた URL に付けます（URL に `?` が既にあれば `&` でつなぎます）。`[~[*id*]~]` やエイリアスは対象外です。
+- **URL の取得**: `link-list.php?id=` から取ります（`LinkListRepository::url()`。一覧に出る文書と同じ範囲で、無い・削除済み・権限なしは 404 と `{}`。ログインしていなければ 403）。クリックの中で空の窓を開けておき（ポップアップを止められないため）、URL が分かったらその窓を移します。
+- **失敗**: 404 は「見つかりません」（`tinymce7_link_open_missing`）、403・通信のエラーは「取得できませんでした」（`tinymce7_link_open_failed`）、窓が開けなかったときは `tinymce7_link_open_blocked` を、エディターの通知で知らせます（窓は閉じます）。
+- **設定**: `modx_link_open`（`{url, missing, failed, blocked}`）を設定したエディターだけで働きます。`EditorInitializer` が管理画面のエディターに入れ、設定ファイルに書いていればそちらを使います。
 
 ## 本文のタグの補完と色付け
 管理画面のエディターでは、本文に書くタグ（チャンク `{{name}}`・スニペット `[[name]]`・リソース変数とテンプレート変数 `[*name*]`・設定 `[(name)]`）を書くのを助けます。設定の項目は無く、いつも有効です。公開側のエディター（`frontend.json`・`forfrontend`）には出しません。

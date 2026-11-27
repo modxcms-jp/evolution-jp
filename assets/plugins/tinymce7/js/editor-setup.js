@@ -330,7 +330,7 @@
         if (typeof e.target.closest !== 'function') {
           return;
         }
-        if (e.target.closest('.tox-statusbar__resize-handle') && (e.type === 'pointerdown' || e.key.indexOf('Arrow') === 0)) {
+        if (e.target.closest('.tox-statusbar__resize-handle') && (e.type === 'pointerdown' || (e.key || '').indexOf('Arrow') === 0)) {
           resizedByUser = true;
         }
       }

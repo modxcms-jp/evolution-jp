@@ -1,8 +1,9 @@
 /*
  * TinyMCE 7 の本文で、href が [~ID~] のリンクを「リンクを開く」で開いたとき、その文書の公開側の URL を開く（管理画面だけ）。
- * TinyMCE はそのままの [~ID~] をサイトの URL に付けて開いてしまい 404 になるため、link プラグインより先に横取りする。
- * 対象: リンクの操作の帯と右クリックのメニューの「リンクを開く」、Ctrl（Mac は Cmd）+ クリック、Alt+Enter。
- * URL は link-list.php?id= から取る（見える範囲の判定はリンクの一覧と同じ）。[~ID~] 以外の href は TinyMCE に任せる。
+ * TinyMCE の link プラグインは、帯・メニュー・キーボード・タッチ・ツールバー・Ctrl+クリック・Alt+Enter のどれでも、
+ * 内部の openLink(url) に集まり、target="_blank" rel="noreferrer noopener" の一時的な <a> を body の直下に足して click を送る。
+ * その click を document の捕捉で受け、href が（document_base_url の後ろに）[~ID~] の形で終わるものだけ、その文書の公開側の URL へ差し替える。
+ * 開くリンクの選び方は TinyMCE のまま。URL は link-list.php?id= から取る（見える範囲の判定はリンクの一覧と同じ）。
  * editor-setup.js が window.mceModxLinkOpen(editor) を呼ぶ。
  */
 (function (global) {
@@ -12,105 +13,80 @@
     return;
   }
 
-  const TAG_HREF = /^\[~(\d+)~\]$/;
-  const UI_SELECTOR = '.tox-pop [aria-label], .tox-menu [aria-label]';
-  const contextLinks = new WeakMap();
-  let uiBound = false;
+  // [~ID~]・[~ID?引数~] の後ろに ?クエリ や #フラグメント が続いてもよい。前には document_base_url が付く
+  const TAG_HREF = /\[~\s*(\d+)\s*(?:\?([^~]*))?~\]([?#][\s\S]*)?$/;
 
-  function linkOf(editor, node) {
-    return node ? editor.dom.getParent(node, 'a[href]') : null;
+  function buildUrl(base, innerQuery, tail) {
+    const hashAt = tail.indexOf('#');
+    const tailQuery = (hashAt < 0 ? tail : tail.slice(0, hashAt)).replace(/^\?/, '');
+    const hash = hashAt < 0 ? '' : tail.slice(hashAt);
+    const query = [innerQuery, tailQuery].filter(Boolean).join('&');
+    const url = base.replace(/#.*$/, '');
+    return url + (query ? (url.indexOf('?') < 0 ? '?' : '&') + query : '') + hash;
   }
 
-  function tagId(link) {
-    const match = link ? TAG_HREF.exec((link.getAttribute('href') || '').trim()) : null;
-    return match ? match[1] : null;
+  function notify(editor, text) {
+    editor.notificationManager.open({text: text, type: 'warning', timeout: 5000});
   }
 
-  // 先に窓を開けておき（クリックの操作の中でないとポップアップを止められる）、URL が分かったらその窓を移す
-  function openDocument(editor, id) {
-    const win = global.open('', '_blank');
-    if (win) {
-      win.opener = null;
-    }
+  // 先に窓を開けておき（ユーザーの操作の中でないとポップアップを止められる）、URL が分かったらその窓を移す
+  function openDocument(editor, match) {
     const settings = editor.options.get('modx_link_open');
-    fetch(settings.url + '?id=' + encodeURIComponent(id), {credentials: 'same-origin'})
+    const win = global.open('', '_blank');
+    if (!win) {
+      notify(editor, settings.blocked);
+      return;
+    }
+    win.opener = null;
+    const fail = function (text) {
+      win.close();
+      notify(editor, text);
+    };
+    fetch(settings.url + '?id=' + encodeURIComponent(match[1]), {credentials: 'same-origin'})
       .then(function (response) {
-        return response.ok ? response.json() : null;
-      })
-      .catch(function () {
-        return null;
+        if (response.status === 404) {
+          fail(settings.missing + ' (ID ' + match[1] + ')');
+          return null;
+        }
+        return response.ok ? response.json() : Promise.reject(new Error(String(response.status)));
       })
       .then(function (data) {
-        if (data && data.url) {
-          if (win) {
-            win.location.href = data.url;
-          }
-          return;
+        if (data) {
+          win.location.href = buildUrl(data.url, match[2] || '', match[3] || '');
         }
-        if (win) {
-          win.close();
-        }
-        editor.notificationManager.open({
-          text: settings.missing + ' (ID ' + id + ')',
-          type: 'warning',
-          timeout: 5000
-        });
+      })
+      .catch(function () {
+        fail(settings.failed);
       });
   }
 
-  // 帯とメニューはエディターの外の要素なので、全体で 1 つの捕捉のリスナーで受ける
-  function bindUi() {
-    if (uiBound) {
-      return;
-    }
-    uiBound = true;
+  function bind() {
+    // 一時的な <a> は body の直下・target=_blank・rel=noreferrer noopener。本文や UI の中のリンクとは見分けられる
     document.addEventListener('click', function (event) {
+      const link = event.target;
       const editor = global.tinymce && global.tinymce.activeEditor;
-      const target = event.target.closest && event.target.closest(UI_SELECTOR);
-      if (!editor || !target || !editor.options.isRegistered('modx_link_open')
-        || target.getAttribute('aria-label') !== editor.translate('Open link')) {
+      if (!editor || !link || link.nodeName !== 'A' || link.parentNode !== document.body
+        || link.getAttribute('target') !== '_blank' || link.getAttribute('rel') !== 'noreferrer noopener'
+        || !editor.options.isRegistered('modx_link_open') || !editor.options.get('modx_link_open')) {
         return;
       }
-      const id = tagId(linkOf(editor, editor.selection.getStart()) || contextLinks.get(editor));
-      if (id === null) {
+      const match = TAG_HREF.exec((link.getAttribute('href') || '').replace(/%20/g, ' '));
+      if (!match) {
         return;
       }
       event.preventDefault();
-      event.stopImmediatePropagation();
-      openDocument(editor, id);
-      editor.focus();
+      openDocument(editor, match);
     }, true);
   }
 
+  let bound = false;
+
   global.mceModxLinkOpen = function (editor) {
     editor.options.register('modx_link_open', {processor: 'object'});
-    if (!editor.options.get('modx_link_open')) {
+    if (!editor.options.get('modx_link_open') || bound) {
       return;
     }
-    bindUi();
-    editor.on('contextmenu', function (event) {
-      contextLinks.set(editor, linkOf(editor, event.target));
-    });
-    // link プラグインの同じ操作より先に受ける（prepend）
-    editor.on('click', function (event) {
-      const id = tagId(linkOf(editor, event.target));
-      const modifier = global.tinymce.Env.os.isMacOS() ? event.metaKey : event.ctrlKey;
-      if (id !== null && modifier) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        openDocument(editor, id);
-      }
-    }, true);
-    editor.on('keydown', function (event) {
-      if (event.keyCode !== 13 || !event.altKey || event.ctrlKey || event.shiftKey || event.metaKey) {
-        return;
-      }
-      const id = tagId(linkOf(editor, editor.selection.getStart()));
-      if (id !== null) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        openDocument(editor, id);
-      }
-    }, true);
+    bound = true;
+    bind();
   };
 })(window);

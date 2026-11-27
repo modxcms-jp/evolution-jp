@@ -109,6 +109,8 @@ final class EditorInitializer
             $config['modx_link_open'] = [
                 'url' => MODX_BASE_URL . 'assets/plugins/tinymce7/link-list.php',
                 'missing' => $this->language->translate('tinymce7_link_open_missing', 'The linked document was not found.'),
+                'failed' => $this->language->translate('tinymce7_link_open_failed', 'Could not get the URL. Check that you are still logged in.'),
+                'blocked' => $this->language->translate('tinymce7_link_open_blocked', 'The browser blocked the new window.'),
             ];
         }
         if (empty($params['forfrontend']) && !isset($config['modx_tag_names_url'])) {

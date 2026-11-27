@@ -5,6 +5,7 @@ namespace TinyMCE7\Editor;
 
 /**
  * リンクのダイアログ（TinyMCE の link_list）に並べる、サイト内の文書の木を作る。
+ * 同じ範囲の文書について、公開側の URL も返す（url()。「リンクを開く」用）。
  *
  * 利用者が管理画面で見られる文書（文書グループと allowed_parents の範囲の中）だけを、メニュー名（無ければページタイトル）と ID で並べる。
  * 値は文書を移してもリンクが切れない `[~id~]`。未公開は表示名に添え、削除済みは出さない。
@@ -68,7 +69,12 @@ final class LinkListRepository
             'sc.id=' . $id . ' AND ' . $this->visibleCondition()
         ));
 
-        return $found ? evo()->makeUrl($id, '', '', 'full') : null;
+        if (!$found) {
+            return null;
+        }
+        $url = evo()->makeUrl($id, '', '', 'full');
+
+        return is_string($url) && $url !== '' ? $url : null;
     }
 
     private function visibleCondition(): string
