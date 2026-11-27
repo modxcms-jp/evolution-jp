@@ -130,7 +130,10 @@ class TopicPath
             '@id' => $this->rawUrl(['id' => docid()]) . '#breadcrumb',
             'itemListElement' => $items,
         ];
-        return "\n<script type=\"application/ld+json\">" . js_value($data) . '</script>';
+        // 出力はこのあとページのタグの解析を通るので、JSON の文字列の中にタグの書き始めを残さない
+        // （\u005B・\u007B は JSON として読むと [ { と同じ。JSON の構造からはこの並びはできない）
+        $json = preg_replace(['/\[(?=[\[!*(+~^])/', '/\{(?=\{)/'], ['\\u005B', '\\u007B'], js_value($data));
+        return "\n<script type=\"application/ld+json\">{$json}</script>";
     }
 
     // makeUrl() が xhtml_urls のときに書く &amp; を、HTML の外（JSON）に入れる URL では & に戻す
@@ -212,8 +215,11 @@ class TopicPath
             $ph['href'] = $ph['url'];
             $ph['title'] = hsc($title);
             if ($this->jsonld) {
-                // 画面のパン屑と同じ文字（題名はそのまま。JSON の中は js_value() が守る）
-                $this->crumbs[] = ['name' => $title, 'item' => str_replace('&amp;', '&', $url)];
+                // 画面のパン屑と同じ文字にする。題名のタグ（[(site_name)] など）は、画面ではページの解析で展開されるので、ここで展開しておく
+                $name = (strpos($title, '[') !== false || strpos($title, '{') !== false)
+                    ? evo()->parseDocumentSource($title)
+                    : $title;
+                $this->crumbs[] = ['name' => $name, 'item' => str_replace('&amp;', '&', $url)];
             }
             $ph['desc'] = hsc($this->desc($doc));
 
