@@ -12,6 +12,8 @@ if (evo()->getLoginUserType() !== 'manager') {
     exit('Not Logged In!');
 }
 
+include_once MODX_CORE_PATH . 'controls/resource_tree.class.php';
+
 // save folderstate
 
 if (getv('savestateonly')) {
@@ -91,7 +93,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
         $parent = 0;
     }
 
-    $tree_orderby = get_tree_orderby();
+    $tree_orderby = ResourceTree::orderBy();
     $mgr_docgroups = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])));
     $in_docgrp = $mgr_docgroups
         ? sprintf('OR dg.document_group IN (%s)', implode(',', $mgr_docgroups))
@@ -403,26 +405,6 @@ function tplFcloseNode()
 
 EOT;
     return $src;
-}
-
-function get_tree_orderby()
-{
-    // 並べ替えの列と向きは、ツリーの選択肢にあるものだけを使う
-    $sortby = sessionv('tree_sortby', config('resource_tree_sortby_default', 'menuindex'));
-    if (!in_array($sortby, ['isfolder', 'pagetitle', 'id', 'menuindex', 'createdon', 'editedon'], true)) {
-        $sortby = 'menuindex';
-    }
-    $sortdir = sessionv('tree_sortdir', 'asc');
-    $sortdir = is_string($sortdir) && strtoupper($sortdir) === 'DESC' ? 'DESC' : 'ASC';
-    $orderby = sprintf('sc.%s %s', $sortby, $sortdir);
-
-    // Folder sorting gets special setup ;) Add menuindex and pagetitle
-    if ($sortby === 'isfolder') {
-        $orderby .= ', sc.menuindex ASC';
-    }
-    // 続きの読み込み（LIMIT）で順序が揺れないよう、一意なキーで並びを確定させる
-    $orderby .= ', sc.editedon DESC, sc.id ASC';
-    return $orderby;
 }
 
 /**
