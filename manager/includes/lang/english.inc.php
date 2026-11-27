@@ -633,6 +633,8 @@ return [
     "refresh_unpublished" => '<b>%s</b> Resources were unpublished.',
     "release_date" => 'Release date',
     "remember_last_tab" => 'Remember tabs',
+    "setting_after_save_default" => 'Default action after saving',
+    "setting_after_save_default_desc" => 'The action selected at first in the list next to "Save" on editing screens (resources, elements, users and so on). On the resource screen, the action chosen earlier in the same login is selected instead, if there is one.',
     "remember_last_tab_message" => 'Tabbed Manager pages load with the last tab viewed instead of defaulting to the first tab',
     "remember_username" => 'Remember me',
     "remove" => 'Remove',

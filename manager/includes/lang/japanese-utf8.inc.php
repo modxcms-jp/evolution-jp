@@ -635,6 +635,8 @@ return [
     "refresh_unpublished" => '<strong>%s</strong>件のリソースが非公開に戻りました。',
     "release_date" => 'リリース日',
     "remember_last_tab" => 'アクティブなタブを記憶する',
+    "setting_after_save_default" => '保存したあとの既定の動き',
+    "setting_after_save_default_desc" => '編集画面（投稿画面・エレメント・ユーザーなど）の「保存」の横の選択欄で、初めに選ばれている動きです。投稿画面は、同じログインの中で前に選んだものがあれば、そちらを選びます。',
     "remember_last_tab_message" => 'タブのある画面（投稿画面・エレメント編集画面・グローバル設定など）で、最後に開いたタブを記憶します。「Full」はいつも、「Stay mode」は保存したあと同じ画面に戻ったときだけ記憶します。',
     "remember_username" => 'ログイン名を記憶する',
     "remove" => '削除',

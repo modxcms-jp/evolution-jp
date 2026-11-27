@@ -2,6 +2,7 @@
 // 既定の設定値の正本。DB に行が無い設定は DocumentParser::getSettings() がこれで補う。
 // 言語に依らない値だけを置く（メールの文面は言語ごとに違うので、インストーラー・アップデーターが行の無いときに入れる）
 $default_config = [
+    'after_save_default' => 'close',
     'site_url' => defined('MODX_SITE_URL') ? MODX_SITE_URL : '',
     'base_url' => defined('MODX_BASE_URL') ? MODX_BASE_URL : '',
     'fixed_site_url' => '',
