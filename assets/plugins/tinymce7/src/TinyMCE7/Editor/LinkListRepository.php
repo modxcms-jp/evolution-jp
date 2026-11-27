@@ -63,6 +63,10 @@ final class LinkListRepository
      */
     public function url(int $id): ?string
     {
+        // [~0~] はトップページ（makeUrl() と同じ読み替え）。見える範囲の確かめはトップページの文書で行う
+        if ($id === 0) {
+            $id = (int)evo()->config('site_start');
+        }
         $found = db()->getValue(db()->select(
             'sc.id',
             '[+prefix+]site_content AS sc',
