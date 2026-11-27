@@ -14,23 +14,23 @@ if (($_GET['get'] ?? '') === 'captcha') {
     return;
 }
 
-// このリクエストで新しく作ったセッションに、MODX が自分で入れる値（evo_sid_hash）のほかに何も書かれなかったら、そのセッションのファイルを消す。
+// このリクエストで新しく作ったセッションに、MODX が自分で入れる値（evo_sid_hash）のほかに何も書かれていなければ、
+// セッションの cookie を送らず、ファイルも消す。cookie とファイルは、両方残すか両方消すかのどちらかにする
+// （cookie だけが残ると、初めて来たブラウザの同時のリクエストが、それぞれ別のセッションを作ってしまう）。
 // cookie を持ってきた訪問者のセッションは、既存の訪問者のものなので消さない。
-// ヘッダーをまだ送っていなければ、応答の Set-Cookie からセッションの cookie も外す。送ったあと（ページを出し終えた後）は、ファイルだけを消す
-// （cookie を持ち帰ったブラウザには、次に来たときに新しいセッションが作られる）。
+// ヘッダーを送ったあとは何もしない（送った時点で中身があり、cookie を出したセッションなので残す）。
+// 呼ぶ所: キャッシュを返す経路の session_write_close() の前、ヘッダーを送る直前（header_register_callback）、
+// 本文の無い応答（リダイレクト・304）のための shutdown。
 if (!function_exists('evo_drop_empty_front_session')) {
     function evo_drop_empty_front_session()
     {
-        if (session_status() !== PHP_SESSION_ACTIVE || isset($_COOKIE[session_name()])) {
+        if (headers_sent() || session_status() !== PHP_SESSION_ACTIVE || isset($_COOKIE[session_name()])) {
             return;
         }
         if (array_diff_key($_SESSION, ['evo_sid_hash' => true])) {
             return;
         }
         session_destroy();
-        if (headers_sent()) {
-            return;
-        }
         $prefix = session_name() . '=';
         $cookies = array_filter(headers_list(), static function ($h) {
             return stripos($h, 'Set-Cookie:') === 0;
@@ -43,11 +43,15 @@ if (!function_exists('evo_drop_empty_front_session')) {
         }
     }
 }
-// ページの後処理（postProcess の OnWebPageComplete など）がセッションに書いた値を残すため、shutdown の中でもう一度登録して最後に回す
-register_shutdown_function(static function () {
+$evoDropEmptyFrontSession = static function () {
     if (!defined('MODX_API_MODE') || !MODX_API_MODE) {
-        register_shutdown_function('evo_drop_empty_front_session');
+        evo_drop_empty_front_session();
     }
+};
+header_register_callback($evoDropEmptyFrontSession);
+// 本文の無い応答は、ヘッダーをリクエストの終わりに送る。メインの処理で登録された shutdown 関数（postProcess など）のあとに回す
+register_shutdown_function(static function () use ($evoDropEmptyFrontSession) {
+    register_shutdown_function($evoDropEmptyFrontSession);
 });
 
 if (is_file('vendor/autoload.php')) {
