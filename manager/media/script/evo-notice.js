@@ -1,22 +1,10 @@
 /**
- * 管理画面の知らせ（トースト）。操作を止めずに、本文の欄の右上（保存などのボタンの並び #actions のすぐ下）に
- * 短い知らせを出す。jQuery には依存しない。
- * 決まりと使い分け（ダイアログとの違い）は assets/docs/manager-notice.md を正本とする。
+ * 管理画面の知らせ（トースト）。操作が済んだことを、操作を止めずに短く出す。jQuery には依存しない。
+ * 決まり・置き場所・サーバー側から出す方法・ダイアログとの使い分けは assets/docs/manager-notice.md を正本とする。
  *
- * EvoNotice.show(message, options)
+ * EvoNotice.show(message)
  * - message: 文字列。文字として出す（HTML にしない）
- * - options.type: 'success'（既定）・'info'・'warning'。色と読み上げの強さが変わる（warning は role="alert"）
- * - options.sticky: true なら、閉じるまで残す。false（既定）なら DURATION ミリ秒で消える。
- *   乗せている間・中にフォーカスがある間は消さない
- * - options.links: [{href, label}]。知らせの中にリンクを並べる。管理画面の URL はシェルの中で開く（EvoShell.go）
- *
- * サーバー側から出すときは manager()->notice()（manager/includes/extenders/ex_managerapi.php）でセッションに積む。
- * 次に描く画面（ページ全体でも、シェルの部分の応答でも）の後処理 evoRenderPaneFooterExtras() が、この関数の呼び出しを出す。
- *
- * 置き場所は body の直下の #evoNotice（シェルが #mainPane を差し替えても消えないため）。
- * shell.css の body 直下の規則の例外に入れてある（assets/docs/manager-shell.md）。見た目は common/notice.css。
- * 縦の位置は、ボタンの並びの下端を測って --evo-notice-top に入れる（並びの高さはテーマで違い、無い画面もある）。
- * シェルが #mainPane の中身を差し替えたときも測り直し、残っている知らせが移った先のボタンに重ならないようにする。
+ * - 3 秒で消える。× で閉じられる。乗せている間・中にフォーカスがある間は消さない
  */
 (function () {
     'use strict';
@@ -27,6 +15,8 @@
 
     let region = null;
     let observer = null;
+    // 領域を作った直後のフレームの間は true（読み上げに空の領域を先に見せるため、中身はこの間を避けて入れる）
+    let settling = false;
 
     function measureTop() {
         const pane = document.getElementById('mainPane');
@@ -56,7 +46,12 @@
         }
         region = document.createElement('div');
         region.id = 'evoNotice';
+        region.setAttribute('role', 'status');
         document.body.appendChild(region);
+        settling = true;
+        window.requestAnimationFrame(function () {
+            settling = false;
+        });
         place();
         const pane = document.getElementById('mainPane');
         if (pane && !observer) {
@@ -84,47 +79,33 @@
         window.setTimeout(remove, 400);
     }
 
-    function openLink(e) {
-        const href = this.getAttribute('href');
-        if (window.EvoShell && typeof window.EvoShell.go === 'function') {
-            e.preventDefault();
-            window.EvoShell.go(href);
-        }
-        close(this.closest('.evo-notice'));
+    function append(item) {
+        getRegion().appendChild(item);
+        let timer = null;
+        const start = function () {
+            window.clearTimeout(timer);
+            timer = window.setTimeout(function () {
+                close(item);
+            }, DURATION);
+        };
+        const stop = function () {
+            window.clearTimeout(timer);
+        };
+        item.addEventListener('mouseenter', stop);
+        item.addEventListener('mouseleave', start);
+        item.addEventListener('focusin', stop);
+        item.addEventListener('focusout', start);
+        start();
     }
 
-    function show(message, options) {
-        const opts = options || {};
-        const type = ['success', 'info', 'warning'].indexOf(opts.type) >= 0 ? opts.type : 'success';
+    function show(message) {
         const item = document.createElement('div');
-        item.className = 'evo-notice is-' + type;
-        // 1 件ずつ読み上げさせる（領域ごと live にすると、残っている知らせまで読み直すことがある）
-        item.setAttribute('role', type === 'warning' ? 'alert' : 'status');
+        item.className = 'evo-notice';
 
-        const body = document.createElement('div');
-        body.className = 'evo-notice-body';
         const text = document.createElement('p');
         text.className = 'evo-notice-message';
         text.textContent = String(message);
-        body.appendChild(text);
-
-        const links = Array.isArray(opts.links) ? opts.links : [];
-        if (links.length) {
-            const list = document.createElement('p');
-            list.className = 'evo-notice-links';
-            links.forEach(function (link) {
-                if (!link || !link.href) {
-                    return;
-                }
-                const a = document.createElement('a');
-                a.href = link.href;
-                a.textContent = link.label || link.href;
-                a.addEventListener('click', openLink);
-                list.appendChild(a);
-            });
-            body.appendChild(list);
-        }
-        item.appendChild(body);
+        item.appendChild(text);
 
         const button = document.createElement('button');
         button.type = 'button';
@@ -137,24 +118,13 @@
         });
         item.appendChild(button);
 
-        getRegion().appendChild(item);
-
-        if (!opts.sticky) {
-            let timer = null;
-            const start = function () {
-                window.clearTimeout(timer);
-                timer = window.setTimeout(function () {
-                    close(item);
-                }, DURATION);
-            };
-            const stop = function () {
-                window.clearTimeout(timer);
-            };
-            item.addEventListener('mouseenter', stop);
-            item.addEventListener('mouseleave', start);
-            item.addEventListener('focusin', stop);
-            item.addEventListener('focusout', start);
-            start();
+        getRegion();
+        if (settling) {
+            window.requestAnimationFrame(function () {
+                append(item);
+            });
+        } else {
+            append(item);
         }
         return item;
     }
@@ -164,6 +134,13 @@
         closeLabel: 'Close',
         show: show,
     };
+
+    // 読み上げ（role="status"）は、空の領域が先にあるほうが中身の追加を拾う
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', getRegion);
+    } else {
+        getRegion();
+    }
 
     window.EvoNotice = EvoNotice;
 })();

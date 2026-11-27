@@ -1,10 +1,6 @@
 /* 管理画面の知らせ（トースト、manager/media/script/evo-notice.js）の見た目。決まりは assets/docs/manager-notice.md。
-   全テーマ共通。テーマは :root の色の変数（成功は .okmsg と同じ --color-success-bg・--okmsg-border-color）を決めるだけで、
-   この部品の規則は書かない。層に入れるので、テーマ・画面の規則に負ける（forms.css の先頭の説明） */
+   全テーマ共通。テーマは :root の色の変数（--color-success-bg・--okmsg-border-color など）を決めるだけで、この部品の規則は書かない */
 @layer evo-components {
-    /* 本文の欄の右上。縦の位置は evo-notice.js がボタンの並び（#actions）の下端を測って --evo-notice-top に入れる。
-       右端は #actions（shell.css）とそろえる。シェルのモーダル（#evoShellModalOverlay、9000）の中で保存したときも見えるよう、その上に置く。
-       ダイアログ（<dialog>）はブラウザの最上位の層に出るので、それより下になる */
     #evoNotice {
         position: fixed;
         top: var(--evo-notice-top, calc(var(--shell-menu-height, 58px) + var(--space-4, 16px)));
@@ -18,12 +14,7 @@
         pointer-events: none;
     }
 
-    #evoNotice:empty {
-        display: none;
-    }
-
     .evo-notice {
-        --evo-notice-accent: var(--okmsg-border-color, var(--color-success-light, #3ab63a));
         --evo-notice-bg: var(--color-success-bg, #edffee);
         display: flex;
         align-items: flex-start;
@@ -31,10 +22,11 @@
         box-sizing: border-box;
         width: 100%;
         padding: var(--space-3, 12px) var(--space-3, 12px) var(--space-3, 12px) var(--space-4, 16px);
-        border: 1px solid var(--evo-notice-accent);
-        border-left-width: 4px;
+        border: 1px solid var(--okmsg-border-color, var(--color-success-light, #3ab63a));
+        border-inline-start-width: 4px;
         border-radius: 6px;
-        background: var(--evo-notice-bg);
+        /* 地の色が半透明のテーマでも、本文が透けないよう不透明な白の上に重ねる */
+        background: linear-gradient(var(--evo-notice-bg), var(--evo-notice-bg)), #fff;
         color: var(--color-text-primary, #333);
         box-shadow: 0 4px 16px rgba(0, 0, 0, .15);
         line-height: 1.6;
@@ -42,41 +34,15 @@
         animation: evo-notice-in .2s ease-out;
     }
 
-    .evo-notice.is-info {
-        --evo-notice-accent: var(--color-primary, #3b82c4);
-        --evo-notice-bg: var(--color-surface, #fff);
-    }
-
-    .evo-notice.is-warning {
-        --evo-notice-accent: var(--color-warning, #c77700);
-        --evo-notice-bg: var(--color-surface, #fff);
-    }
-
     .evo-notice.is-leaving {
         animation: evo-notice-out .2s ease-in forwards;
     }
 
-    .evo-notice-body {
+    .evo-notice-message {
         flex: 1;
         min-width: 0;
-    }
-
-    .evo-notice-message,
-    .evo-notice-links {
         margin: 0;
         word-break: break-word;
-    }
-
-    .evo-notice-links {
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--space-1, 4px) var(--space-4, 16px);
-        margin-top: var(--space-1, 4px);
-    }
-
-    .evo-notice-links a {
-        color: var(--color-link, #0645ad);
-        text-decoration: underline;
     }
 
     .evo-notice-close {

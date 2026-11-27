@@ -76,5 +76,4 @@ switch ($mode) {
         echo "Erm... You supposed to be here now?";
         exit;
 }
-EvoFormFlow::noticeSaved();
-header('Location: ' . EvoFormFlow::url(['a' => EvoFormFlow::screen('role', 'close')]));
+EvoFormFlow::redirectAfterSave('role', (int)$id, 'close');

@@ -212,7 +212,7 @@ final class EvoFormFlow
         header('Location: ' . self::afterSaveUrl($kind, $id, $afterSave, $extra));
     }
 
-    /** 「保存しました」の知らせを積む。行き先を自分で決める保存（文書・グローバル設定など）は、移る前にこれを呼ぶ */
+    /** 「保存しました」の知らせを積む。行き先を自分で決める保存（文書・下書き・グローバル設定・プロフィール）は、移る前にこれを呼ぶ */
     public static function noticeSaved(): void
     {
         manager()->notice(lang('notice_saved'));

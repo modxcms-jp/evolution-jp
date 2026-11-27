@@ -871,30 +871,14 @@ class ManagerAPI
      * 決まりは assets/docs/manager-notice.md
      *
      * @param string $message 文字として出す（HTML にしない）
-     * @param array $options type（success・info・warning）・sticky（閉じるまで残す）・links（[['href' => 管理画面の URL, 'label' => 文言]]）
      */
-    public function notice(string $message, array $options = []): void
+    public function notice(string $message): void
     {
         if ($message === '') {
             return;
         }
         $queue = sessionv('ManagerNoticeQueue', []);
-        if (!is_array($queue)) {
-            $queue = [];
-        }
-        $links = [];
-        foreach ((array)($options['links'] ?? []) as $link) {
-            if (!is_array($link) || empty($link['href'])) {
-                continue;
-            }
-            $links[] = ['href' => (string)$link['href'], 'label' => (string)($link['label'] ?? '')];
-        }
-        $queue[] = [
-            'message' => $message,
-            'type' => in_array($options['type'] ?? '', ['success', 'info', 'warning'], true) ? $options['type'] : 'success',
-            'sticky' => !empty($options['sticky']),
-            'links' => $links,
-        ];
+        $queue[] = $message;
         sessionv('*ManagerNoticeQueue', $queue);
     }
 
@@ -904,9 +888,10 @@ class ManagerAPI
      */
     public function renderNotices(): string
     {
-        // 管理画面ごと読み直す画面（refresh=page。グローバル設定の保存のあとの待ちの画面など）で出すと、読み直しで消える。
-        // 読まずに残し、読み直したあとの画面で出す
-        if (get_choicevar('refresh', ['page'], '') === 'page') {
+        // 知らせを読まずに残す応答（出しても、読み直しや移動、別の部分の応答で消える）:
+        // - 管理画面ごと読み直す画面（refresh=page。グローバル設定の保存のあとの待ちの画面など）
+        // - シェルの部品（ツリーなど）の再取得（a=1）。本文ではないので、読むと知らせが消える
+        if (get_choicevar('refresh', ['page'], '') === 'page' || (int)$this->action === 1) {
             return '';
         }
         // 移動の応答（保存の processor が Location を付けたあと、index.php の後処理がここへ来る）では出さない。
@@ -917,26 +902,18 @@ class ManagerAPI
             }
         }
         $queue = sessionv('ManagerNoticeQueue', []);
-        if (!$queue || !is_array($queue)) {
+        if (!$queue) {
             return '';
         }
         sessionv('*ManagerNoticeQueue', []);
 
         $calls = [];
-        foreach ($queue as $notice) {
-            $calls[] = sprintf(
-                'EvoNotice.show(%s, %s);',
-                js_literal((string)$notice['message']),
-                js_value([
-                    'type' => $notice['type'],
-                    'sticky' => $notice['sticky'],
-                    'links' => $notice['links'],
-                ])
-            );
+        foreach ($queue as $message) {
+            $calls[] = sprintf('EvoNotice.show(%s);', js_literal($message));
         }
-        return "<script type=\"text/javascript\">\n    Evo.ready(function () {\n        if (window.EvoNotice) {\n            "
-            . implode("\n            ", $calls)
-            . "\n        }\n    });\n</script>\n";
+        return "<script type=\"text/javascript\">\n    Evo.ready(function () {\n        "
+            . implode("\n        ", $calls)
+            . "\n    });\n</script>\n";
     }
 
     public function isAdmin()
