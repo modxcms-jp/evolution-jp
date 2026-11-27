@@ -58,7 +58,6 @@ $_lang['tinymce7_loss_javascript'] = 'values starting with javascript:';
 $_lang['tinymce7_loss_sandbox'] = 'If you save now, a sandbox attribute is added to iframes, and embedded content may stop working.';
 $_lang['tinymce7_loss_consult'] = 'If you do not want this change, please consult the site administrator.';
 $_lang['tinymce7_image_edit'] = 'Edit image';
-$_lang['tinymce7_link_list_unpublished'] = ' (unpublished)';
 $_lang['tinymce7_link_list_truncated'] = '(Documents deeper than this are omitted. Write [~ID~] in the URL field.)';
 $_lang['tinymce7_tag_disabled'] = ' (disabled)';
 $_lang['tinymce7_link_open_missing'] = 'The linked document was not found.';
