@@ -14,6 +14,35 @@ if (($_GET['get'] ?? '') === 'captcha') {
     return;
 }
 
+// このリクエストで新しく作ったセッションに、MODX が自分で入れる値（evo_sid_hash）のほかに何も書かれなかったら、そのセッションを消す。
+// cookie を持ってきた訪問者のセッションは、既存の訪問者のものなので消さない。
+// 消す前に応答の Set-Cookie からセッションの cookie を外すので、ヘッダーを送る前（ob_start 中の出力の flush や echo の前）に呼ぶ。
+function evo_drop_empty_front_session()
+{
+    if (session_status() !== PHP_SESSION_ACTIVE || headers_sent() || isset($_COOKIE[session_name()])) {
+        return;
+    }
+    if (array_diff_key($_SESSION, ['evo_sid_hash' => true])) {
+        return;
+    }
+    session_destroy();
+    $prefix = session_name() . '=';
+    $cookies = array_filter(headers_list(), static function ($h) {
+        return stripos($h, 'Set-Cookie:') === 0;
+    });
+    header_remove('Set-Cookie');
+    foreach ($cookies as $h) {
+        if (stripos(ltrim(substr($h, 11)), $prefix) !== 0) {
+            header($h, false);
+        }
+    }
+}
+register_shutdown_function(static function () {
+    if (!defined('MODX_API_MODE') || !MODX_API_MODE) {
+        evo_drop_empty_front_session();
+    }
+});
+
 if (is_file('vendor/autoload.php')) {
     require 'vendor/autoload.php';
 }
@@ -69,6 +98,7 @@ if (!defined('MODX_API_MODE')
     if (!isset($_SESSION['mgrValidated']) && !isset($_SESSION['webValidated'])) {
         $target = MODX_CACHE_PATH . 'pages/' . hash('crc32b', $_SERVER['REQUEST_URI'] ?? '') . '.pageCache.php';
         if (is_file($target)) {
+            evo_drop_empty_front_session();
             session_write_close();
             $handle = fopen($target, 'rb');
             $output = fread($handle, filesize($target));
