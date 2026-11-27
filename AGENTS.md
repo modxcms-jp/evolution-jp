@@ -101,6 +101,7 @@ fix(db): 実行直前でエスケープ処理を統一
 * 小規模修正で新アーキテクチャを導入する
 * 対象のファイル・関数・行が実在するかを確かめずに、推測で直す
 * 管理画面で自前のダイアログ・モーダルを作る（`EvoDialog` を使う。`assets/docs/manager-dialog.md`）
+* 管理画面の部品を、共通の部品の一覧（`assets/docs/manager-components.md`）を見ずに画面の中で作る
 * 管理画面の body 直下に要素を足す（シェルの CSS で幅が 0 になる。`assets/docs/manager-shell.md`）
 
 ---
@@ -156,6 +157,7 @@ fix(db): 実行直前でエスケープ処理を統一
 | `deprecations.md`       | 非推奨の機能・警告の残し方 |
 | `file-storage.md`       | ファイルの置き場所・シンボリックリンクの決まり |
 | `manager-shell.md`      | 管理画面のシェル・frameset 互換の名前 |
+| `manager-components.md` | 管理画面の共通の部品の一覧・新しい部品を足すときの決まり |
 | `manager-dialog.md`     | 管理画面のダイアログ（EvoDialog） |
 | `manager-notice.md`     | 管理画面の知らせ（トースト。EvoNotice・manager()->notice()） |
 | `manager-form-row.md`   | 管理画面のフォームの行（EvoFieldRow）・直書きの style の振り分け |
