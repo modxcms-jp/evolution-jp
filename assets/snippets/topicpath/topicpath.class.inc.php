@@ -20,11 +20,14 @@ class TopicPath
     private $order;
     private $theme;
     private $tpl;
+    private $jsonld;
+    private $crumbs = [];
 
     public function __construct()
     {
         $this->set('showTopicsAtHome', '0');
         $this->set('showAtLeastOneTopic', '0');
+        $this->set('jsonld', '0');
         $this->array_set('ignoreIDs', '');
         $this->array_set('disabledOn', '');
         $this->set('disabledUnder', '');
@@ -78,7 +81,8 @@ class TopicPath
         $docs = $this->getDocs(docid());
         $topics = $this->setTopics($docs, $tpl);
 
-        if ($this->limit < count($topics)) {
+        $trimmed = $this->limit < count($topics);
+        if ($trimmed) {
             $topics = $this->trimTopics($topics);
         }
 
@@ -89,7 +93,7 @@ class TopicPath
             return evo()->parseText(
                 $tpl['Outer'],
                 ['topics' => implode($tpl['Separator'], $topics)]
-            );
+            ) . ($trimmed ? '' : $this->jsonLd());
         }
 
         return '';
@@ -103,6 +107,39 @@ class TopicPath
     private function array_set($key, $default = null)
     {
         $this->$key = explode(',', array_get(event()->params, $key, $default));
+    }
+
+    // パン屑の HTML と同じ段を BreadcrumbList にする。段が省略されている（topicGap）ときは出さない
+    private function jsonLd()
+    {
+        if (!$this->jsonld) {
+            return '';
+        }
+        $items = [];
+        foreach ($this->crumbs as $i => $crumb) {
+            $items[] = [
+                '@type' => 'ListItem',
+                'position' => $i + 1,
+                'name' => $crumb['name'],
+                'item' => $crumb['item'],
+            ];
+        }
+        $json = json_encode(
+            [
+                '@context' => 'https://schema.org',
+                '@type' => 'BreadcrumbList',
+                '@id' => $this->rawUrl(['id' => docid()]) . '#breadcrumb',
+                'itemListElement' => $items,
+            ],
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+            | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+        );
+        return $json === false ? '' : "\n<script type=\"application/ld+json\">\n{$json}\n</script>";
+    }
+
+    private function rawUrl($doc)
+    {
+        return str_replace('&amp;', '&', $this->url($doc));
     }
 
     private function trimTopics($topics)
@@ -174,6 +211,11 @@ class TopicPath
             }
             $ph['url'] = hsc($this->url($doc), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, null, false);
             $ph['href'] = $ph['url'];
+
+            $this->crumbs[] = [
+                'name' => html_entity_decode(strip_tags($this->title($doc)), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+                'item' => $this->rawUrl($doc),
+            ];
 
             $ph['title'] = hsc($this->title($doc));
             $ph['desc'] = hsc($this->desc($doc));
