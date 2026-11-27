@@ -107,10 +107,13 @@ final class ChildDocumentListState
         return self::url($parent, [], false);
     }
 
-    /** 処理のあとに一覧へ戻る URL（エスケープ前）。今の page・並べ替え・検索語（q）を引き継ぐ。開けない親なら引き継がずダッシュボード */
-    public static function returnUrl(int $parent): string
+    /**
+     * 処理のあとに一覧へ戻る URL（エスケープ前）。今の page・並べ替え・検索語（q）を引き継ぐ。開けない親なら引き継がずダッシュボード。
+     * リソースツリーを読み直す合図（refresh=tree）を付ける。$refreshTree を false にするのは、ツリーの見た目が変わらない保存のあとだけ
+     */
+    public static function returnUrl(int $parent, bool $refreshTree = true): string
     {
-        return self::url($parent, ['refresh' => 'tree'], true);
+        return self::url($parent, $refreshTree ? ['refresh' => 'tree'] : [], true);
     }
 
     private static function url(int $parent, array $extra, bool $keepState): string

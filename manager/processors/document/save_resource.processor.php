@@ -81,7 +81,7 @@ if (postedMode() === 'new') {
     evo()->event->vars = ['mode' => 'new', 'id' => $newid];
     evo()->invokeEvent('OnDocFormSave', evo()->event->vars);
 
-    goNextAction($newid, validated('parent'), $afterSave, validated('type'));
+    goNextAction($newid, validated('parent'), $afterSave, validated('type'), true);
     return;
 }
 
@@ -90,6 +90,8 @@ if (postedMode() === 'edit') {
     validated('*isfolder', checkFolderStatus(validated('id')));
 
     $db_v = getExistsValues(validated('id'));
+    include_once MODX_CORE_PATH . 'controls/resource_tree.class.php';
+    $treeBefore = ResourceTree::nodeState((int)validated('id'));
     // set publishedon and publishedby
     validated('*published', checkPublished($db_v));
     validated('*unpub_date', checkUnpub_date($db_v));
@@ -156,7 +158,9 @@ if (postedMode() === 'edit') {
     // invoke OnDocFormSave event
     evo()->event->vars = ['mode' => 'upd', 'id' => validated('id')];
     evo()->invokeEvent('OnDocFormSave', evo()->event->vars);
-    goNextAction(validated('id'), validated('parent'), $afterSave, validated('type'));
+    // OnDocFormSave のプラグインが変えた値も拾うよう、すべて終えてから DB の値で比べる
+    $refreshTree = ResourceTree::nodeState((int)validated('id')) !== $treeBefore;
+    goNextAction(validated('id'), validated('parent'), $afterSave, validated('type'), $refreshTree);
     return;
 }
 
@@ -663,35 +667,35 @@ function updateParentStatus($parent)
     );
 }
 
-// 保存後の行き先（after_save: new・stay・close）に従って移動し、保存できたことを知らせる（manager()->notice()）
-function goNextAction($id, $parent, $afterSave, $type)
+// 保存後の行き先（after_save: new・stay・close）に従って移動し、保存できたことを知らせる（manager()->notice()）。
+// $refreshTree が true なら、行き先にリソースツリーを読み直す合図（refresh=tree）を付ける
+function goNextAction($id, $parent, $afterSave, $type, bool $refreshTree)
 {
     EvoFormFlow::noticeSaved();
     include_once MODX_CORE_PATH . 'controls/child_document_list_state.class.php';
+    $refresh = $refreshTree ? ['refresh' => 'tree'] : [];
     if ($afterSave === 'new' && ChildDocumentListState::canOpen((int) $parent)) {
         $kind = $type === 'document' ? 'document' : 'weblink';
         header('Location: ' . EvoFormFlow::url([
             'a' => EvoFormFlow::screen($kind, 'new'),
             'pid' => $parent,
-            'refresh' => 'tree',
             'after_save' => 'new',
-        ]));
+        ] + $refresh));
         return;
     }
     if ($afterSave === 'stay') {
         header('Location: ' . EvoFormFlow::url([
             'a' => EvoFormFlow::screen('document', 'edit'),
             'id' => $id,
-            'refresh' => 'tree',
             'after_save' => 'stay',
-        ]));
+        ] + $refresh));
         return;
     }
     if ($parent) {
-        header('Location: ' . ChildDocumentListState::returnUrl((int) $parent));
+        header('Location: ' . ChildDocumentListState::returnUrl((int) $parent, $refreshTree));
         return;
     }
-    header("Location: index.php?a=3&id=" . $id . "&refresh=tree");
+    header('Location: ' . EvoFormFlow::url(['a' => 3, 'id' => $id] + $refresh));
 }
 
 function setDocPermissionsEdit($id)
