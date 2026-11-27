@@ -326,6 +326,10 @@
       // つまみの操作（ドラッグと矢印キー）。ResizeEditor は全画面の切り替えでも起きるので使わない
       const container = editor.getContainer();
       function markResizedByUser(e) {
+        // 要素でないもの（文字のノードなど）が target のときは、つまみの操作ではない
+        if (typeof e.target.closest !== 'function') {
+          return;
+        }
         if (e.target.closest('.tox-statusbar__resize-handle') && (e.type === 'pointerdown' || e.key.indexOf('Arrow') === 0)) {
           resizedByUser = true;
         }
