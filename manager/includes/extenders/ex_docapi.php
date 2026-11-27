@@ -934,7 +934,7 @@ class DocAPI
         $id = (int)$id;
         $target = db()->getRow(db()->select('parent, deleted', '[+prefix+]site_content', 'id=' . $id));
         if (!$target) {
-            return ['warning' => lang('error_id_not_passed'), 'ids' => [], 'parent' => 0];
+            return ['warning' => '', 'ids' => [], 'parent' => 0];
         }
         $descendants = $this->descendants($id);
         $liveId = array_search(false, $descendants, true);
