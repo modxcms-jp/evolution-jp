@@ -38,6 +38,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <?= manager_theme_stylesheets() ?>
     <link rel="stylesheet" type="text/css" href="<?= manager_asset('media/style/common/shell.css') ?>" />
     <link rel="stylesheet" type="text/css" href="<?= manager_asset('media/style/common/selection-dock.css') ?>" />
+    <link rel="stylesheet" type="text/css" href="<?= manager_asset('media/style/common/notice.css') ?>" />
     <?php
     // ツリーを細くするとき、元の幅を割る数（shell.css の tree-narrow）
     $treeNarrow = manager_tree_narrow();
@@ -57,6 +58,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     } ?>
     <script src="<?= manager_asset('media/script/evo-tooltip.js') ?>" type="text/javascript"></script>
     <script src="<?= manager_asset('media/script/evo-dialog.js') ?>" type="text/javascript"></script>
+    <script src="<?= manager_asset('media/script/evo-notice.js') ?>" type="text/javascript"></script>
     <script type="text/javascript" src="<?= manager_asset('media/script/tabpane.js') ?>"></script>
     <!-- CSRFトークン自動付与。shell.jsがform.submitを退避するため先に読み込む -->
     <script type="text/javascript" src="<?= manager_asset('media/script/csrf.js') ?>"></script>
@@ -83,6 +85,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         }
         EvoDialog.cancelLabel = <?= js_literal(lang('cancel')) ?>;
         EvoDialog.closeLabel = <?= js_literal(lang('close')) ?>;
+        EvoNotice.closeLabel = <?= js_literal(lang('close')) ?>;
         <?php evo()->loadExtension('DocAPI'); ?>
         EvoDocumentActions.config = <?= evo()->doc->actionConfig() ?>;
 

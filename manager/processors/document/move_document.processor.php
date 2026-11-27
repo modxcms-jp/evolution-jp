@@ -186,6 +186,7 @@ foreach ($old_parents as $old_parent) {
 
 evo()->clearCache();
 
+manager()->notice(lang('notice_moved'));
 if ($new_parent !== 0) {
     header(
         sprintf(

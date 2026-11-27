@@ -1605,4 +1605,8 @@ return [
     "required_fields_missing" => '次の必須の欄が空です。入力してください。',
     "max_length_exceeded" => '次の欄が文字数の上限を超えています。短くしてください。',
     "googlemap_not_found" => '住所が見つかりませんでした。',
+    // 知らせ（トースト。manager()->notice()、assets/docs/manager-notice.md）
+    "notice_saved" => '保存しました。',
+    "notice_duplicated" => '複製しました。',
+    "notice_moved" => '移動しました。',
 ];

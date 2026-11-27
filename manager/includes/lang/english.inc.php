@@ -1604,4 +1604,8 @@ return [
     "required_fields_missing" => 'The following required fields are empty. Please fill them in.',
     "max_length_exceeded" => 'The following fields exceed the maximum length. Please shorten them.',
     "googlemap_not_found" => 'The address was not found.',
+    // Notices (toasts. manager()->notice(), assets/docs/manager-notice.md)
+    "notice_saved" => 'Saved.',
+    "notice_duplicated" => 'Duplicated.',
+    "notice_moved" => 'Moved.',
 ];

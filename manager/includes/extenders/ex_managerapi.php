@@ -865,6 +865,57 @@ class ManagerAPI
         );
     }
 
+    /**
+     * 次に描く画面で出す知らせ（トースト、manager/media/script/evo-notice.js）を積む。
+     * 保存のあとの移動（リダイレクト）をまたいで残すため、セッションに置く。出すのは renderNotices()。
+     * 決まりは assets/docs/manager-notice.md
+     *
+     * @param string $message 文字として出す（HTML にしない）
+     */
+    public function notice(string $message): void
+    {
+        if ($message === '') {
+            return;
+        }
+        $queue = sessionv('ManagerNoticeQueue', []);
+        $queue[] = $message;
+        sessionv('*ManagerNoticeQueue', $queue);
+    }
+
+    /**
+     * 積んだ知らせを出す <script>（無ければ空文字）。出したものはセッションから消す。
+     * ページ全体の応答でもシェルの部分の応答でも通る evoRenderPaneFooterExtras()（helpers.php）から呼ぶ
+     */
+    public function renderNotices(): string
+    {
+        // 知らせを読まずに残す応答（出しても、読み直しや移動、別の部分の応答で消える）:
+        // - 管理画面ごと読み直す画面（refresh=page。グローバル設定の保存のあとの待ちの画面など）
+        // - シェルの部品（ツリーなど）の再取得（a=1）。本文ではないので、読むと知らせが消える
+        if (get_choicevar('refresh', ['page'], '') === 'page' || (int)$this->action === 1) {
+            return '';
+        }
+        // 移動の応答（保存の processor が Location を付けたあと、index.php の後処理がここへ来る）では出さない。
+        // ブラウザは移動の応答の本文を捨てるので、ここで読むと知らせが消える。移った先の画面で出す
+        foreach (headers_list() as $header) {
+            if (stripos($header, 'Location:') === 0) {
+                return '';
+            }
+        }
+        $queue = sessionv('ManagerNoticeQueue', []);
+        if (!$queue) {
+            return '';
+        }
+        sessionv('*ManagerNoticeQueue', []);
+
+        $calls = [];
+        foreach ($queue as $message) {
+            $calls[] = sprintf('EvoNotice.show(%s);', js_literal($message));
+        }
+        return "<script type=\"text/javascript\">\n    Evo.ready(function () {\n        "
+            . implode("\n        ", $calls)
+            . "\n    });\n</script>\n";
+    }
+
     public function isAdmin()
     {
         if (!hasPermission('access_permissions')) {

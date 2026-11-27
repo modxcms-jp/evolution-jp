@@ -23,8 +23,8 @@
 | `--color-surface` | 面（パネル・ダイアログ・入力欄）の地の色 | shell.css、selection-dock.css（`.selection-dock` の背景の color-mix）、sections.css（箱の中の `legend` の地）、filebrowser.css、datepicker.css、tables.css（子リソースの一覧の行メニューのアイコンに乗ったときの地） |
 | `--color-section-header-text` | セクションの見出しの帯（`.sectionHeader`）の文字の色 | sections.css |
 | `--color-section-bg` | セクションの箱（`.sectionBody`）の地の色 | sections.css（`--section-body-bg` の既定） |
-| `--color-text-primary` | 本文の文字の色 | shell.css（設定画面の小見出し `.settings-section`、表の選択の帯 `.data-table-selection-body`）、selection-dock.css（操作の帯 `.selection-dock` の文字と背景の color-mix）、filebrowser.css、datepicker.css |
-| `--color-text-muted` | 補助的な文字の色 | shell.css（検索画面 `.search-*`）、filebrowser.css、datepicker.css |
+| `--color-text-primary` | 本文の文字の色 | shell.css（設定画面の小見出し `.settings-section`、表の選択の帯 `.data-table-selection-body`）、selection-dock.css（操作の帯 `.selection-dock` の文字と背景の color-mix）、filebrowser.css、datepicker.css、notice.css（知らせの文字） |
+| `--color-text-muted` | 補助的な文字の色 | shell.css（検索画面 `.search-*`）、filebrowser.css、datepicker.css、notice.css（知らせの × ボタン） |
 | `--color-border-default` | 通常の枠の色 | sections.css（箱の中の `legend` の枠）、theme-base.css（設定の表 `.settings` の行の間の点線）、filebrowser.css、datepicker.css |
 | `--color-border-light` | 薄い枠・区切り線の色 | shell.css（設定画面の小見出しの下線、表の選択の帯の枠、検索画面の区切り線）、selection-dock.css（操作の帯 `.selection-dock` の枠）、filebrowser.css、datepicker.css |
 | `--color-link` | リンクの色 | filebrowser.css、datepicker.css |
@@ -283,7 +283,7 @@
 | `--searchbar-bg` / `--searchbar-border-color` / `--searchbar-radius` | リソースの選択の検索の帯の地・枠の色・角 | `#dbdbdb` / `silver` / `0` |
 | `--fieldset-tab-page-border-color` | `fieldset.tab-page` の枠の色。設定の表の行の間の点線は `--color-border-default` | `--gray-200` |
 | `--split-display` | 編集画面の区切りの線を見せるか（見せないテーマは `none`） | `block` |
-| `--okmsg-border-color` | 成功のメッセージ（`.okmsg`）の枠の色（地は `--color-success-bg`） | `--color-success-light` |
+| `--okmsg-border-color` | 成功のメッセージ（`.okmsg`）の枠の色（地は `--color-success-bg`。notice.css の知らせも同じ） | `--color-success-light` |
 | `--overhead-warning-color` / `--access-private-color` / `--label-disabled-color` / `--resource-description-color` / `--tree-protected-color` / `--disabled-plugin-color` | 状態を色で示す文字の色 | `#990033` / `#821517` / `#ccc` / `#777` / `#77d` / `#aaa` |
 | `--dashboard-link-color` / `--dashboard-link-hover-color` | ダッシュボードのボタンの名前の色・乗せたときの色 | `--gray-900` / `gray` |
 

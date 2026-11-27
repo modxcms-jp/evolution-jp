@@ -1,0 +1,85 @@
+/* 管理画面の知らせ（トースト、manager/media/script/evo-notice.js）の見た目。決まりは assets/docs/manager-notice.md。
+   全テーマ共通。テーマは :root の色の変数（--color-success-bg・--okmsg-border-color など）を決めるだけで、この部品の規則は書かない */
+@layer evo-components {
+    #evoNotice {
+        position: fixed;
+        top: var(--evo-notice-top, calc(var(--shell-menu-height, 58px) + var(--space-4, 16px)));
+        inset-inline-end: var(--space-4, 16px);
+        z-index: 9500;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: var(--space-2, 8px);
+        width: min(420px, calc(100vw - 2 * var(--space-4, 16px)));
+        pointer-events: none;
+    }
+
+    .evo-notice {
+        --evo-notice-bg: var(--color-success-bg, #edffee);
+        display: flex;
+        align-items: flex-start;
+        gap: var(--space-2, 8px);
+        box-sizing: border-box;
+        width: 100%;
+        padding: var(--space-3, 12px) var(--space-3, 12px) var(--space-3, 12px) var(--space-4, 16px);
+        border: 1px solid var(--okmsg-border-color, var(--color-success-light, #3ab63a));
+        border-inline-start-width: 4px;
+        border-radius: 6px;
+        /* 地の色が半透明のテーマでも、本文が透けないよう不透明な白の上に重ねる */
+        background: linear-gradient(var(--evo-notice-bg), var(--evo-notice-bg)), #fff;
+        color: var(--color-text-primary, #333);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, .15);
+        line-height: 1.6;
+        pointer-events: auto;
+        animation: evo-notice-in .2s ease-out;
+    }
+
+    .evo-notice.is-leaving {
+        animation: evo-notice-out .2s ease-in forwards;
+    }
+
+    .evo-notice-message {
+        flex: 1;
+        min-width: 0;
+        margin: 0;
+        word-break: break-word;
+    }
+
+    .evo-notice-close {
+        flex: none;
+        margin: -2px 0 0;
+        padding: 0 var(--space-1, 4px);
+        border: 0;
+        background: none;
+        color: var(--color-text-muted, #666);
+        font-size: 1.4em;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .evo-notice-close:hover,
+    .evo-notice-close:focus-visible {
+        color: var(--color-text-primary, #333);
+    }
+
+    @keyframes evo-notice-in {
+        from {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+    }
+
+    @keyframes evo-notice-out {
+        to {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .evo-notice,
+        .evo-notice.is-leaving {
+            animation: none;
+        }
+    }
+}
