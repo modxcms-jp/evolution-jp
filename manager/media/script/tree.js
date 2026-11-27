@@ -318,11 +318,11 @@ function setTreeAutoCollapseButton(on) {
     button.classList.toggle('is-active', on);
 }
 
-// ツリーを描いたとき（tree.php の部品の初期化）に、覚えている切り替えをボタンへ戻す
+// ツリーを描いたとき（tree.php の部品の初期化）に、覚えている切り替えをボタンへ戻す。覚えていなければオン
 function syncTreeAutoCollapse() {
-    var on = false;
+    var on = true;
     try {
-        on = window.localStorage.getItem(TREE_AUTO_COLLAPSE_KEY) === '1';
+        on = window.localStorage.getItem(TREE_AUTO_COLLAPSE_KEY) !== '0';
     } catch (e) {
         // 保存領域が使えなくても、切り替えはツリーを読み直すまで効く
     }
@@ -334,11 +334,7 @@ function toggleTreeAutoCollapse() {
     var on = !treeAutoCollapseOn();
     setTreeAutoCollapseButton(on);
     try {
-        if (on) {
-            window.localStorage.setItem(TREE_AUTO_COLLAPSE_KEY, '1');
-        } else {
-            window.localStorage.removeItem(TREE_AUTO_COLLAPSE_KEY);
-        }
+        window.localStorage.setItem(TREE_AUTO_COLLAPSE_KEY, on ? '1' : '0');
     } catch (e) {
         // 保存領域が使えなくても、切り替えはツリーを読み直すまで効く
     }
