@@ -22,7 +22,7 @@
     $links = DataTableLinks::fromRequest('index.php', ['a' => 120], ['id', 'pagetitle']);
     $pager = new DataTablePager($total, $perPage, $links->page());
     // ... LIMIT に sprintf('%d,%d', $pager->offset(), $pager->limit()) を使って $rows を取る
-    $table = new DataTable($columns, ['id' => 'children', 'rowClasses' => ['gridItem', 'gridAltItem']]);
+    $table = new DataTable($columns, ['id' => 'children']);
     $nav = $pager->render($links, ['label' => lang('pagination_label')]);
     echo $nav . $table->render($rows, $links) . $nav;
 
@@ -41,6 +41,7 @@
 | `html` | bool | セルを HTML のまま出す（既定 false） |
 | `class` | string | `th` と `td` に付ける class（`is-shrink`・`is-center` など） |
 | `sort` | string | 並べ替えのキー（URL の `orderby` の値）。無ければ並べ替えない |
+| `sortFirst` | string | `sort` の列を最初にクリックしたときの向き（`asc` か `desc`）。既定は `asc`。今その列で並べているときは、書いてあっても今の向きの逆にする |
 
 ## options
 
@@ -48,13 +49,12 @@
 | --- | --- | --- |
 | `id` | `''` | 表を包む `div` の `data-table` の値 |
 | `tableClass` | `grid` | `table` の class（空なら class 属性を出さない） |
-| `rowClasses` | `[]` | 行（`tr`）に順に付ける class |
 | `headerClass` | `''` | `th` に足す class |
 | `caption` / `captionHtml` | なし / false | `caption`。`captionHtml` が真なら HTML のまま |
 | `emptyMessage` | `''` | 0 件のときの文言（エスケープ） |
 | `showHeader` | true | `thead` を出すか |
 | `selection` | なし | 表の上に「選んだ件数」と「この一覧のすべてを選択」の帯を出す（下の「選択の帯」） |
-| `rowAttributes` | なし | `function (array $row): array`。属性名 => 値（値はエスケープ。`style`・`width`・`align`・`bgcolor`・`on*` は無視。`class` を返したときは `rowClasses` の値と 1 つの `class` 属性にまとめる） |
+| `rowAttributes` | なし | `function (array $row): array`。属性名 => 値（値はエスケープ。`style`・`width`・`align`・`bgcolor`・`on*` は無視。`class` も返せる） |
 
 `DataTable::render(array $rows, ?DataTableLinks $links = null)` に `DataTableLinks` を渡すと、`sort` のある列の見出しが並べ替えのリンクになり、今の列に `aria-sort` が付く。並べ替えのリンクではページが 1 に戻る。
 
@@ -91,7 +91,7 @@
 
 ### 操作の帯
 
-同じ `form` の中に `data-selection-actions="<selection の name>"` を付けた要素（一括操作のボタンの欄）があると、`data-table.js` が帯とその欄を 1 つの「操作の帯」（`div.data-table-selection-dock`）にまとめる。表の直後（表を包む `div` の末尾。ページ送りの前）に置き、画面の下端に貼り付く（`position: sticky; bottom: 0`）。帯の外枠（`role="status"`）は 0 件のときも描いたままで、帯に `is-empty` を付けて枠・余白・影とボタンの欄だけを消し、1 件以上選んだときに見せる（空の外枠から出さないため）。帯の中には、すべてを選んだとき以外でも常に「選択を解除」のリンクを出す。ボタンの欄の中身と送り先は呼び出し側が決める。ボタンは `<ul class="actionButtons"><li><button type="submit" formaction="…">` で並べる（送り先を変えるのでリンクにはできない）。見た目は右上のボタン群と同じにするため、各テーマの `.actionButtons :is(a, button)` の規則（通常・`:hover`・`:active`・`:focus-visible`）に任せ、新しい見た目の規則は足さない。`li.is-danger` は右寄せで、文字と枠を警告色にして区別する。帯の見た目は、表の部品に固有のもの（sticky・`is-empty`・中の帯）を除いて、共通のクラス `.selection-dock` が持つ（`manager/media/style/common/selection-dock.css`）。ファイルブラウザ（ファイル管理・ファイルピッカー）の選択の帯（`.evo-fb-selectionbar`）も同じクラスを使い、出し方だけが違う（a=120 は選んだときだけ出して下端に貼り付ける、ファイルブラウザは一覧の下に場所を取っておき、選んでいないときは `visibility: hidden` で見えなくするだけにして、出し入れで一覧の位置も高さも変えない。1 行に固定し、狭い幅では横にスクロールする。下端に重ねないのは、見えている最下行のダブルクリックの 2 回目が帯に当たるため）。この CSS はシェルの外（ファイルピッカーの単独のページ。`shell.css` を読まない）でも効くよう `shell.css` とは別にして、シェルの `header.inc.php` と `BrowserView::standalonePage()` が、テーマの `style.css` の後ろで読み込む。詳細度は `.selection-dock` を前に付けて、テーマの `ul.actionButtons`・`.actionButtons li`・`.actionButtons :is(a, button)`・`button` の規則（どれも (0,1,1) 以下）に勝たせる（`!important` は使わない）。押せないボタン（`button:disabled`。ファイルブラウザで zip を作れない環境の、2 件以上のダウンロードなど）は薄くし、`cursor: not-allowed`（包む `li` に付ける）にする。テーマの `.actionButtons` には無効の見た目が無いため、ここで持つ。帯の地色・枠・影・角は、各テーマの `#actions` の規則に `.selection-dock:not(.is-empty)` を足して同じ値にする（値は 1 か所）。RevoClassic・AromaHop・SakuraFlow は `#actions` に枠も影も無いので、共有の規則に `border: 0; box-shadow: none;` を書いてそろえる。`selection-dock.css` の既定の枠・影が残るのは、共有の規則を持たないテーマ（外部のテーマ・RevoStyle）だけ。半透明の地色でも下の表が透けて読めなくならないよう、帯の後ろは白で塗りつぶす（`backdrop-filter`。白に決め打ちなので、暗い地のテーマはテーマ側で上書きする）。帯の中の文言・リンク・削除の文字は、地色に対して 4.5:1 以上になるよう本文色・警告色を濃くし、リンクは下線で区別する。RevoStyle（凍結テーマ）は対象外で（ファイルブラウザの選択の帯も同じ例外）、帯の地色・枠・影は `selection-dock.css` の既定、ボタンはテーマの素の `button` の見た目になる（テーマの操作ボタン群の見た目にはならない）。シェルの右上のボタン群（`#actions`）は隠さず、常に出す。帯は下端に貼り付くので、右上のボタン群とは重ならない。欄が無い一覧は、これまでどおり帯だけを出す。表の部品に固有の出し方は `shell.css` の `.data-table-selection-dock`。
+同じ `form` の中に `data-selection-actions="<selection の name>"` を付けた要素（一括操作のボタンの欄）があると、`data-table.js` が帯とその欄を 1 つの「操作の帯」（`div.data-table-selection-dock`）にまとめる。表の直後（表を包む `div` の末尾。ページ送りの前）に置き、画面の下端に貼り付く（`position: sticky; bottom: 0`）。帯の外枠（`role="status"`）は 0 件のときも描いたままで、帯に `is-empty` を付けて枠・余白・影とボタンの欄だけを消し、1 件以上選んだときに見せる（空の外枠から出さないため）。帯の中には、すべてを選んだとき以外でも常に「選択を解除」のリンクを出す。ボタンの欄の中身と送り先は呼び出し側が決める。ボタンは `<ul class="actionButtons"><li><button type="submit" formaction="…">` で並べる（送り先を変えるのでリンクにはできない）。見た目は右上のボタン群と同じにするため、`common/forms.css` のボタンの規則（`.actionButtons :is(a, button)`。通常・`:hover`・`:active`・`:focus-visible`）に任せ、新しい見た目の規則は足さない。`li.is-danger` は右寄せで、文字と枠を警告色にして区別する。帯の見た目は、表の部品に固有のもの（sticky・`is-empty`・中の帯）を除いて、共通のクラス `.selection-dock` が持つ（`manager/media/style/common/selection-dock.css`）。ファイルブラウザ（ファイル管理・ファイルピッカー）の選択の帯（`.evo-fb-selectionbar`）も同じクラスを使い、ボタンは右クリックメニューと共通の表（`filebrowser.js` の `SELECTION_ACTIONS`）から JS で並べる。帯に並べる操作は右クリックメニューと同じ条件（出す条件と押せる条件の両方）で出し入れし（例外は、ファイルマネージャーの zip の「展開」で、右クリックだけに出る）、押せない操作は帯にも出さない（複数を選んだときの 1 件だけの操作、書き込めないフォルダの切り取り・移動・削除など）。ピッカー（`behaviors.pickFile` を持つ入口）だけは、1 件のとき先頭に主ボタンの「このファイルを選択」を出す。1 件のときは件数の文字を見せず（読み上げ用には残す）、並ぶボタンが変わっても高さが動かないよう、全部のボタンを並べた高さを `min-height` に予約する（帯と欄の大きさが変わったら `ResizeObserver` で測り直す）。出し方も違う（a=120 は選んだときだけ出して下端に貼り付ける、ファイルブラウザは一覧の下に場所を取っておき、選んでいないときは `visibility: hidden` で見えなくするだけにして、出し入れで一覧の位置も高さも変えない。1 行に固定し、狭い幅では横にスクロールする。下端に重ねないのは、見えている最下行のダブルクリックの 2 回目が帯に当たるため）。この CSS はシェルの外（ファイルピッカーの単独のページ。`shell.css` を読まない）でも効くよう `shell.css` とは別にして、シェルの `header.inc.php` と `BrowserView::standalonePage()` が、テーマの `style.css` の後ろで読み込む。詳細度は `.selection-dock` を前に付けて、テーマの `ul.actionButtons`・`.actionButtons li`・`.actionButtons :is(a, button)`・`button` の規則（どれも (0,1,1) 以下）に勝たせる（`!important` は使わない）。帯の地色・枠・影・角は、各テーマの `#actions` の規則に `.selection-dock:not(.is-empty)` を足して同じ値にする（値は 1 か所）。RevoClassic・AromaHop・SakuraFlow は `#actions` に枠も影も無いので、共有の規則に `border: 0; box-shadow: none;` を書いてそろえる。`selection-dock.css` の既定の枠・影が残るのは、共有の規則を持たないテーマ（外部のテーマ・RevoStyle）だけ。半透明の地色でも下の表が透けて読めなくならないよう、帯の後ろは白で塗りつぶす（`backdrop-filter`。白に決め打ちなので、暗い地のテーマはテーマ側で上書きする）。帯の中の文言・リンク・削除の文字は、地色に対して 4.5:1 以上になるよう本文色・警告色を濃くし、リンクは下線で区別する。RevoStyle（凍結テーマ）は対象外で（ファイルブラウザの選択の帯も同じ例外）、帯の地色・枠・影は `selection-dock.css` の既定、ボタンはテーマの素の `button` の見た目になる（テーマの操作ボタン群の見た目にはならない）。シェルの右上のボタン群（`#actions`）は隠さず、常に出す。帯は下端に貼り付くので、右上のボタン群とは重ならない。欄が無い一覧は、これまでどおり帯だけを出す。表の部品に固有の出し方は `shell.css` の `.data-table-selection-dock`。
 
 ## エスケープ
 
@@ -106,7 +106,7 @@
 | --- | --- |
 | `page` | ページ番号。範囲外（0・総ページ数より大きい）は 1 ページ目 |
 | `orderby` | 並べ替えのキー。`sort` のキーにあるものだけ受ける（ホワイトリスト）。呼び出し側が自分の SQL の列名に対応づける |
-| `orderdir` | `asc` か `desc`。既定は `asc` |
+| `orderdir` | `asc` か `desc`。既定は `asc`。見出しのリンクの向きは、今その列で並べていれば逆、並べていなければ列の `sortFirst`（無ければ `asc`） |
 
 `DataTableLinks::url($overrides)` は、上書きの値が `null` の引数を URL から外す（絞り込みの解除は `q` とページを外し、並べ替えは残す。並べ替えの解除は `orderby`・`orderdir`・ページを外す）。
 
@@ -117,13 +117,14 @@
 | class | 内容 |
 | --- | --- |
 | `.grid` | 表 |
-| `.gridItem`・`.gridAltItem` | 行の色分け（`rowClasses` で交互に付ける） |
 | `.pagination` | ページ送りの `nav`。今のページは `a[aria-current="page"]` |
 | `.is-shrink` | 幅を中身に合わせる列 |
 | `.is-center` | 中央寄せの列 |
+| `.is-end` | 右寄せ（行の終わりの側に寄せる）の列 |
+| `.is-visually-hidden` | 見出しの短い表記（「順」など）に添える正式な名前。画面には出さず読み上げにだけ伝える。短い表記の側は `aria-hidden="true"` にして、`labelHtml` の見出しに入れる |
 | `.data-table-empty` | 0 件のときのセル |
 
-並べ替えている列の見出しは `th[aria-sort="ascending|descending"]` になる。テーマは `.grid th[aria-sort] a::after` で向きの印（昇順 ▲・降順 ▼）を出す。印は飾りなので `content: "▲" / ""` の形で読み上げから外し（向きは `aria-sort` が伝える）、色は `--color-primary`、間は `--space-1` を使う。凍結テーマの RevoStyle は持たない。
+並べ替えている列の見出しは `th[aria-sort="ascending|descending"]` になる。向きの印（昇順 ▲・降順 ▼）は、`common/tables.css` の `.grid th[aria-sort] a::after` が全テーマに出す（テーマは書かない）。印は飾りなので `content: "▲" / ""` の形で読み上げから外し（向きは `aria-sort` が伝える）、大きさは本文と同じ `1em`、色は `--color-primary`、間は 4px。並べ替えで印が付くと、`.is-shrink` の列はそのぶん広がる。
 
 外部のテーマはこの一覧を写す。
 
@@ -131,13 +132,15 @@
 
 - インラインの `onclick` を出さない。Vanilla JS で書く。
 - 表に共通の動き（見出しの「すべて選択」のチェックボックス `input[data-select-all="<name>"]`、選択の帯）は `manager/media/script/data-table.js` が `document` へのイベントの委譲で扱う。シェルは画面を開き直すたびにスクリプトを動かし直すので、`window.EvoDataTable` があれば登録しない。`window.EvoDataTable` はオブジェクトで、選択の帯を描き直す `renderSelections()` を持つ。これは登録の有無にかかわらず、画面を開くたびに末尾から呼ぶ（最初の版の関数が残っていても、そのときの DOM を描ける）。
-- 画面ごとの動き（右クリックのメニューを開くなど）は、各画面のスクリプトが表を包む要素（`[data-table="<id>"]`）にリスナーを付ける。要素は画面の差し替えで消えるので、リスナーが積み重ならない。行のアイコンやタイトルには `data-row-menu="<id>"` を付け、リスナーは `e.target.closest('[data-row-menu]')` で受ける。
+- 画面ごとの動き（右クリックのメニューを開くなど）は、各画面のスクリプトが表を包む要素（`[data-table="<id>"]`）にリスナーを付ける。要素は画面の差し替えで消えるので、リスナーが積み重ならない。行のアイコンやタイトルには `data-row-menu="<id>"` を付け、リスナーは `e.target.closest('[data-row-menu]')` で受ける。メニューが行の状態で項目を出し分けるときは、状態を `rowAttributes` で行（`tr`）の `data-*` 属性に持たせる（子リソースの一覧。`manager-shell.md` の「リソースの右クリックメニュー」）。
 - 画面ごとのリスナーは、画面のインラインの `<script>` の中で `Evo.ready()` に包んで付け、その `<script>` は表より前に置く。表の後ろや入れ物の末尾には置かない（入れ物の `:last-child` や `:has(+ X)` の余白の規則がずれるため）。全体の読み込みでは表より前のスクリプトが先に動くので、`Evo.ready()` で表ができてから登録する。
 - シェルの外の別窓の画面（リソースセレクタなど）は `evo.js` を読まないので、`document` への委譲で受けてよい。
 
 ## 戻り先で状態を引き継ぐ
 
-一覧の操作（公開・削除など）のあとで一覧へ戻すときは、今のページと並べ替えを引き継ぐ。引数の読み方（`orderby` の許可リストなど）を画面ごとに書かず、一覧ごとに 1 か所へまとめ、画面と processor の両方がそれを使う。例は子リソースの一覧の `manager/includes/controls/child_document_list_state.class.php`（`ChildDocumentListState`）。子リソースの一覧は、並べ替えに加えて検索語 `q`（`get_strvar('q')`、100 文字まで）も URL に持ち、ページ送り・並べ替え・処理のあとの戻り先へ引き継ぐ。絞り込みは `pagetitle`・`longtitle`・`alias`・`content`（本文。HTML のタグ名にも一致する）の部分一致（数字だけなら `id` の一致も。数字だけのときは `ChildDocumentListState::prependIdMatch()` が ID の一致した文書を先頭に並べる。LIKE の `%`・`_`・`\` は無害化してから `db()->escape()`）。表の上の検索欄（GET のフォームで、ページ番号は送らない）と「既定の並び順に戻す」（`orderby`・`orderdir`・ページを外し、`q` は残す）は、表を包む POST のフォームの外に置く。
+一覧の操作（公開・削除など）のあとで一覧へ戻すときは、今のページと並べ替えを引き継ぐ。引数の読み方（`orderby` の許可リストなど）を画面ごとに書かず、一覧ごとに 1 か所へまとめ、画面と processor の両方がそれを使う。例は子リソースの一覧（並べ替えのキーは `id`・`pagetitle`・`publishedon`・`editedon`・`menuindex`・`status`。`status` は `published` の値で並べ、一覧の表示も同じ値を見る。見出しを最初にクリックしたときの向きは、`id`・`publishedon`・`editedon` を `sortFirst` で `desc` にしている）の `manager/includes/controls/child_document_list_state.class.php`（`ChildDocumentListState`）。子リソースの一覧は、並べ替えに加えて検索語 `q`（`get_strvar('q')`、100 文字まで）も URL に持ち、ページ送り・並べ替え・処理のあとの戻り先へ引き継ぐ。絞り込みは `pagetitle`・`longtitle`・`alias`・`content`（本文。HTML のタグ名にも一致する）の部分一致（数字だけなら `id` の一致も。数字だけのときは `ChildDocumentListState::prependIdMatch()` が ID の一致した文書を先頭に並べる。LIKE の `%`・`_`・`\` は無害化してから `db()->escape()`）。表の上の検索欄（GET のフォームで、ページ番号は送らない）と「既定の並び順に戻す」（`orderby`・`orderdir`・ページを外し、`q` は残す）は、表を包む POST のフォームの外に置く。
+
+親の一覧を開く権限が無いとき（文書グループで担当の文書の親が別のグループのときなど）は、保存・複製・移動・一括操作のあとの戻り先（`ChildDocumentListState::returnUrl()`）も、キャンセルなどのリンク（`listUrl()`。文書の編集画面のキャンセルは `getCancelUrl()` が決め、親があるときだけこれを使う）も、権限エラーの画面に着かないようダッシュボード（`a=2`）にする。保存の行き先が「新規」（`after_save=new`）のときも、開けない親なら新規作成の画面へ移らず `returnUrl()` の戻り先にする。開けるかの判定は `canOpen()` の 1 か所で、一覧の画面の入口も使う。
 
 ユーザー管理・Web ユーザー管理・モジュールの一覧は、検索語（`search`）・ページ番号（`page`）・一覧モード（`listmode`）を URL だけで決め、画面状態（セッション）には覚えない。ページ送りのリンクは検索語を引き継ぎ、ユーザー管理・Web ユーザー管理の検索フォームはページ番号を送らない（検索すると 1 ページ目。モジュールの一覧には検索フォームが無い）。編集画面のキャンセルなど、パラメータなしで開いた一覧は絞り込みなしの 1 ページ目になる。検索した一覧へはブラウザの「戻る」で戻る（例: `manager/actions/permission/user_management.static.php`）。この 3 つの一覧は、削除・複製・保存などの処理のあとも、絞り込みなしの 1 ページ目に戻る（上の「今のページと並べ替えを引き継ぐ」の例外）。処理のあとの戻り先の URL に状態を載せる必要がある一覧だけが、専用の状態のクラス（`ChildDocumentListState`）を持つ。
 
@@ -149,7 +152,7 @@
 | --- | --- | --- |
 | TV の出力ウィジェット `datagrid`（`manager/includes/docvars/outputfilter/datagrid.inc.php`） | `tv{TV 名}` | 表示パラメータ（下の表） |
 | 修飾子 `:datagrid`（`manager/includes/extenders/ex_modifiers.php`） | `mdf` | 見出し行なし・ページ送りなし（全件）。1 行目にタブがあればタブ区切り、無ければカンマ区切り |
-| `db()->getHTMLGrid($dsq, $params)`（`manager/includes/extenders/dbapi/mysqli.inc.php`） | `$params['id']`（既定 `grid`） | `$params`（`columns`・`fields`・`colTypes`・`header`・`footer`・`pageSize`・`pagerLocation`・`id`（既定 `grid`）・`cssClass`（`tableClass`）・`itemClass`・`altItemClass`・`columnHeaderClass`・`pagerClass`・`noRecordMsg`）。無いキーは既定値 |
+| `db()->getHTMLGrid($dsq, $params)`（`manager/includes/extenders/dbapi/mysqli.inc.php`） | `$params['id']`（既定 `grid`） | `$params`（`columns`・`fields`・`colTypes`・`header`・`footer`・`pageSize`・`pagerLocation`・`id`（既定 `grid`）・`cssClass`（`tableClass`）・`columnHeaderClass`・`pagerClass`・`noRecordMsg`）。無いキーは既定値 |
 
 ### 読む設定と無視する設定
 
@@ -168,7 +171,7 @@
 | `ploc` → `pagerLocation` | `top`・`bottom`・`both`（先頭の語で読む。`top-right` は `top`。空は `top`）。`-left`・`-right` は無視 |
 | `head` → `header` | 表の `<caption>`（HTML のまま） |
 | `foot` → `footer` | 表の後ろの `<div class="gridfooter">`（HTML のまま） |
-| `tblc`・`itmc`・`aitmc`・`chdrc`・`pclass` | 表・行（交互）・見出しのセル・ページ送りの class（ページ送りの既定は `pager`。表は空なら class を付けない。`grid` は管理画面のテーマの class） |
+| `tblc`・`chdrc`・`pclass` | 表・見出しのセル・ページ送りの class（ページ送りの既定は `pager`。表は空なら class を付けない。`grid` は管理画面のテーマの class） |
 | `egmsg` → `emptyMessage` | 0 件のときの文言 |
 
 読まない: `tbls`・`itms`・`aitms`・`chdrs`・`pstyle`（`style`）、`ccolor`（`bgcolor`）、`cwidth`（`width`）、`cpad`・`cspace`、`calign`（`align`）。ウィジェットの設定画面にも出さない。
@@ -185,6 +188,6 @@
 
 ### サイトの CSS に影響する変化
 
-- `itmc`・`aitmc`（`getHTMLGrid()` の `itemClass`・`altItemClass`）の class は `tr` に付く（旧は `td`）。
+- 行に交互の class を付ける指定（`itmc`・`aitmc`、`getHTMLGrid()` の `itemClass`・`altItemClass`）は無くなった。行を 1 行おきに色分けするときは、サイトの CSS で `tbody > tr:nth-child(even)` のように書く。
 - 修飾子 `:datagrid` の `td` に、旧の既定の `class="cell"`・`class="altCell"` は付かない。
 - 列名（`cols`・`columns`・`first line` の見出し）もエスケープする（旧は HTML のまま）。

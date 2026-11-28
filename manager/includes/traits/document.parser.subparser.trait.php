@@ -110,11 +110,9 @@ trait DocumentParserSubParserTrait
             db()->delete("[+prefix+]{$target}", '', '', $trim);
         }
         if (config('automatic_optimize') == 1) {
-            $rs = db()->query(
-                sprintf('SHOW TABLE STATUS FROM `%s`', trim(db()->dbname, '`'))
-            );
-            while ($row = db()->getRow($rs)) {
-                db()->query('OPTIMIZE TABLE ' . $row['Name']);
+            require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
+            foreach (EvoDbTables::names() as $name) {
+                db()->query('OPTIMIZE TABLE `' . $name . '`');
             }
         }
     }
@@ -380,7 +378,7 @@ trait DocumentParserSubParserTrait
                 );
             }
 
-            $requested = $context['requested'] ?? 'inherit';
+            $requested = $context['requested'] ?? EvoErrorReporting::INHERIT;
             $effective = $context['effective'] ?? 'n/a';
             $globalLevel = $context['global'] ?? 'n/a';
             $str .= $modx->parseText(
@@ -582,19 +580,24 @@ trait DocumentParserSubParserTrait
         // Display error
         if (evo()->isLoggedin()) {
             if ($modx->event->name !== 'OnWebPageComplete') {
-                echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">';
+                echo '<!DOCTYPE html>';
                 echo sprintf('<html><head><title>MODX Content Manager %s &raquo; %s</title>', $version, $release_date);
-                echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
-                echo sprintf('<link rel="stylesheet" type="text/css" href="%smanager/%s" />',
-                MODX_SITE_URL, manager_asset('media/style/' . evo()->config('manager_theme') . '/style.css'));
+                echo '<meta charset="utf-8">';
+                echo manager_theme_stylesheets();
                 echo '<style type="text/css">body { padding:10px; } td {font:inherit;}</style>';
                 echo '</head><body>';
             }
-            echo manager_safe_mode_button_html();
-            echo '<div style="text-align:left;">' . $str . '</div>';
+            if (manager_error_guide_applies()) {
+                echo manager_error_guide_html();
+            } else {
+                echo manager_safe_mode_button_html();
+                echo '<div style="text-align:left;">' . $str . '</div>';
+            }
             if ($modx->event->name !== 'OnWebPageComplete') {
                 echo '</body></html>';
             }
+        } elseif (manager_retry_login_form_without_plugins()) {
+            exit;
         } else {
             echo 'Error';
         }
@@ -833,10 +836,23 @@ trait DocumentParserSubParserTrait
         $modx->sendForward($dist, 'HTTP/1.0 503 Service Unavailable');
     }
 
+    // エラーページ（http_status_code が '404' の転送）の応答の中で再びエラーページが要るときは、転送を繰り返さず最小の 404 を返して終える
+    private function exitIfErrorPageFailed()
+    {
+        if (!evo()->forwardedResponse || (string) evo()->http_status_code !== '404') {
+            return;
+        }
+        header(serverv('SERVER_PROTOCOL', 'HTTP/1.1') . ' 404 Not Found', true, 404);
+        header('Content-Type: text/html; charset=utf-8');
+        echo '<!DOCTYPE html><html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1></body></html>';
+        exit;
+    }
+
     function sendErrorPage()
     {
         global $modx;
 
+        $this->exitIfErrorPageFailed();
         evo()->invokeEvent('OnPageNotFound');
 
         $modx->http_status_code = '404';
@@ -850,6 +866,12 @@ trait DocumentParserSubParserTrait
     {
         global $modx;
 
+        $this->exitIfErrorPageFailed();
+        if (evo()->forwardedResponse && in_array((string) evo()->http_status_code, ['403', '503'], true)) {
+            // 権限外告知のページやメンテナンス中ページの転送先が出せなかったときは、エラーページへ回す
+            $this->sendErrorPage();
+            return;
+        }
         // invoke OnPageUnauthorized event
         // ログインフォーム（WebLogin）の戻り先は unauthorizedDocumentId から読む。
         // $_REQUEST['refurl'] は本体では読まない。$_REQUEST を直接読むプラグインやスニペットのために残す
@@ -1271,9 +1293,11 @@ trait DocumentParserSubParserTrait
             case '@DIR' :
                 $files = [];
                 $param = trim($param, '/');
-                $path = MODX_BASE_PATH . $param;
-                if (!is_dir($path)) {
-                    exit($path);
+                // @FILE・@INCLUDE と同じ場所の判定。無い・許されない場所は空にする
+                $path = $this->resolveBindDirPath(MODX_BASE_PATH . $param);
+                if ($path === false) {
+                    $output = '';
+                    break;
                 }
 
                 $dir = dir($path);
@@ -1517,7 +1541,7 @@ trait DocumentParserSubParserTrait
             '<input type="text" id="tv%s" name="tv%s" value="%s" style="%s" />',
             $field_id,
             $field_id,
-            $modx->hsc($field_value),
+            hsc_for_tpl($field_value),
             $modx->hsc($field_style)
         );
     }
@@ -1537,7 +1561,7 @@ trait DocumentParserSubParserTrait
                 'class'  => $class,
                 'id'     => 'tv' . $field_id,
                 'name'   => 'tv' . $field_id,
-                'value'  => evo()->hsc($field_value),
+                'value'  => hsc_for_tpl($field_value),
                 'style'  => $field_style,
                 'tvtype' => $field_type
             ]
@@ -1551,7 +1575,7 @@ trait DocumentParserSubParserTrait
             [
                 'id'     => 'tv' . $field_id,
                 'name'   => 'tv' . $field_id,
-                'value'  => evo()->hsc($field_value),
+                'value'  => hsc_for_tpl($field_value),
                 'style'  => $field_style,
                 'tvtype' => $field_type,
                 'rows'   => $field_type === 'textareamini' ? '5' : '15'
@@ -1603,7 +1627,7 @@ trait DocumentParserSubParserTrait
                 'prefix_id' => evo()->hsc('tv' . $field_id . '_prefix'),
                 'prefix_name' => evo()->hsc('tv' . $field_id . '_prefix'),
                 'options' => implode("\n", $options),
-                'value' => evo()->hsc($field_value),
+                'value' => hsc_for_tpl($field_value),
                 'style' => evo()->hsc($field_style)
             ]
         );
@@ -1624,7 +1648,7 @@ trait DocumentParserSubParserTrait
                     str_replace(['-', '.'], '_', urldecode($field_id))
                 ),
                 'name'            => 'tv' . $field_id,
-                'value'           => $field_value ? evo()->hsc($field_value) : '',
+                'value'           => $field_value ? hsc_for_tpl($field_value) : '',
                 'style'           => evo()->hsc($field_style),
                 'tvtype'          => $field_type,
                 'form_name'       => evo()->hsc($formName),
@@ -1737,7 +1761,7 @@ trait DocumentParserSubParserTrait
             file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_image.tpl'),
             $field_id,
             $field_id,
-            evo()->hsc($field_value),
+            hsc_for_tpl($field_value),
             evo()->hsc($field_style),
             lang('insert'),
             $field_id
@@ -1750,7 +1774,7 @@ trait DocumentParserSubParserTrait
             file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_file.tpl'),
             $field_id,
             $field_id,
-            evo()->hsc($field_value),
+            hsc_for_tpl($field_value),
             evo()->hsc($field_style),
             lang('insert'),
             $field_id
@@ -1763,7 +1787,7 @@ trait DocumentParserSubParserTrait
             '<input type="hidden" id="tv%s" name="tv%s" value="%s" tvtype="%s" />',
             $field_id,
             $field_id,
-            evo()->hsc($field_value),
+            hsc_for_tpl($field_value),
             'hidden'
         );
     }
@@ -1778,14 +1802,14 @@ trait DocumentParserSubParserTrait
         $ph['field_value'] = evo()->hsc($field_value);
         $ph['value'] = evo()->hsc($field_value);
         $ph['field_style'] = $field_style;
+        $tpl = $this->custom_tv_tpl($field_id, $field_elements, $ph);
+        // 定義に差し込む値は、このあとのタグの評価を通るので、値の中のタグが評価されないよう hsc_for_tpl() にする
+        $ph['field_value'] = $ph['value'] = hsc_for_tpl($field_value);
         return evo()->evalSnippets(
             evo()->mergeChunkContent(
                 evo()->mergeSettingsContent(
                     evo()->mergeDocumentContent(
-                        evo()->parseText(
-                            $this->custom_tv_tpl($field_id, $field_elements, $ph),
-                            $ph
-                        )
+                        evo()->parseText($tpl, $ph)
                     )
                 )
             )
@@ -1951,7 +1975,7 @@ trait DocumentParserSubParserTrait
         echo "<html><head>
             <title>MODX :: Alert</title>
             <meta http-equiv=\"Content-Type\" content=\"text/html; charset={$modx_manager_charset};\">
-            <link rel=\"stylesheet\" type=\"text/css\" href=\"" . manager_asset('media/style/' . config('manager_theme') . '/style.css') . "\" />
+            " . manager_theme_stylesheets() . "
             <script>
                 function __alertQuit() {
                     alert(" . $msg . ");
@@ -2546,29 +2570,23 @@ trait DocumentParserSubParserTrait
         $filename = (string)$filename;
 
         if (strpos($filename, '/') !== false || strpos($filename, '\\') !== false) {
-            return;
+            return false;
         }
         $target = substr(strtolower((string)$target), 0, 1);
 
         include_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
         $backup = new EvoBackupManager();
-        if ($filename !== '') {
-            if (preg_match('/\.sql\z/i', $filename)) {
-                $filename = substr($filename, 0, -4) . '.sql';
-            } else {
-                $filename .= '.sql';
-            }
-            if (!$backup->isValidFilename($filename)) {
-                return;
-            }
+        $filename = $backup->store()->normalizeName($filename);
+        if ($filename !== '' && !$backup->store()->isValidFilename($filename)) {
+            return false;
         }
 
         // target が c のときはコンテンツのテーブルだけを書き出す
-        $name = $backup->createSnapshot($filename, $target === 'c');
+        $name = $backup->createSnapshot($filename, ['contentsOnly' => $target === 'c']);
         if ($name === false) {
             return false;
         }
-        return filesize($backup->dir() . $name);
+        return filesize($backup->store()->dir() . $name);
     }
 
     /**
@@ -2814,44 +2832,13 @@ trait DocumentParserSubParserTrait
     }
 
     /*
-     * バインドで読まない置き場所（バックアップ・スナップショット）の実パスの一覧。
+     * バインドで読まない置き場所（スナップショットの保存先と、以前の置き場所）の実パスの一覧。
      * 小文字にそろえ、末尾に / を付けて返す。存在しない場所は含めない。
      */
     function getBindDenyDirs()
     {
-        include_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
-        // 保存先の判定は EvoBackupManager::dir() が持つ。以前の置き場所も、残っていれば読めないままにする
-        $dirs = [(new EvoBackupManager())->dir(), MODX_BASE_PATH . 'temp/backup', MODX_BASE_PATH . 'assets/backup'];
-        $snapshot_path = $this->config('snapshot_path');
-        if ($snapshot_path) {
-            $dirs[] = $snapshot_path;
-        }
-
-        // 設定を広く誤っても、サイトのルート・assets/・assets/templates/ やその親は一覧に入れない
-        $keep = [];
-        foreach ([MODX_BASE_PATH, MODX_BASE_PATH . 'assets', MODX_BASE_PATH . 'assets/templates'] as $dir) {
-            $real_dir = realpath($dir);
-            if ($real_dir !== false) {
-                $keep[] = strtolower(rtrim(str_replace('\\', '/', $real_dir), '/')) . '/';
-            }
-        }
-
-        $result = [];
-        foreach ($dirs as $dir) {
-            $real_dir = realpath(str_replace('\\', '/', $dir));
-            if ($real_dir === false || !is_dir($real_dir)) {
-                continue;
-            }
-            $deny = strtolower(rtrim(str_replace('\\', '/', $real_dir), '/')) . '/';
-            foreach ($keep as $protected) {
-                if (strpos($protected, $deny) === 0) {
-                    continue 2;
-                }
-            }
-            $result[] = $deny;
-        }
-
-        return array_values(array_unique($result));
+        include_once MODX_CORE_PATH . 'snapshot_store.class.inc.php';
+        return (new EvoSnapshotStore())->denyDirs();
     }
 
     /*
@@ -3067,9 +3054,7 @@ trait DocumentParserSubParserTrait
             return $content;
         }
 
-        if ($modx->debug) {
-            $fstart = $modx->getMicroTime();
-        }
+        $fstart = $modx->getMicroTime();
 
         $matches = $modx->getTagsFromContent($content, '[+@', '+]');
         if (!$matches) {
@@ -3153,7 +3138,7 @@ trait DocumentParserSubParserTrait
             $draft['editedon'] = $row['editedon'];
             $draft['editedby'] = $row['editedby'];
 
-            if ($modx->doc->update($draft, $row['elmid']) !== false) {
+            if ($modx->doc->updateFromDraft($draft, $row['elmid']) !== false) {
                 db()->delete(
                     '[+prefix+]site_revision',
                     sprintf('internalKey=%d', $row['internalKey'])

@@ -1,0 +1,642 @@
+/*
+ * 同梱の 7 テーマで中身まで同じ規則。テーマは書かない。テーマの前に読む（manager_theme_stylesheets()）。
+ * 素の要素の初期化は土台の層（evo-base）に入れ、部品の CSS（sections.css など）が上書きできるようにする。
+ * ほかは層に入れない。詳細度でテーマの規則に勝つ前提の規則が多く、層に入れると負けるため。
+ * 新しい規則はここに足さず、部品ごとの CSS に書く。ここの規則も、部品ごとの整理で部品の CSS へ移していく。
+ */
+
+/* 素の要素 */
+@layer evo-base {
+    html,
+    body,
+    form,
+    fieldset {
+        margin: 0;
+        padding: 0;
+    }
+
+    tbody,
+    thead,
+    tr {
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+
+    form label {
+        cursor: pointer;
+    }
+
+    fieldset {
+        border: none;
+    }
+
+    /* 見出し・段落など。外側の余白は下だけ */
+    h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address {
+        margin: 0 0 .5em;
+        padding: 0;
+        font-weight: normal;
+    }
+
+    /* 本文。行の高さと地はテーマが --body-line-height・--page-bg で変える */
+    body {
+        height: 100%;
+        background: var(--page-bg, var(--color-background-page, #f4f4f4));
+        color: var(--color-text-primary, #333);
+        font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
+        font-size: var(--font-size-base, 12px);
+        line-height: var(--body-line-height, 1.5);
+    }
+
+    input, select, textarea, option, optgroup, td {
+        font: inherit;
+        color: inherit;
+    }
+
+    button {
+        margin: 0;
+        margin-inline-end: 5px;
+        font: inherit;
+        cursor: pointer;
+    }
+
+    img {
+        border: 0 !important;
+        text-decoration: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    hr {
+        height: 1px;
+        border: 0;
+        background-color: var(--hr-color, var(--gray-700, #777));
+        color: var(--hr-color, var(--gray-700, #777));
+    }
+
+    /* 選択肢のグループの見出し。選んでいる項目（ブラウザが灰色の地を付ける）と見分けられるよう、地は付けず、薄い色の太字にする */
+    optgroup {
+        background-color: transparent;
+        color: var(--optgroup-color, var(--color-text-muted, #777));
+        font-style: normal;
+        font-weight: bold;
+    }
+
+    /* 表の見出しの行。色と地はテーマが --thead-color・--thead-bg で決める */
+    thead {
+        height: 18px !important;
+        background: var(--thead-bg, var(--color-thead-bg, #e4e4e4));
+        color: var(--thead-color, var(--color-thead-text, #333));
+    }
+
+    /* リンク。色はテーマが --color-link・--color-link-hover で決める */
+    a, a:active, a:visited, a:link {
+        color: var(--color-link);
+        text-decoration: underline;
+    }
+
+    a:hover {
+        color: var(--color-link-hover);
+    }
+
+    /* リストの字下げ。印の画像はテーマが --list-marker-image で決める（none なら黒丸だけ） */
+    ul {
+        margin: 0 20px;
+    }
+
+    li, dd, blockquote {
+        margin: 0 0 0 1em;
+    }
+
+    li {
+        margin: 0;
+        padding: 0;
+        list-style: disc outside var(--list-marker-image, url(../common/images/misc/li.gif));
+    }
+
+    h2 {
+        font-size: 1.64em;
+    }
+
+    h4, h5 {
+        font-size: 1em;
+        font-weight: bold;
+    }
+
+    h6 {
+        font-size: 0.9em;
+        font-weight: bold;
+    }
+
+    /* ページの見出し。大きさ・行の高さ・字間・下の余白は全テーマ共通。
+       色・地・枠・丸み・余白・影はテーマが :root の --page-title-* で決める（theme-variables.md の「ページの見出し」） */
+    h1 {
+        margin: 0 0 12px;
+        padding: var(--page-title-padding, 8px);
+        border: 1px solid var(--page-title-border-color, transparent);
+        border-radius: var(--page-title-radius, 4px);
+        background: var(--page-title-bg, transparent);
+        box-shadow: var(--page-title-shadow, none);
+        color: var(--page-title-color, inherit);
+        font-size: 1.25em;
+        font-weight: bold;
+        line-height: 1.4;
+        letter-spacing: .05em;
+    }
+
+    /* 下書きを編集している画面。帯の地で見分ける */
+    h1.draft {
+        border-color: var(--page-title-draft-border-color, var(--page-title-border-color, transparent));
+        background: var(--page-title-draft-bg, #f4e2c3);
+    }
+}
+
+.subTitle {
+    font-weight: normal;
+}
+
+/* 素の要素のうち、層の外のテーマの規則と張り合うもの */
+a img {
+    border: 0 !important;
+    text-decoration: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* 表のアイコンの右の余白。リンクの中の画像の余白を 0 にする a img より強くする */
+.grid img {
+    padding-inline-end: 4px;
+}
+
+thead td {
+    border-top: 1px solid var(--thead-td-border-color, var(--color-surface, #fff));
+    color: var(--thead-td-color, var(--thead-color, var(--color-thead-text, #333)));
+}
+
+/* グループの中の項目は、見出しの薄い色を受け継がず、本文の色にする */
+optgroup option {
+    background-color: var(--color-surface, #fff);
+    color: var(--color-text-primary, #333);
+    font-weight: normal;
+}
+
+/* 上のメニューの右の状態表示（menu.php の #statusbar）。文字の色はテーマが --statusbar-text-color で決める */
+#statusbar {
+    position: absolute;
+    inset-inline-end: 0;
+    top: 36px;
+    z-index: 1000;
+}
+
+#buildText,
+#workText {
+    margin: 0 15px;
+    color: var(--statusbar-text-color, #fff);
+    font-weight: bold;
+    line-height: 16px;
+}
+
+#buildText img,
+#workText img {
+    margin: 0 5px;
+}
+
+/* 読み込み中の表示（header.inc.php） */
+.preLoaderText {
+    width: 300px;
+    height: 150px;
+    margin: 70px auto;
+    padding: 50px;
+    border: 1px solid var(--preloader-border-color, var(--gray-500, #999));
+    border-radius: var(--preloader-radius, 12px);
+    background-color: var(--color-surface, #fff);
+    opacity: .7;
+}
+
+/* リソースの選択の検索の帯（resource_selector.static.php） */
+.searchbar {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--searchbar-border-color, silver);
+    border-radius: var(--searchbar-radius, 0);
+    background: var(--searchbar-bg, #dbdbdb);
+}
+
+/* 見出しの列の幅（編集画面の既定。長い見出しは折り返す。設定の表は下の .settings で広げる） */
+:root {
+    --form-label-width: 150px;
+}
+
+/* 行の部品（field_row.tpl）の見出しのセル。揃えは行頭（th の既定は中央）。太さは th の既定（太字）。右に値のセルとの間を取る */
+.field-label {
+    width: var(--form-label-width);
+    text-align: start;
+    padding-inline-end: var(--space-3, 12px);
+}
+
+/* 見出しの 1 行目の文字を、値の 1 行目の文字にそろえる。
+   値が文字・チェックボックス・ラジオの行は、基準線でそろえる。
+   文字を入れる欄のある行は上揃えにし、見出しの上の余白で欄の中の文字の高さに合わせる（欄は中の文字が縦の中央に来る。
+   textarea の基準線は下端なので、基準線ではそろわない）。「文字を入れる欄」は forms.css の欄の高さの規則と同じ一覧。
+   詳細度は低くし、行の部品を使わない手書きの行は、その行の規則で上書きできる */
+:where(.field-row) > :is(.field-label, .field-value) {
+    vertical-align: baseline;
+}
+
+:where(.field-row:has(> .field-value :is(
+    input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"], [type="range"], [type="color"],
+        [type="submit"], [type="button"], [type="reset"], [type="image"]),
+    select,
+    textarea
+))) > :is(.field-label, .field-value) {
+    vertical-align: top;
+}
+
+:where(.field-row:has(> .field-value :is(
+    input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"], [type="range"], [type="color"],
+        [type="submit"], [type="button"], [type="reset"], [type="image"]),
+    select,
+    textarea
+))) > .field-label {
+    padding-top: calc(var(--field-row-gap, 0px) + (var(--control-height, 32px) - var(--line-box, 18px)) / 2);
+}
+
+/* 設定の表（.settings）。全幅で、行の間は点線。セルの余白は 1px（表のセルの既定）に --field-row-gap を足した値。
+   ただし見出しの右は .field-label の --space-3、文字を入れる欄のある行の見出しの上は揃えの規則（上の .field-label）が決め、
+   そこにも同じ --field-row-gap が足されるので、行の部品の揃えは崩れない。
+   見出しの文字の大きさは本文と同じ。見出しの列の幅は 200px */
+/* 設定の表は見出しが長いので、見出しの列を広げる */
+.settings {
+    --form-label-width: 200px;
+    --field-row-gap: 4px;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+:where(.settings) :is(th, td) {
+    padding: calc(1px + var(--field-row-gap));
+}
+
+.settings th {
+    text-align: start;
+}
+
+/* プラグインが設定の表に足す手書きの行（行の部品を使わない th）の見出しは、行の部品と同じ幅で上揃え */
+.settings tr:not(.field-row) > th {
+    width: var(--form-label-width);
+    vertical-align: top;
+}
+
+.settings tr {
+    border-bottom: 1px dotted var(--color-border-default, #ccc);
+}
+
+.settings td input[type=text] {
+    width: 250px;
+}
+
+fieldset.tab-page {
+    border: 1px solid var(--fieldset-tab-page-border-color, var(--gray-200, #e4e4e4)) !important;
+}
+
+/* 編集画面の区切りの線。区切らないテーマは --split-display: none にする */
+.split {
+    display: var(--split-display, block);
+    height: 0;
+    padding: 0;
+    clear: both;
+    border-top: 1px dotted #556476;
+    background: transparent;
+    font-size: 0;
+}
+
+/* 状態を色で示す文字。色はテーマが変数で決める */
+.okmsg {
+    margin-bottom: 8px;
+    padding: 8px;
+    border: 2px solid var(--okmsg-border-color, var(--color-success-light, #3ab63a));
+    background-color: var(--color-success-bg, #edffee);
+}
+
+.overhead-warning {
+    color: var(--overhead-warning-color, #990033);
+}
+
+.access-private {
+    color: var(--access-private-color, #821517);
+}
+
+.label-disabled {
+    color: var(--label-disabled-color, #ccc);
+}
+
+.resource-description {
+    color: var(--resource-description-color, #777);
+}
+
+.protectedNode {
+    color: var(--tree-protected-color, #77d);
+}
+
+.disabledPlugin a {
+    color: var(--disabled-plugin-color, #aaa);
+    text-decoration: line-through;
+}
+
+/* 汎用のクラス */
+/* 編集画面の入力欄（theme-variables.md の「フォーム部品」）。テーマの入力欄の規則と詳細度で張り合うので、層に入れない */
+/* TV の欄は、テーマの欄の地に関係なく白い地にする */
+#tv_body input[type=text],
+#tv_body textarea {
+    background: var(--color-surface, #fff);
+}
+
+/* 日付の欄。カレンダーのアイコンはテーマが --datepicker-icon・--datepicker-icon-focus で変える。
+   テーマの入力欄の規則（form#mutate input など）と詳細度で張り合うので、層に入れない。
+   TV の欄の白い地（上の #tv_body の規則）に負けないよう、id を含むセレクタを並べて後ろに置く */
+input.DatePicker,
+#mutate input.DatePicker,
+#userPane input.DatePicker,
+#webUserPane input.DatePicker,
+input#datefrom.DatePicker,
+input#dateto.DatePicker {
+    width: 150px;
+    padding: 3px 3px 3px 24px;
+    background: var(--datepicker-icon, url(../common/images/misc/date-icon.png)) no-repeat 4px center var(--color-surface, #fff);
+}
+
+input:focus.DatePicker,
+#mutate input:focus.DatePicker,
+#userPane input:focus.DatePicker,
+#webUserPane input:focus.DatePicker,
+input#datefrom:focus.DatePicker,
+input#dateto:focus.DatePicker {
+    background-image: var(--datepicker-icon-focus, url(../common/images/misc/date-icon-focus.png));
+    cursor: text;
+}
+
+/* 読み取り専用の欄。TV の欄の白い地より強くするため !important にする */
+:is(textarea, input[type='text'])[readonly],
+.readonly {
+    background-color: var(--readonly-bg, #eee) !important;
+    text-shadow: 1px 1px var(--color-surface, #fff) !important;
+    cursor: not-allowed;
+}
+
+/* 送信用の隠し input（JS が click() で送る）と、JS が class を外して見せる欄 */
+form input.hidden {
+    display: none !important;
+    position: absolute;
+}
+
+.clear {
+    clear: both;
+}
+
+.hide,
+.skip {
+    display: none;
+}
+
+.inline {
+    display: inline;
+}
+
+/* メッセージ */
+.fail {
+    color: var(--color-error, #900);
+    font-weight: bold;
+}
+
+.warning {
+    color: var(--color-warning, #444);
+    font-weight: bold;
+}
+
+.success {
+    color: var(--color-success, #090);
+    font-weight: bold;
+}
+
+.actionButtons img {
+    vertical-align: top;
+    margin-top: 1px;
+    opacity: .7;
+}
+
+.actionButtons a:hover img {
+    opacity: 1;
+}
+
+.actionButtons span.and {
+    padding: 4px 2px;
+}
+
+.actionButtons a.disabled img {
+    opacity: .3;
+}
+
+/* 表 */
+.grid .is-shrink {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.grid .is-center {
+    text-align: center;
+}
+
+.grid .is-end {
+    text-align: end;
+}
+
+/* 上部・ツリー */
+#topbar * {
+    vertical-align: middle;
+}
+
+#treeMenu * {
+    vertical-align: middle;
+}
+
+/* 読み込み中の表示 */
+#preLoader {
+    position: absolute;
+    z-index: 50000;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    vertical-align: middle;
+    background-color: rgba(255, 255, 255, .3);
+}
+
+#loadingmask {
+    display: none;
+}
+
+/* リソース編集の欄と TV */
+.mutate-fields {
+    width: 100%;
+}
+
+/* 欄のまとまり。メインタブは開閉する details、ページ設定タブは小見出し（.settings-section）の付いた箱。
+   開閉の見出し（summary）の見た目は、小見出しと同じ規則（common/shell.css の .settings-section）で決める */
+.mutate-group {
+    margin-bottom: var(--space-3, 12px);
+}
+
+.mutate-section {
+    margin-bottom: var(--space-5, 20px);
+}
+
+.mutate-group > summary {
+    cursor: pointer;
+}
+
+/* 閉じているときは、見出しの下の間を空けない（まとまりどうしの間は .mutate-group の margin） */
+.tab-page .mutate-group:not([open]) > summary {
+    margin-bottom: 0;
+}
+
+/* 移された欄の無い表（data-moved-fields。tpl は中身なしで書く）は出さない */
+table[data-moved-fields]:empty {
+    display: none;
+}
+
+/* 欄が 1 つも無いまとまり（下書きの公開の欄など）は出さない */
+[data-field-group]:not(:has([data-field])) {
+    display: none;
+}
+
+/* リソース名の表と、その下の開閉するまとまりの間 */
+.tab-page > :has(+ .mutate-group) {
+    margin-bottom: var(--space-3, 12px);
+}
+
+/* 出ない移された欄の表がタブの最後の子になるので、その前の見えている最後のブロックの下を 0 にする（spacing.css の :last-child の代わり） */
+.tab-page > :has(+ table[data-moved-fields]:empty) {
+    margin-bottom: 0;
+}
+
+.mutate-field-row {
+    height: 24px;
+}
+
+.clickable-label {
+    cursor: pointer;
+}
+
+.menuindex-table {
+    width: 333px;
+}
+
+.menuindex-label {
+    white-space: nowrap;
+}
+
+.menuindex-options {
+    text-align: right;
+}
+
+.mutate-tv-table {
+    --field-row-gap: 2px;
+    position: relative;
+    width: 96%;
+    border-spacing: 0;
+}
+
+/* TV の表のセルの余白は 1px に --field-row-gap を足した値（見出しの上の余白にも同じ変数が足される）。この表のセルだけに当てる */
+:where(.mutate-tv-table > tbody > tr) > :is(th, td) {
+    padding: calc(1px + var(--field-row-gap));
+}
+
+.mutate-tv-row {
+    height: 24px;
+}
+
+/* TV の行（行の部品 + .mutate-tv-row。文書の編集画面と DocManager の一括変更の表） */
+.mutate-tv-row > .field-value {
+    position: relative;
+}
+
+form#mutate textarea.textarea {
+    width: 90%;
+    height: 200px;
+}
+
+form#mutate fieldset#settings_page_settings input#pub_date,
+form#mutate fieldset#settings_page_settings input#unpub_date {
+    width: 150px;
+}
+
+form#mutate fieldset#settings_page_settings select {
+    width: 155px;
+}
+
+.tmplvars tr {
+    height: 24px;
+}
+
+.tvname {
+    width: 150px;
+    white-space: nowrap;
+}
+
+/* 本文欄（RTE を使わないとき）と TV の textarea は等幅の文字にする */
+#ta,
+.tmplvars textarea {
+    font-family: Consolas, 'Courier New', 'Courier', monospace;
+}
+
+/* コード欄 */
+.phptextarea {
+    font-family: Consolas, 'Courier New', 'Courier', monospace;
+    box-sizing: border-box;
+}
+
+.code-editor-title {
+    font-weight: bold;
+}
+
+/* ユーザー・ウェブユーザーの編集とパスワード変更の入力欄 */
+.sectionBody input.inputBox[type=text],
+.sectionBody input.inputBox[type=password],
+.sectionBody select.inputBox {
+    width: 350px;
+}
+
+/* ダッシュボードのアイコンのボタン（welcome.tpl）。行ごとに折り返して並べ、ボタンの中はアイコンと名前を縦に並べる。
+   大きさと間は全テーマ共通。名前の色はテーマが --dashboard-link-color・--dashboard-link-hover-color で決める */
+.wm_buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 12px;
+    margin-bottom: 12px;
+}
+
+.wm_buttons:last-child {
+    margin-bottom: 0;
+}
+
+.wm_button {
+    display: inline-flex;
+    text-align: center;
+}
+
+a.hometblink {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--dashboard-link-color, var(--gray-900, #333));
+    font-weight: bold;
+}
+
+a.hometblink:hover {
+    color: var(--dashboard-link-hover-color, gray);
+}
+
+a.hometblink,
+a.hometblink img {
+    border: 0 !important;
+    text-decoration: none !important;
+}

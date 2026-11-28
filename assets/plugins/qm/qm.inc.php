@@ -180,7 +180,6 @@ class Qm
         return manager()->canOpenDocumentEditor(evo()->documentIdentifier);
     }
 
-    // Function from: manager/processors/cache_sync.class.processor.php
     //_____________________________________________________
     function getParents($id, $path = '')
     {

@@ -107,6 +107,7 @@ git worktree add "$ROOT/.claude/worktrees/issue-<番号>" <種別>/<番号>-<短
    - 修正前と修正後を比べる。修正前は main の detached ワークツリーと別の検証環境で確かめる。
    - 既存の処理を別の場所へ写したり、いくつかを 1 つにまとめたりした変更では、その処理に入力を渡すそれぞれの入口の実際の出力で、修正前後を比べる（例: 復元の処理なら、mysqldump で作ったファイルと PHP のダンパーで作ったファイルの両方）。「今の動きと同じ」だけで済ませると、写した元にあった不具合を見落とす。
    - 画面を計測して見た目を確かめる変更では、画面の数ではなく、ブロックの組み合わせ（同じ入れ物が続く、ページ送りが出る、2 枚目以降のタブ、権限で部品が消える など）を網羅するように、画面と状態を選ぶ。
+   - 画面ごとにばらばらな見た目をそろえる整理では、main との比較は「計画外の違いが無い」ことしか確かめない。元から画面ごとに違う形（見出しの無いチェックボックスの行、欄の下の説明の字の大きさ など）は、比べても違いとして出ない。実装の前に、同じ役割の部品が画面ごとにどう違うかの一覧を tester に作らせ、そろえ方を本人に選択肢で聞く。
    - 管理画面の JS（画面の `<script>` と、画面が読む共通の JS）を足した・変えた変更では、一覧からリンクで画面を行き来する（シェルの画面遷移）検証と、画面を全体の読み込み（F5・URL の直打ち）で開く検証の両方を入れる。シェルの遷移では同じ window で JS が読み直され（`assets/docs/jquery-migration.md`）、全体の読み込みでは表より前の `<script>` の時点で表がまだ無いなど、片方でだけ動かないことがあるため。
    - 保存した値が変わらないかを確かめるときは、何も変えずに保存するだけでなく、1 項目だけ変えて保存する確認と、入力エラーで差し戻した画面の確認も入れる。変えた項目だけを送る画面や、送信した値を重ねて戻す画面があるため。
    - リクエストの値の読み方（型・既定値・許可する値）を変えた変更では、比べる入力に、画面のフォームとリンクが実際に送る値と、空文字を必ず入れる。修正前に空文字がそのまま使われていたなら、修正後も同じ結果になることを確かめる。型を絞ると、画面が送る特別な形（ゼロで詰めた数、空文字で表す「なし」など）が既定値に変わることがあるため。
@@ -116,6 +117,7 @@ git worktree add "$ROOT/.claude/worktrees/issue-<番号>" <種別>/<番号>-<短
    - tester がテストを足したとき（tester はコミットしない）は、メインがそのファイルを範囲の照合（手順 4 と同じ）にかけてからコミットする。
 6. **自己レビュー**: メインが、未コミットの変更が残っていない（`git -C <パス> status --porcelain` が空）ことを確かめてから、レビュー前の `git -C <パス> status --porcelain` と `git -C <パス> rev-parse HEAD` を控える。残っていたら、手順 5 のとおりコミットするか、出どころを確かめる。reviewer には main との差分全体、Issue（または ExecPlan）、検証結果を渡す。reviewer は指摘を重大度（高・中・低）順に返し、無ければ「問題なし」と明記する。レビュー後に同じ 2 つを取り、変わっていないことを確かめる。変わっていたら止まる。
 7. **修正**: 高・中の指摘があれば、worker が直し、tester が確かめ直し、reviewer が見直す。往復は 2 回まで。残れば worker を 1 回だけ格上げしてやり直し、それでも残れば止まる。低の指摘は直すか、PR 本文の「備考」に残す。
+   - 直す前に、指摘を実際の運用で起きうるかで仕分ける。起きないもの（ありえない長さの値、ありえない名前への備えなど）は直さず、理由を PR 本文の「備考」に書く。そういう状態が起きたら別の異常で、そこで守る話ではない。外から入る値の安全化と権限の穴は、起きにくくても直す。
 8. **記録**: ExecPlan があれば、メインが Progress（このマイルストーンを完了に）と Surprises & Discoveries を更新してコミットする。Issue へのコメントは、PR で足りるので行わない。
 9. **push と PR**: メインがブランチを push し、PR を作る。
    - タイトル・本文・ラベルは `.github/codex-pr-rules.md` に従う。「確認手順」に検証の結果、「備考」に自己レビューの結果（指摘と対応、または問題なし）を書く。
@@ -131,7 +133,7 @@ Codex のレビューは、PR を開いたときと「@codex review」のコメ�
 
 次のどれかに当たったら、先へ進まずに止まる。
 
-- 「要相談」に当たる判断が出た（DB スキーマの変更、互換性を損なう変更、Issue で決まっていない挙動の選択、Issue の「直し方の案」と違う直し方が要る など）
+- 「要相談」に当たる判断が出た（DB スキーマの変更、互換性を損なう変更、Issue で決まっていない挙動の選択、Issue の「直し方の案」と違う直し方が要る など）。互換性に関わるのは、外から使われうるもの（public の API、tpl、イベント、設定キー、DB の列）を変える・消すときだけ。1 つのファイルの中だけで使う定数や private の関数を消すのは内部の判断なので、止まらずに決め、`breaking change` のラベルも付けない
 - Issue が閉じている。自分以外の担当者、紐づくブランチ、PR のどれかが既にある（`/run-plan` で ExecPlan に記録されたブランチと PR、および手順 1 の本人が中断した run の引き継ぎは除く）
 - 対象のロードマップ項目が一意に決まらない（`/finish-task`）
 - 割り当てた範囲の外を直す必要が出た。または差分が想定より大きい（目安: 変更ファイルが Issue の「場所」に挙がったファイル数の 2 倍を超える）
@@ -197,6 +199,7 @@ ExecPlan をマイルストーンごとに進める。
 2. ExecPlan の Artifacts and Notes にブランチ（と PR）が記録されていれば、それとそのワークツリーを使う（ワークツリーが無ければ、そのブランチで `git worktree add` する）。roadmap-manager の `/next-task --run` で作った ExecPlan は、この形でブランチが記録されている。記録が無ければ、「作業場所」の手順で新しく用意する。`gh issue develop` で紐づけるのは、対象の Issue のうち先頭に書かれたもの 1 件にする（ロードマップの `Issue:` は優先順に並んでいる）。
 3. マイルストーンごとに「1 件ごとの繰り返し」を行う。worker に渡す書き込み範囲は、そのマイルストーンの Plan of Work と Concrete Steps に挙がったファイルにする（ExecPlan の記録はメインが行う）。
 4. マイルストーンが終わるたびに同じ PR へ push し、次のマイルストーンへ進む。ExecPlan が段階ごとの PR の分け方を決めているときは、「1 件ごとの繰り返し」の手順 9 のとおり段階ごとに PR を分け、前の PR のマージを人に任せて止まる（マージ後に `/run-plan` を呼び直すと、次の段階から続ける）。本人に続けるよう頼まれていて止まれないときは、前の段階のブランチから次の段階のブランチを作って検証と自己レビューまで進め、push して、前の段階のブランチを base にした PR を作ってよい（手元のコミットだけで残すと、進み具合が PR の一覧から見えない）。作ったブランチと PR は ExecPlan の Artifacts and Notes に記録する。積んだ PR は base が main でないので、main との衝突が CI にも mergeable にも出ない。PR を作る前と、前の段階の PR をマージする前に、`git merge-tree --write-tree <段階のブランチ> origin/main` で main との衝突を確かめ、衝突したら前の段階のブランチに `origin/main` を取り込んでから次の段階に取り込んで解く。前の PR がマージされたら、次の PR の base を main（次の版のまとめ用ブランチに向けた ExecPlan では `develop/<版>`）に切り替える。切り替える前にそのブランチへ `origin/main`（同じく `origin/develop/<版>`）を取り込み、その段階で消した・移したファイルに main 側で入った変更が、新しい実装にも要るかを確かめる。
+   - 画面の使い勝手が変わる段階では、PR を出したら、本人が触れるお試し環境を渡して、マージの前に使ってもらう。計画の段階では出なかった問題（決めた動きが実際には使いにくい など）が、上の段階を積む前に見つかる。環境は作業ツリーとは別の場所に、その段階のブランチを `git archive` で取り出し（`compose.yml` と `manager/docker/` は写す）、`EVO_BIND_IP=127.0.0.1` で立てる（Windows 側のブラウザから開けるように）。立て方は `.claude/skills/adaptive-validation-runner/references/environment.md` に従い、片付けは本人に聞いてから行う。
 5. すべてのマイルストーンが終わり CI が通ったら、`gh pr ready <PR番号>` で下書きを解除し、報告して終える。マージは、本人が指示したときだけ行う（不変条件 1）。完了処理は `/finish-task` で行う。
 
 ### /finish-task <Issue 番号 | ExecPlan のパス>
@@ -215,8 +218,8 @@ PR がマージされたあとの片付けと完了処理を行う。完了処�
    ```
 6. そのワークツリーで、ロードマップの更新を roadmap-manager の `/roadmap-sync` で、ExecPlan のアーカイブを `.agent/PLANS.md` のとおりに行う。スキル成長ループ（`.agent/PLANS.md` の手順 8）は省かない。次の順に行う。
    - 同期用のワークツリーをマウントした検証環境を、ほかと重ならない `EVO_VALIDATE_NAME`・`EVO_BIND_IP` で立てる（`EVO_VALIDATE_NAME=<名前> EVO_BIND_IP=<アドレス> docker compose --project-directory <同期用のワークツリー> -f <同期用のワークツリー>/compose.yml -f <同期用のワークツリー>/.claude/skills/adaptive-validation-runner/scripts/compose.validation.yml up -d --build`）。シェルの状態はコマンドをまたいで残らないので、`setup-site.js` と片付け（`down -v --rmi local`）のコマンドにも、同じ値を毎回先頭に付ける。起動の前に、`.claude/skills/adaptive-validation-runner/references/environment.md` の「並走するとき」の確認を行う。
-   - その環境に `setup-site.js` でインストールする。インストールしていないと、`php evo` は何も出さずに終わる。`setup-site.js` は今いるディレクトリに `sample.htaccess` を書き戻すので、必ず同期用のワークツリーをカレントにして動かす。
-   - アプリのコンテナで `php evo skill:init` → `skill:status` → `skill:complete --strict` を行う（`docker exec -w /var/www/html <名前>-app php evo …`）。`learning.json`・`proposal.json`・`trace.jsonl` は、`skill:complete` の前にメインが書く（書式は `.agent/runs/README.md` とテンプレート）。
+   - その環境に `setup-site.js` でインストールする。インストールしていないと、`php evo.php` は何も出さずに終わる。`setup-site.js` は今いるディレクトリに `sample.htaccess` を書き戻すので、必ず同期用のワークツリーをカレントにして動かす。
+   - アプリのコンテナで `php evo.php skill:init` → `skill:status` → `skill:complete --strict` を行う（`docker exec -w /var/www/html <名前>-app php evo.php …`）。`learning.json`・`proposal.json`・`trace.jsonl` は、`skill:complete` の前にメインが書く（書式は `.agent/runs/README.md` とテンプレート）。
    - 前例どおり、次の run の雛形（`skill:complete` が作る）と `.agent/skill-metadata/<スキル名>/` も残す（`skill:sync` で更新する）。
    - 手順 8-5（反映するかの確認）は省かない。反映すると決まったものは、完了同期とは別の PR で入れる。
    - 終わったら検証環境を片付け、追跡外の `manager/includes/config.inc.php` を消す。

@@ -1,203 +1,156 @@
 <?php
 
+require_once __DIR__ . '/db_tables.class.inc.php';
+require_once __DIR__ . '/sql_dump.class.inc.php';
+require_once __DIR__ . '/snapshot_store.class.inc.php';
+
 /**
- * スナップショット（サーバー上の保存先に置く DB のバックアップ）の
- * 保存先・ファイル名・一覧・世代・作成・復元を受け持つ。
- * あわせて、バックアップの画面のテーブル一覧で、中身を削除してよいテーブルを決める。
+ * スナップショットの作成と、ダンプの復元の手順を受け持つ。
+ * 管理画面・CLI・$modx->snapshot() はこの手順を呼ぶ。
+ * 保存先・名前・一覧・世代は EvoSnapshotStore（store()）、ダンプの形は EvoSqlDump が受け持つ。
  */
 class EvoBackupManager
 {
-    const AUTO_NAME_PATTERN = '/\A\d{4}-\d{2}-\d{2}-\d{6}-[0-9A-Za-z._-]+\.sql\z/';
-    const FILE_NAME_PATTERN = '/\A[0-9A-Za-z][0-9A-Za-z._-]*\.sql\z/';
-    const PRE_RESTORE_PREFIX = 'pre-restore-';
-    const KEEP = 10;
-    const PRE_RESTORE_KEEP = 3;
-    const HTACCESS = "<IfModule mod_authz_core.c>\n    Require all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\n    Order deny,allow\n    Deny from all\n</IfModule>\n";
+    private $store;
+    private $pruned = [];
+
+    public function __construct()
+    {
+        $this->store = new EvoSnapshotStore();
+    }
+
+    public function store()
+    {
+        return $this->store;
+    }
 
     /**
-     * 管理画面から中身の全削除を許可するテーブル名（接頭辞付き）
-     * 画面のリンクの出し分けと、削除処理の許可判定が共有する
-     * event_log は今は作らないが、古い版から上げたサイトには残っているので、空にできるよう残す
+     * スナップショットを作り、古い世代を消す。作ったファイルの名前を返す（作れなければ false）。
+     * $name が空なら自動の名前にする。$options:
+     * - contentsOnly: コンテンツの表だけを書く（管理画面の「コンテンツのみ」と $modx->snapshot() の target=c）
+     * - writer: callable($path, array $tables, array $structureOnly): bool。書き手を替える（CLI の mysqldump）。
+     *   $structureOnly の表（ログの表）は構造だけを書く。既定は EvoSqlDump
+     * - keep: 残す自動の名前の世代の数（既定 EvoSnapshotStore::KEEP）。消した名前は pruned() で得る
      */
-    public static function truncatableTables(): array
+    public function createSnapshot($name = '', array $options = [])
     {
-        return [
-            db()->table_prefix . 'event_log',
-            db()->table_prefix . 'manager_log',
-        ];
-    }
-
-    public function dir()
-    {
-        $base = realpath(MODX_BASE_PATH);
-        if ($base === false) {
-            return MODX_BASE_PATH . 'temp/backup/';
-        }
-        $base = rtrim(str_replace('\\', '/', $base), '/') . '/';
-
-        $configured = (string)evo()->config('snapshot_path', '');
-        if ($configured !== '') {
-            $real = realpath($configured);
-            if ($real !== false) {
-                $real = rtrim(str_replace('\\', '/', $real), '/') . '/';
-                if ($real !== $base && strpos($real, $base) === 0) {
-                    return $real;
-                }
-            }
-        }
-        if (!is_dir($base . 'temp/backup') && is_dir($base . 'assets/backup')) {
-            return $base . 'assets/backup/';
-        }
-        return $base . 'temp/backup/';
-    }
-
-    public function ensureDir()
-    {
-        $dir = $this->dir();
-        if (!is_dir($dir) && !mkdir($dir, 0755, true) && !is_dir($dir)) {
-            return false;
-        }
-        if (!is_writable($dir)) {
-            return false;
-        }
-
-        $htaccess = $dir . '.htaccess';
-        if (is_file($htaccess)) {
-            $current = file_get_contents($htaccess);
-            if ($current === false) {
-                return false;
-            }
-            if (!$this->isLegacyHtaccess($current)) {
-                return true;
-            }
-        }
-        if (file_put_contents($htaccess, self::HTACCESS) === false) {
-            // 書き込めなくても、保護の .htaccess が既に在れば保存先は使える
-            return is_file($htaccess);
-        }
-        return true;
-    }
-
-    public function autoFilename($prefix = '')
-    {
-        return sprintf(
-            '%s%s-%s.sql',
-            $prefix,
-            date('Y-m-d-His', request_time() + (int)evo()->config('server_offset_time', 0)),
-            preg_replace('/[^0-9A-Za-z._-]/', '-', (string)(evo()->getVersionData('version') ?: 'unknown'))
-        );
-    }
-
-    public function isValidFilename($name)
-    {
-        return is_string($name) && preg_match(self::FILE_NAME_PATTERN, $name) === 1;
-    }
-
-    public function path($name)
-    {
-        // 既存のファイルを読むので、作るときの規則より緩くする（日本語や空白を含む名前も通す）
-        if (!is_string($name) || $name === '' || $name !== basename(str_replace('\\', '/', $name))
-            || strpos($name, '..') !== false || strpos($name, "\0") !== false
-            || !preg_match('/\.sql\z/i', $name)) {
-            return false;
-        }
-        $dir = realpath($this->dir());
-        $path = realpath($this->dir() . $name);
-        if ($dir === false || $path === false || !is_file($path)) {
-            return false;
-        }
-        $dir = rtrim(str_replace('\\', '/', $dir), '/') . '/';
-        if (strpos(str_replace('\\', '/', $path), $dir) !== 0) {
-            return false;
-        }
-        return $path;
-    }
-
-    public function files()
-    {
-        $paths = glob($this->dir() . '*.sql');
-        if ($paths === false) {
-            return [];
-        }
-        $files = [];
-        foreach ($paths as $path) {
-            if (!is_file($path)) {
-                continue;
-            }
-            $files[] = [
-                'name'  => basename($path),
-                'size'  => (int)filesize($path),
-                'mtime' => (int)filemtime($path),
-            ];
-        }
-        usort($files, function ($a, $b) {
-            if ($a['mtime'] !== $b['mtime']) {
-                return $b['mtime'] - $a['mtime'];
-            }
-            return strcmp($b['name'], $a['name']);
-        });
-        return $files;
-    }
-
-    public function createSnapshot($name = '', $contentsOnly = false)
-    {
+        $this->pruned = [];
         if ($name === '') {
-            $name = $this->autoFilename();
+            $name = $this->store->autoFilename();
         }
-        if (!$this->isValidFilename($name)) {
+        if (!$this->store->isValidFilename($name)) {
             return false;
         }
-        if (!$this->ensureDir()) {
+        if (!$this->store->ensureDir()) {
             return false;
         }
 
         $this->extendTimeLimit();
-        global $modx;
-        include_once MODX_CORE_PATH . 'mysql_dumper.class.inc.php';
-        $dumper = new Mysqldumper();
-        $dumper->mode = 'snapshot';
-        $dumper->contentsOnly = $contentsOnly ? 1 : 0;
-        if (!$dumper->dumpToFile($this->dir() . $name)) {
+        $tables = EvoDbTables::names();
+        if (!empty($options['contentsOnly'])) {
+            $tables = array_values(array_intersect($tables, self::contentTables()));
+        }
+        $path = $this->store->dir() . $name;
+        // ログの表は、無ければ作るだけにし、データは入れない（戻した先の履歴を消さない）
+        $structureOnly = self::logTables();
+        if (isset($options['writer'])) {
+            $written = (bool)call_user_func($options['writer'], $path, $tables, $structureOnly);
+        } else {
+            $written = EvoSqlDump::writeFile($path, $tables, ['drop' => true, 'structureOnly' => $structureOnly]);
+        }
+        if (!$written) {
             return false;
         }
+        // スナップショットは FTP などで取り出すので、本体のほかのファイルと同じ権限にする（tempnam() は 0600 で作る）
+        @chmod($path, evo()->newFilePermissions());
 
-        $this->prune();
+        $this->pruned = $this->store->prune($options['keep'] ?? EvoSnapshotStore::KEEP);
         return $name;
     }
 
-    public function prune($max = self::KEEP)
+    /**
+     * 管理画面のダウンロード用のダンプを一時ファイルに書き、そのパスを返す。
+     * このサイトの表を 1 つも選んでいなければ 'no_tables'、書けなければ 'failed' を返す（一時ファイルは残さない）。
+     * 一時ファイルは、呼び出し側が送ったあとに消す（途中で止まったときは終わりの処理が消す）
+     *
+     * @return string 一時ファイルの絶対パス、または 'no_tables'・'failed'
+     */
+    public function writeDownload(array $requested, $drop)
     {
-        $max = max(1, (int)$max);
-        $auto = [];
-        $preRestore = [];
-        foreach ($this->files() as $file) {
-            if (strpos($file['name'], self::PRE_RESTORE_PREFIX) === 0) {
-                $name = substr($file['name'], strlen(self::PRE_RESTORE_PREFIX));
-                if (preg_match(self::AUTO_NAME_PATTERN, $name)) {
-                    $preRestore[] = $file['name'];
-                }
-                continue;
-            }
-            if (preg_match(self::AUTO_NAME_PATTERN, $file['name'])) {
-                $auto[] = $file['name'];
-            }
+        $tables = EvoDbTables::own($requested);
+        if (!$tables) {
+            return 'no_tables';
         }
-
-        // files() は新しい順。上限から溢れた古いものを消す
-        $targets = array_merge(
-            array_slice($auto, $max),
-            array_slice($preRestore, self::PRE_RESTORE_KEEP)
-        );
-        $removed = [];
-        foreach ($targets as $name) {
-            if (@unlink($this->dir() . $name)) {
-                $removed[] = $name;
-            }
+        $this->extendTimeLimit();
+        $path = tempnam(MODX_CACHE_PATH, 'bktemp');
+        if ($path === false) {
+            return 'failed';
         }
-        return $removed;
+        register_shutdown_function(function () use ($path) {
+            if (is_file($path)) {
+                @unlink($path);
+            }
+        });
+        if (!EvoSqlDump::writeFile($path, $tables, ['drop' => (bool) $drop])) {
+            if (is_file($path)) {
+                unlink($path);
+            }
+            return 'failed';
+        }
+        return $path;
     }
 
-    public function restore($sql, $preRestore = null)
+    /**
+     * ダウンロードのファイル名（日付と版）
+     */
+    public static function downloadName()
+    {
+        return sprintf(
+            '%s-%s_database_backup.sql',
+            strtolower(str_replace('/', '-', evo()->toDateFormat(time(), 'dateOnly'))),
+            preg_replace('/[^0-9A-Za-z._-]/', '-', (string) evo()->getVersionData('version'))
+        );
+    }
+
+    /**
+     * 直前の createSnapshot() が世代の整理で消したファイルの名前
+     */
+    public function pruned()
+    {
+        return $this->pruned;
+    }
+
+    // 「コンテンツのみ」のスナップショットに入れる表
+    private static function contentTables(): array
+    {
+        return array_map([EvoDbTables::class, 'name'], [
+            'site_content',
+            'site_htmlsnippets',
+            'site_templates',
+            'system_settings',
+            'site_tmplvars',
+            'site_tmplvar_access',
+            'site_tmplvar_contentvalues',
+            'site_tmplvar_templates',
+        ]);
+    }
+
+    // スナップショットに構造だけを入れる表。event_log は今は作らないが、古い版から上げたサイトには残っている
+    private static function logTables(): array
+    {
+        return array_map([EvoDbTables::class, 'name'], ['event_log', 'manager_log', 'system_cache']);
+    }
+
+    /**
+     * ダンプのファイルを 1 文ずつ流して読んで戻す（ファイル全体をメモリに読まない）。
+     * 書き換える前に今の DB を復元の前の控えとして保存する。$preRestore は控えの書き手（callable($path): bool。
+     * 既定は createSnapshot() と同じ PHP の書き手）。環境ごとの設定（site_url など）は取り込み先の値を残し、
+     * 最後にキャッシュを作り直す。ファイルを開けなければ、何もせずに read_failed を true にして返す。
+     * 書き換える前にファイルを下読みし、このサイトの接頭辞で始まらない表を含むダンプ（refused = 'prefix'）と、
+     * DELIMITER を含むダンプ（refused = 'delimiter'）、このサイトの DB 以外の DB を指すダンプ（refused = 'database'）は、
+     * 控えも作らず何も書き換えずに断る
+     */
+    public function restoreFile($path, $preRestore = null)
     {
         $result = [
             'ok'                 => false,
@@ -207,69 +160,97 @@ class EvoBackupManager
             'failed_at'          => 0,
             'pre_restore'        => '',
             'pre_restore_failed' => false,
+            'read_failed'        => false,
+            'refused'            => '',
+            'dump_prefix'        => null,
+            'foreign_tables'     => [],
+            'foreign_databases'  => [],
         ];
 
+        // 控えを作る前に開く（世代の整理が、戻すファイルそのもの（古い控えなど）を消しても読めるように）
+        $stream = is_readable($path) ? fopen($path, 'rb') : false;
+        if ($stream === false) {
+            $result['read_failed'] = true;
+            return $result;
+        }
+
+        $this->extendTimeLimit();
+        $inspected = EvoSqlDump::inspect($stream);
+        if ($inspected['delimiter']) {
+            fclose($stream);
+            $result['refused'] = 'delimiter';
+            return $result;
+        }
+        $foreignDatabases = self::foreignDatabases($inspected['databases']);
+        if ($foreignDatabases) {
+            fclose($stream);
+            $result['refused'] = 'database';
+            $result['foreign_databases'] = $foreignDatabases;
+            return $result;
+        }
+        $foreign = self::foreignTables($inspected['tables']);
+        if ($foreign) {
+            fclose($stream);
+            $result['refused'] = 'prefix';
+            $result['foreign_tables'] = $foreign;
+            $result['dump_prefix'] = self::dumpPrefix($foreign);
+            return $result;
+        }
+        if (!rewind($stream)) {
+            fclose($stream);
+            $result['read_failed'] = true;
+            return $result;
+        }
+
         // 失敗したときに戻せるよう、書き換える前に今の DB を保存する
-        $name = $this->autoFilename(self::PRE_RESTORE_PREFIX);
+        $name = $this->store->autoFilename(EvoSnapshotStore::PRE_RESTORE_PREFIX);
         if ($preRestore === null) {
             $saved = $this->createSnapshot($name) !== false;
         } else {
-            $saved = $this->ensureDir() && call_user_func($preRestore, $this->dir() . $name);
+            $saved = $this->store->ensureDir() && call_user_func($preRestore, $this->store->dir() . $name);
         }
         if (!$saved) {
+            fclose($stream);
             $result['pre_restore_failed'] = true;
             return $result;
         }
         $result['pre_restore'] = $name;
-        $this->prune();
+        $this->store->prune();
 
-        if (strpos($sql, "\r") !== false) {
-            $sql = str_replace(["\r\n", "\r"], "\n", $sql);
-        }
-
-        $prefix = db()->table_prefix;
-        $cacheTable = $prefix . 'system_cache';
-        $rs = db()->query("SHOW TABLES LIKE '" . db()->escape($cacheTable) . "'");
-        if ($rs !== false) {
-            if (db()->count($rs) > 0) {
-                db()->query('TRUNCATE TABLE `' . $cacheTable . '`');
-            }
-            db()->freeResult($rs);
+        $cacheTable = EvoDbTables::name('system_cache');
+        if (EvoDbTables::exists($cacheTable)) {
+            db()->query('TRUNCATE TABLE `' . $cacheTable . '`');
         }
 
         $keep = $this->getKeptSettings();
         $this->extendTimeLimit();
 
-        $statements = preg_split('@;[ \t]*\n@', $sql);
-        foreach ($statements as $i => $statement) {
-            $statement = trim($statement);
-            if ($statement === '') {
-                continue;
-            }
-            // mysqldump 形式は文の前に行コメントが付く。判定はコメントを除いた形で行う
-            $body = $this->stripLeadingComments($statement);
-            if ($body === '') {
-                continue;
-            }
-            if (preg_match(
-                '/^(?:INSERT(?:\s+IGNORE)?\s+INTO|REPLACE\s+INTO|DROP\s+TABLE(?:\s+IF\s+EXISTS)?|CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?|TRUNCATE(?:\s+TABLE)?|LOCK\s+TABLES|ALTER\s+TABLE)\s+(?:`?[a-zA-Z0-9_]+`?\s*\.\s*)?`?([a-zA-Z0-9_]+)`?/i',
-                $body,
-                $m
-            ) && $m[1] === $cacheTable) {
+        foreach (EvoSqlDump::statements($stream) as $number => $statement) {
+            if (EvoSqlDump::tableOf($statement) === $cacheTable) {
                 $result['skipped']++;
                 continue;
             }
             if (db()->query($statement, false) === false) {
                 $result['error'] = db()->getLastError();
-                $result['failed_at'] = $i + 1;
+                $result['failed_at'] = $number;
                 // 途中で止まった DB ではキャッシュの再生成が止まりうるので、設定だけ戻す
-                if ($this->tableExists('system_settings')) {
-                    $this->restoreSettings($keep);
+                // （LOCK TABLES が残っていると、ロックしていない表に触れない）。接続が切れていれば何もできないので、控えの名前だけ返す
+                if (db()->query('UNLOCK TABLES', false) === false) {
+                    fclose($stream);
+                    return $result;
                 }
+                if (EvoDbTables::exists(EvoDbTables::name('system_settings'))) {
+                    $this->restoreSettings($keep);
+                    // SET AUTOCOMMIT=0 のダンプで、戻した設定が確定されずに消えないようにする
+                    db()->query('COMMIT', false);
+                }
+                fclose($stream);
                 return $result;
             }
             $result['executed']++;
         }
+        fclose($stream);
+        db()->query('UNLOCK TABLES', false);
 
         if (!$this->finish($keep)) {
             $result['error'] = 'system_settings or system_cache is missing; cache was not rebuilt';
@@ -278,42 +259,67 @@ class EvoBackupManager
         return $result;
     }
 
+    /**
+     * このサイトの DB 以外の DB を指す名前（USE・DB 名付きの表など）。このサイトの DB 名と同じものは、
+     * 別の DB へ向かわないので許す（mysqldump --databases でこのサイトだけを書き出したダンプ）。DB 名は大文字小文字を区別して比べる
+     */
+    private static function foreignDatabases(array $databases): array
+    {
+        $own = (string) db()->dbname;
+        return array_values(array_filter($databases, function ($database) use ($own) {
+            return (string) $database !== $own;
+        }));
+    }
+
+    // 本体の表の名前（接頭辞を除いたもの）。ダンプの接頭辞を見分けるのに使う
+    private const CORE_TABLES = ['system_settings', 'site_content', 'manager_users', 'site_templates'];
+
+    /**
+     * このサイトの表でない表の名前。このサイトの接頭辞で始まらない表と（大文字小文字は問わない）、
+     * 本体の表の名前で終わるのに「このサイトの接頭辞 + 本体の表の名前」でない表
+     * （接頭辞が重なるダンプ、例えばこのサイトが modx_ でダンプが modx_old_。接頭辞が空のサイトへの modx_ のダンプ）
+     */
+    private static function foreignTables(array $tables): array
+    {
+        $prefix = (string) db()->table_prefix;
+        return array_values(array_filter($tables, function ($table) use ($prefix) {
+            if (strncasecmp($table, $prefix, strlen($prefix)) !== 0) {
+                return true;
+            }
+            foreach (self::CORE_TABLES as $core) {
+                if (strcasecmp(substr($table, -strlen($core)), $core) === 0 && strcasecmp($table, $prefix . $core) !== 0) {
+                    return true;
+                }
+            }
+            return false;
+        }));
+    }
+
+    // 知らせに出すダンプの接頭辞。本体の表の名前から推し量れなければ null
+    private static function dumpPrefix(array $tables)
+    {
+        foreach (self::CORE_TABLES as $core) {
+            foreach ($tables as $table) {
+                if (strcasecmp(substr($table, -strlen($core)), $core) === 0) {
+                    return substr($table, 0, -strlen($core));
+                }
+            }
+        }
+        return null;
+    }
+
     // system_settings が在るときだけ設定を戻してキャッシュを作り直す（無い DB では clearCache() が止まる）
     private function finish($keep)
     {
-        if (!$this->tableExists('system_settings')) {
+        if (!EvoDbTables::exists(EvoDbTables::name('system_settings'))) {
             return false;
         }
         $this->restoreSettings($keep);
-        if (!$this->tableExists('system_cache')) {
+        if (!EvoDbTables::exists(EvoDbTables::name('system_cache'))) {
             return false;
         }
         evo()->clearCache();
         return true;
-    }
-
-    // 文の先頭の行コメント（-- / #）と /* */ を除く。/*! */ は実行される文なので残す
-    private function stripLeadingComments($statement)
-    {
-        $prev = null;
-        while ($prev !== $statement) {
-            $prev = $statement;
-            $statement = preg_replace('/\A\s*(?:--(?:[ \t][^\n]*|(?=\n|\z))|#[^\n]*)(?:\n|\z)/', '', $statement);
-            $statement = preg_replace('/\A\s*\/\*(?!!).*?\*\//s', '', $statement);
-            $statement = ltrim($statement);
-        }
-        return $statement;
-    }
-
-    private function tableExists($name)
-    {
-        $rs = db()->query("SHOW TABLES LIKE '" . db()->escape(db()->table_prefix . $name) . "'");
-        if ($rs === false) {
-            return false;
-        }
-        $exists = db()->count($rs) > 0;
-        db()->freeResult($rs);
-        return $exists;
     }
 
     // 制限時間は延ばすだけにする（残り時間を縮めない）
@@ -325,17 +331,11 @@ class EvoBackupManager
         }
     }
 
-    private function isLegacyHtaccess($content)
-    {
-        $lines = array_filter(array_map('trim', explode("\n", strtolower($content))));
-        return array_values($lines) === ['order deny,allow', 'deny from all'];
-    }
-
     // 取り込み先にある、環境ごとに違う設定の値
     private function getKeptSettings()
     {
         $keep = [];
-        if (!$this->tableExists('system_settings')) {
+        if (!EvoDbTables::exists(EvoDbTables::name('system_settings'))) {
             return $keep;
         }
         $keys = ['site_url', 'base_url', 'filemanager_path', 'rb_base_dir', 'fixed_site_url'];

@@ -21,7 +21,7 @@ if (!is_string($content)) {
     alert()->dumpError();
 }
 
-$rawName = manager()->requireElementName(post_strvar('templatename'), lang('template'), 'template', $id);
+$rawName = manager()->requireElementName(post_strvar('templatename'), lang('template'), 'template', $mode === 'edit' ? $id : 0);
 
 $tbl_site_templates = evo()->getFullTableName('site_templates');
 
@@ -32,86 +32,48 @@ $field['content'] = $content;
 $field['locked'] = postv('locked') === 'on' ? 1 : 0;
 $field['parent'] = post_intvar('parent');
 
-switch ($mode) {
-    case 'new':
+$isNew = $mode === 'new';
+$formId = $isNew ? 0 : $id;
 
-        // invoke OnBeforeTempFormSave event
-        $tmp = [
-            'mode' => 'new',
-            'id' => ''
-        ];
-        evo()->invokeEvent("OnBeforeTempFormSave", $tmp);
+// invoke OnBeforeTempFormSave event
+$tmp = [
+    'mode' => $isNew ? 'new' : 'upd',
+    'id' => $isNew ? '' : $id
+];
+evo()->invokeEvent('OnBeforeTempFormSave', $tmp);
 
-        // disallow duplicate names for new templates
-        $rs = db()->select('COUNT(id)', $tbl_site_templates, "templatename = '" . db()->escape($rawName) . "'");
-        $count = db()->getValue($rs);
-        if ($count > 0) {
-            manager()->redirectToElementForm(
-                sprintf(lang('duplicate_name_found_general'), lang('template'), $rawName),
-                'template',
-                0
-            );
-        }
-
-        $field['category'] = manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
-
-        //do stuff to save the new doc
-        $newid = db()->insert(db()->escape($field), $tbl_site_templates);
-        if (!$newid) {
-            echo "Couldn't get last insert key!";
-            exit;
-        }
-
-        // invoke OnTempFormSave event
-        $tmp = [
-            "mode" => "new",
-            "id" => $newid
-        ];
-        evo()->invokeEvent("OnTempFormSave", $tmp);
-
-        // empty cache
-        $modx->clearCache();
-        // finished emptying cache - redirect
-        header('Location: ' . EvoFormFlow::afterSaveUrl('template', $newid, EvoFormFlow::postedAfterSave()));
-        break;
-    case 'edit':
-
-        // invoke OnBeforeTempFormSave event
-        $tmp = [
-            'mode' => 'upd',
-            'id' => $id
-        ];
-        evo()->invokeEvent('OnBeforeTempFormSave', $tmp);
-
-        // disallow duplicate names for new templates
-        $rs = db()->select('COUNT(id)', $tbl_site_templates, "templatename = '" . db()->escape($rawName) . "' AND id != '{$id}'");
-        $count = db()->getValue($rs);
-        if ($count > 0) {
-            manager()->redirectToElementForm(
-                sprintf(lang('duplicate_name_found_general'), lang('template'), $rawName),
-                'template',
-                $id
-            );
-        }
-
-        $field['category'] = manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
-
-        //do stuff to save the edited doc
-        $rs = db()->update(db()->escape($field), $tbl_site_templates, "id='{$id}'");
-        if (!$rs) {
-            echo "\$rs not set! Edited template not saved!";
-        } else {
-            // invoke OnTempFormSave event
-            $tmp = [
-                "mode" => "upd",
-                "id" => $id
-            ];
-            evo()->invokeEvent("OnTempFormSave", $tmp);
-
-            // first empty the cache
-            $modx->clearCache();
-            // finished emptying cache - redirect
-            header('Location: ' . EvoFormFlow::afterSaveUrl('template', $id, EvoFormFlow::postedAfterSave()));
-        }
-        break;
+// disallow duplicate names
+if (manager()->elementNameExists('template', $rawName, $formId)) {
+    manager()->redirectToElementForm(
+        sprintf(lang('duplicate_name_found_general'), lang('template'), $rawName),
+        'template',
+        $formId
+    );
 }
+
+$field['category'] = manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
+
+if ($isNew) {
+    $savedId = db()->insert(db()->escape($field), $tbl_site_templates);
+    if (!$savedId) {
+        echo "Couldn't get last insert key!";
+        exit;
+    }
+} else {
+    $rs = db()->update(db()->escape($field), $tbl_site_templates, "id='{$id}'");
+    if (!$rs) {
+        echo "\$rs not set! Edited template not saved!";
+        return;
+    }
+    $savedId = $id;
+}
+
+// invoke OnTempFormSave event
+$tmp = [
+    'mode' => $isNew ? 'new' : 'upd',
+    'id' => $savedId
+];
+evo()->invokeEvent('OnTempFormSave', $tmp);
+
+evo()->clearCache();
+EvoFormFlow::redirectAfterSave('template', $savedId, EvoFormFlow::postedAfterSave());

@@ -300,22 +300,4 @@ class MANAGERMANAGER
         }
         return "// No rules found \n\n";
     }
-
-    function rule_exists($chunk_name)
-    {
-        if ($chunk_name !== '' && evo()->getChunk($chunk_name)) {
-            return true;
-        }
-
-        $files = [
-            MODX_BASE_PATH . $chunk_name,
-            str_replace('\\', '/', __DIR__) . '/mm_rules.inc.php'
-        ];
-        foreach ($files as $config_file) {
-            if (is_file($config_file) && trim(file_get_contents($config_file))) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

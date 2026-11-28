@@ -31,7 +31,7 @@ $this->db->table_prefix = $table_prefix;
 
 $rs = $this->db->connect();
 if (!$rs) {
-    exit('Cannot access db');
+    exit('Cannot access db' . ($this->db->connectError ? ': ' . hsc($this->db->connectError) : ''));
 }
 // alias for backward compatibility
 $this->dbConfig = &$this->db->config;

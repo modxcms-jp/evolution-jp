@@ -33,10 +33,14 @@ function mm_renameTab($tab, $newname, $roles = '', $templates = '')
     if (isset($headers[$tab])) {
         // WebFXTabPage wraps the heading text in a span (styles and click handling): rename inside it
         $output .= sprintf(
-            '(function (h) { if (!h) { return; } const s = h.querySelector(":scope > span"); (s || h).innerHTML = "%s"; })(document.getElementById("%s"));' . "\n",
-            jsSafe($newname),
-            $headers[$tab]
+            '(function (h) { if (!h) { return; } const s = h.querySelector(":scope > span"); (s || h).innerHTML = %s; })(document.getElementById(%s));' . "\n",
+            mmHtmlLiteral($newname),
+            js_literal($headers[$tab])
         );
+    }
+    if ($tab === 'tv') {
+        // TV の置き場所の設定（tvs_below_content）に関係なく効くよう、本文の下の見出しも変える
+        $output .= 'MM.html("div#tv_header", ' . mmHtmlLiteral($newname) . ');' . "\n";
     }
 
     $output .= "//  -------------- mm_renameTab :: End ------------- \n";

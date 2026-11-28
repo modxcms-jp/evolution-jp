@@ -9,7 +9,7 @@ function checkSafedUri()
     if (strpos(urldecode(request_uri()), "'") === false) {
         return;
     }
-    jsAlert('This is illegal login.');
+    jsAlert(lang('login_illegal_uri'));
 }
 
 function jsAlert($msg)
@@ -19,9 +19,9 @@ function jsAlert($msg)
         echo $msg;
     } else {
         echo sprintf(
-            "<script>alert('%s');location.href='%s';</script>",
-            hsc($msg),
-            MODX_MANAGER_URL
+            '<script>alert(%s);location.href=%s;</script>',
+            js_literal($msg),
+            js_literal(MODX_MANAGER_URL)
         );
     }
 }
@@ -39,19 +39,31 @@ function loginPassword()
     return post_textvar('password');
 }
 
+// パスワード再設定のリンクの要求か（fmpkey があり、パスワードを送っていない）
+function isPasswordResetLinkRequest()
+{
+    return getv('fmpkey') && (string)loginPassword() === '';
+}
+
+// パスワード再設定のリンクが使えないことを伝える。ユーザーの有無・認証の失敗のどちらでも同じ文言にする
+function rejectInvalidResetLink()
+{
+    jsAlert(lang('fmp_link_invalid', 'This password reset link is invalid or has expired. Please request a new one.'));
+}
+
 function validateLoginInput()
 {
     $username = loginUsername();
     $password = loginPassword();
 
     if (!$username || trim((string)$username) === '') {
-        jsAlert('ユーザー名とパスワードを入力してください');
+        jsAlert(lang('login_input_required'));
         return false;
     }
 
     // パスワード再設定メールのリンク（fmpkey付きGET）はパスワードなしで来る。認証はOnManagerAuthenticationに任せる
     if (!$password && !getv('fmpkey')) {
-        jsAlert('ユーザー名とパスワードを入力してください');
+        jsAlert(lang('login_input_required'));
         return false;
     }
 
@@ -81,10 +93,11 @@ function failedLogin()
 
 function loginPasswordHash($givenPassword, $dbasePassword, $internalKey)
 {
-    if (!password_verify($givenPassword, $dbasePassword)) {
+    [$matched, $needsRehash] = EvoPasswordPolicy::verify($givenPassword, $dbasePassword);
+    if (!$matched) {
         return false;
     }
-    if (password_needs_rehash($dbasePassword, PASSWORD_DEFAULT)) {
+    if ($needsRehash) {
         updateNewHash($internalKey, $givenPassword);
     }
     return true;
@@ -129,8 +142,16 @@ function loginMD5($givenPassword, $dbasePassword, $internalKey)
     return true;
 }
 
+// 照合できたパスワードを、今の形のハッシュで保存し直す。
+// 72 バイトを超えるパスワード（旧形式は切り捨てずに照合していた）は、bcrypt にすると後ろを無視するので作り直さず、今の形のまま残す
 function updateNewHash($internalKey, $password)
 {
+    if (!EvoPasswordPolicy::fitsHash((string) $password)) {
+        evo()->logEvent(0, 2, 'Kept the legacy password hash because the password is longer than bcrypt can verify', 'Login', [
+            'internalKey' => (int) $internalKey,
+        ]);
+        return;
+    }
     db()->update([
             'password' => db()->escape(
                 manager()->hashPassword($password)
@@ -178,14 +199,6 @@ function input($key, $default = null)
         'captcha_code' => post_strvar('captcha_code'),
         'rememberme'   => post_strvar('rememberme')
     ];
-    if (strpos($input['username'], ':roleid=') !== false) {
-        [$input['username'], $input['forceRole']] = explode(':roleid=', $input['username'], 2);
-        if (!preg_match('@^[0-9]+$@', $input['forceRole'])) {
-            $input['forceRole'] = 1;
-        }
-    } else {
-        $input['forceRole'] = false;
-    }
     return array_get($input, $key, $default);
 }
 
@@ -199,16 +212,17 @@ function user($key, $default = null)
 
     $user = evo()->getUserFromName(input('username'));
     if (!$user) {
+        // パスワード再設定のリンクの要求は、存在しない名前も存在する名前と同じ応答（リンク無効）にする
+        if (isPasswordResetLinkRequest()) {
+            rejectInvalidResetLink();
+            exit;
+        }
         include_once(MODX_CORE_PATH . 'error.class.inc.php');
         $e = new errorHandler;
         jsAlert($e->errors[900]);
         exit;
     }
 
-    // ロール 1 の利用者がユーザー名に :roleid=N を付けたとき、そのロールで入る（managerLogin() が mgrForceRole に残す）
-    $role = manager()->resolveMgrRole($user['role'], (int) input('forceRole'));
-    $user['forceRole'] = (int) $role !== (int) $user['role'] ? (int) $role : 0;
-    $user['role'] = $role;
     // 期限の過ぎた一時ロックの後は、失敗回数を数え直す（ブロック中かどうかは isBlockedUser() が DB の値で決める）
     if (isExpiredTemporaryLock($user)) {
         $user['failedlogincount'] = '0';
@@ -373,19 +387,15 @@ function checkAllowedIp()
     $hostname = gethostbyaddr(serverv('REMOTE_ADDR'));
     if ($hostname !== false && $hostname != serverv('REMOTE_ADDR')) {
         if (gethostbyname($hostname) != serverv('REMOTE_ADDR')) {
-            jsAlert("Your hostname doesn't point back to your IP!");
+            jsAlert(lang('login_allowed_ip_hostname_mismatch'));
             return false;
         }
     }
-    $allowed_ip = explode(
-        ',',
-        str_replace(' ', '', user_config('allowed_ip'))
-    );
-    if (in_array(serverv('REMOTE_ADDR'), $allowed_ip)) {
+    if (list_has_item(user_config('allowed_ip'), serverv('REMOTE_ADDR'))) {
         return true;
     }
 
-    jsAlert('You are not allowed to login from this location.');
+    jsAlert(lang('login_allowed_ip_denied'));
     return false;
 }
 
@@ -422,14 +432,17 @@ function checkCaptcha()
         return true;
     }
 
-    if (!sessionv('veriword')) {
-        jsAlert('Captcha is not configured properly.');
+    $veriword = sessionv('veriword');
+    if (!$veriword) {
+        jsAlert(lang('login_captcha_missing'));
         return false;
     }
 
-    if (sessionv('veriword') != input('captcha_code')) {
+    // 画像は 1 回限り。正誤にかかわらず、ここで使い切る
+    sessionv('*veriword', null);
+    $code = input('captcha_code');
+    if (!is_string($code) || !hash_equals((string)$veriword, $code)) {
         jsAlert(alert()->errors[905]);
-        failedLogin(user('internalKey'), user('failedlogincount'));
         return false;
     }
     return true;
@@ -443,16 +456,16 @@ function checkAllowedDays()
 
     $date = getdate();
     $day = $date['wday'] + 1;
-    if (strpos(user_config('allowed_days'), (string)$day) !== false) {
+    if (list_has_item(user_config('allowed_days'), $day)) {
         return true;
     }
-    jsAlert("You are not allowed to login at this time. Please try again later.");
+    jsAlert(lang('login_allowed_days_denied'));
     return false;
 }
 
 function validPassword($inputPassword = '', $savedPassword = '')
 {
-    // fmpkey付きリクエストでは password が無い（null）ため文字列に揃える
+    // 送られていない（null）ときも文字列として比べる
     $inputPassword = (string)$inputPassword;
     evo()->loadExtension('phpass');
     switch (evo()->manager->getHashType($savedPassword)) {
@@ -482,6 +495,7 @@ function redirectAfterLogin()
  * ログイン後の行き先。ログイン前に開こうとした画面を、ユーザー設定の初期ページより優先する
  * - 管理画面: ログインフォームが持つ画面のクエリ（return。accesscontrol-not-mgr.inc.php が入れる）
  * - 表側の下書きプレビュー: 管理画面のトップへ移ってからログインするので、URL はセッション（save_uri）に覚えてある
+ * - インストーラーのアップデートの認証画面: install/functions.php の renderUpgradeAuthRequired() が、インストーラーのトップのパスを save_uri に入れる
  */
 function loginRedirectUri()
 {
@@ -533,26 +547,8 @@ function isSameSiteUri($uri)
     return (bool) preg_match('@^/(?![/\\\\])@', $uri);
 }
 
-// 差し替え先のロールが無いときは、認証が通った後でログインを失敗にする
-// （ロール 1 のまま入ると、試したいロールより強い権限で入ってしまう。認証の前に弾くと、ロール 1 のユーザー名だと分かってしまう）
-function rejectUnknownForceRole()
-{
-    evo()->logEvent(0, 2, 'Login rejected: the role to switch to does not exist', 'Login', [
-        'internalKey' => (int) user('internalKey'),
-        'forceRole' => (int) user('forceRole'),
-    ]);
-    @session_destroy();
-    session_unset();
-    jsAlert('指定されたロールがありません');
-    exit;
-}
-
 function managerLogin()
 {
-    if (user('forceRole') && !manager()->getMgrPermissions(user('forceRole'))) {
-        rejectUnknownForceRole();
-    }
-
     session_regenerate_id(true);
 
     $_SESSION['usertype'] = 'manager'; // user is a backend user
@@ -566,7 +562,6 @@ function managerLogin()
     $_SESSION['mgrFailedlogins'] = user('failedlogincount');
     $_SESSION['mgrLogincount']   = user('logincount');        // login count
     $_SESSION['mgrRole']         = user('role');
-    sessionv('*mgrForceRole', user('forceRole') ?: null);
 
     $_SESSION['mgrPermissions'] = manager()->getMgrPermissions(user('role'));
     // successful login so reset fail count and update key values

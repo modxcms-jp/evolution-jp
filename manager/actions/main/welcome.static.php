@@ -19,24 +19,9 @@ if (evo()->hasPermission('settings') && in_array((string) $settings_version, [''
     exit;
 }
 
-$script = <<<JS
-        <script>
-        function hideConfigCheckWarning(key){
-            Evo.post('index.php', {'a':'118','action':'setsetting','key':'_hide_configcheck_' + key,'value':'1'}).then(function(response)
-            {
-                // 保存できたときだけ（本文が 'true'）、警告の入った fieldset を隠す
-                return response.ok ? response.text() : '';
-            }).then(function (body) {
-                if (body.trim() !== 'true') return;
-                var el = document.getElementById(key + '_warning_wrapper');
-                var fieldset = el ? el.closest('fieldset') : null;
-                if (fieldset) fieldset.style.display = 'none';
-            }).catch(function () {});
-        }
-        </script>
-
-JS;
-$modx->regClientScript($script);
+$modx->regClientScript(
+    '<script src="' . hsc(manager_asset('media/script/config-check.js')) . '"></script>'
+);
 
 // set placeholders
 $modx->setPlaceholder('theme', config('manager_theme') ?: '');
@@ -210,6 +195,8 @@ if ($js = $modx->getRegisteredClientScripts()) {
     $welcome_tpl .= $js;
 }
 $welcome_tpl = preg_replace('~\[\+(.*?)\+]~', '', $welcome_tpl); //cleanup
+// ダッシュボードだけツリーを今までの幅で出す（shell.css）。テンプレートは差し替えられるので、目印は中身と別に出す
+echo '<span data-shell-tree="full" hidden></span>';
 echo $welcome_tpl;
 
 function get_icon($title, $action, $icon_path, $alt = '')
@@ -217,8 +204,8 @@ function get_icon($title, $action, $icon_path, $alt = '')
     if (preg_match('@^[1-9][0-9]*$@', $action)) {
         $action = (int)$action === 2 ? './' : 'index.php?a=' . $action;
     }
-    $icon = '<a class="hometblink" href="' . $action . '" alt="' . $alt . '"><img src="' . $icon_path . '" /><br />' . $title . "</a>\n";
-    return '<span class="wm_button" style="border:0">' . $icon . '</span>';
+    $icon = '<a class="hometblink" href="' . $action . '" alt="' . $alt . '"><img src="' . $icon_path . '" />' . $title . "</a>\n";
+    return '<span class="wm_button">' . $icon . '</span>';
 }
 
 function welcomeTpl($tpl)

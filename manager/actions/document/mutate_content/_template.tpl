@@ -7,7 +7,7 @@
         enctype="multipart/form-data"
         action="index.php"
         onsubmit="documentDirty=false;"
-        novalidate
+        novalidate[+tree_document_attr+]
 >
     <input type="hidden" name="a" value="[+a+]"/>
     <input type="hidden" name="id" value="[+id+]"/>
@@ -15,11 +15,11 @@
     <input type="hidden" name="MAX_FILE_SIZE" value="[+upload_maxsize+]"/>
     <input type="hidden" name="newtemplate" value=""/>
     <input type="hidden" name="pid" value="[+pid+]"/>
-    <input type="submit" name="save" style="display:none"/>
+    <input type="submit" name="save" class="hidden"/>
     [+OnDocFormPrerender+]
 
     <fieldset id="create_edit">
-        <h1 class="[+class+]">[+title+][+(ID:%s)+]</h1>
+        <h1 class="[+class+]"[+page_title_attr+]>[+title+][+(ID:%s)+]</h1>
 
         [+actionButtons+]
 

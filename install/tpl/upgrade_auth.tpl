@@ -3,7 +3,7 @@
     <div class="upgrade-auth-instructions">
         [+install_config_message+]
         <p style="margin-top: 2em;">
-            <a href="[+manager_url+]" class="btn btn-primary" target="_blank">
+            <a href="[+manager_url+]" class="btn btn-primary">
                 [+upgrade_auth_login_link+]
             </a>
         </p>

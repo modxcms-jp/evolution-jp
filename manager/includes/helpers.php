@@ -100,22 +100,37 @@ if (!function_exists('str_ends_with')) {
 }
 
 /**
+ * <script> の中へ値を埋め込むための、JS の値（配列・オブジェクト・数値・真偽値・null・文字列）を返す。
+ * < > ' " & を \uXXXX にするので、</script> や引用符で構文を壊さない。
+ * 不正な UTF-8 は置き換え、それでも失敗したら null を返す。
+ * 文字列だけを渡すなら js_literal() を使う。
+ *
+ * @param mixed $value
+ * @return string
+ */
+function js_value($value): string
+{
+    $json = json_encode(
+        $value,
+        JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+        | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
+    );
+    return $json === false ? 'null' : $json;
+}
+
+/**
  * <script> の中へ値を埋め込むための、JS の文字列リテラル（引用符付き）を返す。
  * < > ' " & を \uXXXX にするので、</script> や引用符で構文を壊さない。
  * 不正な UTF-8 は置き換え、それでも失敗したら空文字列のリテラルを返す。
- * 値を JS へ埋め込むときは、addslashes() や db()->escape() ではなく必ずこれを使う。
+ * 値を JS へ埋め込むときは、addslashes() や db()->escape() ではなく必ずこれ（配列などは js_value()）を使う。
  *
  * @param mixed $value
  * @return string
  */
 function js_literal($value): string
 {
-    $json = json_encode(
-        (string)$value,
-        JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
-        | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
-    );
-    return $json === false ? '""' : $json;
+    $json = js_value((string)$value);
+    return $json === 'null' ? '""' : $json;
 }
 
 /**
@@ -154,6 +169,16 @@ function mask_csrf_token_in_uri($uri): string
     return substr($uri, 0, $qpos + 1) . implode('&', $pairs) . $fragment;
 }
 
+// 管理画面・ログイン画面の <title> の書式の正本。「画面名 | サイト名」。空の要素は区切りごと省く。
+// エスケープしていない文字列を返す（出力の直前で hsc() する）
+function manager_title($screen = '')
+{
+    return implode(' | ', array_filter([
+        trim((string) $screen),
+        trim((string) evo()->config('site_name')),
+    ], 'strlen'));
+}
+
 function hsc($string = '', $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $encode = null, $double_encode = true)
 {
     if ($string === null) {
@@ -185,6 +210,18 @@ function hsc($string = '', $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $
     }
 
     return htmlspecialchars($string, $flags, $encode, $double_encode);
+}
+
+// HTML の値として出す文字列を hsc() し、さらに [ ] { } を文字参照にする。
+// 出力したあとにテンプレートのタグ解析（parseText() など）が走る場面で、値の中の [+xxx+] [[xxx]] などがタグとして評価されないようにする。
+// ブラウザは文字参照を元の文字に戻すので、画面の表示と送信される値は変わらない
+function hsc_for_tpl($string = '')
+{
+    $escaped = hsc($string);
+    if (!is_string($escaped)) {
+        return $escaped;
+    }
+    return strtr($escaped, ['[' => '&#91;', ']' => '&#93;', '{' => '&#123;', '}' => '&#125;']);
 }
 
 /**
@@ -240,22 +277,37 @@ function manager_safe_mode_can_toggle()
         );
 }
 
+// セーフモードを切り替える要求（manager_safe_mode_toggle_form() の POST）か。CSRF はここでは確かめない
+function manager_is_safe_mode_request()
+{
+    return is_post()
+        && postv('manager_safe_mode') !== null
+        && anyv('a') === '1'
+        && anyv('f') === 'menu';
+}
+
 function manager_apply_safe_mode_request()
 {
-    $requested = postv('manager_safe_mode');
-    if (
-        !is_post()
-        || $requested === null
-        || anyv('a') !== '1'
-        || anyv('f') !== 'menu'
-        || !manager_safe_mode_can_toggle()
-    ) {
+    if (!manager_is_safe_mode_request() || !manager_safe_mode_can_toggle()) {
         return false;
     }
 
     checkCsrfToken();
-    sessionv('*safeMode', $requested === '1' ? 1 : 0);
+    sessionv('*safeMode', postv('manager_safe_mode') === '1' ? 1 : 0);
     return true;
+}
+
+// セッションのセーフモードを、この要求に効かせる（invokeEvent() が止める）。
+// セーフモードに入る要求も、その要求のプラグインを止める（OnGetConfig が壊れていても入れるように）。
+// セッションに書くのは manager_apply_safe_mode_request()（CSRF を確かめてから）。
+// プラグインの権限が無い人のセーフモードは消す。権限は accesscontrol.inc.php が読み直すので、その前と後の両方で呼ぶ
+function manager_sync_safe_mode()
+{
+    if (sessionv('safeMode') == 1 && !manager_safe_mode_can_toggle()) {
+        sessionv('*safeMode', 0);
+    }
+    $entering = manager_is_safe_mode_request() && postv('manager_safe_mode') === '1';
+    evo()->safeMode = (sessionv('safeMode') == 1 || $entering) && manager_safe_mode_can_toggle() ? 1 : 0;
 }
 
 function manager_safe_mode_toggle_value()
@@ -329,6 +381,90 @@ function manager_safe_mode_button_html()
             . 'box-shadow:0 2px 8px rgba(0,0,0,.25);cursor:pointer;border:0;'
         )
     );
+}
+
+// 管理画面でログイン中の、プラグインの権限が無い人か（エラーの詳細でなく案内を出す相手）
+function manager_error_guide_applies()
+{
+    return defined('IN_MANAGER_MODE')
+        && IN_MANAGER_MODE === 'true'
+        && evo()
+        && evo()->isLoggedin()
+        && !manager_safe_mode_can_toggle();
+}
+
+// 権限の無い人に出すエラーの案内。詳細は出さず、システムログと突き合わせる手がかり（エラーの番号 = trace_id、日時、画面）を添える。
+// 途中まで出した画面（編集画面のフォームの中など）にも出るので、フォーム・ボタンは置かず、通常のリンクだけにする。
+// 言語ファイルが読めないこともあるので、lang() には既定の文を渡す。見た目は sections.css の .evo-error-guide
+function manager_error_guide_html()
+{
+    $action = get_intvar('a') ?: post_intvar('a');
+    $screen = '';
+    if ($action) {
+        include_once(MODX_CORE_PATH . 'actionlist.inc.php');
+        $actionName = $GLOBALS['action_list'][$action] ?? '';
+        $screen = trim($action . ' - ' . $actionName, ' -');
+    }
+
+    $rows = [
+        [lang('manager_error_guide_datetime', '日時'), date(DATE_ATOM)],
+        [lang('manager_error_guide_trace_id', 'エラーの番号'), EvoLogger::traceId()],
+    ];
+    if ($screen !== '') {
+        $rows[] = [lang('manager_error_guide_action', '開いた画面'), 'a=' . $screen];
+    }
+    $rowsHtml = '';
+    foreach ($rows as [$label, $value]) {
+        $rowsHtml .= sprintf('<dt>%s</dt><dd>%s</dd>', hsc($label), hsc($value));
+    }
+
+    // ペインや iframe の中にも出るので最上位の画面で開き（target="_top"）、シェルに横取りさせない（data-no-ajax）
+    return sprintf(
+        '<div class="evo-error-guide" role="alert"><p>%s</p><dl>%s</dl>'
+        . '<p><a href="%s" target="_top" data-no-ajax>%s</a></p></div>',
+        hsc(lang('manager_error_guide_message', '管理画面でエラーが起きました。サイトの管理者に連絡してください。')),
+        $rowsHtml,
+        hsc(MODX_MANAGER_URL),
+        hsc(lang('manager_error_guide_home', '管理画面のトップを開く'))
+    );
+}
+
+// ログイン画面の守りの目印。ログイン画面を出す前に置き、出せたら消す（accesscontrol-not-mgr.inc.php）
+function manager_login_guard_path()
+{
+    return MODX_CACHE_PATH . 'touch.siteCache.idx.php';
+}
+
+// 守りが効いているか。目印を置いてから 300 秒のうちは、ログイン画面をプラグインを外して出す
+function manager_login_guard_active()
+{
+    $path = manager_login_guard_path();
+    clearstatcache(true, $path);
+    $mtime = is_file($path) ? @filemtime($path) : false;
+    return $mtime && request_time() < $mtime + 300;
+}
+
+// ログイン画面のプラグインが失敗したとき（messageQuit() の未ログインの表示）、Error だけを出す代わりに、
+// 同じログイン画面へ送り直す。送り直した要求は、守りが効いているのでプラグインを外して出る。
+// 守りが効いていない（目印を置けなかった・古い目印を新しくできなかった）ときは、送り直しても同じ失敗を繰り返すので送らない
+function manager_retry_login_form_without_plugins()
+{
+    if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== 'true' || evo()->isLoggedin()) {
+        return false;
+    }
+    if (!in_array(evo()->event->name, ['OnManagerLoginFormPrerender', 'OnManagerLoginFormRender'], true)) {
+        return false;
+    }
+    if (!is_get() || headers_sent() || !manager_login_guard_active()) {
+        return false;
+    }
+
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+    $query = serverv('QUERY_STRING', '');
+    header('Location: ' . MODX_MANAGER_URL . 'index.php' . ($query === '' ? '' : '?' . $query), true, 302);
+    return true;
 }
 
 function parseText($tpl, $ph, $left = '[+', $right = '+]', $execModifier = false)
@@ -866,6 +1002,29 @@ function serverv($key = null, $default = null)
 }
 
 /**
+ * tpl を読む。設定 custom_tpl_dir のフォルダに同じ名前のファイルがあればそれ、無ければ $defaultDir（末尾が / のフォルダ）のもの。
+ * 呼び出し側が読んだ内容を使い回すかを決める
+ */
+function tpl_read($file, $defaultDir)
+{
+    $dir = (string)config('custom_tpl_dir');
+    if ($dir !== '' && is_file(MODX_BASE_PATH . $dir . $file)) {
+        return file_get_contents(MODX_BASE_PATH . $dir . $file);
+    }
+    return file_get_contents($defaultDir . $file);
+}
+
+/**
+ * 「,」で区切った設定の値（ログインを許可する IP・曜日など）に $item が含まれるか。
+ * 区切りの空白は無視し、項目全体の一致で見る（管理ユーザーと Web ユーザーのログインが同じ判定を使う）
+ */
+function list_has_item($list, $item)
+{
+    $items = explode(',', preg_replace('/\s+/', '', (string)$list));
+    return in_array((string)$item, $items, true);
+}
+
+/**
  * Check if the current request is a POST request
  *
  * @return bool
@@ -1001,7 +1160,11 @@ function ob_get_include($path)
     }
     ob_start();
     $return = include $path;
-    return ob_get_clean() ?: $return;
+    $output = ob_get_clean();
+    if ($output !== '') {
+        return $output;
+    }
+    return $return === 1 ? '' : $return;
 }
 
 function easy_hash($seed)
@@ -1124,6 +1287,13 @@ function remove_tags($value, $params = '')
     return strip_tags($value, $params);
 }
 
+// ツリーを細くするとき、元の幅を割る数（設定 manager_tree_narrow。2: 半分、3: 3 分の 1。細くしないときは 0）
+function manager_tree_narrow()
+{
+    $divisor = (int)config('manager_tree_narrow');
+    return in_array($divisor, [2, 3], true) ? $divisor : 0;
+}
+
 function manager_style_image_path($subdir = '')
 {
     $theme = config('manager_theme', '');
@@ -1166,6 +1336,32 @@ function manager_asset($path)
 {
     $path = ltrim((string)$path, '/');
     return $path . '?' . asset_version(MODX_MANAGER_PATH . $path);
+}
+
+/**
+ * 管理画面のテーマの CSS を読む <link> を返す（common の共通の CSS と、テーマの style.css）。
+ * forms.css が @layer の順番を宣言するので、共通の CSS をテーマより先に読む。
+ */
+function manager_theme_stylesheets()
+{
+    $paths = [
+        'media/style/common/forms.css',
+        'media/style/common/theme-base.css',
+        'media/style/common/sections.css',
+        'media/style/common/tabs.css',
+        'media/style/common/tables.css',
+        'media/style/common/action-buttons.css',
+        'media/style/common/context-menu.css',
+        'media/style/common/topmenu.css',
+        'media/style/common/tree.css',
+        'media/style/' . evo()->config('manager_theme') . '/style.css',
+        'media/style/common/spacing.css',
+    ];
+    $links = '';
+    foreach ($paths as $path) {
+        $links .= '<link rel="stylesheet" type="text/css" href="' . hsc(MODX_MANAGER_URL . manager_asset($path)) . '" />' . "\n";
+    }
+    return $links;
 }
 
 /**
@@ -1289,7 +1485,7 @@ if (!function_exists('evoIsPaneResponse')) {
 
 if (!function_exists('evoRenderPaneFooterExtras')) {
     /**
-     * footer.inc.php相当の後処理(システムアラート表示とDatePicker読み込み)を出力する。
+     * footer.inc.php相当の後処理(システムアラート表示・知らせ(トースト)・DatePicker読み込み)を出力する。
      * AJAX断片応答(manager/index.php)と通常のフルページ応答(footer.inc.php)の
      * 両方から呼び出し、重複実装によるズレを防ぐ。
      * 断片応答ではprocessor等が読み込むfooter.inc.phpとindex.php末尾の両方から呼ばれ得るため、
@@ -1310,6 +1506,9 @@ if (!function_exists('evoRenderPaneFooterExtras')) {
         if (is_array($modx->SystemAlertMsgQueque) && count($modx->SystemAlertMsgQueque) > 0) {
             echo manager()->sysAlert($modx->SystemAlertMsgQueque);
         }
+
+        // 保存のあとなどに積んだ知らせ（トースト。ManagerAPI::notice()）
+        echo manager()->renderNotices();
 
         if (in_array(manager()->action, [85, 27, 4, 72, 131, 132, 133, 74, 13, 11, 12, 77, 78, 87, 88], true)) {
             echo manager()->loadDatePicker(
@@ -1378,11 +1577,12 @@ function size_to_bytes($value, $defaultUnit = 1)
  * (パレット・グレースケールの PNG は約 2 だが、getimagesize() では見分けられないので安全側の 8)。
  * GIF: 実測は約 1(パレット)だが、安全側に JPEG と同じ 4 とする。縮小先は imagecreatetruecolor() で 4。
  * BMP: 6000×6000 で約 4.1 (JPEG と同じ 4 に、4MB の余裕で収まる)。
- * WebP: 未測定（検証用イメージの GD は WebP を読めない）。読める環境では libwebp の展開領域が加わり 4 を超える可能性がある（残るリスク）。見積もりは 4 とする。
+ * WebP: GD はファイル全体をメモリ(memory_limit に数えられる)へ読み込んでから 4 で展開するので、4 + ファイルの大きさ。
+ *   透過の有無では差がなく、圧縮が効く画像は 4000×3000 で約 4.2。可逆で圧縮が効かない(乱数画素)と約 7〜7.7 になるので、安全側の 8。
  *
  * @param int $width 元画像の幅
  * @param int $height 元画像の高さ
- * @param int $imageType IMAGETYPE_PNG は 8、それ以外(JPEG・GIF・BMP・WebP など)は 4 バイト/画素で見積もる
+ * @param int $imageType IMAGETYPE_PNG・IMAGETYPE_WEBP は 8、それ以外(JPEG・GIF・BMP など)は 4 バイト/画素で見積もる
  * @param int $destWidth 縮小先の幅
  * @param int $destHeight 縮小先の高さ
  */
@@ -1393,8 +1593,138 @@ function gd_can_load_image($width, $height, $imageType, $destWidth, $destHeight)
         return true;
     }
 
-    $bytesPerPixel = ((int) $imageType === IMAGETYPE_PNG) ? 8 : 4;
+    $bytesPerPixel = in_array((int) $imageType, [IMAGETYPE_PNG, IMAGETYPE_WEBP], true) ? 8 : 4;
     // 縮小先と、そのほかの確保の余裕(4MB)
     $need = $width * $height * $bytesPerPixel + $destWidth * $destHeight * 4 + 4194304;
     return $need <= $limit - memory_get_usage(true);
+}
+
+/**
+ * JPEG の EXIF の Orientation(1〜8)を返す。読めない・タグが無いときは 1(回転なし)。
+ * ブラウザは <img> で表示するとき Orientation を反映するので、GD で作る画像も同じ向きにそろえるために使う。
+ * exif 拡張が無い環境では読めないので 1 を返す(従来どおり向きを反映しない)。
+ */
+function jpeg_exif_orientation($file)
+{
+    if (!function_exists('exif_read_data')) {
+        return 1;
+    }
+    $exif = @exif_read_data($file, 'IFD0');
+    $orientation = is_array($exif) ? (int) ($exif['Orientation'] ?? 1) : 1;
+    return ($orientation >= 1 && $orientation <= 8) ? $orientation : 1;
+}
+
+/**
+ * 文字列の JPEG データ(data URI を復号したものなど)の EXIF の Orientation(1〜8)を返す。jpeg_exif_orientation() のデータ版。
+ */
+function jpeg_exif_orientation_from_string($data)
+{
+    if (!function_exists('exif_read_data')) {
+        return 1;
+    }
+    $stream = fopen('php://memory', 'r+');
+    if (!$stream) {
+        return 1;
+    }
+    fwrite($stream, $data);
+    rewind($stream);
+    $orientation = jpeg_exif_orientation($stream);
+    fclose($stream);
+    return $orientation;
+}
+
+/**
+ * GD の画像へ EXIF の Orientation を反映した、表示上の向きの画像を返す(1 のときは同じ画像)。
+ * 5〜8 は幅と高さが入れ替わる。
+ *
+ * @param GdImage|resource $image
+ * @param int $orientation 1〜8
+ * @return GdImage|resource
+ */
+function gd_apply_orientation($image, $orientation)
+{
+    switch ((int) $orientation) {
+        case 2:
+            imageflip($image, IMG_FLIP_HORIZONTAL);
+            return $image;
+        case 3:
+            return imagerotate($image, 180, 0) ?: $image;
+        case 4:
+            imageflip($image, IMG_FLIP_VERTICAL);
+            return $image;
+        case 5:
+            $rotated = imagerotate($image, 270, 0);
+            break;
+        case 6:
+            return imagerotate($image, 270, 0) ?: $image;
+        case 7:
+            $rotated = imagerotate($image, 90, 0);
+            break;
+        case 8:
+            return imagerotate($image, 90, 0) ?: $image;
+        default:
+            return $image;
+    }
+    // 5・7 は回転のあと左右を反転する
+    if (!$rotated) {
+        return $image;
+    }
+    imageflip($rotated, IMG_FLIP_HORIZONTAL);
+    return $rotated;
+}
+
+/**
+ * 画像を <img> で表示したときの幅と高さ。JPEG は EXIF の Orientation が 5〜8 なら、ブラウザが倒して表示するので入れ替える。
+ * 向きを先に調べてあるときは image_display_size_by_orientation() を使う。
+ *
+ * @param string $file 画像の絶対パス
+ * @param array $info getimagesize() の結果
+ * @return int[] [幅, 高さ]
+ */
+function image_display_size($file, $info)
+{
+    $orientation = ($info[2] ?? null) === IMAGETYPE_JPEG ? jpeg_exif_orientation($file) : 1;
+    return image_display_size_by_orientation($info[0], $info[1], $orientation);
+}
+
+/**
+ * 幅・高さを EXIF の Orientation に合わせた表示上の大きさにする(5〜8 は入れ替える)。
+ *
+ * @return int[] [幅, 高さ]
+ */
+function image_display_size_by_orientation($width, $height, $orientation)
+{
+    return ((int) $orientation >= 5) ? [$height, $width] : [$width, $height];
+}
+
+/**
+ * 非推奨の機能が使われたことを、1 回の要求につき 1 回だけシステムログに警告（type 2）で残す。
+ * 呼び出し元のファイルと行をコンテキストに入れる（スニペット・プラグイン・URL は全ログ共通のコンテキストに入る）。
+ *
+ * @param string $name 非推奨の機能の名前（同じ名前は 1 回の要求で 1 回だけ記録する）
+ * @param string $message 非推奨である理由と代わりの手段
+ */
+function logDeprecated($name, $message)
+{
+    static $logged = [];
+    if (isset($logged[$name])) {
+        return;
+    }
+    $logged[$name] = true;
+
+    // logDeprecated() 自身と、これを呼んだ（非推奨の機能を定義している）ファイルを飛ばし、その機能を使った側を探す
+    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+    $skip = [__FILE__, $trace[0]['file'] ?? ''];
+    $context = ['deprecated' => $name];
+    foreach ($trace as $frame) {
+        $file = $frame['file'] ?? '';
+        if ($file === '' || in_array($file, $skip, true)) {
+            continue;
+        }
+        $context['file'] = str_replace('\\', '/', $file);
+        $context['line'] = $frame['line'] ?? 0;
+        break;
+    }
+
+    evo()->logEvent(0, 2, $message, 'Call deprecated feature', $context);
 }

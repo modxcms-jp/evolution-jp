@@ -137,7 +137,7 @@ final class EvoFormFlow
 
     /**
      * 選択欄の option の HTML（エスケープ済み）。順は new（$withNew のときだけ）・stay・$extra・close。
-     * $selected が出した選択肢に無ければ close を選ぶ
+     * $selected が出した選択肢に無ければ（空のときも）、defaultAfterSave() を選ぶ
      *
      * @param bool $withNew 「次の作成」を出すか
      * @param string[] $extra 値 => 文言。文書の下書きなど、種類だけが追加で出す選択肢
@@ -152,7 +152,7 @@ final class EvoFormFlow
         $options += $extra;
         $options['close'] = lang('close');
         if (!isset($options[$selected])) {
-            $selected = 'close';
+            $selected = self::defaultAfterSave();
         }
 
         $html = [];
@@ -167,11 +167,25 @@ final class EvoFormFlow
         return implode("\n", $html);
     }
 
-    /** 文書の選択欄の既定。セッションに記録した stay か close。それ以外・無いときは close */
+    /**
+     * 選択欄で初めに選ぶ保存後の行き先。グローバル設定 after_save_default（stay か close。既定値は default.config.php）。
+     * 「次の作成」は選択肢に出ない画面があるので、既定にしない
+     */
+    public static function defaultAfterSave(): string
+    {
+        return self::stayOrClose((string)config('after_save_default')) ?: 'close';
+    }
+
+    /** 文書の選択欄の既定。セッションに記録した stay か close。無いときは defaultAfterSave() */
     public static function documentAfterSaveDefault(): string
     {
-        $afterSave = sessionv('saveAfter', 'close');
-        return in_array($afterSave, ['stay', 'close'], true) ? $afterSave : 'close';
+        return self::stayOrClose((string)sessionv('saveAfter', '')) ?: self::defaultAfterSave();
+    }
+
+    /** stay か close ならそのまま、それ以外は空文字 */
+    private static function stayOrClose(string $afterSave): string
+    {
+        return in_array($afterSave, ['stay', 'close'], true) ? $afterSave : '';
     }
 
     /** 文書の保存後の選択を記録する。new は記録しない（前の選択を保つ） */
@@ -201,9 +215,27 @@ final class EvoFormFlow
     }
 
     /**
+     * 保存できたことを知らせて（manager()->notice()）、保存後の画面へ移る（afterSaveUrl() と同じ行き先）。
+     * 保存の processor は header('Location: ' . afterSaveUrl(...)) を書かず、これを呼ぶ。止める（exit）のは呼び出し側
+     *
+     * @param array $extra 足す引数（キー => 値）
+     */
+    public static function redirectAfterSave(string $kind, int $id, string $afterSave, array $extra = []): void
+    {
+        self::noticeSaved();
+        header('Location: ' . self::afterSaveUrl($kind, $id, $afterSave, $extra));
+    }
+
+    /** 「保存しました」の知らせを積む。行き先を自分で決める保存（文書・下書き・グローバル設定・プロフィール）は、移る前にこれを呼ぶ */
+    public static function noticeSaved(): void
+    {
+        manager()->notice(lang('notice_saved'));
+    }
+
+    /**
      * 入力エラーの差し戻し先の URL。mode が edit なら id を付ける。
-     * mode が空なら close の画面へ戻す。行き先が close でなければ、どの場合にも引き継ぐ
-     * （close を付けないのは、戻った画面の選択欄の既定が「閉じる」だから）
+     * mode が空なら close の画面へ戻す。選んだ行き先（after_save）はいつも引き継ぐ
+     * （文書の選択欄の既定はセッションにも左右されるので、既定との比較で省かない）
      */
     public static function formUrl(string $kind, string $mode, int $id, string $afterSave): string
     {
@@ -211,9 +243,7 @@ final class EvoFormFlow
         if ($mode === 'edit') {
             $query['id'] = $id;
         }
-        if ($afterSave !== 'close') {
-            $query['after_save'] = $afterSave;
-        }
+        $query['after_save'] = $afterSave;
         return self::url($query);
     }
 }

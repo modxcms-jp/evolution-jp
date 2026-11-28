@@ -12,63 +12,31 @@ $canRestore = manager()->isAdmin();
 require_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
 $backup = new EvoBackupManager();
 
-$mode = postv('mode', '');
-
-include_once(MODX_CORE_PATH . 'mysql_dumper.class.inc.php');
-
-$dumper = new Mysqldumper();
-if ($mode === 'backup') {
-    $tables = postv('chk', '');
-    if (!is_array($tables)) {
-        evo()->webAlertAndQuit('Please select a valid table from the list below', 'javascript:history.back(-1);');
-        exit;
-    }
-
-    @set_time_limit(120); // set timeout limit to 2 minutes
-    $dumper->setDBtables($tables);
-    $dumper->addDropCommand(postv('droptables') !== null);
-    // 書き終えてからヘッダーを送る（失敗したときに壊れたファイルをダウンロードさせない）
-    $tempfile = tempnam(MODX_CACHE_PATH, 'bktemp');
-    if ($tempfile !== false) {
-        // 途中で止められても DB 全体のダンプを残さない
-        register_shutdown_function(function () use ($tempfile) {
-            if (is_file($tempfile)) {
-                @unlink($tempfile);
-            }
-        });
-    }
-    if ($tempfile === false || !$dumper->dumpToFile($tempfile)) {
-        if ($tempfile !== false && is_file($tempfile)) {
-            unlink($tempfile);
-        }
-        alert()->setError(1, 'Unable to Backup Database');
-        alert()->dumpError();
-    }
-    if (!headers_sent()) {
-        header('Expires: 0');
-        header('Cache-Control: private');
-        header('Pragma: cache');
-        header('Content-type: application/download');
-        header('Content-Length: ' . filesize($tempfile));
-        header(
-            sprintf(
-                'Content-Disposition: attachment; filename=%s-%s_database_backup.sql',
-                strtolower(str_replace('/', '-', evo()->toDateFormat(time(), 'dateOnly'))),
-                preg_replace('/[^0-9A-Za-z._-]/', '-', (string) evo()->getVersionData('version'))
-            )
-        );
-    }
-    readfile($tempfile);
-    unlink($tempfile);
-    exit;
-}
-
 if (empty($isPaneRequest)) { // シェルの断片要求ではheader/footerを重複出力しない
     include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');  // start normal header
 }
 $ph['result_msg'] = '';
 $ph['snapshot_msg'] = '';
 $restoreHtml = '';
+$snapshotProblem = $backup->store()->problem();
+$snapshotPathUnusable = sprintf(
+    '<div class="errmsg">%s</div>',
+    evo()->parseText(lang('bkmgr_snapshot_path_unusable'), ['snapshot_path' => hsc($backup->store()->dir())])
+);
+$uploadLimits = array_filter([
+    ini_size_to_bytes(ini_get('upload_max_filesize')),
+    ini_size_to_bytes(ini_get('post_max_size')),
+], function ($bytes) {
+    return $bytes > 0;
+});
+$uploadMax = $uploadLimits ? min($uploadLimits) : 0;
+$restoreTooLarge = evo()->parseText(
+    lang('bkmgr_restore_too_large'),
+    [
+        'upload_max_filesize' => hsc((string) ini_get('upload_max_filesize')),
+        'post_max_size'       => hsc((string) ini_get('post_max_size')),
+    ]
+);
 if (sessionv('result_msg')) {
     $restoreResult = sessionv('restore_result', []);
     $restoreResult = is_array($restoreResult) ? $restoreResult : [];
@@ -104,8 +72,64 @@ if (sessionv('result_msg')) {
         case 'restore_no_snapshot':
             $restoreHtml = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_restore_no_snapshot'));
             break;
+        case 'restore_no_file':
+            $restoreHtml = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_restore_no_file'));
+            break;
+        case 'restore_too_large':
+            $restoreHtml = sprintf('<div class="errmsg">%s</div>', $restoreTooLarge);
+            break;
+        case 'restore_upload_failed':
+            $restoreHtml = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_restore_upload_failed'));
+            break;
+        case 'restore_has_delimiter':
+            $restoreHtml = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_restore_has_delimiter'));
+            break;
+        case 'restore_prefix_mismatch':
+            $foreignTables = array_map('strval', (array) ($restoreResult['foreign_tables'] ?? []));
+            $restoreHtml = sprintf(
+                '<div class="errmsg">%s</div>',
+                evo()->parseText(lang('bkmgr_restore_prefix_mismatch'), [
+                    // ダンプから来た名前なので、parseText() の置き換えのタグとして読まれないようにする
+                    'dump_prefix' => hsc_for_tpl(isset($restoreResult['dump_prefix']) ? "'{$restoreResult['dump_prefix']}'" : '?'),
+                    'site_prefix' => hsc_for_tpl("'" . db()->table_prefix . "'"),
+                    'tables'      => hsc_for_tpl(implode(', ', array_slice($foreignTables, 0, 5)) . (count($foreignTables) > 5 ? ', …' : '')),
+                ])
+            );
+            break;
+        case 'restore_database_mismatch':
+            $foreignDatabases = array_map('strval', (array) ($restoreResult['foreign_databases'] ?? []));
+            $restoreHtml = sprintf(
+                '<div class="errmsg">%s</div>',
+                evo()->parseText(lang('bkmgr_restore_database_mismatch'), [
+                    // ダンプから来た名前なので、parseText() の置き換えのタグとして読まれないようにする
+                    'site_database' => hsc_for_tpl("'" . db()->dbname . "'"),
+                    'databases'     => hsc_for_tpl(implode(', ', array_slice($foreignDatabases, 0, 5)) . (count($foreignDatabases) > 5 ? ', …' : '')),
+                ])
+            );
+            break;
+        case 'restore_invalid_file':
+            $restoreHtml = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_restore_invalid_file'));
+            break;
         case 'snapshot_ok':
             $ph['snapshot_msg'] = sprintf('<div class="okmsg">%s</div>', lang('bkmgr_snapshot_ok'));
+            break;
+        case 'snapshot_invalid_file_name':
+            $ph['snapshot_msg'] = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_invalid_file_name'));
+            break;
+        case 'snapshot_mkdir_failed':
+            $ph['snapshot_msg'] = sprintf(
+                '<div class="errmsg">%s</div>',
+                evo()->parseText(lang('bkmgr_alert_mkdir'), ['snapshot_path' => hsc($backup->store()->dir())])
+            );
+            break;
+        case 'snapshot_failed':
+            $ph['snapshot_msg'] = sprintf('<div class="errmsg">%s</div>', lang('bkmgr_snapshot_failed'));
+            break;
+        case 'snapshot_path_unusable':
+            $ph['snapshot_msg'] = $snapshotPathUnusable;
+            break;
+        case 'restore_path_unusable':
+            $restoreHtml = $snapshotPathUnusable;
             break;
     }
     // restore1（アップロード）の結果はリストアのタブ、restore2（一覧）の結果はスナップショットのタブに出す
@@ -119,20 +143,60 @@ if (sessionv('result_msg')) {
 }
 
 ?>
-<script language="javascript">
+<script>
     function selectAll() {
         var f = document.forms['frmdb'];
-        var c = f.elements['chk[]'];
-        for (i = 0; i < c.length; i++) {
-            c[i].checked = f.chkselall.checked;
+        f.querySelectorAll('input[name="chk[]"]').forEach(function (c) {
+            c.checked = f.chkselall.checked;
+        });
+    }
+
+    // 成功するとダウンロードが始まるだけで、iframe は読み込みを終えない。読み込んだら失敗の応答
+    function onBackupFrameLoad() {
+        var doc;
+        try {
+            doc = this.contentDocument;
+        } catch (e) {
+            doc = null;
+        }
+        if (!doc || !doc.body) {
+            return;
+        }
+        var error = doc.getElementById('evoBackupError');
+        var message = '';
+        if (error) {
+            message = error.innerHTML;
+        } else if (doc.body.textContent.trim() !== '') {
+            message = <?= js_literal(lang('bkmgr_backup_unexpected')) ?>;
+        }
+        doc.body.innerHTML = '';
+        if (message !== '') {
+            EvoDialog.alert(message, <?= js_literal(lang('warning')) ?>, null, {icon: 'warning'});
         }
     }
 
     function backup() {
         var f = document.forms['frmdb'];
-        f.mode.value = 'backup';
+        if (!f.querySelector('input[name="chk[]"]:checked')) {
+            EvoDialog.alert(<?= js_literal(lang('bkmgr_backup_no_tables')) ?>, <?= js_literal(lang('warning')) ?>, null, {icon: 'warning'});
+            return false;
+        }
+        document.querySelector('iframe[name="fileDownloader"]').onload = onBackupFrameLoad;
         f.target = 'fileDownloader';
         f.submit();
+        return false;
+    }
+
+    // post_max_size を超えると本文ごと捨てられ、サーバーは理由を返せないので、送る前に確かめる
+    function restoreUpload() {
+        var f = document.forms['mutate'];
+        var file = f.sqlfile.files[0];
+        var max = <?= (int) $uploadMax ?>;
+        if (file && max > 0 && file.size > max) {
+            EvoDialog.alert(<?= js_literal($restoreTooLarge) ?>, <?= js_literal(lang('warning')) ?>, null, {icon: 'warning'});
+            return false;
+        }
+        f.save.click();
         return false;
     }
 </script>
@@ -152,8 +216,8 @@ if (sessionv('result_msg')) {
     <div class="tab-pane" id="dbmPane">
         <div class="tab-page" id="tabBackup">
             <h2 class="tab"><?= lang('backup') ?></h2>
-            <form name="frmdb" method="post">
-                <input type="hidden" name="mode" value="" />
+            <form name="frmdb" method="post" action="index.php">
+                <input type="hidden" name="a" value="306" />
                 <p><?= lang('table_hoverinfo') ?></p>
 
                 <p class="actionButtons"><a class="primary" href="#" onclick="backup();return false;"><?= lang('database_table_clickbackup') ?>
@@ -165,63 +229,39 @@ if (sessionv('result_msg')) {
                             checked="checked" /><?= lang('database_table_droptablestatements') ?>
                     </label>
                 </p>
-                <table style="width:100%;background-color:#ccc;">
+                <table class="grid">
                     <thead>
                         <tr>
-                            <td width="160">
+                            <th>
                                 <label>
                                     <input
                                         name="chkselall"
                                         onclick="selectAll()"
                                         title="Select All Tables"
-                                        type="checkbox" /><b><?= lang('database_table_tablename') ?></b>
+                                        type="checkbox" /><?= lang('database_table_tablename') ?>
                                 </label>
-                            </td>
-                            <td align="right"><b><?= lang('database_table_records') ?></b></td>
-                            <td align="right"><b><?= lang('database_collation') ?></b></td>
-                            <td align="right"><b><?= lang('database_table_datasize') ?></b></td>
-                            <td align="right"><b><?= lang('database_table_overhead') ?></b></td>
-                            <td align="right"><b><?= lang('database_table_effectivesize') ?></b></td>
-                            <td align="right"><b><?= lang('database_table_indexsize') ?></b></td>
-                            <td align="right"><b><?= lang('database_table_totalsize') ?></b></td>
+                            </th>
+                            <th class="is-end"><?= lang('database_table_records') ?></th>
+                            <th class="is-end"><?= lang('database_collation') ?></th>
+                            <th class="is-end"><?= lang('database_table_datasize') ?></th>
+                            <th class="is-end"><?= lang('database_table_overhead') ?></th>
+                            <th class="is-end"><?= lang('database_table_effectivesize') ?></th>
+                            <th class="is-end"><?= lang('database_table_indexsize') ?></th>
+                            <th class="is-end"><?= lang('database_table_totalsize') ?></th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
-                        $rs = db()->query(sprintf(
-                            "SHOW TABLE STATUS FROM `%s` LIKE '%s%%'",
-                            db()->dbname,
-                            db()->table_prefix
-                        ));
-                        $truncateable = EvoBackupManager::truncatableTables();
-                        $i = 0;
+                        $truncateable = EvoDbTables::truncatable();
                         $totaloverhead = 0;
                         $total = 0;
-                        while ($row = db()->getRow($rs)) {
-                            $bgcolor = ($i % 2) ? '#EEEEEE' : '#FFFFFF';
+                        foreach (EvoDbTables::status() as $row) {
                             $isTruncateable = in_array($row['Name'], $truncateable, true);
                             $isInnoDb = strtolower((string)($row['Engine'] ?? '')) === 'innodb';
                             $recordCount = (int)$row['Rows'];
-                            if ($isTruncateable) {
-                                $recordCount = (int)db()->getValue(
-                                    db()->select(
-                                        'COUNT(*)',
-                                        $row['Name']
-                                    )
-                                );
-                            }
 
-                            if (isset($dumper->_dbtables) && !empty($dumper->_dbtables)) {
-                                $table_string = implode(',', $dumper->_dbtables);
-                            } else {
-                                $table_string = '';
-                            }
-
-                            echo '<tr bgcolor="' . $bgcolor . '" title="' . $row['Comment'] . '" style="cursor:default">' . "\n" .
-                                '<td><label><input type="checkbox" name="chk[]" value="' . $row['Name'] . '"' . (strstr(
-                                    $table_string,
-                                    $row['Name']
-                                ) === false ? '' : ' checked="checked"') . ' /><b class="table-name">' . $row['Name'] . '</b></label></td>' . "\n" .
+                            echo '<tr title="' . $row['Comment'] . '" style="cursor:default">' . "\n" .
+                                '<td><label><input type="checkbox" name="chk[]" value="' . $row['Name'] . '" /><b class="table-name">' . $row['Name'] . '</b></label></td>' . "\n" .
                                 '<td align="right">' . (
                                     evo()->hasPermission('settings') && $isTruncateable && $recordCount > 0
                                     ? '<a href="' . hsc('index.php?a=54&from=bkmanager&truncate=' . $row['Name']) . '" data-evo-post title="' . lang('truncate_table') . '">' . $recordCount . '</a>'
@@ -253,10 +293,11 @@ if (sessionv('result_msg')) {
 
                             $total = $total + $row['Index_length'] + $row['Data_length'];
                             $totaloverhead = $totaloverhead + $row['Data_free'];
-                            $i++;
                         }
                         ?>
-                        <tr bgcolor="#CCCCCC">
+                    </tbody>
+                    <tfoot>
+                        <tr>
                             <td valign="top"><b><?= lang('database_table_totals') ?></b></td>
                             <td colspan="3">&nbsp;</td>
                             <td dir="ltr" align="right"
@@ -265,7 +306,7 @@ if (sessionv('result_msg')) {
                             <td dir="ltr" align="right"
                                 valign="top"><?= "<b>" . evo()->nicesize($total) . "</b><br />(" . number_format($total) . " B)" ?></td>
                         </tr>
-                    </tbody>
+                    </tfoot>
                 </table>
                 <?php
                 if ($totaloverhead > 0) {
@@ -275,7 +316,7 @@ if (sessionv('result_msg')) {
             </form>
         </div>
         <!-- This iframe is used when downloading file backup file -->
-        <iframe name="fileDownloader" width="1" height="1" style="display:none; width:1px; height:1px;"></iframe>
+        <iframe name="fileDownloader" hidden></iframe>
         <?php if ($canRestore) { ?>
         <div class="tab-page" id="tabRestore">
             <h2 class="tab"><?= lang("bkmgr_restore_title") ?></h2>
@@ -291,48 +332,46 @@ if (sessionv('result_msg')) {
                     <a
                         href="#"
                         class="primary"
-                        onclick="document.mutate.save.click();"><?= lang("bkmgr_run_sql_submit") ?>
+                        onclick="return restoreUpload();"><?= lang("bkmgr_run_sql_submit") ?>
                     </a>
                 </div>
-                <input type="submit" name="save" style="display:none;" />
+                <input type="submit" name="save" class="hidden" />
             </form>
         </div>
         <?php } ?>
         <div class="tab-page" id="tabSnapshot">
             <h2 class="tab"><?= lang("bkmgr_snapshot_title") ?></h2>
             <?= $ph['snapshot_msg'] ?>
+            <?php if ($ph['snapshot_msg'] === '' && in_array($snapshotProblem, [EvoSnapshotStore::OUTSIDE, EvoSnapshotStore::SHARED], true)) : ?>
+                <?= $snapshotPathUnusable ?>
+            <?php endif; ?>
             <?= evo()->parseText(
                 lang("bkmgr_snapshot_msg"),
-                ['snapshot_path' => hsc($backup->dir())]
+                ['snapshot_path' => hsc($backup->store()->dir())]
             ); ?>
             <style type="text/css">
                 #dbmPane table {
-                    background-color: #fff;
                     border-collapse: collapse;
-                }
-
-                #dbmPane td {
-                    padding: 4px;
                 }
             </style>
             <form method="post" name="snapshot" action="index.php">
                 <input type="hidden" name="a" value="307" />
-                <input type="hidden" name="mode" value="snapshot" />
                 <table>
-                    <tr>
-                        <th><?= lang("bkmgr_content_only") ?></th>
-                        <td><input type="checkbox" name="contentsOnly" value="1" /></td>
-                    </tr>
-                    <tr>
-                        <th><?= lang("bkmgr_file_name") ?></th>
-                        <td><input type="text" name="file_name" size="50" value="" /><br /><?= evo()->parseText(lang("bkmgr_file_name_hint"), ['keep' => EvoBackupManager::KEEP]) ?></td>
-                    </tr>
+                    <?= EvoFieldRow::render([
+                        'label' => lang("bkmgr_content_only"),
+                        'body' => '<input type="checkbox" name="contentsOnly" value="1" />',
+                    ]) ?>
+                    <?= EvoFieldRow::render([
+                        'label' => lang("bkmgr_file_name"),
+                        'body' => '<input type="text" name="file_name" size="50" value="" />',
+                        'help' => evo()->parseText(lang("bkmgr_file_name_hint"), ['keep' => EvoSnapshotStore::KEEP]),
+                    ]) ?>
                 </table>
                 <div class="actionButtons">
                     <a href="#" class="primary" onclick="document.snapshot.save.click();">
                         <?= lang("bkmgr_snapshot_submit") ?>
                     </a>
-                    <input type="submit" name="save" style="display:none;" />
+                    <input type="submit" name="save" class="hidden" />
                 </div>
             </form>
         <div class="sectionHeader"><?= lang("bkmgr_snapshot_list_title") ?></div>
@@ -342,7 +381,7 @@ if (sessionv('result_msg')) {
                 <input type="hidden" name="mode" value="restore2" />
                 <input type="hidden" name="filename" value="" />
                 <?php
-                $files = $backup->files();
+                $files = $backup->store()->files();
                 if ($files) {
                     echo '<ul>';
                     $tpl = $canRestore
@@ -361,7 +400,7 @@ if (sessionv('result_msg')) {
                     echo lang("bkmgr_snapshot_nothing");
                 }
                 ?>
-                <input type="submit" name="save" style="display:none;" />
+                <input type="submit" name="save" class="hidden" />
             </form>
         </div>
     </div>
@@ -369,7 +408,7 @@ if (sessionv('result_msg')) {
 </div>
 
 </div>
-<script type="text/javascript">
+<script>
     tpDBM = new WebFXTabPane(document.getElementById('dbmPane'));
 </script>
 

@@ -2,13 +2,8 @@
 
 class WFBC
 {
-    function __construct()
-    {
-    }
-
     function fetch($tpl)
     {
-        global $modx;
         if (strpos($tpl, '@FILE') === 0) {
             $file_path = evo()->findBindFile(substr($tpl, 6));
             if (!$file_path) {
@@ -20,8 +15,8 @@ class WFBC
             }
         } elseif (strpos($tpl, '@CODE') === 0) {
             $template = substr($tpl, 6);
-        } elseif ($modx->getChunk($tpl) != '') {
-            $template = $modx->getChunk($tpl);
+        } elseif (evo()->getChunk($tpl) != '') {
+            $template = evo()->getChunk($tpl);
         } else {
             $template = $tpl;
         }

@@ -12,9 +12,9 @@
 
 ## 対象ファイル
 
-- `manager/processors/save_user.processor.php` — ユーザー作成・更新
-- `manager/processors/delete_user.processor.php` — ユーザー削除
-- `manager/processors/change_password.processor.php` — パスワード変更
+- `manager/processors/permission/save_user.processor.php` — ユーザー作成・更新
+- `manager/processors/permission/delete_user.processor.php` — ユーザー削除
+- `manager/processors/permission/save_password.processor.php` — パスワード変更
 - `install/sql/create_tables.sql` — 新規インストール時に外部キー制約を含める
 
 ## 前提条件

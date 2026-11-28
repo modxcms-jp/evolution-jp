@@ -30,12 +30,8 @@ function mm_synch_fields($fields, $roles = '', $templates = '')
         return;
     }
 
-    $output = "//  -------------- mm_synch_fields :: Begin ------------- \n";
-
-    $output .= '
-    synch_field[mm_sync_field_count] = new Array();
-    ';
-
+    // 項目ごとに CSS セレクタを集める。fieldname の \\[\\] は CSS のエスケープなので外し、属性値を引用して組み立てる
+    $selectors = [];
     foreach ($fields as $field) {
         if (!isset($mm_fields[$field])) {
             break;
@@ -44,40 +40,17 @@ function mm_synch_fields($fields, $roles = '', $templates = '')
         $fieldtype = $mm_fields[$field]['fieldtype'];
         $fieldname = $mm_fields[$field]['fieldname'];
 
-        $valid_fieldtypes = ['input', 'textarea'];
-
         // Make sure we're dealing with an input
-        if (!in_array($fieldtype, $valid_fieldtypes)) {
+        if (!in_array($fieldtype, ['input', 'textarea'])) {
             break;
         }
 
-        // Add this field to the array of fields being synched
-        // 項目ごとに要素の配列を入れる。fieldname の \\[\\] は CSS のエスケープなので外し、属性値を引用して組み立てる
-        $output .= '
-        synch_field[mm_sync_field_count].push(MM.all(' . js_literal(sprintf('%s[name="%s"]', $fieldtype, str_replace('\\', '', $fieldname))) . '));
-        ';
-
-        // Or we don't recognise it
+        $selectors[] = sprintf('%s[name="%s"]', $fieldtype, str_replace('\\', '', $fieldname));
     }
 
-    // Output some javascript to sync these fields
-    // 入力した欄の値を、ほかの項目の欄すべてに写す
-    $output .= '
-synch_field[mm_sync_field_count].forEach(function (n, i, list) {
-    list.forEach(function (m, j) {
-        if (i != j) {
-            n.forEach(function (el) {
-                el.addEventListener("keyup", function () {
-                    MM.setValue(m, this.value);
-                });
-            });
-        }
-    });
-});
-
-mm_sync_field_count++;
-    ';
-
+    $output = "//  -------------- mm_synch_fields :: Begin ------------- \n";
+    $output .= includeJs(MODX_BASE_URL . 'assets/plugins/managermanager/widgets/mm_synch_fields/mm_synch_fields.js');
+    $output .= 'mmSynchFields.link(' . js_value($selectors) . ');' . "\n";
     $output .= "//  -------------- mm_synch_fields :: End ------------- \n";
 
     $e->output($output . "\n");

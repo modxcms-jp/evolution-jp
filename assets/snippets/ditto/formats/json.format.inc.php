@@ -7,51 +7,12 @@
 */
 
 if (!defined('MODX_BASE_PATH') || strpos(str_replace('\\', '/', __FILE__), MODX_BASE_PATH) !== 0) exit;
-$modx->documentObject['contentType'] = 'application/json';
+evo()->documentObject['contentType'] = 'application/json';
 // set json placeholders
 $json_placeholders['json_lang'] = (isset($abbrLanguage)) ? $abbrLanguage : $_lang['abbr_lang'];
-/*
-	Param: abbrLanguage
-
-	Purpose:
-	Language for the JSON document
-
-	Options:
-	Any valid 2 character language abbreviation
-
-	Default:
-	[LANG]
-
-	Related:
-	- <language>
-*/
 $json_placeholders['json_copyright'] = isset($copyright) ? $copyright : $_lang['default_copyright'];
-/*
-	Param: copyright
-
-	Purpose:
-	Copyright message to embed in the JSON document
-
-	Options:
-	Any text
-
-	Default:
-	[LANG]
-*/
-$json_placeholders['json_link'] = MODX_SITE_URL . "[~" . ($modx->documentObject['id'] ?? '') . "~]";
+$json_placeholders['json_link'] = MODX_SITE_URL . "[~" . (evo()->documentObject['id'] ?? '') . "~]";
 $json_placeholders['json_ttl'] = isset($ttl) ? intval($ttl) : 120;
-/*
-	Param: ttl
-
-	Purpose:
-	Time to live for the JSON feed
-
-	Options:
-	Any integer greater than 1
-
-	Default:
-	120
-*/
 // JSON string body (without the quotes); values keep the HTML escaping as before
 if (!function_exists('ditto_json_str')) {
     function ditto_json_str($value)
@@ -78,14 +39,13 @@ $placeholders['*'] = "json_parameters";
 if (!function_exists("json_parameters")) {
     function json_parameters($placeholders)
     {
-        global $modx;
         $jsonArr = [];
         foreach ($placeholders as $name => $value) {
             if (is_array($value)) {
                 continue;
             }
             if ($name == 'date' && !preg_match('@^[0-9]+$@', (string)$value)) {
-                $value = $modx->getUnixtimeFromDateString($value);
+                $value = evo()->getUnixtimeFromDateString($value);
             }
             $value = htmlspecialchars((string)$value, ENT_QUOTES, config('modx_charset'));
             $jsonArr["json_{$name}"] = ditto_json_str($value);

@@ -19,9 +19,29 @@
     let modalDirty = false;
     // openPicker/openFilePickerで開いたピッカーの選択結果を受け取るコールバック
     let pickerCallback = null;
+    // 画面を差し替える要求（request()）を始めた順の番号。本体(#mainPane)とモーダルは別に数える。
+    // 応答が届いたとき、番号が最後でなければ、その後に別の画面を始めている（または閉じた）ので画面を差し替えない
+    const generations = { main: 0, modal: 0 };
 
     function resolveUrl(url) {
         return new URL(url, window.location.href).href;
+    }
+
+    // data-shell-once="<グローバル変数の名前>" の付いたスクリプト（外部のライブラリの本体）の、読めた URL と、そのとき出来た変数の値。
+    // 変数が出来ていれば読めたとみなす。変数が覚えた値のままのあいだは、画面を移っても読み直さない
+    // （別のスクリプトが同じ名前の変数を作り直していたら読み直す）。全体の読み込みで読んだものは DOMContentLoaded で拾う
+    const loadedOnceScripts = new Map();
+
+    function rememberOnceScript(el, resolvedUrl) {
+        const name = el.getAttribute('data-shell-once');
+        if (name && window[name]) {
+            loadedOnceScripts.set(resolvedUrl, window[name]);
+        }
+    }
+
+    function isLoadedOnce(el, resolvedUrl) {
+        const name = el.getAttribute('data-shell-once');
+        return !!name && loadedOnceScripts.has(resolvedUrl) && window[name] === loadedOnceScripts.get(resolvedUrl);
     }
 
     function hasLiveScriptTag(resolvedUrl, exceptNode) {
@@ -41,6 +61,12 @@
         }
         const base = window.location.pathname.replace(/[^\/]*$/, '');
         return resolved.pathname === base + 'index.php' || resolved.pathname === base;
+    }
+
+    // target="main" は frameset 時代の「本文のフレーム」。シェルでは本文が #mainPane なので、target の無いリンク・フォームと同じに扱う
+    function hasOwnTarget(el) {
+        const target = el.getAttribute('target');
+        return !!target && target !== 'main';
     }
 
     function normalizeManagerUrl(url) {
@@ -71,19 +97,28 @@
         return ok;
     }
 
+    // 「処理中」の表示は、始めた request() の数が 0 に戻るまで出す
+    // （応答が後から届く要求が重なっても、先に終わった要求が消さないように）
+    let workCount = 0;
+
     function startWork() {
+        workCount++;
         if (window.mainMenu && typeof window.mainMenu.work === 'function') {
             window.mainMenu.work();
         }
     }
 
     function stopWork() {
-        if (window.mainMenu && typeof window.mainMenu.stopWork === 'function') {
+        workCount = Math.max(0, workCount - 1);
+        if (workCount === 0 && window.mainMenu && typeof window.mainMenu.stopWork === 'function') {
             window.mainMenu.stopWork();
         }
     }
 
-    // 差し替えたHTML内の<script>は自動実行されないため、生成し直して順次実行する
+    // 差し替えたHTML内の<script>は自動実行されないため、生成し直して順次実行する。
+    // src のある <script> は onload を待つので、その間にブラウザが JS で整える前の HTML
+    // （タブの見出しが縦に並ぶ、全タブの中身が出ているなど）を描いてしまう。
+    // 呼び出し側は差し替える前に container へ evo-pane-pending（shell.css）を付けて隠し、done の最初で外す
     function executeScripts(container, done) {
         const scripts = Array.from(container.querySelectorAll('script'));
 
@@ -110,6 +145,11 @@
                     runNext(index + 1);
                     return;
                 }
+                // ライブラリの本体は、一度読んだら読み直さない（作り直すと、前の本体が窓に付けたリスナーなどが残る）
+                if (isLoadedOnce(old, resolved)) {
+                    runNext(index + 1);
+                    return;
+                }
                 const el = document.createElement('script');
                 Array.from(old.attributes).forEach(function (attr) {
                     if (attr.name === 'async' || attr.name === 'defer') {
@@ -118,7 +158,11 @@
                     el.setAttribute(attr.name, attr.value);
                 });
                 el.async = false;
-                el.onload = el.onerror = function () {
+                el.onload = function () {
+                    rememberOnceScript(el, resolved);
+                    runNext(index + 1);
+                };
+                el.onerror = function () {
                     runNext(index + 1);
                 };
                 old.parentNode.replaceChild(el, old);
@@ -213,14 +257,29 @@
     }
 
     // 応答全体でドキュメントを書き換える(断片でない完全HTMLが返った場合の保険)。
-    // document.writeはアドレスバーを更新しないため、応答先URLをhistoryへ反映する
-    function replaceDocument(html, finalUrl) {
+    // document.writeはアドレスバーを更新しないため、応答先URLをhistoryへ反映する。
+    // 画面を移るとき(push)は、直前の画面の項目を残して積む（戻るで管理画面へ戻れる）
+    function replaceDocument(html, finalUrl, push) {
+        window.documentDirty = false;
         if (finalUrl && finalUrl !== window.location.href) {
-            window.history.replaceState({ url: finalUrl }, '', finalUrl);
+            if (push) {
+                window.history.pushState({ url: finalUrl }, '', finalUrl);
+            } else {
+                window.history.replaceState({ url: finalUrl }, '', finalUrl);
+            }
         }
         document.open();
         document.write(html);
         document.close();
+        // document.open() で window のリスナー（シェルの popstate）が消えている。
+        // 戻る・進むで別の URL になったら、その URL の画面を読み直す（管理画面ならシェルが戻る。モジュールは 1 回だけ動く）。
+        // ページ内リンクのハッシュだけの移動では読み直さない
+        const shownUrl = window.location.href.split('#')[0];
+        window.addEventListener('popstate', function () {
+            if (window.location.href.split('#')[0] !== shownUrl) {
+                window.location.reload();
+            }
+        });
     }
 
     // 前ページが残したグローバルなUI部品を破棄する(差し替え前のクリーンアップ)
@@ -231,14 +290,34 @@
         // ただし全インスタンスを無条件にremove()すると、モーダルを閉じただけで
         // 背後の#mainPane側のエディタまで消えてしまう(モーダル内にエディタを含まない
         // 操作でも発生する重大な副作用だった)。paneの外側にあるエディタは対象外にする
-        if (window.tinymce && Array.isArray(window.tinymce.editors)) {
-            window.tinymce.editors.slice().forEach(function (editor) {
+        // 全インスタンスは tinymce.get() で得る（TinyMCE 6 以降は tinymce.editors が無い）
+        if (window.tinymce && typeof window.tinymce.get === 'function') {
+            window.tinymce.get().slice().forEach(function (editor) {
                 const el = typeof editor.getElement === 'function' ? editor.getElement() : null;
                 if (el && pane.contains(el)) {
                     editor.remove();
                 }
             });
         }
+    }
+
+    // <title> を「画面名 | サイト名」にする。書式は header.inc.php が manager_title() で作って渡す。
+    // 画面名は #mainPane の最初の [data-page-title] の値、無ければ最初の h1（どちらも無ければサイト名だけ）
+    function updateDocumentTitle() {
+        const titleEl = document.querySelector('head > title[data-format]');
+        if (!titleEl) {
+            return;
+        }
+        const pane = document.getElementById('mainPane');
+        const named = pane ? pane.querySelector('[data-page-title]') : null;
+        const h1 = pane ? pane.querySelector('h1') : null;
+        const source = named && named.getAttribute('data-page-title').trim()
+            ? named.getAttribute('data-page-title')
+            : (h1 ? h1.textContent : '');
+        const screen = source.replace(/\s+/g, ' ').trim();
+        document.title = screen
+            ? titleEl.getAttribute('data-format').replace('{screen}', function () { return screen; })
+            : titleEl.getAttribute('data-site-only');
     }
 
     // finalUrl はアドレスバーと履歴に残すURL、screenUrl は表示する画面のURL（省略時は finalUrl）。
@@ -251,7 +330,9 @@
         }
 
         teardownPane(pane);
+        // 未保存の印は、画面を実際に差し替えるここで消す（送信を始めた時点では消さない）
         window.documentDirty = false;
+        pane.classList.add('evo-pane-pending');
         pane.innerHTML = html;
         pane.scrollTop = 0;
         hoistStylesheets(pane);
@@ -268,6 +349,8 @@
         }
 
         executeScripts(pane, function () {
+            stopWork();
+            pane.classList.remove('evo-pane-pending');
             // 断片内のready相当は即時実行済み。共通後処理を行う
             const preLoader = document.getElementById('preLoader');
             if (preLoader) {
@@ -282,9 +365,9 @@
                 const action = new URL(finalUrl, window.location.href).searchParams.get('a');
                 window.evoBindDirtyTracking(action);
             }
+            updateDocumentTitle();
             handleRefreshParam(finalUrl);
             scrollPaneToHash(finalUrl);
-            stopWork();
             document.dispatchEvent(new CustomEvent('evoshell:load', { detail: { url: finalUrl, screenUrl: screenUrl || finalUrl } }));
         });
     }
@@ -300,8 +383,8 @@
         overlay.className = 'hidden';
         overlay.innerHTML =
             '<div id="evoShellModal" role="dialog" aria-modal="true">' +
-            '<div id="evoShellModalHeader">' +
-            '<button type="button" class="evo-modal-close" aria-label="Close">&times;</button>' +
+            '<div id="evoShellModalHeader" class="evo-titlebar">' +
+            '<button type="button" class="evo-modal-close evo-titlebar-close" aria-label="Close">&times;</button>' +
             '</div>' +
             '<div id="evoShellModalBody"></div>' +
             '<div id="evoShellModalFooter"></div>' +
@@ -330,7 +413,8 @@
     }
 
     // reloadMain=falseなら、モーダル内の保存(modalDirty)があっても背後の#mainPaneを再取得しない
-    // (閉じた直後に別の画面へnavigateする場合、再取得と競合して古い画面が残るのを防ぐ)
+    // (閉じた直後に別の画面へnavigateする場合、再取得と競合して古い画面が残るのを防ぐ)。
+    // 背後が未保存(documentDirty)のときも再取得しない
     function closeModal(reloadMain) {
         const overlay = document.getElementById('evoShellModalOverlay');
         if (!overlay || overlay.classList.contains('hidden')) {
@@ -343,11 +427,14 @@
         }
         currentModalUrl = '';
         pickerCallback = null;
+        // 閉じたあとに届く、モーダルの応答では開き直さない
+        generations.modal++;
         overlay.classList.add('hidden');
         if (modalDirty) {
-            // モーダルで保存された変更を背後の画面へ反映する(#mainPaneを黙って再取得)
+            // モーダルで保存された変更を背後の画面へ反映する(#mainPaneを黙って再取得)。
+            // 背後が未保存なら、取り直すと書きかけが消えるので取り直さない
             modalDirty = false;
-            if (reloadMain !== false) {
+            if (reloadMain !== false && !window.documentDirty) {
                 request(currentUrl, { method: 'GET' }, false);
             }
         }
@@ -369,9 +456,13 @@
             currentModalUrl = finalUrl;
         }
         teardownPane(body);
+        body.classList.add('evo-pane-pending');
         body.innerHTML = html;
         body.scrollTop = 0;
         hoistStylesheets(body);
+        if (overlay.classList.contains('hidden')) {
+            document.getElementById('evoShellModal').style.translate = '';
+        }
         overlay.classList.remove('hidden');
 
         // #actionsはスクロールしないフッターへ、見出し(h1)は固定ヘッダーへ移す
@@ -393,15 +484,17 @@
                 el.remove();
             });
             if (heading) {
+                heading.classList.add('evo-titlebar-title');
                 header.insertBefore(heading, closeButton);
             }
         }
 
         executeScripts(body, function () {
+            stopWork();
+            body.classList.remove('evo-pane-pending');
             if (window.MODXSortable && typeof window.MODXSortable.init === 'function') {
                 window.MODXSortable.init(body);
             }
-            stopWork();
             document.dispatchEvent(new CustomEvent('evoshell:modalload'));
         });
     }
@@ -450,6 +543,69 @@
 
     function isVisible(el) {
         return el.getClientRects().length > 0;
+    }
+
+    // 上に貼り付けたタブの行（shell.css）に、CSS の変数で 2 つを渡す。
+    // ページの地（body の背景）: 行の後ろを地と同じ模様で塗り、スクロールした本文を透かさない。
+    // #actions の幅: 貼り付いているとき（is-stuck）だけ、右上に固定したボタンの列の分を行の右に空ける。
+    // 画面ごとにボタンの数が違うので測る。貼り付く前のボタンは見出しの行にあり、タブとは重ならない
+    const STICKY_TAB_ROW = '.dynamic-tab-pane-control:not(.dynamic-tab-pane-control .dynamic-tab-pane-control) > .tab-row';
+
+    function copyPageBackground() {
+        const bg = getComputedStyle(document.body);
+        const root = document.documentElement.style;
+        root.setProperty('--shell-page-bg-color', bg.backgroundColor);
+        root.setProperty('--shell-page-bg-image', bg.backgroundImage);
+        root.setProperty('--shell-page-bg-position', bg.backgroundPosition);
+        root.setProperty('--shell-page-bg-size', bg.backgroundSize);
+        root.setProperty('--shell-page-bg-repeat', bg.backgroundRepeat);
+    }
+
+    const actionsObserver = typeof ResizeObserver === 'function'
+        ? new ResizeObserver(syncActionsWidth)
+        : null;
+
+    function syncActionsWidth() {
+        const pane = document.getElementById('mainPane');
+        if (!pane) {
+            return;
+        }
+        const actions = pane.querySelector('#actions');
+        pane.style.setProperty('--shell-actions-width', (actions ? actions.offsetWidth : 0) + 'px');
+    }
+
+    function watchActions() {
+        const actions = document.querySelector('#mainPane #actions');
+        if (actionsObserver) {
+            actionsObserver.disconnect();
+            if (actions) {
+                actionsObserver.observe(actions);
+            }
+        }
+        syncActionsWidth();
+        syncStuckTabRows();
+    }
+
+    function syncStuckTabRows() {
+        const pane = document.getElementById('mainPane');
+        if (!pane) {
+            return;
+        }
+        const paneTop = pane.getBoundingClientRect().top;
+        pane.querySelectorAll(STICKY_TAB_ROW).forEach(function (row) {
+            row.classList.toggle('is-stuck', pane.scrollTop > 0 && row.getBoundingClientRect().top <= paneTop + 1);
+        });
+    }
+
+    let stuckFrame = 0;
+
+    function onPaneScroll() {
+        if (!stuckFrame) {
+            stuckFrame = requestAnimationFrame(function () {
+                stuckFrame = 0;
+                syncStuckTabRows();
+            });
+        }
     }
 
     // アニメーションを出すボタンを決める。決まらなければnull(今の半透明のまま)
@@ -521,61 +677,131 @@
         return formData;
     }
 
-    // targetが'modal'の場合、断片はEvoShellモーダルへ差し込む(#mainPaneやhistoryは触らない)
+    // POSTが届かなかった・結果を受け取れなかったときは、画面と入力をそのまま残して知らせる。
+    // 入力が保存されていないままなので、未保存の印を戻す（インラインの onclick などが送信前に消していても、ここで戻る）
+    function reportFailedPost(message, keepDirty) {
+        stopWork();
+        if (keepDirty) {
+            window.documentDirty = true;
+        }
+        EvoDialog.alert(message, '', null, { icon: 'warning' });
+    }
+
+    // targetが'modal'の場合、断片はEvoShellモーダルへ差し込む(#mainPaneやhistoryは触らない)。
+    // 画面を差し替えるのは、最後に始めた要求の応答だけ。POSTは中断しないが、その後に別の画面を始めていれば、
+    // 結果の画面では上書きしない（サーバーの処理は終わっている。結果の画面と、その中の知らせは出ない）
     function request(url, options, push, target) {
         startWork();
         const isModalTarget = target === 'modal';
+        const isPost = options.method === 'POST';
+        const slot = isModalTarget ? 'modal' : 'main';
+        const generation = ++generations[slot];
+        // モーダルの保存を始めたときの本体の番号。応答が古くなったとき、その間に本体で何も始めていないかを見る
+        const mainAtStart = generations.main;
+        const isLatest = function () {
+            return generation === generations[slot];
+        };
         const headers = Object.assign({ 'X-Requested-With': 'XMLHttpRequest', 'X-Evo-Shell': '1' }, options.headers || {});
+        // 通信の失敗（fetch と本文の受信）だけをここで扱う。結果を適用中の例外は、通信失敗にしない
+        const onNetworkFailure = function () {
+            if (isPost) {
+                // POST(保存等)の通信失敗を無反応のまま放置しない。再送信も再読み込みもせず、入力を残す
+                reportFailedPost(EvoShell.networkErrorMessage, !isModalTarget && isLatest());
+                return;
+            }
+            stopWork();
+            if (isLatest()) {
+                fullReload(url);
+            }
+        };
         return fetch(url, Object.assign({}, options, { headers: headers, credentials: 'same-origin' }))
             .then(function (response) {
                 if (response.headers.get('X-Evo-Login') === 'required') {
-                    // セッション切れ。開こうとした画面（POST・モーダルなら今の画面）をフルリロードしてログイン画面を出す。
+                    if (isPost) {
+                        // セッション切れ。画面を変えずに入力を残し、コピーしてログインし直し、画面を開き直すよう知らせる
+                        reportFailedPost(EvoShell.sessionExpiredMessage, !isModalTarget && isLatest());
+                        return null;
+                    }
+                    stopWork();
+                    if (!isLatest()) {
+                        return null;
+                    }
+                    // 開こうとした画面（モーダルなら今の画面）をフルリロードしてログイン画面を出す。
                     // ログイン画面はその URL のまま出て、ログイン後にその画面へ戻る
-                    reloadForLogin(options.method === 'POST' || isModalTarget ? window.location.href : url);
+                    reloadForLogin(isModalTarget ? window.location.href : url);
                     return null;
                 }
                 if (/attachment/i.test(response.headers.get('Content-Disposition') || '')) {
-                    return downloadResponse(response).then(stopWork);
+                    return downloadResponse(response).then(stopWork, onNetworkFailure);
                 }
                 // POSTがリダイレクトせずに結果を返したときは、アドレスバーと履歴を操作のURLにしない。
                 // 状態を変える操作のURLはGETで開けない(405)ため、再読み込みや戻るで失敗しないよう、元の画面のURLのままにする
-                const keepUrl = options.method === 'POST' && !response.redirected && !isModalTarget;
+                const keepUrl = isPost && !response.redirected && !isModalTarget;
                 const screenUrl = responseUrlWithRequestHash(response.url, url);
                 const finalUrl = keepUrl ? currentUrl : screenUrl;
                 return response.text().then(function (text) {
-                    if (response.headers.get('X-Evo-Pane') === '1') {
-                        if (isModalTarget) {
-                            if (options.method === 'POST') {
-                                modalDirty = true;
+                    stopWorkOnThrow(function () {
+                        if (!isLatest()) {
+                            stopWork();
+                            if (isPost) {
+                                // 保存の結果が求めるツリー・メニューの読み直しだけは行う
+                                handleRefreshParam(screenUrl);
                             }
-                            applyModalFragment(text, finalUrl);
-                        } else {
-                            applyFragment(text, finalUrl, push && !keepUrl, screenUrl);
+                            if (isPost && isModalTarget) {
+                                refreshAfterStaleModalSave(mainAtStart);
+                            }
+                            return;
                         }
-                    } else if (options.method === 'POST' || isFullDocumentHtml(text)) {
-                        // 断片で返せない応答(モジュール実行等)はドキュメントごと差し替える。
-                        // document.writeはアドレスバーを更新しないため、応答先のURLで補正する
-                        replaceDocument(text, finalUrl);
-                    } else {
-                        fullReload(url);
-                    }
+                        if (response.headers.get('X-Evo-Pane') === '1') {
+                            if (isModalTarget) {
+                                if (isPost) {
+                                    modalDirty = true;
+                                }
+                                applyModalFragment(text, finalUrl);
+                            } else {
+                                applyFragment(text, finalUrl, push && !keepUrl, screenUrl);
+                            }
+                        } else if (isPost && response.status === 403 && /^text\/plain/i.test(response.headers.get('Content-Type') || '')) {
+                            // CSRFトークンの不一致（ログインし直したあとの保存など）の、文字だけの 403。
+                            // 画面と入力は残して知らせる
+                            reportFailedPost(EvoShell.saveRejectedMessage, !isModalTarget);
+                        } else if (isPost || isFullDocumentHtml(text)) {
+                            // 断片で返せない応答(モジュール実行等)はドキュメントごと差し替える。
+                            // document.writeはアドレスバーを更新しないため、応答先のURLで補正する
+                            replaceDocument(text, finalUrl, push && !keepUrl);
+                        } else {
+                            stopWork();
+                            fullReload(url);
+                        }
+                    });
                     return null;
-                });
-            })
-            .catch(function () {
-                stopWork();
-                if (options.method === 'POST') {
-                    // POST(保存等)の通信失敗を無反応のまま放置しない。
-                    // フォームの再送信は避け、現在の画面を再取得して復旧させる
-                    window.alert(EvoShell.networkErrorMessage);
-                    fullReload(window.location.href);
-                } else {
-                    fullReload(url);
-                }
-            });
+                }, onNetworkFailure);
+            }, onNetworkFailure);
     }
 
-    // ツリー/メニュー部品を再取得して差し替える(セッション切れ検出・失敗時の後始末込み)
+    // 結果の適用中に例外が出ても「処理中」の数が合うよう、数えてから投げ直す
+    // （適用の同期の部分で出る例外。画面の差し替え後の stopWork は executeScripts の done の先頭で行う）
+    function stopWorkOnThrow(fn) {
+        try {
+            fn();
+        } catch (e) {
+            stopWork();
+            throw e;
+        }
+    }
+
+    // モーダルの保存の応答が、モーダルを閉じたあとに届いたとき。背後が未保存で、その間に本体で何も始めていなければ、閉じたときにできなかった取り直しを行う。
+    // 別のモーダルが開いていれば、それを閉じるときの取り直しに任せる
+    function refreshAfterStaleModalSave(mainAtStart) {
+        const overlay = document.getElementById('evoShellModalOverlay');
+        if (overlay && !overlay.classList.contains('hidden')) {
+            modalDirty = true;
+        } else if (!window.documentDirty && generations.main === mainAtStart) {
+            request(currentUrl, { method: 'GET' }, false);
+        }
+    }
+
+    // ツリー/メニュー部品を再取得して差し替える(セッション切れ検出込み。失敗したら今の部品のまま)
     function reloadPartial(url, elementId) {
         const current = document.getElementById(elementId);
         if (!current) {
@@ -606,14 +832,26 @@
                 executeScripts(fresh);
             })
             .catch(function () {
-                stopWork();
+                // 失敗したら今の部品のまま
             });
     }
 
     const EvoShell = {
         // header.inc.phpが言語別メッセージで上書きする
         unsavedMessage: 'Your changes are not saved. Continue?',
-        networkErrorMessage: 'A network error occurred. The page will be reloaded.',
+        networkErrorMessage: 'The request failed, so it is not known whether your changes were saved. What you entered is still on this screen. Check your connection and save again.',
+        sessionExpiredMessage: 'Your session has expired, so your changes were not saved. This screen can no longer save. What you entered is still on this screen, so copy it, log in again, reload the screen and paste it back.',
+        saveRejectedMessage: 'This screen can no longer save. Its permission to save is no longer valid, for example because you logged in again. What you entered is still on this screen: copy it, reload the screen and paste it back.',
+
+        // ツリーの上のピン（manager/frames/tree.php の #treePin）。押すと自動の拡縮を止め、もう一度押すと戻す
+        toggleTreePin: function () {
+            setTreeNarrowOff(!isTreeNarrowOff());
+        },
+
+        // ピンの押された状態を、止めているか（body の tree-narrow-off）に合わせる。ツリーを読み直したときは tree.php が呼ぶ
+        syncTreePin: function () {
+            syncTreePin();
+        },
 
         // 未保存の変更があれば確認する。続けてよいなら true(EvoCsrf.post()も送る前に使う)
         confirmIfDirty: function () {
@@ -660,15 +898,18 @@
                 || window.location.href;
 
             if (method === 'GET') {
+                // 本体の画面を差し替えるので、未保存なら確認する（モーダルのフォームは背後に触れない）
+                if (!isModalForm && !confirmIfDirty()) {
+                    return;
+                }
                 const params = new URLSearchParams(formData);
                 const url = action.split('?')[0] + '?' + params.toString();
-                window.documentDirty = false;
                 request(url, { method: 'GET' }, push, target);
                 return;
             }
 
-            window.documentDirty = false;
-            // 応答・エラー・同期の例外のどれでも印を外す
+            // 未保存の印は送信では消さない。応答で画面を差し替えるとき（applyFragment）に消える
+            // 応答・エラー・同期の例外のどれでも送信中の印を外す
             const clear = function () {
                 setSubmitting(form, false);
             };
@@ -678,7 +919,10 @@
                     method: 'POST',
                     body: formData,
                     headers: { 'X-CSRF-Token': getCsrfToken() }
-                }, push, target).then(clear, clear);
+                }, push, target).then(clear, function (e) {
+                    clear();
+                    throw e;
+                });
             } catch (e) {
                 clear();
                 throw e;
@@ -765,7 +1009,7 @@
             document.body.classList.contains('evo-shell')
             && this.closest('#mainPane, #evoShellModal')
             && !this.hasAttribute('data-no-ajax')
-            && !this.hasAttribute('target')
+            && !hasOwnTarget(this)
             && isManagerUrl(action)
         ) {
             EvoShell.submit(this);
@@ -774,10 +1018,367 @@
         nativeFormSubmit.call(this);
     };
 
+    // ツリーの欄（サイドバー）と本文の境目のつまみ（header.inc.php の #evoTreeResizer）。
+    // 開いているとき: ドラッグでツリーの幅（--shell-tree-width）を変え、幅をブラウザに覚えさせる。下限よりさらに左へ動かして
+    // 離すか、そこでしばらく待つと、ツリーを閉じる。ダブルクリックで既定の幅（header.inc.php の値）に戻す。
+    // 閉じているとき: 左端の帯になり、押す（Enter・Space）と前の幅で開き、右へドラッグするとその幅で開く。
+    // ツリーを細くしているとき: 細い状態でのドラッグとダブルクリックは、元の幅ではなく細い幅を変える・戻す。
+    // 細い状態で元の幅まで広げると自動の拡縮を止め、止めているあいだのダブルクリックで戻す
+    const TREE_WIDTH_KEY = 'evo.shell.treeWidth';
+    const TREE_WIDTH_MIN = 160;
+    // ツリーを細くしているとき（shell.css の tree-narrow）の細い幅。初めは「元の幅 ÷ 設定」で、細い状態で境目を動かすと別に覚える
+    const TREE_NARROW_WIDTH_KEY = 'evo.shell.treeNarrowWidth';
+    const TREE_NARROW_WIDTH_MIN = 64;
+    // 細い状態で元の幅まで広げたら、このブラウザーでは自動の拡縮を止める（境目のダブルクリックで戻す）。
+    // 値は止めたときの設定の数（--shell-tree-narrow）で、設定が変わったら止めた状態を解く
+    const TREE_NARROW_OFF_KEY = 'evo.shell.treeNarrowOff';
+    // 直前の描画でのツリーの幅（#mainPane の ResizeObserver が測る）。境目へ移った時点では、
+    // ホバーが外れて縮み始めている（動きを減らす設定では縮み終わっている）ので、広げていたかはこの値で見る
+    let lastTreeWidth = 0;
+
+    function setTreeWidth(px) {
+        document.documentElement.style.setProperty('--shell-tree-width', px + 'px');
+    }
+
+    function saveStored(key, value) {
+        try {
+            localStorage.setItem(key, String(value));
+        } catch (e) {
+            // 覚えられなくても、今の画面の幅は変わっている
+        }
+    }
+
+    function forgetStored(key) {
+        try {
+            localStorage.removeItem(key);
+        } catch (e) {
+            // 保存領域が使えないときは、消すものも無い
+        }
+    }
+
+    function isTreeHidden() {
+        return document.body.classList.contains('tree-hidden');
+    }
+
+    function setTreeNarrowWidth(px) {
+        document.documentElement.style.setProperty('--shell-tree-narrow-width', px + 'px');
+    }
+
+    function forgetTreeNarrowWidth() {
+        document.documentElement.style.removeProperty('--shell-tree-narrow-width');
+        forgetStored(TREE_NARROW_WIDTH_KEY);
+    }
+
+    // 設定で元の幅を割る数（header.inc.php の --shell-tree-narrow。細くしない設定では 0）
+    function treeNarrowDivisor() {
+        return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--shell-tree-narrow')) || 0;
+    }
+
+    // 設定で細くしていて、このブラウザーで自動の拡縮を止めているか
+    function isTreeNarrowOff() {
+        return document.body.classList.contains('tree-narrow') && document.body.classList.contains('tree-narrow-off');
+    }
+
+    // 自動の拡縮を止める・戻す。どちらも細い幅を忘れ、戻したときは既定の細い幅（元の幅 ÷ 設定）で出す
+    function setTreeNarrowOff(off) {
+        document.body.classList.toggle('tree-narrow-off', off);
+        forgetTreeNarrowWidth();
+        if (off) {
+            saveStored(TREE_NARROW_OFF_KEY, treeNarrowDivisor());
+        } else {
+            forgetStored(TREE_NARROW_OFF_KEY);
+        }
+    }
+
+    // 今の画面でツリーを細くしているか（shell.css の細くする規則と同じ条件）
+    function isTreeNarrowed() {
+        return document.body.classList.contains('tree-narrow')
+            && !isTreeNarrowOff()
+            && !isTreeHidden()
+            && !document.querySelector('#mainPane [data-shell-tree="full"]')
+            && window.matchMedia('(hover: hover)').matches;
+    }
+
+    // 元の幅（覚えた幅。画面の幅の半分まで）
+    function fullTreeWidth() {
+        const width = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--shell-tree-width')) || 260;
+        return Math.min(width, window.innerWidth / 2);
+    }
+
+    // 細いときの幅（覚えた細い幅、無ければ元の幅 ÷ 設定。元の幅より広くしない）
+    function narrowTreeWidth() {
+        const saved = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--shell-tree-narrow-width'));
+        return Math.min(saved || fullTreeWidth() / (treeNarrowDivisor() || 1), fullTreeWidth());
+    }
+
+    // ツリーを広げて見せているか（ホバーで元の幅へ戻している途中も含む）。width を省くと今の幅で見る
+    function isTreeExpanded(width) {
+        const pane = document.getElementById('treePane');
+        const current = width === undefined ? (pane ? pane.getBoundingClientRect().width : 0) : width;
+        return current > narrowTreeWidth() + 2;
+    }
+
+    // ツリーの上のボタンの並び（#treeMenu）が切れない幅。テーマでボタンの大きさが違うので、ドラッグを始めるときに測る
+    function minTreeWidth() {
+        const menu = document.getElementById('treeMenu');
+        const pane = document.getElementById('treePane');
+        if (!menu || !pane) {
+            return TREE_WIDTH_MIN;
+        }
+        const outside = pane.getBoundingClientRect().width - menu.getBoundingClientRect().width;
+        menu.style.width = 'min-content';
+        const need = menu.getBoundingClientRect().width + outside;
+        menu.style.width = '';
+        return Math.max(TREE_WIDTH_MIN, Math.ceil(need));
+    }
+
+    function clampTreeWidth(x, min) {
+        const max = Math.max(min, Math.round(window.innerWidth / 2));
+        return Math.min(max, Math.max(min, Math.round(x)));
+    }
+
+    // 開いているときのドラッグ（幅を変える・左端まで動かして閉じる）。
+    // 細くしているとき（narrow）は細い幅を変え、元の幅より広くしない。広げて見せているときは元の幅を変える
+    function dragOpenTree(handle, e, narrow) {
+        document.body.classList.add('is-resizing-tree');
+        document.body.classList.toggle('is-resizing-narrow', narrow);
+        let width = 0;
+        let collapsing = false;
+        let finished = false;
+        const min = narrow ? TREE_NARROW_WIDTH_MIN : minTreeWidth();
+        const max = narrow ? Math.round(fullTreeWidth()) : 0;
+        const setWidth = narrow ? setTreeNarrowWidth : setTreeWidth;
+        const pane = document.getElementById('treePane');
+        const startWidth = pane.getBoundingClientRect().width;
+        // 押した位置と境目のずれ。つまみの当たりは境目より広いので、ポインターの位置そのものを幅にすると、押しただけで幅が飛ぶ
+        const grab = e.clientX - startWidth;
+        const narrowBefore = document.documentElement.style.getPropertyValue('--shell-tree-narrow-width');
+        let started = false;
+        // ドラッグを終える。離したとき（lostpointercapture）と、薄くなったまま待ったとき（animationend）の両方から呼ぶ
+        const finish = function () {
+            if (finished) {
+                return;
+            }
+            finished = true;
+            handle.removeEventListener('pointermove', move);
+            pane.removeEventListener('animationend', collapseAfterWait);
+            document.body.classList.remove('is-resizing-tree', 'is-resizing-narrow', 'is-collapsing-tree');
+            if (collapsing && window.mainMenu) {
+                // 閉じる前の幅に戻しておき、開き直したときにその幅で出す。細い幅は、覚えていなければ「元の幅 ÷ 設定」のままにする
+                if (!narrow) {
+                    setTreeWidth(Math.round(startWidth));
+                } else if (narrowBefore) {
+                    document.documentElement.style.setProperty('--shell-tree-narrow-width', narrowBefore);
+                } else {
+                    document.documentElement.style.removeProperty('--shell-tree-narrow-width');
+                }
+                window.mainMenu.hideTreeFrame(true);
+                return;
+            }
+            if (narrow && width >= max) {
+                setTreeNarrowOff(true);
+                return;
+            }
+            if (!width) {
+                return;
+            }
+            saveStored(narrow ? TREE_NARROW_WIDTH_KEY : TREE_WIDTH_KEY, width);
+            // 元の幅を、覚えた細い幅以下まで縮めたら、細い幅を忘れる（細くしても幅が変わらなくなるのを避ける）
+            if (!narrow && narrowBefore && parseFloat(narrowBefore) >= width) {
+                forgetTreeNarrowWidth();
+            }
+        };
+        const move = function (ev) {
+            // 4px 動くまでは始めない（押しただけ・ダブルクリックの手ぶれで幅を変えない）
+            if (!started) {
+                if (Math.abs(ev.clientX - e.clientX) < 4) {
+                    return;
+                }
+                started = true;
+            }
+            // 下限の半分より左まで動かしたら、離したときにツリーを閉じる
+            collapsing = ev.clientX < min / 2;
+            document.body.classList.toggle('is-collapsing-tree', collapsing);
+            width = clampTreeWidth(ev.clientX - grab, min);
+            if (max) {
+                width = Math.min(width, max);
+            }
+            setWidth(width);
+        };
+        // 薄くなったまま待ち、薄くなりきったら（shell.css の tree-collapse-wait の終わり）、離さなくても閉じる。
+        // 捕捉を解いた合図（lostpointercapture）は次にマウスが動くまで来ないので、ここで直接終える
+        const collapseAfterWait = function (ev) {
+            if (ev.animationName !== 'tree-collapse-wait' || !collapsing) {
+                return;
+            }
+            finish();
+            if (handle.hasPointerCapture(e.pointerId)) {
+                handle.releasePointerCapture(e.pointerId);
+            }
+        };
+        handle.addEventListener('pointermove', move);
+        pane.addEventListener('animationend', collapseAfterWait);
+        handle.addEventListener('lostpointercapture', finish, { once: true });
+    }
+
+    // 閉じているときの帯の操作。動かさずに離したら前の幅で開き、右へ動かしたらその幅で開く
+    function dragClosedTree(handle, e) {
+        const startX = e.clientX;
+        let min = 0;
+        let width = 0;
+        const move = function (ev) {
+            if (!min) {
+                if (ev.clientX - startX < 4) {
+                    return;
+                }
+                window.mainMenu.defaultTreeFrame();
+                document.body.classList.add('is-resizing-tree');
+                min = minTreeWidth();
+            }
+            width = clampTreeWidth(ev.clientX, min);
+            setTreeWidth(width);
+        };
+        handle.addEventListener('pointermove', move);
+        handle.addEventListener('lostpointercapture', function () {
+            handle.removeEventListener('pointermove', move);
+            document.body.classList.remove('is-resizing-tree');
+            if (!min) {
+                window.mainMenu.defaultTreeFrame(true);
+                return;
+            }
+            saveStored(TREE_WIDTH_KEY, width);
+        }, { once: true });
+    }
+
+    function syncTreePin() {
+        const pin = document.getElementById('treePin');
+        if (!pin) {
+            return;
+        }
+        const off = isTreeNarrowOff();
+        pin.classList.toggle('is-active', off);
+        pin.setAttribute('aria-pressed', off ? 'true' : 'false');
+    }
+
+    // 閉じているときは帯をボタンとして読ませ、キーボードでも開けるようにする
+    function syncTreeRail(handle) {
+        if (isTreeHidden()) {
+            handle.setAttribute('role', 'button');
+            handle.setAttribute('tabindex', '0');
+            handle.setAttribute('aria-label', handle.dataset.showLabel || '');
+            handle.title = handle.dataset.showLabel || '';
+            handle.removeAttribute('aria-orientation');
+        } else {
+            handle.setAttribute('role', 'separator');
+            handle.setAttribute('aria-orientation', 'vertical');
+            handle.removeAttribute('tabindex');
+            handle.removeAttribute('aria-label');
+            // 自動の拡縮を止めているときは、戻し方を出す
+            if (isTreeNarrowOff()) {
+                handle.title = handle.dataset.narrowRestoreLabel || '';
+            } else {
+                handle.removeAttribute('title');
+            }
+        }
+    }
+
+    function initTreeResizer() {
+        const handle = document.getElementById('evoTreeResizer');
+        if (!handle || !window.mainMenu) {
+            return;
+        }
+        try {
+            const saved = parseInt(localStorage.getItem(TREE_WIDTH_KEY), 10);
+            if (saved >= TREE_WIDTH_MIN) {
+                setTreeWidth(saved);
+            }
+            const savedNarrow = parseInt(localStorage.getItem(TREE_NARROW_WIDTH_KEY), 10);
+            if (savedNarrow >= TREE_NARROW_WIDTH_MIN) {
+                setTreeNarrowWidth(savedNarrow);
+            }
+            const off = localStorage.getItem(TREE_NARROW_OFF_KEY);
+            if (off !== null && off !== String(treeNarrowDivisor())) {
+                forgetStored(TREE_NARROW_OFF_KEY);
+            }
+            document.body.classList.toggle('tree-narrow-off', off !== null && off === String(treeNarrowDivisor()));
+        } catch (e) {
+            // 保存領域が使えないときは、既定の幅のまま
+        }
+
+        // 細くしているとき、境目に乗っただけではツリーを広げない（shell.css）。ただし広げて見せている途中で境目へ移ったときは、
+        // 縮めると境目が逃げてつかめないので、離れるまで広げたままにする
+        new ResizeObserver(function () {
+            const pane = document.getElementById('treePane');
+            lastTreeWidth = pane ? pane.getBoundingClientRect().width : 0;
+        }).observe(document.getElementById('mainPane'));
+        handle.addEventListener('pointerenter', function () {
+            document.body.classList.toggle('tree-resizer-hold', isTreeNarrowed() && isTreeExpanded(lastTreeWidth));
+        });
+        handle.addEventListener('pointerleave', function () {
+            document.body.classList.remove('tree-resizer-hold');
+        });
+
+        syncTreeRail(handle);
+        syncTreePin();
+        new MutationObserver(function () {
+            syncTreeRail(handle);
+            syncTreePin();
+        }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+        handle.addEventListener('pointerdown', function (e) {
+            if (e.button !== 0) {
+                return;
+            }
+            e.preventDefault();
+            handle.setPointerCapture(e.pointerId);
+            if (isTreeHidden()) {
+                dragClosedTree(handle, e);
+            } else {
+                dragOpenTree(handle, e, isTreeNarrowed() && !isTreeExpanded());
+            }
+        });
+
+        handle.addEventListener('keydown', function (e) {
+            if (isTreeHidden() && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                window.mainMenu.defaultTreeFrame(true);
+            }
+        });
+
+        // ダブルクリックで既定の幅に戻す。細くしているときは細い幅を、広げて見せているときは元の幅を戻す
+        handle.addEventListener('dblclick', function () {
+            if (isTreeHidden()) {
+                return;
+            }
+            if (isTreeNarrowOff()) {
+                setTreeNarrowOff(false);
+                return;
+            }
+            if (isTreeNarrowed() && !isTreeExpanded()) {
+                forgetTreeNarrowWidth();
+                return;
+            }
+            document.documentElement.style.removeProperty('--shell-tree-width');
+            forgetStored(TREE_WIDTH_KEY);
+            // 戻した元の幅以上の細い幅は忘れる（細くしても幅が変わらなくなるのを避ける。ドラッグの終わりと同じ）
+            const narrowWidth = parseFloat(document.documentElement.style.getPropertyValue('--shell-tree-narrow-width'));
+            if (narrowWidth >= fullTreeWidth()) {
+                forgetTreeNarrowWidth();
+            }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
+        updateDocumentTitle();
         if (!document.body.classList.contains('evo-shell')) {
             return;
         }
+
+        document.querySelectorAll('script[src][data-shell-once]').forEach(function (el) {
+            rememberOnceScript(el, resolveUrl(el.getAttribute('src')));
+        });
+
+        initTreeResizer();
 
         window.history.replaceState({ url: window.location.href }, '', window.location.href);
 
@@ -794,13 +1395,13 @@
             }
         }, true);
 
-        // リンククリックの委譲。data-no-ajax / target付き / 外部URLは素通しする
+        // リンククリックの委譲。data-no-ajax / target付き(target="main" を除く) / 外部URLは素通しする
         document.addEventListener('click', function (e) {
             if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
                 return;
             }
             const link = e.target.closest('a[href]');
-            if (!link || link.hasAttribute('data-no-ajax') || link.hasAttribute('target') || link.hasAttribute('download')) {
+            if (!link || link.hasAttribute('data-no-ajax') || hasOwnTarget(link) || link.hasAttribute('download')) {
                 return;
             }
             const href = link.getAttribute('href');
@@ -848,7 +1449,7 @@
             if (form.tagName !== 'FORM' || !form.closest('#mainPane, #evoShellModal')) {
                 return;
             }
-            if (form.hasAttribute('data-no-ajax') || form.hasAttribute('target')) {
+            if (form.hasAttribute('data-no-ajax') || hasOwnTarget(form)) {
                 return;
             }
             const action = (e.submitter && e.submitter.getAttribute('formaction')) || form.getAttribute('action') || window.location.href;
@@ -871,5 +1472,13 @@
         });
 
         scrollPaneToHash(window.location.href);
+
+        copyPageBackground();
+        watchActions();
+        document.addEventListener('evoshell:load', watchActions);
+        const pane = document.getElementById('mainPane');
+        if (pane) {
+            pane.addEventListener('scroll', onPaneScroll, { passive: true });
+        }
     });
 })();

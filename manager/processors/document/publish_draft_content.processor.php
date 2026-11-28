@@ -44,6 +44,12 @@ if ($draft) {
     }
 }
 
+// 予約は公開の予定を決める操作なので、公開の権限を求める（採用の画面 a=133 と同じ）
+if (postv('publishoption') === 'reserve' && !evo()->hasPermission('publish_document')) {
+    alert()->setError(3);
+    alert()->dumpError();
+}
+
 // 空白だけの日付は空の日付（即時公開）として扱う
 $reserveDate = trim(post_strvar('pub_date'));
 if (postv('publishoption') === 'reserve' && $reserveDate !== '') {
@@ -89,7 +95,7 @@ function setStandBy($docid, $pub_date)
 
 /**
  * 下書きを採用するときの値を、今の文書の公開の状態を起点にリソースの保存と同じ規則で決める
- * （DocAPI::draftForAdoption()。公開の権限が無いときは published だけ今の値を引き継ぐ）。
+ * （DocAPI::draftForAdoption()。公開の権限が無いときは published・日付を今の値のままにする）。
  * トップページで許さない公開の状態になるなら、文書も下書きも変えずに警告を出して下書きの編集画面へ戻す
  */
 function adoptableDraft($docid, $draft)
@@ -112,7 +118,7 @@ function publishDraft($docid)
     evo()->loadExtension('DocAPI');
     // 下書きが無いときは、日付に規則をかけず published だけ今の値を渡す（DocAPI::draftForAdoption()）
     $draft = adoptableDraft($docid, evo()->revision->getDraft($docid));
-    evo()->doc->update($draft, $docid);
+    evo()->doc->updateFromDraft($draft, $docid);
     db()->delete(
         '[+prefix+]site_revision',
         sprintf(

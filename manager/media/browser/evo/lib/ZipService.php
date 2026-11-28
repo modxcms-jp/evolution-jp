@@ -95,12 +95,14 @@ class ZipService
      *
      * @param string $zipPath resolveFile() で確かめた zip の実パス
      * @param string $destDir resolveDir() で確かめた展開先の実パス
-     * @return array{ok:bool,reason:string,extracted:int,files:string[],failed:string[]} reason は unavailable・open_failed・unsafe・''。
-     *         files は展開できたファイル(フォルダは含まない)の、展開先からの相対パス
+     * @return array{ok:bool,reason:string,extracted:int,files:string[],failed:string[],renamed:array<int,array{from:string,to:string}>}
+     *         reason は unavailable・open_failed・unsafe・''。
+     *         files は展開できたファイル(フォルダは含まない)の、展開先からの相対パス。
+     *         renamed は名前が変わった要素の、zip 内のパス => 付いたパス。フォルダーの名前が変わったときは、そのフォルダーと、その中で名前が変わったものが別々に載る(変わっていない配下は載せない)
      */
     public static function extract($zipPath, $destDir, PathResolver $resolver, PathGuard $guard, DocumentParser $modx)
     {
-        $result = ['ok' => false, 'reason' => '', 'extracted' => 0, 'files' => [], 'failed' => []];
+        $result = ['ok' => false, 'reason' => '', 'extracted' => 0, 'files' => [], 'failed' => [], 'renamed' => []];
 
         if (!extension_loaded('zip') || !class_exists('ZipArchive')) {
             $result['reason'] = 'unavailable';
@@ -130,6 +132,7 @@ class ZipService
         $folderPermissions = $modx->newFolderPermissions();
         $filePermissions = $modx->newFilePermissions();
         $assigned = ['dirs' => [], 'paths' => []];
+        $renamed = [];
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $entryName = self::entryName($zip, $i);
             $relative = self::entryPath($modx, $entryName);
@@ -146,15 +149,17 @@ class ZipService
                 $result['failed'][] = $relative;
                 continue;
             }
-            if ($isDirEntry) {
+            if (!$isDirEntry && !self::copyEntry($zip, $i, $targetPath, $filePermissions)) {
+                $result['failed'][] = $relative;
                 continue;
             }
-            if (!self::copyEntry($zip, $i, $targetPath, $filePermissions)) {
-                $result['failed'][] = $relative;
+            self::noteRenamed($modx, $entryName, $completeRelative, $renamed);
+            if ($isDirEntry) {
                 continue;
             }
             $result['files'][] = $completeRelative;
         }
+        $result['renamed'] = array_values($renamed);
         if ($result['failed']) {
             $modx->logEvent(0, 2, 'Some zip entries could not be extracted', 'unzip', [
                 'zip' => $zipPath,
@@ -166,6 +171,42 @@ class ZipService
         $result['ok'] = true;
         $result['extracted'] = count($result['files']);
         return $result;
+    }
+
+    /**
+     * zip 内の名前と付いた名前を要素ごとに比べ、違う要素までのパスの組を $renamed に足す(同じ組は 1 件)。
+     * 付いた名前は要素の数が同じなので、フォルダーの名前が変わったときは、そのフォルダーの組と、中の名前が変わったものの組が並ぶ。
+     * 配下の名前が変わっていないファイルは載らない。macOS の zip が付ける __MACOSX 以下は載せない。
+     * zip 内の名前は、無害化と同じ条件で NFC にそろえてから比べる(NFD の見た目の同じ名前を、変わったとしない)
+     */
+    private static function noteRenamed(DocumentParser $modx, $entryName, $completeRelative, array &$renamed)
+    {
+        $from = [];
+        foreach (explode('/', str_replace('\\', '/', $entryName)) as $segment) {
+            if ($segment !== '' && $segment !== '.') {
+                $from[] = $segment;
+            }
+        }
+        if (($from[0] ?? '') === '__MACOSX') {
+            return;
+        }
+        $normalize = class_exists('Normalizer')
+            && $modx->config('clean_uploaded_filename') != 1
+            && mb_check_encoding(implode('/', $from), 'UTF-8');
+        $to = explode('/', $completeRelative);
+        foreach ($to as $i => $segment) {
+            $original = $from[$i];
+            if ($normalize) {
+                $normalized = Normalizer::normalize($original, Normalizer::FORM_C);
+                $original = is_string($normalized) ? $normalized : $original;
+            }
+            if ($segment === $original) {
+                continue;
+            }
+            $fromPath = implode('/', array_slice($from, 0, $i + 1));
+            $toPath = implode('/', array_slice($to, 0, $i + 1));
+            $renamed[$fromPath . "\n" . $toPath] = ['from' => $fromPath, 'to' => $toPath];
+        }
     }
 
     /** エントリ名を UTF-8 で返す。Windows の zip は Shift_JIS(CP932) が多く、getNameIndex() の既定は CP437 とみなして崩すため、元のバイト列から変換する */

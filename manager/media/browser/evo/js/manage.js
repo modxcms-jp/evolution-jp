@@ -51,6 +51,9 @@ function createFile(host) {
         });
 }
 
+// 名前が変わったものを、展開のあとの知らせに並べる件数の上限(残りは件数だけ)
+var UNZIP_RENAMED_LIMIT = 10;
+
 function unzipFile(host, name) {
     if (!window.confirm(t('fb_confirm_unzip', name))) {
         return;
@@ -60,6 +63,16 @@ function unzipFile(host, name) {
             var lines = [t('fb_unzip_done', result.extracted)];
             if (result.failed && result.failed.length) {
                 lines.push('', t('fb_unzip_entry_failed'), result.failed.join('\n'));
+            }
+            var renamed = result.renamed || [];
+            if (renamed.length) {
+                lines.push('', t('fb_unzip_renamed'));
+                renamed.slice(0, UNZIP_RENAMED_LIMIT).forEach(function (r) {
+                    lines.push(r.from + ' → ' + r.to);
+                });
+                if (renamed.length > UNZIP_RENAMED_LIMIT) {
+                    lines.push(t('fb_unzip_renamed_more', renamed.length - UNZIP_RENAMED_LIMIT));
+                }
             }
             window.alert(lines.join('\n'));
             host.reload();

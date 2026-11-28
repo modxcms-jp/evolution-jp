@@ -84,9 +84,4 @@ class errorHandler
             strpos($previous, '?') === false ? '?' : '&'
         );
     }
-
-    private function getError()
-    {
-        return $this->errorcode;
-    }
 }

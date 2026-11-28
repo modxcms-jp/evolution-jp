@@ -1,11 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<!DOCTYPE html>
+<html lang="ja">
 <head>
-    <title>MODX CMF Manager Login</title>
-    <meta http-equiv="content-type" content="text/html; charset=[+modx_charset+]"/>
+    <title>[+login_title+]</title>
+    <meta charset="[+modx_charset+]">
     <meta name="robots" content="noindex, nofollow"/>
-    <link rel="stylesheet" type="text/css" href="media/style/[+theme+]/style.css?[+theme_css_ver+]"/>
+    [+theme_stylesheets+]
     <style type="text/css">
         /* Neutralize styles, fonts and viewport:
         ---------------------------------------------------------------- */
@@ -28,7 +27,7 @@
         }
 
         .header {padding: 5px 3px 5px 18px;font-weight: bold;color: #000;background: #EAECEE url([+style_misc_path+]fade.gif) repeat-x top;border-bottom:1px solid #e0e0e0;} .body {padding: 20px 20px 20px;display: block;background: #fff;
-    box-shadow: inset 0px 5px 10px 0px rgba(70, 70, 70, 0.1);} #mx_loginbox {width: 460px;margin: 30px auto 0;box-shadow: 0 0 10px #aaa;} img.loginCaptcha {border: 1px solid #039;width: 148px;height: 60px;} label {display: block;font-weight: bold;} input {margin: 0 0 10px 0;} input.checkbox {float: left;clear: left;margin-right: 3px;} form input.text, input#FMP-email {margin-bottom:8px;line-height:1;ime-mode:inactive;letter-spacing:1px;font-family: Verdana; width: 400px;background: #fff url([+style_misc_path+]input-bg.gif) repeat-x top left;border:1px solid #ccc;padding:3px;} input.login {float: right;clear: right;margin-right: 0px;padding:5px 8px;cursor: hand; cursor: pointer;background: #EAECEE url([+style_misc_path+]fade.gif) repeat-x top;border:1px solid #ccc;} .loginLicense {width: 460px;color: #B2B2B2;margin: 0.5em auto;font-size: 90%;padding-left: 20px;} .loginLicense a {color: #B2B2B2;} .loginMessage {font-size:12px;color: #999;padding-top: 10px;} input#FMP-email {width:300px;} label#FMP-email_label
+    box-shadow: inset 0px 5px 10px 0px rgba(70, 70, 70, 0.1);} #mx_loginbox {width: 460px;margin: 30px auto 0;box-shadow: 0 0 10px #aaa;} img.loginCaptcha {border: 1px solid #039;width: 148px;height: 60px;} label {display: block;font-weight: bold;} input {margin: 0 0 10px 0;} input.checkbox {float: left;clear: left;margin-right: 3px;} form input.text {display:block;} form input.text, input#FMP-email {margin-bottom:8px;line-height:1;ime-mode:inactive;letter-spacing:1px;font-family: Verdana; width: 400px;background: #fff url([+style_misc_path+]input-bg.gif) repeat-x top left;border:1px solid #ccc;padding:3px;} input.login {float: right;clear: right;margin-right: 0px;padding:5px 8px;cursor: hand; cursor: pointer;background: #EAECEE url([+style_misc_path+]fade.gif) repeat-x top;border:1px solid #ccc;} .loginLicense {width: 460px;color: #B2B2B2;margin: 0.5em auto;font-size: 90%;padding-left: 20px;} .loginLicense a {color: #B2B2B2;} .loginMessage {font-size:12px;color: #999;padding-top: 10px;} input#FMP-email {width:300px;} label#FMP-email_label
 
         {padding-left:0;}
     </style>

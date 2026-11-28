@@ -1,11 +1,14 @@
 <?php
 
 $this->doc = new DocAPI;
+require_once MODX_CORE_PATH . 'special_pages.class.inc.php';
 
 // 文書の作成・更新・削除と、編集画面の値の整形・権限の確認（evo()->doc）。文書を扱うコードはこちらを使う。
 // ex_documentapi.php の Document クラスは本体から使われておらず、非推奨（#1085）
 class DocAPI
 {
+    // 値が複数になる TV の型。選ばなかったときは、項目が送られないので空として扱う
+    const MULTI_VALUE_TV_TYPES = ['checkbox', 'listbox-multiple', 'custom_tv'];
 
     public $mode;
 
@@ -174,17 +177,21 @@ class DocAPI
     }
 
     /**
-     * トップページ（site_start）に許さない公開の状態なら、その理由の文を返す（保存と下書きの採用の共通の判定）。
-     * 非公開にする、未来の公開日がある、公開終了日がある、のどれかに当たると返す。問題が無ければ空文字。
+     * 設定で使っているページ（EvoSpecialPages::protectedSettings()）に許さない公開の状態なら、その理由の文を返す（保存と下書きの採用の共通の判定）。
+     * 非公開にする、未来の公開日がある、公開終了日がある、のどれかに当たると返す。当たるページでない・問題が無ければ空文字。
      * 警告と差し戻しは呼び出し側で行う。日付はタイムスタンプ（setPubStatus() を通した値）で渡す
      */
-    public function startDocPubError($published, $pub_date, $unpub_date)
+    public function protectedPubError($id, $published, $pub_date, $unpub_date)
     {
+        $setting = $this->protectedPageSetting($id);
+        if ($setting === '') {
+            return '';
+        }
         if ($published == 0) {
-            return 'Document is linked to site_start variable and cannot be unpublished!';
+            return stripcslashes(lang('cannot_unpublish_' . $setting));
         }
         if ($pub_date > request_time() || $unpub_date) {
-            return 'Document is linked to site_start variable and cannot have publish or unpublish dates set!';
+            return stripcslashes(lang('cannot_pub_dates_' . $setting));
         }
         return '';
     }
@@ -192,31 +199,173 @@ class DocAPI
     /**
      * 下書きを文書へ採用するときの値を決める（今すぐ採用・予約の受け付け・予約の時刻の採用の共通の規則）。
      * 今の文書の公開の状態を起点に、リソースの保存と同じ規則（setPubStatus()）で published と日付を決める。
-     * $canPublish が偽（公開の権限が無い）なら、published だけ今の値を引き継ぐ。
-     * トップページ（site_start）に許さない状態なら、その理由の文も返す（startDocPubError()。無ければ空文字）。
+     * $canPublish が偽（公開の権限が無い）なら、published・pub_date・unpub_date を今の値のままにする。
+     * 設定で使っているページに許さない状態なら、その理由の文も返す（protectedPubError()。無ければ空文字）。
      * 下書きが空なら、日付を 0 で上書きしないよう規則をかけず、published だけ今の値を返す。
      * 返り値は [採用する値, 理由]。警告と差し戻し・ログは呼び出し側で行う
      */
     public function draftForAdoption($docid, $draft, $canPublish = true)
     {
-        $published = (int)db()->getValue(
-            db()->select('published', '[+prefix+]site_content', where('id', '=', (int)$docid))
-        );
+        $current = db()->getRow(
+            db()->select('published,pub_date,unpub_date', '[+prefix+]site_content', where('id', '=', (int)$docid))
+        ) ?: [];
+        $published = (int)array_get($current, 'published', 0);
         if (!$draft) {
             return [['published' => $published], ''];
         }
         $draft['published'] = $published;
-        $ruled = $this->setPubStatus($draft);
         if ($canPublish) {
-            $draft = $ruled;
-        }
-        if ((int)$docid !== (int)evo()->config('site_start')) {
-            return [$draft, ''];
+            $draft = $this->setPubStatus($draft);
+        } else {
+            $draft['pub_date'] = (int)array_get($current, 'pub_date', 0);
+            $draft['unpub_date'] = (int)array_get($current, 'unpub_date', 0);
         }
         return [
             $draft,
-            $this->startDocPubError($draft['published'], $ruled['pub_date'], $ruled['unpub_date'])
+            $this->protectedPubError($docid, $draft['published'], $draft['pub_date'], $draft['unpub_date'])
         ];
+    }
+
+    /**
+     * 下書きを文書へ採用する（今すぐ採用・予約の時刻の採用の共通の入口）。
+     * 文書の項目は update() で、TV は下書きの tv<ID> の値を通常の保存と同じ規則（tmplvarValueForSave()）で保存する。
+     * $draft は draftForAdoption() の返り値
+     */
+    public function updateFromDraft($draft, $docid)
+    {
+        $rs = $this->update($draft, $docid);
+        if ($rs === false) {
+            return false;
+        }
+        $tmplvars = [];
+        foreach ($this->templateTmplvars($draft['template'] ?? 0, false) as $row) {
+            $key = 'tv' . $row['id'];
+            if (array_key_exists($key, $draft)) {
+                $tmplvars[$row['id']] = $this->tmplvarValueForSave($row, $draft[$key]);
+            }
+        }
+        if ($tmplvars) {
+            $this->saveTmplvars($docid, $tmplvars);
+            evo()->clearCache();
+        }
+        return $rs;
+    }
+
+    /**
+     * 下書きに入れる TV の値を、通常の保存と同じ範囲に絞る。
+     * テンプレートに無い TV と、今のユーザーが変えられない TV は落とす。選ばなかった複数選択の TV は、
+     * 採用で空にできるよう空文字で残す（下書きの項目が無いことは「変えない」の意味にするため）。
+     * 変えられない TV の下書きの値は、$existing（保存済みの下書き）のものを引き継ぐ
+     */
+    public function limitDraftTmplvars($fields, $existing = [])
+    {
+        $allowed = [];
+        foreach ($this->templateTmplvars($fields['template'] ?? 0) as $row) {
+            $key = 'tv' . $row['id'];
+            $allowed[$key] = true;
+            if (!isset($fields[$key]) && in_array($row['type'], self::MULTI_VALUE_TV_TYPES, true)) {
+                $fields[$key] = '';
+            }
+        }
+        foreach (array_keys($fields) as $key) {
+            if (preg_match('@^(tv[0-9]+)(_prefix)?$@', (string)$key, $m) && !isset($allowed[$m[1]])) {
+                unset($fields[$key]);
+            }
+        }
+        foreach ($existing as $key => $value) {
+            if (preg_match('@^tv[0-9]+$@', (string)$key) && !isset($allowed[$key])) {
+                $fields[$key] = $value;
+            }
+        }
+        return $fields;
+    }
+
+    /**
+     * テンプレートに割り当てた TV の行を rank 順に返す。$checkAccess が真なら、今の管理ユーザーが変えられる TV だけ
+     * （判定は ManagerAPI::tmplvarAccessCondition()。文書グループで絞らない利用者は全部）
+     */
+    public function templateTmplvars($template, $checkAccess = true)
+    {
+        $template = (int)$template;
+        if (!$template) {
+            return [];
+        }
+        $where = sprintf('tvtpl.templateid=%d', $template);
+        $cond = $checkAccess ? manager()->tmplvarAccessCondition('tv') : '';
+        if ($cond !== '') {
+            $where .= " AND {$cond}";
+        }
+        $rs = db()->select(
+            'DISTINCT tv.*',
+            [
+                '[+prefix+]site_tmplvars AS tv',
+                'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid = tv.id'
+            ],
+            $where,
+            'tv.rank'
+        );
+        $rows = [];
+        while ($row = db()->getRow($rs)) {
+            $rows[] = $row;
+        }
+        return $rows;
+    }
+
+    /**
+     * TV の値を保存する形にする。配列は '||' でつなぐ。空か既定値と同じなら false（保存せず、あれば行を消す）。
+     * リソースの保存と下書きの採用の共通の規則。URL 型の接頭辞は呼び出し側で整えてから渡す
+     */
+    public function tmplvarValueForSave($row, $value)
+    {
+        if (is_array($value)) {
+            $value = implode('||', $value);
+        }
+        $value = (string)$value;
+        // @@EVAL の既定値は $row を読めるので、変数名は通常の保存のときと同じにしておく
+        $default = $row['default_text'];
+        if (substr($default, 0, 6) === '@@EVAL') {
+            $default = eval(trim(substr($default, 7)));
+        }
+        return strlen($value) > 0 && $value != $default ? $value : false;
+    }
+
+    /**
+     * TV の値を保存する。$tmplvars は [TV の id => 値]。値が false なら行を消す（tmplvarValueForSave() の返り値）
+     */
+    public function saveTmplvars($docid, $tmplvars)
+    {
+        $docid = (int)$docid;
+        $rs = db()->select(
+            'id, tmplvarid',
+            '[+prefix+]site_tmplvar_contentvalues',
+            where('contentid', '=', $docid)
+        );
+        $rowIds = [];
+        while ($row = db()->getRow($rs)) {
+            $rowIds[$row['tmplvarid']] = $row['id'];
+        }
+        foreach ($tmplvars as $tmplvarid => $value) {
+            $tmplvarid = (int)$tmplvarid;
+            if ($value === false) {
+                if (isset($rowIds[$tmplvarid])) {
+                    db()->delete(
+                        '[+prefix+]site_tmplvar_contentvalues',
+                        where('id', '=', (int)$rowIds[$tmplvarid])
+                    );
+                }
+                continue;
+            }
+            $f = db()->escape(['contentid' => $docid, 'tmplvarid' => $tmplvarid, 'value' => $value]);
+            if (isset($rowIds[$tmplvarid])) {
+                db()->update(
+                    $f,
+                    '[+prefix+]site_tmplvar_contentvalues',
+                    sprintf("tmplvarid='%d' AND contentid='%d'", $tmplvarid, $docid)
+                );
+                continue;
+            }
+            db()->insert($f, '[+prefix+]site_tmplvar_contentvalues');
+        }
     }
 
     // type : 'create' or 'update'
@@ -335,24 +484,6 @@ class DocAPI
         );
     }
 
-    private function tmplVars($template_id)
-    {
-        static $tmplvars = null;
-        if ($tmplvars !== null) {
-            return $tmplvars;
-        }
-        $rs = db()->select('id,name', '[+prefix+]site_tmplvars');
-        $tmplvars = [];
-        while ($row = db()->getRow($rs)) {
-            if (!$this->hasTmplvarRelation($row['id'], $template_id)) {
-                continue;
-            }
-            $tmplvars[$row['name']] = $row['id'];
-            $tmplvars['tv' . $row['id']] = $row['id'];
-        }
-        return $tmplvars;
-    }
-
     private function hasTmplvar($tmplvarid, $doc_id)
     {
         $rs = db()->select(
@@ -365,20 +496,6 @@ class DocAPI
             )
         );
         return db()->count($rs);
-    }
-
-    private function hasTmplvarRelation($tmplvarid, $template_id)
-    {
-        $rs = db()->select(
-            '*',
-            '[+prefix+]site_tmplvar_templates',
-            sprintf(
-                "tmplvarid='%s' AND templateid='%s'",
-                db()->escape($tmplvarid),
-                db()->escape($template_id)
-            )
-        );
-        return db()->count($rs) == 1;
     }
 
     private function isTv($key)
@@ -623,6 +740,229 @@ class DocAPI
     public function canSaveDraft()
     {
         return 1;
+    }
+
+    /**
+     * そのリソースが当たる設定名（EvoSpecialPages::protectedSettings()）。当たらなければ空文字
+     */
+    public function protectedPageSetting($id)
+    {
+        $id = (int)$id;
+        if (!$id) {
+            return '';
+        }
+        foreach (EvoSpecialPages::protectedSettings() as $setting) {
+            if ($id === (int)evo()->config($setting)) {
+                return $setting;
+            }
+        }
+        return '';
+    }
+
+    /**
+     * 削除を止める警告の言語キー。当たらなければ空文字。
+     * $asChild が真なら、そのリソースが子孫にあって親の削除を止めるときの言語キー（文の中に ID の %d を持つ）
+     */
+    public function deleteGuardKey($id, $asChild = false)
+    {
+        $setting = $this->protectedPageSetting($id);
+        if ($setting === '') {
+            return '';
+        }
+        return ($asChild ? 'cannot_delete_child_' : 'cannot_delete_') . $setting;
+    }
+
+    /**
+     * 非公開にするのを止める警告の言語キー。当たらなければ空文字
+     */
+    public function unpublishGuardKey($id)
+    {
+        $setting = $this->protectedPageSetting($id);
+        return $setting === '' ? '' : 'cannot_unpublish_' . $setting;
+    }
+
+    /**
+     * 文書の操作の確認の文言（document-actions.js の operations の表が言語キーで引く）。警告の文言は EvoSpecialPages::protectedSettings() から組み立てる
+     */
+    const ACTION_LANG_KEYS = [
+        'confirm_delete_resource', 'confirm_delete_resource_children', 'confirm_batch_delete',
+        'confirm_batch_publish', 'confirm_batch_unpublish',
+        'confirm_publish', 'confirm_unpublish', 'confirm_resource_duplicate', 'confirm_undelete',
+        'confirm_purge_resource', 'confirm_purge_resource_children',
+    ];
+
+    /**
+     * document-actions.js へ渡す設定（header.inc.php が EvoDocumentActions.config に入れる）。
+     * ids は「設定名 => リソースの ID」、lang は「言語キー => 文言」、menu は右クリックメニューの状態での出し分け（DocumentMenu::stateConfig()）
+     */
+    public function actionConfig()
+    {
+        $ids = [];
+        $keys = self::ACTION_LANG_KEYS;
+        foreach (EvoSpecialPages::protectedSettings() as $setting) {
+            $ids[$setting] = (int)evo()->config($setting);
+            $keys[] = 'cannot_delete_' . $setting;
+            $keys[] = 'cannot_unpublish_' . $setting;
+        }
+        $lang = [];
+        foreach ($keys as $key) {
+            $lang[$key] = stripcslashes(lang($key));
+        }
+        include_once(MODX_CORE_PATH . 'controls/document_menu.class.php');
+        return js_value(['ids' => $ids, 'lang' => $lang, 'menu' => DocumentMenu::stateConfig()]);
+    }
+
+    /**
+     * 削除していない子があるか（削除で一緒に削除される子の有無。isfolder の設定とは別）
+     */
+    public function hasLiveChildren($id)
+    {
+        return (bool)$this->idsWithLiveChildren([$id]);
+    }
+
+    /**
+     * 渡した ID のうち、削除していない子を持つものの ID の配列（一覧の行など、まとめて調べるとき用）
+     */
+    public function idsWithLiveChildren(array $ids)
+    {
+        return $this->idsWithChildren($ids, true);
+    }
+
+    /**
+     * 渡した ID のうち、子を持つものの ID の配列。$liveOnly が false ならゴミ箱の子も数える
+     */
+    public function idsWithChildren(array $ids, $liveOnly = false)
+    {
+        $ids = array_filter(array_map('intval', $ids));
+        if (!$ids) {
+            return [];
+        }
+        $rs = db()->select(
+            'DISTINCT parent',
+            '[+prefix+]site_content',
+            sprintf('parent IN (%s)%s', implode(',', $ids), $liveOnly ? " AND deleted='0'" : '')
+        );
+        $result = [];
+        while ($row = db()->getRow($rs)) {
+            $result[] = (int)$row['parent'];
+        }
+        return $result;
+    }
+
+    /**
+     * リソース $id の子孫すべて（ゴミ箱のものも含む）を「ID => ゴミ箱にあるか」で返す。$id 自身は含まない
+     * （parent が循環していても含まない）。$id が 0 ならサイトの全リソース。
+     * evo()->getChildIds() はゴミ箱のリソースを含まないので、DB を 1 段ずつたどる
+     */
+    public function descendants($id)
+    {
+        $id = (int)$id;
+        $found = [$id => true];
+        $level = [$id];
+        while ($level) {
+            $rs = db()->select('id, deleted', '[+prefix+]site_content', sprintf('parent IN (%s)', implode(',', $level)));
+            $level = [];
+            while ($row = db()->getRow($rs)) {
+                if (!isset($found[(int)$row['id']])) {
+                    $found[(int)$row['id']] = (bool)$row['deleted'];
+                    $level[] = (int)$row['id'];
+                }
+            }
+        }
+        unset($found[$id]);
+        return $found;
+    }
+
+    /**
+     * ゴミ箱にあるリソースの ID の配列（ゴミ箱を空にするときの対象）
+     */
+    public function trashedIds()
+    {
+        $rs = db()->select('id', '[+prefix+]site_content', 'deleted=1');
+        $ids = [];
+        while ($row = db()->getRow($rs)) {
+            $ids[] = (int)$row['id'];
+        }
+        return $ids;
+    }
+
+    /**
+     * ゴミ箱のリソース $id を完全に削除するときの対象（$id と子孫）を集め、消せるかを確かめる。何も消さない。
+     * 子孫を残すと親の無いリソースになるので、完全な削除は子孫ごと行う。$id がゴミ箱に無いとき、
+     * ゴミ箱に無い子孫（個別に復活させたものなど）があるときは、消せない理由を返す。
+     * 利用者の権限は見ない（管理画面の処理は、呼び出し側で checkPermissions() などを確かめる）。
+     *
+     * @param int $id
+     * @return array ['warning' => 消せない理由（空なら消せる）, 'ids' => $id と子孫の ID（重なりなし。$id が先頭）, 'parent' => $id の親]
+     *     ids と parent は warning があっても返す（呼び出し側が、理由を見せる前に対象の権限を確かめられるように）。
+     *     $id のリソースが無いときは ids が空
+     */
+    public function purgeCheck($id)
+    {
+        $id = (int)$id;
+        $target = db()->getRow(db()->select('parent, deleted', '[+prefix+]site_content', 'id=' . $id));
+        if (!$target) {
+            return ['warning' => '', 'ids' => [], 'parent' => 0];
+        }
+        $descendants = $this->descendants($id);
+        $liveId = array_search(false, $descendants, true);
+        if (!(int)$target['deleted']) {
+            $warning = sprintf('ID: %d %s', $id, lang('not_deleted'));
+        } elseif ($liveId !== false) {
+            $warning = sprintf(lang('cannot_purge_live_child'), $liveId);
+        } else {
+            $warning = '';
+        }
+        return [
+            'warning' => $warning,
+            'ids' => array_merge([$id], array_keys($descendants)),
+            'parent' => (int)$target['parent'],
+        ];
+    }
+
+    /**
+     * ゴミ箱のリソースを完全に削除する（元に戻せない）。1 件（purgeCheck() の ids）でも、ゴミ箱の全件（trashedIds()）でも、ここを通す。
+     * 文書グループとの結び付き・テンプレート変数の値・下書きの行も消す。ゴミ箱に無いリソースは、ID を渡しても消さない。
+     * OnBeforeEmptyTrash・OnEmptyTrash を発火し、消す ID を ids で渡す（OnBeforeEmptyTrash のプラグインは ids を書き換えられる）。
+     * 権限・消せるかの確かめと、キャッシュの消去（evo()->clearCache()）は呼び出し側が行う。
+     *
+     * @param array $ids 消すリソースの ID
+     * @return bool 消せたら true（$ids が空のときも true）
+     */
+    public function purge(array $ids)
+    {
+        $ids = array_values(array_unique(array_map('intval', $ids)));
+        evo()->event->vars['ids'] = &$ids;
+        evo()->invokeEvent('OnBeforeEmptyTrash', evo()->event->vars);
+
+        $result = true;
+        if ($ids) {
+            $content = evo()->getFullTableName('site_content');
+            $trashed = sprintf('%s.id IN (%s) AND %s.deleted=1', $content, implode(',', array_map('intval', $ids)), $content);
+            // リソースの行を消す前に、結び付いた行を消す（リソースの ID は別のリソースで使い回されうる）。値は「表 => リソースの ID の列と追加の条件」
+            $related = [
+                'document_groups' => ['document', ''],
+                'site_tmplvar_contentvalues' => ['contentid', ''],
+                'site_revision' => ['elmid', " AND %s.element='resource'"],
+            ];
+            foreach ($related as $name => [$column, $extra]) {
+                $table = evo()->getFullTableName($name);
+                db()->query(sprintf(
+                    'DELETE %1$s FROM %1$s INNER JOIN %2$s ON %2$s.id = %1$s.%3$s WHERE %4$s%5$s',
+                    $table,
+                    $content,
+                    $column,
+                    $trashed,
+                    sprintf($extra, $table)
+                ));
+            }
+            $result = (bool)db()->delete($content, sprintf('id IN (%s) AND deleted=1', implode(',', array_map('intval', $ids))));
+        }
+        if ($result) {
+            evo()->invokeEvent('OnEmptyTrash', evo()->event->vars);
+        }
+        evo()->event->vars = [];
+        return $result;
     }
 
     public function existsDoc($id = 0)

@@ -7,6 +7,8 @@ if (!evo()->hasPermission('settings')) {
     alert()->dumpError();
 }
 
+require_once MODX_CORE_PATH . 'special_pages.class.inc.php';
+
 $warnings = warnings();
 if ($warnings) {
     manager()->saveFormValues(17);
@@ -29,6 +31,7 @@ fix_pulishedon();
 repairDocs();
 evo()->clearCache();
 setPermission();
+EvoFormFlow::noticeSaved();
 header("Location: index.php?a=7&refresh=page");
 
 
@@ -49,8 +52,10 @@ function setPermission()
     if (!is_dir($export_dir)) {
         mkd($export_dir);
     }
-    if (!is_dir(MODX_BASE_PATH . 'temp/backup')) {
-        mkd(MODX_BASE_PATH . 'temp/backup');
+    require_once MODX_CORE_PATH . 'snapshot_store.class.inc.php';
+    $snapshotStore = new EvoSnapshotStore(formv('snapshot_path'));
+    if ($snapshotStore->problem() === '') {
+        $snapshotStore->ensureDir();
     }
 
     if (is_writable(MODX_CORE_PATH . 'config.inc.php')) {
@@ -85,7 +90,7 @@ function setModifiedConfig($form_v, $defaut_v)
 
 function formv($key, $default = null)
 {
-    if (in_array($key, ['filemanager_path', 'rb_base_dir', 'export_dir'])) {
+    if (in_array($key, ['filemanager_path', 'rb_base_dir', 'export_dir', 'snapshot_path'])) {
         $value = postv($key, $default);
         if (!is_string($value)) {
             $value = '';
@@ -104,6 +109,22 @@ function warnings()
     if (!is_dir(str_replace('[(base_path)]', MODX_BASE_PATH, formv('rb_base_dir')))) {
         $warnings[] = lang('configcheck_rb_base_dir');
     }
+    // 変えた値はすべて確かめる。今の値のままなら、外を指す・専用でないフォルダのときだけ止める
+    // （書き込めないだけなら、関係のない設定の保存は止めない。作成・復元のときに知らせる）
+    require_once MODX_CORE_PATH . 'snapshot_store.class.inc.php';
+    $snapshotStore = new EvoSnapshotStore(formv('snapshot_path'));
+    $snapshotProblem = $snapshotStore->problem();
+    $snapshotChanged = EvoSnapshotStore::normalizeValue(formv('snapshot_path'))
+        !== EvoSnapshotStore::normalizeValue(config('snapshot_path'));
+    if ($snapshotProblem !== '' && ($snapshotChanged || $snapshotProblem !== EvoSnapshotStore::UNWRITABLE)) {
+        $warnings[] = evo()->parseText(lang('snapshot_path_invalid'), ['snapshot_path' => $snapshotStore->dir()]);
+    }
+    foreach (EvoSpecialPages::all() as $key => [$name, $titleKey]) {
+        $warning = invalidPageWarning($key, lang($titleKey));
+        if ($warning) {
+            $warnings[] = $warning;
+        }
+    }
     if (post_strvar('friendly_urls') !== '1') {
         return $warnings;
     }
@@ -118,6 +139,21 @@ function warnings()
     return $warnings;
 }
 
+// 今の設定値から変えた項目だけを確かめる（既にある値は設定の点検で知らせる）
+function invalidPageWarning($key, $name)
+{
+    $value = formv($key, '');
+    $value = is_string($value) ? trim($value) : '';
+    if ($value === trim((string) config($key)) || !ctype_digit($value) || (int) $value === 0) {
+        return '';
+    }
+    $id = (int) $value;
+    if (EvoSpecialPages::problem($id) === '') {
+        return '';
+    }
+    return sprintf(lang('settings_page_invalid_msg'), $name, $id);
+}
+
 /**
  * フォームから送られてくるが、設定ではないキー（保存しない）
  */
@@ -129,7 +165,6 @@ function nonSettingKeys()
         'reload_site_unavailable',
         'reload_captcha_words',
         'reload_emailsubject',
-        'reload_signupemail_message',
         'reload_websignupemail_message',
         'reload_system_email_webreminder_message',
         // 設定画面の補助項目（テンプレートの一括変更、言語ごとの初期文面）
@@ -138,7 +173,6 @@ function nonSettingKeys()
         'captcha_words_default',
         'emailsubject_default',
         'siteunavailable_message_default',
-        'system_email_signup_default',
         'system_email_websignup_default',
         'system_email_webreminder_default',
     ];
@@ -148,7 +182,7 @@ function nonSettingKeys()
 function stringSettingKeys()
 {
     return [
-        'base_url', 'fixed_site_url', 'rb_base_url', 'export_dir', 'rb_base_dir', 'filemanager_path',
+        'base_url', 'fixed_site_url', 'rb_base_url', 'export_dir', 'snapshot_path', 'rb_base_dir', 'filemanager_path',
         'error_page', 'unauthorized_page', 'site_start', 'manager_language', 'new_file_permissions',
         'new_folder_permissions', 'smtppw', 'topmenu_site', 'topmenu_element', 'topmenu_security',
         'topmenu_user', 'topmenu_tools', 'topmenu_reports',
@@ -195,6 +229,10 @@ function save_settiongs()
                 continue 2;
             case 'rb_base_url':
                 $v = init::normalize_rb_base_url($v, config('site_url'), MODX_BASE_URL);
+                break;
+            case 'snapshot_path':
+                // 読むとき（EvoSnapshotStore::dir()）と同じ規則で保存する
+                $v = EvoSnapshotStore::normalizeValue($v);
                 break;
             case 'export_dir':
                 $v = exportDirOrDefault($v);

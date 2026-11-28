@@ -104,7 +104,7 @@ async function runInstaller(browser) {
         // 比較用に古い版を入れるときも正しく判定できるよう、成功したときだけ出る文言 (installation_successful) と、
         // テーブルが実際に作られたことで判定する
         const text = (await page.textContent('body')).replace(/\s+/g, ' ');
-        if (!/インストールは無事に成功しました|Installation was successful/i.test(text)) {
+        if (!/インストールが完了しました|インストールは無事に成功しました|Installation was successful/i.test(text)) {
             throw new Error('インストールが完了しなかった: ' + text.slice(0, 300));
         }
         if (!hasTables()) {

@@ -3,54 +3,9 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch (request_intvar('a')) {
-    case 102:
-        if (!evo()->hasPermission('edit_plugin')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    case 101:
-        if (!evo()->hasPermission('new_plugin')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    default:
-        alert()->setError(3);
-        alert()->dumpError();
-}
-
-abort_if_invalid_id('id', request_intvar('a') === 102);
-
-// check to see the plugin editor isn't locked
-$rs = db()->select('*', '[+prefix+]active_users', sprintf("action='102' AND id='%d'", get_intvar('id')));
-$row = db()->getRow($rs);
-if (1 < db()->count($rs) && $row['internalKey'] != evo()->getLoginUserID()) {
-    $msg = sprintf(lang('lock_msg'), $row['username'], lang('plugin'));
-    alert()->setError(5, $msg);
-    alert()->dumpError();
-}
-// end check for lock
-
-if (get_intvar('id')) {
-    $rs = db()->select('*', '[+prefix+]site_plugins', sprintf("id='%d'", get_intvar('id')));
-    $total = db()->count($rs);
-    $content = db()->getRow($rs);
-
-    if (1 < $total):
-        echo "Multiple plugins sharing same unique id. Not good.<p>";
-        exit;
-    elseif ($total < 1):
-        alert()->setError(3);
-        alert()->dumpError();
-    endif;
-
-    $_SESSION['itemname'] = entity('name');
-} else {
-    $content = [];
-    $_SESSION['itemname'] = 'New Plugin';
-}
+$content = manager()->openElementForm('plugin', lang('plugin'));
+$id = (int) ($content['id'] ?? 0);
+sessionv('*itemname', $content ? $content['name'] : 'New Plugin');
 
 // 名前の検証で差し戻されたときは、送信した入力を重ねる
 $content = manager()->restoreElementFormValues($content, 'plugincode', ['disabled', 'locked'], ['sysevents']);
@@ -78,7 +33,7 @@ function entity($key, $default = null)
     function duplicaterecord() {
         if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>)) {
             documentDirty = false;
-            EvoCsrf.post("index.php?id=<?= request_intvar('id') ?>&a=105");
+            EvoCsrf.post("index.php?id=<?= $id ?>&a=105");
         }
     }
 
@@ -270,7 +225,7 @@ function entity($key, $default = null)
 <form name="mutate" id="mutate" method="post" action="index.php?a=103" enctype="multipart/form-data">
     <?php
     // invoke OnPluginFormPrerender event
-    $tmp = ["id" => get_intvar('id')];
+    $tmp = ["id" => $id];
     $evtOut = evo()->invokeEvent("OnPluginFormPrerender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
@@ -326,20 +281,13 @@ function entity($key, $default = null)
             <!-- General -->
             <div class="tab-page" id="tabPlugin">
                 <h2 class="tab"><?= lang("settings_general") ?></h2>
-                <table border="0" cellspacing="0" cellpadding="0">
-                    <tr>
-                        <th align="left"><?= lang('plugin_name') ?></th>
-                        <td align="left"><input id="pluginName" name="name" type="text" maxlength="100"
-                                value="<?= hsc(entity('name')) ?>"
-                                class="inputBox" style="width:300px;"></td>
-                    </tr>
-                    <tr>
-                        <td align="left" valign="top" colspan="2"><label><input name="disabled"
-                                    type="checkbox" <?= entity('disabled') == 1 ? "checked='checked'" : "" ?>
-                                    value="on"
-                                    class="inputBox"> <?= entity('disabled') == 1 ? "<span class='warning'>" . lang('plugin_disabled') . "</span></label>" : lang('plugin_disabled') ?>
-                        </td>
-                    </tr>
+                <table>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('plugin_name'),
+                        'body' => '<input id="pluginName" name="name" type="text" maxlength="100" value="' . hsc(entity('name')) . '" class="inputBox" style="width:300px;">',
+                    ]);
+                    ?>
                 </table>
                 <!-- PHP text editor start -->
                 <div class="code-editor" style="width:100%;position:relative">
@@ -370,7 +318,7 @@ function entity($key, $default = null)
                 $from = '[+prefix+]site_modules sm ' .
                     'INNER JOIN [+prefix+]site_module_depobj smd ON smd.module=sm.id AND smd.type=30 ' .
                     'INNER JOIN [+prefix+]site_plugins sp ON sp.id=smd.resource';
-                $where = sprintf("smd.resource='%d' AND sm.enable_sharedparams='1'", get_intvar('id'));
+                $where = sprintf("smd.resource='%d' AND sm.enable_sharedparams='1'", $id);
                 $ds = db()->select($field, $from, $where, 'sm.name');
                 $guid_total = db()->count($ds);
                 if ($guid_total > 0) {
@@ -383,40 +331,34 @@ function entity($key, $default = null)
                 <table>
                     <?php
                     if ($guid_total > 0) {
-                    ?>
-                        <tr>
-                            <th align="left"><?= lang('import_params') ?>:&nbsp;&nbsp;</th>
-                            <td align="left">
-                                <select name="moduleguid" style="width:300px;">
-                                    <option>&nbsp;</option>
-                                    <?= $options ?>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>&nbsp;</td>
-                            <td align="left" valign="top"><span style="width:300px;"><span
-                                        class="comment"><?= lang('import_params_msg') ?></span></span><br />
-                            </td>
-                        </tr>
-                    <?php
+                        echo EvoFieldRow::render([
+                            'label' => lang('import_params'),
+                            'body' => '<select name="moduleguid" style="width:300px;"><option>&nbsp;</option>' . $options . '</select>',
+                            'help' => lang('import_params_msg'),
+                        ]);
                     }
+
+                    ob_start();
                     ?>
-                    <tr>
-                        <th align="left" valign="top"><?= lang('plugin_config') ?>:</th>
-                        <td align="left" valign="top">
-                            <textarea class="phptextarea inputBox" name="properties" id="propertiesBox"
-                                onblur='showParameters(this);'
-                                onChange="showParameters(this);"><?= hsc(entity('properties')) ?></textarea><br />
-                            <input
-                                type="button" value="<?= lang('update_params') ?>"
-                                onclick="showParameters(this);" />
-                        </td>
-                    </tr>
-                    <tr id="displayparamrow">
-                        <td valign="top" align="left">&nbsp;</td>
-                        <td align="left" id="displayparams">&nbsp;</td>
-                    </tr>
+                    <textarea class="phptextarea inputBox" name="properties" id="propertiesBox"
+                        onblur='showParameters(this);'
+                        onChange="showParameters(this);"><?= hsc(entity('properties')) ?></textarea><br />
+                    <input
+                        type="button" value="<?= lang('update_params') ?>"
+                        onclick="showParameters(this);" />
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('plugin_config'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    // パラメーターの表は element-properties.js が #displayparams の中身を置き換え、行ごと表示を切り替える
+                    echo EvoFieldRow::render([
+                        'label' => '',
+                        'body' => '<div id="displayparams">&nbsp;</div>',
+                        'attr' => ['id' => 'displayparamrow'],
+                    ]);
+                    ?>
                 </table>
             </div>
 
@@ -431,9 +373,9 @@ function entity($key, $default = null)
                     if (isset($content['sysevents'])) {
                         // 差し戻された入力があれば、DB よりそちらを優先する
                         $evts = array_map('intval', (array)$content['sysevents']);
-                    } elseif (get_intvar('id')) {
+                    } elseif ($id) {
                         $evts = [];
-                        $rs = db()->select('*', '[+prefix+]site_plugin_events', sprintf("pluginid='%d'", get_intvar('id')));
+                        $rs = db()->select('*', '[+prefix+]site_plugin_events', sprintf("pluginid='%d'", $id));
                         while ($row = db()->getRow($rs)) {
                             $evts[] = $row['evtid'];
                         }
@@ -508,73 +450,77 @@ function entity($key, $default = null)
             <div class="tab-page" id="tabInfo">
                 <h2 class="tab"><?= lang('settings_properties') ?></h2>
                 <table>
-                    <tr>
-                        <th align="left"><?= lang('existing_category') ?>:&nbsp;&nbsp;</th>
-                        <td align="left">
-                            <select name="categoryid" id="categoryid" style="width:300px;">
-                                <?= manager()->elementCategoryOptions(entity('category')) ?>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr id="newcategry" style="display:none;">
-                        <th align="left" valign="top" style="padding-top:5px;"><?= lang('new_category') ?>
-                            :
-                        </th>
-                        <td align="left" valign="top" style="padding-top:5px;">
-                            <input name="newcategory"
-                                id="newcategory" type="text"
-                                maxlength="45" value="<?= hsc(entity('newcategory', '')) ?>"
-                                class="inputBox"
-                                style="width:300px;">
-                        </td>
-                    </tr>
-                    <tr>
-                        <th align="left"><?= lang('plugin_desc') ?>:&nbsp;&nbsp;</th>
-                        <td align="left">
-                            <textarea id="pluginDescription" name="description"
-                                style="padding:0;height:4em;"><?= hsc(entity('description')) ?></textarea>
-                        </td>
-                    </tr>
-                    <?php $pluginErrorReporting = entity('error_reporting', 'inherit'); ?>
-                    <tr>
-                        <th align="left" style="padding-top:10px;">
-                            <?= lang('a17_error_reporting_title') ?>:
-                        </th>
-                        <td align="left" style="padding-top:10px;">
-                            <label>
-                                <input type="radio" name="error_reporting" value="inherit"<?= $pluginErrorReporting === 'inherit' ? ' checked="checked"' : '' ?>>
-                                <?= lang('element_error_reporting_inherit') ?>
-                            </label><br/>
-                            <label>
-                                <input type="radio" name="error_reporting" value="0"<?= $pluginErrorReporting === '0' ? ' checked="checked"' : '' ?>>
-                                <?= lang('a17_error_reporting_opt0') ?>
-                            </label><br/>
-                            <label>
-                                <input type="radio" name="error_reporting" value="1"<?= $pluginErrorReporting === '1' ? ' checked="checked"' : '' ?>>
-                                <?= lang('a17_error_reporting_opt1') ?>
-                            </label><br/>
-                            <label>
-                                <input type="radio" name="error_reporting" value="2"<?= $pluginErrorReporting === '2' ? ' checked="checked"' : '' ?>>
-                                <?= lang('a17_error_reporting_opt2') ?>
-                            </label><br/>
-                            <label>
-                                <input type="radio" name="error_reporting" value="99"<?= $pluginErrorReporting === '99' ? ' checked="checked"' : '' ?>>
-                                <?= lang('a17_error_reporting_opt99') ?>
-                            </label><br/>
-                            <?= lang('a17_error_reporting_msg') ?>
-                        </td>
-                    </tr>
-                    <?php if (evo()->hasPermission('save_plugin') == 1) { ?>
-                        <tr>
-                            <td align="left" valign="top" colspan="2">
-                                <label><input name="locked"
-                                        type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : "" ?>
-                                        value="on" class="inputBox">
-                                    <b><?= lang('lock_plugin') ?></b> <span
-                                        class="comment"><?= lang('lock_plugin_msg') ?></span></label>
-                            </td>
-                        </tr>
-                    <?php } ?>
+                    <?php
+                    ob_start();
+                    ?>
+                    <input name="disabled"
+                            type="checkbox" <?= entity('disabled') == 1 ? "checked='checked'" : "" ?>
+                            value="on"
+                            class="inputBox">
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => entity('disabled') == 1 ? "<span class='warning'>" . lang('plugin_disabled') . "</span>" : lang('plugin_disabled'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    if (evo()->hasPermission('save_plugin') == 1) {
+                        ob_start();
+                        ?>
+                        <input name="locked"
+                                type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : "" ?>
+                                value="on" class="inputBox">
+                        <?php
+                        echo EvoFieldRow::render([
+                            'label' => lang('lock_plugin'),
+                            'body' => ob_get_clean(),
+                            'help' => lang('lock_plugin_msg'),
+                        ]);
+                    }
+
+                    ob_start();
+                    ?>
+                    <select name="categoryid" id="categoryid" style="width:300px;">
+                        <?= manager()->elementCategoryOptions(entity('category')) ?>
+                    </select>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('existing_category'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    // 新しいカテゴリの行は、element-category.js が表示を切り替える
+                    ob_start();
+                    ?>
+                    <input name="newcategory"
+                        id="newcategory" type="text"
+                        maxlength="45" value="<?= hsc(entity('newcategory', '')) ?>"
+                        class="inputBox"
+                        style="width:300px;">
+                    <?php
+                    echo EvoFieldRow::render([
+                        'field' => 'newcategory',
+                        'label' => lang('new_category'),
+                        'body' => ob_get_clean(),
+                        'attr' => ['id' => 'newcategry', 'style' => 'display:none;'],
+                    ]);
+
+                    ob_start();
+                    ?>
+                    <textarea id="pluginDescription" name="description"
+                        style="height:4em;"><?= hsc(entity('description')) ?></textarea>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('plugin_desc'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    $pluginErrorReporting = entity('error_reporting', EvoErrorReporting::INHERIT);
+                    echo EvoFieldRow::render([
+                        'label' => lang('a17_error_reporting_title'),
+                        'body' => EvoErrorReporting::radios((string)$pluginErrorReporting),
+                        'help' => lang('a17_error_reporting_msg'),
+                    ]);
+                    ?>
                 </table>
             </div>
             <div class="tab-page" id="tabHelp">
@@ -589,7 +535,7 @@ function entity($key, $default = null)
     </script>
     <?php
     // invoke OnPluginFormRender event
-    $tmp = ["id" => get_intvar('id')];
+    $tmp = ["id" => $id];
     $evtOut = evo()->invokeEvent("OnPluginFormRender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);

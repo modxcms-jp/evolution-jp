@@ -40,6 +40,8 @@ function mm_hideSections($sections, $roles = '', $templates = '')
                 $output .= '
                 MM.hide("#tv_header");
                 MM.hide("#tv_body");
+                MM.hide("#tabTVsHeader");
+                MM.hide("#tabTVs");
                 ';
                 break;
 

@@ -32,41 +32,62 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 <html lang="<?= globalv('modx_lang_attribute', 'en') ?>" dir="<?= globalv('modx_textdir', 'ltr') ?>">
 
 <head>
-    <title>MODX</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=<?= $modx->config('modx_charset') ?>" />
+    <title data-format="<?= hsc(manager_title('{screen}')) ?>" data-site-only="<?= hsc(manager_title()) ?>"><?= hsc(manager_title()) ?></title>
+    <meta charset="<?= hsc(evo()->config('modx_charset')) ?>">
     <?= csrfTokenMeta() ?>
-    <link rel="stylesheet" type="text/css" href="<?= manager_asset('media/style/' . $modx->config('manager_theme') . '/style.css') ?>" />
+    <?= manager_theme_stylesheets() ?>
     <link rel="stylesheet" type="text/css" href="<?= manager_asset('media/style/common/shell.css') ?>" />
     <link rel="stylesheet" type="text/css" href="<?= manager_asset('media/style/common/selection-dock.css') ?>" />
+    <link rel="stylesheet" type="text/css" href="<?= manager_asset('media/style/common/notice.css') ?>" />
+    <?php
+    // ツリーを細くするとき、元の幅を割る数（shell.css の tree-narrow）
+    $treeNarrow = manager_tree_narrow();
+    ?>
     <style>
         :root {
             --shell-menu-height: <?= (int)$modx->config('manager_menu_height', 58) ?>px;
             --shell-tree-width: <?= (int)$modx->config('manager_tree_width', 260) ?>px;
+<?php if ($treeNarrow): ?>
+            --shell-tree-narrow: <?= $treeNarrow ?>;
+<?php endif; ?>
         }
     </style>
     <!-- OnManagerMainFrameHeaderHTMLBlock -->
     <?php if (is_array($evtOut)) {
         echo implode("\n", $evtOut);
     } ?>
-    <?= $modx->config('manager_inline_style') ?>
     <script src="<?= manager_asset('media/script/evo-tooltip.js') ?>" type="text/javascript"></script>
     <script src="<?= manager_asset('media/script/evo-dialog.js') ?>" type="text/javascript"></script>
+    <script src="<?= manager_asset('media/script/evo-notice.js') ?>" type="text/javascript"></script>
     <script type="text/javascript" src="<?= manager_asset('media/script/tabpane.js') ?>"></script>
     <!-- CSRFトークン自動付与。shell.jsがform.submitを退避するため先に読み込む -->
     <script type="text/javascript" src="<?= manager_asset('media/script/csrf.js') ?>"></script>
     <!-- jQuery 置き換え用の共通部品（Evo.ready / Evo.fetch / Evo.post） -->
     <script type="text/javascript" src="<?= manager_asset('media/script/evo.js') ?>"></script>
     <script type="text/javascript" src="<?= manager_asset('media/script/shell.js') ?>"></script>
+    <!-- 削除の入口（ツリーの右クリックメニュー・投稿画面・リソースの画面・一覧）が共通で使う -->
+    <script type="text/javascript" src="<?= manager_asset('media/script/document-actions.js') ?>"></script>
     <script type="text/javascript" src="<?= manager_asset('media/browser/evo-file-picker.js') ?>"></script>
     <script type="text/javascript">
         // 旧フレーム参照(top.main / parent.main)互換: シェルではmainは自ウィンドウ
         window.main = window;
+        // 完全な HTML に差し替わった画面（モジュール）の target="main" が、同じタブに届くようにする。iframe の名前は変えない
+        if (window === window.top) {
+            window.name = 'main';
+        }
 
         if (window.EvoShell) {
             EvoShell.unsavedMessage = <?= js_literal(lang('warning_not_saved')) ?>;
             EvoShell.closeLabel = <?= js_literal(lang('close')) ?>;
+            EvoShell.networkErrorMessage = <?= js_literal(lang('shell_network_error')) ?>;
+            EvoShell.sessionExpiredMessage = <?= js_literal(lang('shell_session_expired')) ?>;
+            EvoShell.saveRejectedMessage = <?= js_literal(lang('shell_save_rejected')) ?>;
         }
         EvoDialog.cancelLabel = <?= js_literal(lang('cancel')) ?>;
+        EvoDialog.closeLabel = <?= js_literal(lang('close')) ?>;
+        EvoNotice.closeLabel = <?= js_literal(lang('close')) ?>;
+        <?php evo()->loadExtension('DocAPI'); ?>
+        EvoDocumentActions.config = <?= evo()->doc->actionConfig() ?>;
 
         var treeopen = <?= $modx->config('tree_pane_open_default', 1) ?>;
 
@@ -162,7 +183,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 // 旧mainフレーム相当のコンテンツのみを返し、メニュー/ツリー/SPA機能を出さない
 $evoShellChromeless = (bool)anyv('quickmanager') || getv('chromeless') === '1';
 ?>
-<body id="<?= preg_replace('@[^a-zA-Z0-9_-]@', '', get_strvar('f', 'mainpane')) ?: 'mainpane' ?>" class="<?= $evoShellChromeless ? '' : 'evo-shell' ?><?= globalv('modx_textdir') === 'rtl' ? ' rtl' : '' ?>">
+<body id="<?= preg_replace('@[^a-zA-Z0-9_-]@', '', get_strvar('f', 'mainpane')) ?: 'mainpane' ?>" class="<?= $evoShellChromeless ? '' : 'evo-shell' ?><?= !$evoShellChromeless && $treeNarrow ? ' tree-narrow' : '' ?><?= globalv('modx_textdir') === 'rtl' ? ' rtl' : '' ?>">
     <script type="text/javascript">
         // 旧ondragstart="return false"(body属性)相当。画像・リンク・選択テキストの
         // ネイティブドラッグを防ぐ。ただしbody属性方式はD&Dソート(dragdrop-sort.js)の
@@ -194,6 +215,8 @@ if (!$evoShellChromeless) {
     $evoShellIncludePartial(MODX_MANAGER_PATH . 'frames/menu.php');
     $evoShellIncludePartial(MODX_MANAGER_PATH . 'frames/tree.php');
     unset($evoShellIncludePartial);
+    // ツリーの欄の幅のつまみ。閉じているときは左端の帯になり、押すと開く（shell.js の initTreeResizer()）
+    echo '<div id="evoTreeResizer" data-show-label="' . hsc(lang('show_tree')) . '" data-narrow-restore-label="' . hsc(lang('tree_narrow_restore_hint')) . '"></div>' . "\n";
 
     $tmp = ['action' => manager()->action];
     evo()->invokeEvent('OnManagerFrameLoader', $tmp);

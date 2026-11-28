@@ -45,6 +45,15 @@ interface BrowserScope
     /** 管理操作ログの message の先頭に付ける印（ピッカーは "[picker] "、管理モードは空） */
     public function logLabel();
 
-    /** この範囲にだけある操作の表（action => ['handler' => 関数名, 'csrf' => bool, 'post' => bool]）。共通の操作は api.php が持つ */
+    /**
+     * ロールの権限 $permission（file_upload など）を求める操作をしてよいか。権限の判定はこの 1 つに寄せ、api.php の振り分けと画面の設定が尋ねる。
+     * file_manager の権限だけで決める範囲（管理モード）は、ほかの権限を求めない
+     */
+    public function allows($permission);
+
+    /**
+     * この範囲にだけある操作の表（action => ['handler' => 関数名, 'csrf' => bool, 'post' => bool, 'perm' => ロールの権限名]）。共通の操作は api.php が持つ。
+     * 行の条件(post・csrf・perm)は、api.php の振り分けの 1 か所だけが見る。操作ごとの条件を足すときも、各ハンドラーの中ではなくその振り分けで見る。例外は saveImage の別名保存（mode=copy）だけで、操作の表の perm は操作単位のため、ハンドラーの中で fbRequirePermission() を呼ぶ
+     */
     public function actions();
 }

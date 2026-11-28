@@ -2,6 +2,11 @@
 
 class ForgotManagerPassword
 {
+    // 再設定のリンクの有効な時間（分）
+    private const EXPIRE_MINUTES = 30;
+    // 同じ利用者に再設定のメールを送る間隔（秒）。この間は前のリンクが有効なので、締め出しにはならない
+    private const RESEND_INTERVAL = 300;
+
     public $tpl_path;
     private $errors;
     private $lang;
@@ -79,10 +84,6 @@ class ForgotManagerPassword
         }
         if ($user_id) {
             sessionv('*goto_pwd_edit', '1');
-            $captchaCode = get_strvar('captcha_code');
-            if ($captchaCode) {
-                sessionv('*veriword', $captchaCode);
-            }
             $this->unBlock($user_id);
         }
         return $user_id ? true : false;
@@ -124,11 +125,10 @@ class ForgotManagerPassword
         }
         header(
             sprintf(
-                'Location:%s/processors/login.processor.php?username=%s&fmpkey=%s%s',
+                'Location:%s/processors/login.processor.php?username=%s&fmpkey=%s',
                 rtrim(MODX_MANAGER_URL, '/'),
                 urlencode($user['email']),
-                urlencode($fmpkey),
-                evo()->config('use_captcha') ? '&captcha_code=ignore' : ''
+                urlencode($fmpkey)
             )
         );
         exit;
@@ -146,17 +146,39 @@ class ForgotManagerPassword
             // 管理者がブロックしたユーザーにも、送信したときと同じ応答にする（メールは送らない）
             return true;
         }
+        if ($this->isRecentlyIssued($user_id)) {
+            // 送信の間隔の中の要求にも、送信したときと同じ応答にする（メールは送らない）
+            return true;
+        }
         $this->sweepTransient($user_id);
         // リンクだけでログインできるので、推測できない乱数で作る（96 ビット。URL 向けの base64 で 16 文字）
         $fmpkey = strtr(base64_encode(random_bytes(12)), '+/', '-_');
         $this->addTransient($user_id, 'fmp_hash', $fmpkey);
-        $this->addTransient($user_id, 'fmp_expire', date('Y-m-d H:i:00', strtotime('+30 minutes')));
+        $this->addTransient($user_id, 'fmp_expire', date('Y-m-d H:i:00', strtotime('+' . self::EXPIRE_MINUTES . ' minutes')));
 
         if (!$this->send($email, $fmpkey)) {
+            // 送れなかった発行は記録に残さない（残すと、送信の間隔のあいだ再度の要求が止まる）
+            $this->sweepTransient($user_id);
             $this->errors[] = $this->lang('error_sending_email');
             return false;
         }
         return true;
+    }
+
+    // 発行の時刻は記録にないので、有効期限（発行の EXPIRE_MINUTES 分後）から求める
+    private function isRecentlyIssued($user_id)
+    {
+        $expire = strtotime((string)db()->getValue(
+            db()->select(
+                'setting_value',
+                '[+prefix+]user_settings',
+                sprintf("user='%d' AND setting_name='fmp_expire'", $user_id)
+            )
+        ));
+        if ($expire === false) {
+            return false;
+        }
+        return $expire - self::EXPIRE_MINUTES * 60 + self::RESEND_INTERVAL > time();
     }
 
     function send($email, $fmpkey)
@@ -172,7 +194,7 @@ class ForgotManagerPassword
                     file_get_contents($this->tpl_path . 'sendmail.tpl'),
                     [
                         'intro' => $this->lang('forgot_password_email_intro'),
-                        'fmpkey' => $fmpkey . (evo()->config('use_captcha') ? '&captcha_code=ignore' : ''),
+                        'fmpkey' => $fmpkey,
                         'link' => $this->lang('forgot_password_email_link'),
                         'instructions' => $this->lang('forgot_password_email_instructions'),
                         'fine_print' => $this->lang('forgot_password_email_fine_print')
@@ -227,7 +249,7 @@ class ForgotManagerPassword
 
     private function removeLoginTouchFile()
     {
-        $touch_path = MODX_CACHE_PATH . 'touch.siteCache.idx.php';
+        $touch_path = manager_login_guard_path();
         if (is_file($touch_path)) {
             @unlink($touch_path);
         }

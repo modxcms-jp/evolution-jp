@@ -9,7 +9,7 @@
 
 class template
 {
-    var $language, $fields, $current;
+    public $language, $fields, $current;
 
     // ---------------------------------------------------
     // Function: template
@@ -51,7 +51,7 @@ class template
         unset($template['default']);
 
         foreach ($template as $name => $tpl) {
-            if (!empty($tpl) && $tpl != '') {
+            if (!empty($tpl)) {
                 $templates[$name] = $this->fetch($tpl);
             }
         }
@@ -148,9 +148,6 @@ class template
                 $fields['db'][] = $field;
             } else if (in_array($field, $tvFields)) {
                 $fields['tv'][] = $field;
-            } else if (strpos($field, 'tv') === 0 && in_array(substr($field, 2), $tvFields)) {
-                $fields['tv'][] = substr($field, 2);
-                // TODO: Remove TV Prefix support in Ditto
             } else if (in_array($field, $custom)) {
                 $fields['custom'][] = $field;
             } else {
@@ -210,9 +207,7 @@ class template
 
     // ---------------------------------------------------
     // Function: fetch
-    // Get a template, based on version by Doze
-    //
-    // https://modxcms.com/forums/index.php/topic,5344.msg41096.html#msg41096
+    // Get a template
     // ---------------------------------------------------
     public function fetch($tpl)
     {

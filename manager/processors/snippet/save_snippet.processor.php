@@ -23,12 +23,12 @@ if (!is_string($snippet) || !is_string($properties)) {
 }
 $snippet = trim($snippet);
 
-$rawName = manager()->requireElementName(post_strvar('name'), lang('snippet'), 'snippet', $id);
+$rawName = manager()->requireElementName(post_strvar('name'), lang('snippet'), 'snippet', $mode === 'edit' ? $id : 0);
 $description = post_strvar('description');
 $locked = postv('locked') === 'on' ? 1 : 0;
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
 
-$errorReporting = post_choicevar('error_reporting', ['inherit', '0', '1', '2', '99'], 'inherit');
+$errorReporting = post_choicevar('error_reporting', EvoErrorReporting::elementValues(), EvoErrorReporting::INHERIT);
 
 // strip out PHP tags from snippets
 if (strncmp($snippet, '<?', 2) == 0) {
@@ -42,95 +42,56 @@ if (strncmp($snippet, '<?', 2) == 0) {
 }
 $moduleguid = post_strvar('moduleguid');
 
+$isNew = $mode === 'new';
+$formId = $isNew ? 0 : $id;
+
 // disallow duplicate names
-$where = "name='" . db()->escape($rawName) . "'";
-if ($id) {
-    $where .= ' AND id!=' . $id;
-}
-$rs = db()->select('COUNT(id)', '[+prefix+]site_snippets', $where);
-$count = db()->getValue($rs);
-if ($count > 0) {
+if (manager()->elementNameExists('snippet', $rawName, $formId)) {
     manager()->redirectToElementForm(
         sprintf(lang('duplicate_name_found_general'), lang('snippet'), $rawName),
         'snippet',
-        $id
+        $formId
     );
 }
 
-switch ($mode) {
-    case 'new':
-        // invoke OnBeforeSnipFormSave event
-        $tmp = [
-            'mode' => 'new',
-            'id' => ''
-        ];
-        evo()->invokeEvent('OnBeforeSnipFormSave', $tmp);
+// invoke OnBeforeSnipFormSave event
+$tmp = [
+    'mode' => $isNew ? 'new' : 'upd',
+    'id' => $isNew ? '' : $id
+];
+evo()->invokeEvent('OnBeforeSnipFormSave', $tmp);
 
-        $categoryid = manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
-
-        //do stuff to save the new doc
-        $field = [];
-        $field['name'] = $rawName;
-        $field['description'] = $description;
-        $field['snippet'] = $snippet;
-        $field['moduleguid'] = $moduleguid;
-        $field['locked'] = $locked;
-        $field['properties'] = $properties;
-        $field['category'] = $categoryid;
-        $field['error_reporting'] = $errorReporting;
-        $newid = db()->insert(db()->escape($field), $tbl_site_snippets);
-        if (!$newid) {
-            echo '$newid not set! New snippet not saved!';
-            exit;
-        }
-
-        // invoke OnSnipFormSave event
-        $tmp = [
-            'mode' => 'new',
-            'id' => $newid
-        ];
-        evo()->invokeEvent('OnSnipFormSave', $tmp);
-        // empty cache
-        $modx->clearCache(); // first empty the cache
-        // finished emptying cache - redirect
-        header('Location: ' . EvoFormFlow::afterSaveUrl('snippet', $newid, EvoFormFlow::postedAfterSave()));
-        break;
-
-    case 'edit':
-        // invoke OnBeforeSnipFormSave event
-        $tmp = [
-            'mode' => 'upd',
-            'id' => $id
-        ];
-        evo()->invokeEvent('OnBeforeSnipFormSave', $tmp);
-
-        $categoryid = manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
-
-        //do stuff to save the edited doc
-        $field = [];
-        $field['name'] = $rawName;
-        $field['description'] = $description;
-        $field['snippet'] = $snippet;
-        $field['moduleguid'] = $moduleguid;
-        $field['locked'] = $locked;
-        $field['properties'] = $properties;
-        $field['category'] = $categoryid;
-        $field['error_reporting'] = $errorReporting;
-        $rs = db()->update(db()->escape($field), $tbl_site_snippets, "id='{$id}'");
-        if (!$rs) {
-            echo '$rs not set! Edited snippet not saved!';
-            exit;
-        }
+$field = [
+    'name' => $rawName,
+    'description' => $description,
+    'snippet' => $snippet,
+    'moduleguid' => $moduleguid,
+    'locked' => $locked,
+    'properties' => $properties,
+    'category' => manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory')),
+    'error_reporting' => $errorReporting,
+];
+if ($isNew) {
+    $savedId = db()->insert(db()->escape($field), $tbl_site_snippets);
+    if (!$savedId) {
+        echo '$newid not set! New snippet not saved!';
+        exit;
+    }
+} else {
+    $rs = db()->update(db()->escape($field), $tbl_site_snippets, "id='{$id}'");
+    if (!$rs) {
+        echo '$rs not set! Edited snippet not saved!';
+        exit;
+    }
+    $savedId = $id;
+}
 
 // invoke OnSnipFormSave event
-        $tmp = [
-            'mode' => 'upd',
-            'id' => $id
-        ];
-        evo()->invokeEvent('OnSnipFormSave', $tmp);
-        // empty cache
-        $modx->clearCache(); // first empty the cache
-        // finished emptying cache - redirect
-        header('Location: ' . EvoFormFlow::afterSaveUrl('snippet', $id, EvoFormFlow::postedAfterSave()));
-        break;
-}
+$tmp = [
+    'mode' => $isNew ? 'new' : 'upd',
+    'id' => $savedId
+];
+evo()->invokeEvent('OnSnipFormSave', $tmp);
+
+evo()->clearCache();
+EvoFormFlow::redirectAfterSave('snippet', $savedId, EvoFormFlow::postedAfterSave());

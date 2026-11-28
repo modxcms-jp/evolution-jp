@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-18-backup-reorg",
+    "run_id": "2026-11-18-backup-reorg-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-23T10:00:00+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "success_with_rework",
+    "findings": [
+        {
+            "id": "finding-001",
+            "kind": "validation_gap",
+            "summary": "完了処理が 5 日遅れた。#1561 は 2026-11-18 に閉じたが、/finish-task を行わず、ロードマップの項目が NEXT のまま残っていた（同じく #1204 も 11-08 に閉じたまま）。/next-task の手順 1（閉じたのに同期していない項目を先に挙げる）で見つかった。既存の手順で拾えたので、スキルは変えない",
+            "evidence": [
+                "trace.jsonl"
+            ],
+            "suggested_action": "none",
+            "target": ".claude/skills/roadmap-manager/SKILL.md",
+            "confidence": "medium"
+        }
+    ]
+}

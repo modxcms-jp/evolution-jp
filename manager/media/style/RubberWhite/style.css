@@ -12,7 +12,7 @@
  * 5. Forms (Inputs, Selects, Textareas, Buttons)
  * 6. Layout Components (Sections, Containers)
  * 7. Navigation (Top Menu, Supplemental Nav)
- * 8. Tree Components (Site Tree, Context Menu)
+ * 8. Tree Components (Site Tree)
  * 9. Tables & Grids (Data Tables)
  * 10. Tabs System (Dynamic Tab Pane)
  * 11. Action Buttons (Fixed Position Controls)
@@ -27,6 +27,12 @@
    ============================================================================ */
 
 :root {
+    /* 本文の文字の大きさ（body が読む） */
+    --font-size-base: 12px;
+
+    /* ページの左右の余白（common/shell.css が読む。theme-spacing.md の「横の余白」） */
+    --page-padding-x: 16px;
+
     /* Color - Text */
     --color-text-primary: #333;
     --color-text-secondary: #888;
@@ -78,6 +84,7 @@
 
     /* Color - Section Header */
     --color-section-header-text: #606060;
+    --color-section-bg: #ffffff;
     --color-section-header-start: #f5f5f5;
     --color-section-header-end: #dddddd;
 
@@ -165,9 +172,7 @@
     /* Layout - Topnav */
     --topnav-item-height: 32px;
     --topnav-gap: 4px;
-    --subnav-height: 28px;
     --subnav-horizontal-padding: 16px;
-    --topnav-padding-top: 10px;
 
     /* Border Radius */
     --radius-sm: 3px;
@@ -191,49 +196,178 @@
     --border-medium: 2px;
     --border-thick: 3px;
 
+    /* フォーム部品の寸法（common/forms.css が読む） */
+    --control-padding-x: var(--space-2);
+    --control-radius: var(--radius-md);
+    --control-border: var(--border-thin) solid var(--light-border);
+    --control-bg: var(--color-surface);
+    --control-transition: all 0.2s ease;
+    --control-focus-border-color: var(--accent-blue);
+    --control-focus-shadow: 0 0 0 3px rgba(74, 123, 167, 0.1);
+    --button-padding-x: var(--space-3);
+    --button-radius: var(--radius-md);
+    --button-font-weight: 500;
+    --button-color: var(--light-text-primary);
+    --button-bg: #f7f9fa;
+    --button-border-width: var(--border-thin);
+    --button-border-color: rgba(0, 0, 0, 0.1);
+    --button-transition: all 0.2s ease;
+    --button-hover-bg: #eef2f5;
+    --button-hover-border-color: rgba(0, 0, 0, 0.12);
+    --button-hover-transform: translateY(-1px);
+    --button-active-bg: #e2e7eb;
+    --button-active-transform: translateY(0);
+    --button-focus-ring-color: var(--color-text-primary);
+    --button-primary-color: var(--color-text-inverse);
+    --button-primary-font-weight: 600;
+    --button-primary-bg: var(--color-primary);
+    --button-primary-border-color: var(--color-primary-end);
+    --button-primary-shadow: 0 2px 4px rgba(74, 123, 167, 0.25);
+    --button-primary-hover-bg: var(--color-primary-hover-start);
+    --button-primary-hover-shadow: 0 3px 6px rgba(74, 123, 167, 0.35);
+    --button-primary-active-bg: var(--color-primary-active-start);
+    --button-primary-hover-border-color: var(--color-primary-hover-end);
+    --button-primary-active-border-color: var(--color-primary-active-end);
+    --button-primary-active-shadow: 0 1px 3px rgba(74, 123, 167, 0.25) inset;
+
     /* 送信中の見た目(assets/docs/theme-variables.md) */
     --evo-submitting-style: stripes;
-}
 
-/* ============================================================================
-   2. Base Styles (Reset, Typography, Links)
-   Used in: Document structure, global styles
-   ============================================================================ */
+    /* セクション（common/sections.css が読む） */
+    --section-header-border: 1px solid var(--clean-border);
+    --section-header-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    --section-body-border: 1px solid #e1e4e8;
+    --section-body-padding: 15px;
+    --section-fieldset-padding: 15px;
+    --section-legend-padding: 5px 15px;
+    --section-legend-shadow: 1px 1px 3px var(--color-border-default);
+    --section-legend-radius: 3px;
 
-html, body, form, fieldset {
-    margin: 0;
-    padding: 0;
-}
+    /* タブ（common/tabs.css が読む） */
+    --tab-page-padding: 15px 15px 20px;
 
-body {
-    font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
-    font-size: 75%;
-    height: 100%;
-    line-height: 1.5;
-    color: var(--color-text-primary);
-    background: var(--color-background-page);
+    /* 表・一覧（common/tables.css） */
+    --grid-border: 1px solid var(--light-border);
+    --grid-cell-padding: var(--space-2) var(--space-4);
+    --color-grid-header-text: var(--color-text-primary);
+    --grid-header-weight: 600;
+    --grid-header-bg: linear-gradient(180deg, var(--color-gray-100) 0%, var(--color-gray-200) 100%);
+    --grid-alt-bg: var(--color-gray-100);
+    --grid-hover-bg: var(--color-table-hover);
+    --color-pagination-text: var(--color-text-primary);
+    --color-pagination-disabled: var(--color-pagination-border);
+    --color-pagination-active-text: var(--color-text-inverse);
+    --pagination-active-bg: var(--color-pagination-active-bg);
+
+    /* ページの見出し（h1。common/theme-base.css） */
+    --page-title-color: var(--light-text-primary);
+    --page-title-radius: var(--radius-lg);
+    --page-title-padding: var(--space-3);
+    --page-title-draft-bg: var(--color-draft-bg);
+
+    /* 右クリックメニュー（common/context-menu.css） */
+    --context-menu-border-color: var(--light-border);
+    --context-menu-radius: var(--radius-lg);
+    --context-menu-shadow: var(--shadow-lg);
+    --context-menu-title-bg: linear-gradient(180deg, var(--color-primary-start) 0%, var(--color-primary-end) 100%);
+    --context-menu-title-color: var(--color-text-inverse);
+    --context-menu-title-text-shadow: none;
+    --context-menu-item-color: var(--color-text-primary);
+    --context-menu-item-radius: var(--radius-md);
+    --context-menu-item-hover-bg: var(--color-gray-100);
+    --context-menu-item-hover-color: var(--color-link);
+    --context-menu-item-hover-border-color: transparent;
+    --context-menu-item-disabled-color: var(--color-text-muted);
+    --context-menu-separator: var(--color-context-menu-separator);
+
+    /* ツリー（common/tree.css） */
+    --tree-bg: linear-gradient(180deg, #fafafa 0%, #f3f4f6 100%);
+    --tree-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.04);
+    --tree-node-color: var(--color-gray-950);
+    --tree-node-hover-bg: var(--color-surface);
+    --tree-node-hover-border-color: var(--color-border-default);
+    --tree-published-color: var(--color-tree-published);
+    --tree-unpublished-color: var(--color-tree-unpublished);
+    --tree-deleted-color: var(--color-tree-deleted);
+    --tree-empty-color: var(--color-text-muted);
+    --tree-not-in-menu-color: var(--color-text-tertiary);
+    --tree-floater-border-color: var(--color-border-default);
+
+    /* タブ（common/tabs.css） */
+    --tab-margin: 3px 4px 1px 0;
+    --tab-border-color: transparent;
+    --tab-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    --tab-bg: #f1f3f5;
+    --tab-color: #5c6670;
+    --tab-font-weight: 500;
+    --tab-hover-border-color: transparent;
+    --tab-hover-bg: #e9ecef;
+    --tab-selected-border-width: 2px 1px 0;
+    --tab-selected-border-color: var(--accent-blue) var(--clean-border) var(--color-surface) var(--clean-border);
+    --tab-selected-color: var(--color-gray-950);
+    --tab-selected-font-weight: 600;
+    --tab-selected-hover-border-color: var(--accent-blue) var(--color-neutral-button-border) var(--color-surface) var(--color-neutral-button-border);
+    --tab-page-border: 1px solid var(--clean-border);
+    --tab-page-radius: 0 var(--radius-lg) var(--radius-lg) var(--radius-lg);
+    --tab-page-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+
+    /* 操作ボタンの帯（common/selection-dock.css・action-buttons.css） */
+    --actions-bg: rgba(255, 255, 255, 0.95);
+    --actions-border: 1px solid var(--clean-border);
+    --actions-radius: var(--radius-xl);
+    --actions-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --actions-and-color: var(--color-secondary-hover-text);
+    --actions-disabled-color: var(--color-text-tertiary);
+
+    /* 編集画面のフォーム（common/forms.css） */
+    --readonly-bg: var(--color-gray-200);
+    --comment-color: var(--color-border-dark);
+    --comment-p-color: var(--color-text-secondary);
+
+    /* セクション（common/sections.css） */
+    --section-header-bg: var(--light-bg-tertiary);
+    --section-header-color: var(--light-text-primary);
+    --section-body-border-top: none;
+    --section-body-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    --section-body-radius: 0 0 10px 10px;
+    --tab-section-body-shadow: none;
+    --tab-section-header-bg: transparent;
+
+    /* 素の要素（common/theme-base.css） */
+    --hr-color: var(--color-text-tertiary);
+    --thead-color: var(--color-text-primary);
+    --thead-bg: var(--color-border-lighter);
+
+    /* ダッシュボード（common/theme-base.css） */
+    --dashboard-link-color: var(--color-text-primary);
+
+    /* 表・状態表示・メッセージなど（common/theme-base.css・tables.css） */
+    --grid-border-collapse: separate;
+    --grid-radius: var(--radius-lg);
+    --grid-shadow: var(--shadow-sm);
+    --statusbar-text-color: var(--color-text-inverse);
+    --access-private-color: var(--color-error);
+    --label-disabled-color: var(--color-text-muted);
+    --resource-description-color: var(--color-text-secondary);
+    --tree-protected-color: var(--color-tree-protected);
+    --disabled-plugin-color: var(--color-text-muted);
+    --okmsg-border-color: var(--color-success-border);
+    --preloader-radius: 10px;
+    --preloader-border-color: var(--color-border-dark);
+    --searchbar-border-color: var(--light-border);
+    --searchbar-bg: linear-gradient(180deg, var(--color-gray-50) 0%, var(--color-gray-100) 100%);
+    --searchbar-radius: var(--radius-md);
+    --fieldset-tab-page-border-color: var(--color-border-lighter);
+
+    /* ツリーの上のボタン（common/tree.css） */
+    --tree-button-radius: var(--space-1);
+    --tree-button-hover-border-color: var(--light-border);
+    --tree-button-hover-bg: var(--light-bg-secondary);
+    --tree-button-disabled-color: var(--color-text-tertiary);
 }
 
 body#mainpane {
   padding: 8px;
-}
-
-img, a img {
-    border: 0 !important;
-    text-decoration: none;
-    padding: 0;
-    margin: 0;
-}
-
-h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address {
-    margin: 0 0 .5em;
-    padding: 0;
-    font-weight: normal;
-}
-
-li, dd, blockquote {
-    margin-block: 0;
-    margin-inline: 0 0 0 1em;
 }
 
 /* ============================================================================
@@ -241,393 +375,8 @@ li, dd, blockquote {
    Used in: Error messages, visibility controls
    ============================================================================ */
 
-.clear {
-    clear: both;
-}
-
-.fail {
-    color: var(--color-error);
-    font-weight: bold;
-}
-
-.warning {
-    color: var(--color-warning);
-    font-weight: bold;
-}
-
-.mutate-field-row {
-    height: 24px;
-}
-
-.mutate-field-label {
-    width: 120px;
-    text-align: left;
-}
-
-.mutate-field-title {
-    color: var(--color-warning, #444);
-    font-weight: bold;
-}
-
-.clickable-label {
-    cursor: pointer;
-}
-
-.menuindex-table {
-    width: 333px;
-}
-
-.menuindex-label {
-    white-space: nowrap;
-}
-
-.menuindex-options {
-    text-align: right;
-}
-
-.mutate-tv-table {
-    position: relative;
-    width: 96%;
-}
-
-.mutate-tv-row {
-    height: 24px;
-}
-
-.mutate-tv-label {
-    width: 200px;
-    vertical-align: top;
-    white-space: nowrap;
-}
-
-.mutate-tv-value {
-    position: relative;
-    vertical-align: top;
-}
-
-.success {
-    color: var(--color-success);
-    font-weight: bold;
-}
-
-.hide, .skip, .printonly {
-    display: none;
-}
-
-.inline {
-    display: inline;
-}
-
-/* ============================================================================
-   4. Typography (Headings, Paragraphs)
-   Used in: Page headers, content sections
-   ============================================================================ */
-
-h1, h2, h3, h4, h5, h6, .subTitle {
-    font-weight: normal;
-}
-
-h1 {
-    font-size: 1.25em;
-    color: var(--color-section-header-text);
-    font-weight: bold;
-    background-color: var(--color-section-header-end);
-    letter-spacing: 1px;
-    line-height: 1em;
-    padding: var(--space-2);
-    border-radius: var(--radius-sm);
-    margin: 0 var(--space-2) var(--space-3);
-}
-
-h1.draft {
-    background-color: var(--color-draft-bg);
-}
-
-h2 {
-    font-size: 1.64em;
-}
-
-h4,
-h5 {
-    font-size: 1em;
-    font-weight: bold;
-}
-
-h6 {
-    font-size: 0.9em;
-    font-weight: bold;
-}
-
-p.caption, p.comment {
-    font-size: 0.9em;
-    color: var(--color-text-secondary);
-}
-
-button {
-    width: 112px;
-    font: inherit;
-    margin-block: 0;
-    margin-inline-end: 5px;
-    cursor: pointer;
-}
-
-a, a:active, a:visited, a:link {
-    color: var(--color-link);
-    text-decoration: underline;
-}
-
-a:hover {
-    color: var(--color-link-hover);
-}
-
-hr {
-    color: var(--color-text-tertiary);
-    background-color: var(--color-text-tertiary);
-    height: 1px;
-    border: 0;
-}
-
-.split {
-    background: transparent;
-    border-top: 1px dotted #556476;
-    height: 0;
-    font-size: 0;
-    clear: both;
-    padding: 0;
-}
-
-.right {
-    font-weight: bold;
-    color: var(--color-text-primary);
-    float: inline-start;
-    padding-block: 0 20px;
-    padding-inline-end: 20px;
-}
-
-/* -------------------------[ Topbar ]--- */
-#topbar {
-    margin: 0;
-    color: var(--color-text-primary);
-    padding-block: 0;
-    padding-inline: 5px;
-    position: relative;
-}
-
-#topbar * {
-    vertical-align: middle;
-}
-
-#topbar a,
-#topbar a:link,
-#topbar a:visited {
-    font-weight: bold;
-    color: var(--topnav-link-color);
-    text-decoration: none;
-}
-
-#topbar a:hover {
-    color: var(--color-text-inverse);
-}
-
-#tocText {
-    position: absolute;
-    top: 37px;
-    z-index: 1000;
-    inset-inline-start: 0;
-}
-
-.tocTextRTL {
-    inset-inline-end: 3px;
-}
-
-#tocText,
-#buildText,
-#workText {
-    font-weight: bold;
-    line-height: 16px;
-    margin: 0 15px;
-    color: var(--color-text-inverse);
-}
-
-#tocText,
-#buildText img,
-#workText img {
-    margin: 0 5px;
-}
-
-#statusbar {
-    position: absolute;
-    inset-inline-end: 0;
-    top: 36px;
-    z-index: 1000;
-}
-
-#supplementalNav {
-    align-items: center;
-    background: linear-gradient(180deg, rgba(15, 23, 24, .4), rgba(16, 35, 37, .4));
-    border-radius: 999px;
-    box-sizing: border-box;
-    color: var(--topnav-link-color);
-    column-gap: var(--topnav-gap);
-    display: flex;
-    font-weight: 500;
-    height: var(--topnav-item-height);
-    line-height: var(--topnav-item-height);
-    margin: 3px 0 0 0;
-    padding-block: 0;
-    padding-inline: 18px;
-    position: absolute;
-    inset-inline-end: var(--subnav-horizontal-padding);
-    top: 6px;
-    z-index: 111;
-}
-
-#supplementalNav a {
-    color: inherit;
-    font-weight: inherit;
-    margin: 0;
-    padding: 0;
-    text-decoration: none;
-    transition: color .15s ease;
-}
-
-#supplementalNav a:hover,
-#supplementalNav a:focus-visible {
-    color: var(--topnav-link-hover-color);
-}
-
-#supplementalNav .supplementalNav__item {
-    align-items: center;
-    display: flex;
-    gap: 8px;
-    white-space: nowrap;
-}
-
-#supplementalNav .supplementalNav__item + .supplementalNav__item {
-    padding-inline-start: var(--topnav-gap);
-}
-
-#supplementalNav .supplementalNav__version-label {
-    font-weight: 600;
-    letter-spacing: .02em;
-}
-
-/* ============================================================================
-   5. Forms (Inputs, Selects, Textareas, Buttons)
-   Used in: Document editor, settings pages, all form interactions
-   ============================================================================ */
-
-tbody, thead, tr {
-    margin: 0;
-    padding: 0;
-    border: 0;
-}
-
-form label {
-    cursor: pointer;
-}
-
-fieldset {
-    border: none;
-}
-
-input, select, textarea, option, optgroup, td {
-    font: inherit;
-    color: inherit;
-}
-
-textarea[readonly],
-textarea[readonly]:focus,
-input[type='text'][readonly],
-input[type='text'][readonly]:focus,
-.readonly {
-    background-color: var(--color-gray-200) !important;
-    text-shadow: 1px 1px var(--color-surface) !important;
-    cursor: not-allowed;
-}
-
-optgroup {
-    font-style: normal;
-    font-weight: bold;
-    background-color: var(--color-border-light);
-}
-
-optgroup option {
-    font-weight: normal;
-    background-color: var(--color-surface);
-}
-
-#ta, .tmplvars textarea {
-    font-family: Consolas, 'Courier New', 'Courier', monospace;
-}
-
-form select {
-    background: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    border-radius: 6px;
-    padding: 6px 8px;
-    margin: 0;
-    min-height: 17px;
-    vertical-align: baseline;
-    box-shadow: none;
-}
-
-form input[type=text] {
-    line-height: 1;
-}
-
-form input[type=text],
-form input[type=password],
-form textarea {
-    background: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    padding: 6px 8px;
-    margin-block: 0;
-    margin-inline-end: 2px;
-    min-height: 17px;
-    vertical-align: baseline;
-    border-radius: 6px;
-    box-shadow: none;
-}
-
-.sectionBody input.inputBox[type=text],
-.sectionBody input.inputBox[type=password],
-.sectionBody select.inputBox {
-    width: 350px;
-}
-
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="search"]:focus,
-input[type="text"]:focus,
-input[type="url"]:focus,
-textarea:focus,
-form select:focus {
-    outline: none;
-    background: #ffffff;
-    border: 1px solid var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(74, 123, 167, 0.15);
-}
-
-input:is([type="button"], [type="submit"]) {
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    line-height: normal;
-    margin: -1px 0 0;
-    margin-inline-start: 5px;
-    min-height: 27px;
-    padding: 6px 12px;
-    overflow: visible;
-    background: #f7f9fa;
-    color: var(--color-text-primary);
-    border-radius: 6px;
-    box-shadow: none;
-    text-shadow: none;
-}
-
 input.checkbox,
 input.radio,
-input.submit,
 input.button,
 input[type="checkbox"],
 input[type="radio"],
@@ -638,355 +387,17 @@ input[type="button"] {
     cursor: pointer;
 }
 
-input:is([type="button"], [type="submit"]):hover {
-    border-color: rgba(0, 0, 0, 0.12);
-    background: #eef2f5;
-}
-
-input:is([type="button"], [type="submit"]):active {
-    border-color: rgba(0, 0, 0, 0.12);
-    background: #e2e7eb;
-}
-
-.form {
-    padding: 15px;
-    border: solid 1px var(--color-border-light);
-}
-
-form input.hidden {
-    display: none !important;
-    position: absolute;
-}
-
-.form label,
-.form input,
-.form textarea {
-    display: block;
-    float: inline-start;
-}
-
-.form label {
-    padding-inline-end: 20px;
-    text-align: end;
-    width: 110px;
-}
-
-form textarea {
-    height: 78px;
-    width: 350px;
-    line-height: 1.5;
-    overflow: auto;
-}
-
-.form legend {
-    color: var(--color-link);
-    font-weight: bold;
-    padding: 5px;
-}
-
-.form select {
-    display: inline;
-    float: inline-start;
-}
-
-.form br {
-    clear: both;
-}
-
-input.submit {
-    display: block !important;
-    float: none !important;
-    margin-block: 20px 0;
-    margin-inline-start: 140px !important;
-}
-
-.form fieldset.list {
-    margin: 6px 6px 3px;
-    margin-inline-start: 0;
-}
-
-.form fieldset.list legend {
-    display: none;
-}
-
-.form fieldset.list label,
-.form fieldset.list input {
-    padding: 0;
-    margin: 0 0 3px;
-    float: inline-start;
-    display: inline;
-    border: 0;
-    background: none;
-    width: auto;
-    height: auto;
-}
-
-.form fieldset.list label {
-    padding-inline-start: 5px;
-    text-align: start;
-    width: auto;
-}
-
-form .imeoff {
-    ime-mode: disabled;
-}
-
 /* ============================================================================
    6. Layout Components (Sections, Containers)
    Used in: Content sections, panels, containers
    ============================================================================ */
 
-.sectionBody fieldset {
-    padding: 15px;
-}
-
-.sectionBody legend {
-    font-weight: bold;
-    padding: 5px 15px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border-default);
-    box-shadow: 1px 1px 3px var(--color-border-default);
-    border-radius: 3px;
-}
-
-.sectionBody h3 {
-    font-size: 1.1em;
-    font-weight: bold;
-    padding-bottom: 0;
-    margin-bottom: var(--space-3);
-}
-
-.sectionHeader {
-    color: var(--color-section-header-text);
-    margin: 0 8px;
-    padding: 8px 16px;
-    font-weight: bold;
-    border: 1px solid e1e4e8;
-    border-bottom: none;
-    background-color: var(--color-section-header-end);
-    box-shadow: 0 1px 0 var(--color-surface) inset;
-    border-radius: 8px 8px 0 0;
-}
-
-/* タブの中では外側の白い枠が囲むため、見出しは地色と枠をやめ、下の細い線だけで本文と区切る。
-   枠線は透明にするだけで幅を残し、位置と寸法を変えない */
-.tab-page .sectionHeader {
-    margin: 0 3px;
-    background: transparent;
-    border-color: transparent transparent var(--clean-border);
-}
-
-.sectionBody {
-    position: relative;
-    margin: 0 8px var(--space-3);
-    display: block;
-}
-
-.tab-page .sectionBody,
-.section .sectionBody {
-    background: #ffffff;
-    border: 1px solid #e1e4e8;
-    border-top:none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-    border-radius: 0 0 10px 10px;
-    padding: 15px;
-}
-
-.tab-page .sectionBody {
-    margin-block: 0 var(--space-3);
-    margin-inline: 3px;
-    border-color: transparent;
-    box-shadow: none;
-}
-
-/* .section どうしの間は .section 自身が持つ（本体の margin-bottom は 0） */
-.section {
-    margin-bottom: var(--space-3);
-}
-
-.section .sectionBody {
-    margin: 0 8px;
-}
-
-.comment {
-    color: var(--color-border-dark);
-}
-
-thead {
-    color: var(--color-text-primary);
-    height: 18px !important;
-    background-color: var(--color-border-lighter);
-}
-
-thead td {
-    color: var(--color-text-primary);
-    border-top: 1px solid var(--color-surface);
-}
-
-li {
-    padding: 0;
-    margin: 0;
-    list-style: disc outside url(../common/images/misc/li.gif);
-}
-
-ul {
-    margin-block: 0;
-    margin-inline: 20px;
-}
-
-.screen {
-    border: 1px solid var(--color-border-light);
-    text-align: center;
-}
-
-a img {
-    border: 0;
-}
-
-.disabledImage {
-    width: 20px;
-    opacity: 0.3;
-}
-
-.disabledImage img {
-    border: 0;
-}
-
-.editorCell {
-    border-top: 1px solid #808080;
-    text-align: start;
-    vertical-align: baseline;
-}
-
-.row1, .row2, .row3 {
-    color: var(--color-text-primary);
-}
-
-.row1 {
-    background-color: var(--color-surface);
-}
-
-.row2 {
-    background-color: var(--color-table-row-alt);
-}
-
-.row3 {
-    background-color: var(--color-section-header-start);
-}
-
 /* ============================================================================
-   8. Tree Components (Site Tree, Context Menu)
+   8. Tree Components (Site Tree)
    Used in: Resource tree, folder navigation, context menus
    ============================================================================ */
 
-#treeMenu * {
-    vertical-align: middle;
-}
-
-#treeHolder {
-    cursor: default;
-    height: 100%;
-    padding: 6px 8px 0;
-    padding-inline-start: 12px;
-    line-height: 1.3em;
-    font-family: Arial, "Helvetica Neue", Helvetica, Meiryo, "Hiragino Kaku Gothic Pro", sans-serif;
-}
-
-#treeRoot {
-    margin-inline-start: -10px;
-}
-
-#treeRoot div img {
-    margin: 0;
-    margin-inline-start: -6px;
-    vertical-align: middle;
-}
-
-#floater {
-    display: none;
-    position: absolute;
-    width: 200px;
-    padding: 5px;
-    top: 25px;
-    inset-inline-start: 4px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border-default);
-    z-index: 500;
-}
-
-.rootNode, .treeNode, .treeNodeHover, .treeNodeSelected, .emptyNode {
-    color: var(--color-gray-950);
-    cursor: pointer;
-    width: auto;
-    margin-inline-end: 0;
-}
-
-div.treeNode {
-    white-space: nowrap;
-}
-
-.treeNodeSelected,
-.treeNodeHover {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border-default);
-    color: var(--color-gray-950);
-    padding: 1px 2px;
-    margin-inline-start: -3px;
-}
-
-.unpublished a, .unpublishedNode {
-    color: var(--color-tree-unpublished);
-}
-
-.deletedNode {
-    color: var(--color-tree-deleted);
-    text-decoration: line-through;
-}
-
-.publishedNode {
-    color: var(--color-tree-published);
-}
-
-.emptyNode {
-    color: var(--color-text-muted);
-    cursor: default;
-}
-
-.notInMenuNode {
-    color: var(--color-text-tertiary);
-    text-decoration: none;
-}
-
-.protectedNode {
-    color: var(--color-tree-protected);
-}
-
-#treeSplitter {
-    width: 10px;
-    height: 100%;
-    position: absolute;
-    inset-inline-end: -10px;
-}
-
-.disabledPlugin a {
-    color: var(--color-text-muted);
-    text-decoration: line-through;
-}
-
-/* -------------------------[ grid style ]--- */
-.grid {
-    width: 100%;
-    background-color: var(--color-surface);
-    border: 1px solid var(--light-border);
-    border-radius: var(--radius-lg);
-    border-collapse: separate;
-    border-spacing: 0;
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-}
-
 .grid th, .grid td {
-    padding: var(--space-2) var(--space-4);
     border-bottom: 1px solid var(--color-border-lighter);
 }
 
@@ -995,14 +406,7 @@ div.treeNode {
 }
 
 .gridHeader, .grid th {
-    color: var(--color-text-primary);
-    font-weight: 600;
-    white-space: nowrap;
-    background: linear-gradient(180deg, var(--color-gray-100) 0%, var(--color-gray-200) 100%);
-    text-align: left;
     border-bottom: 2px solid var(--color-gray-300);
-    font-size: 0.9rem;
-    letter-spacing: 0.02em;
 }
 
 .grid th:first-child {
@@ -1013,69 +417,21 @@ div.treeNode {
     border-top-right-radius: var(--radius-lg);
 }
 
-/* 並べ替えの印（今並べている列の見出しのリンクの後ろ。読み上げは aria-sort が受け持つ） */
-.grid th[aria-sort] a::after {
-    margin-left: var(--space-1);
-    font-size: 0.7em;
-    color: var(--color-primary);
-}
-
-.grid th[aria-sort="ascending"] a::after {
-    content: "\25B2";
-    content: "\25B2" / "";
-}
-
-.grid th[aria-sort="descending"] a::after {
-    content: "\25BC";
-    content: "\25BC" / "";
-}
-
-.gridItem {
-    background-color: var(--color-surface);
-    padding: var(--space-1);
+.grid > tbody > tr {
     transition: background-color var(--transition-fast);
 }
 
-.gridItem:hover {
+.grid > tbody > tr:hover {
     background-color: var(--color-gray-50);
-}
-
-.gridAltItem {
-    background-color: var(--color-gray-100);
-    padding: var(--space-1);
-    transition: background-color var(--transition-fast);
-}
-
-.gridAltItem:hover {
-    background-color: var(--color-gray-50);
-}
-
-.grid .is-shrink {
-    width: 1%;
-    white-space: nowrap;
-}
-
-.grid .is-center {
-    text-align: center;
-}
-
-.gridRowIcon:hover {
-    background-color: var(--color-table-hover);
 }
 
 .grid a {
-    text-decoration: none;
     color: var(--color-text-primary);
     transition: color var(--transition-fast);
 }
 
 .grid a:hover {
     color: var(--color-link);
-}
-
-.grid img {
-    vertical-align: middle;
-    padding-inline-end: 6px;
 }
 
 /* Grid checkbox styling */
@@ -1090,22 +446,20 @@ div.treeNode {
 /* Status badges for resource list */
 .publishedDoc {
     display: inline-block;
-    padding: var(--space-1) var(--space-2);
+    padding: 0 var(--space-2);
     border-radius: 9999px;
     background: linear-gradient(135deg, var(--color-success-bg) 0%, #dcfce7 100%);
     color: #166534;
-    font-size: 0.8rem;
     font-weight: 500;
     white-space: nowrap;
 }
 
 .unpublishedDoc {
     display: inline-block;
-    padding: var(--space-1) var(--space-2);
+    padding: 0 var(--space-2);
     border-radius: 9999px;
     background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
     color: #991b1b;
-    font-size: 0.8rem;
     font-weight: 500;
     white-space: nowrap;
 }
@@ -1113,153 +467,12 @@ div.treeNode {
 /* Nowrap utility for dates */
 .grid .nowrap {
     white-space: nowrap;
-    font-size: 0.85rem;
     color: var(--color-text-secondary);
 }
 
 .grid .nowrap.disable {
     color: var(--color-text-muted);
     font-style: italic;
-}
-
-/* Resource description in grid */
-.resource-description {
-    color: var(--color-text-secondary);
-}
-
-/* Disabled label */
-.label-disabled {
-    color: var(--color-text-muted);
-}
-
-/* Private access indicator */
-.access-private {
-    color: var(--color-error);
-}
-
-/* Database table name */
-.table-name {
-    color: #009933;
-}
-
-/* Database overhead warning */
-.overhead-warning {
-    color: #990033;
-}
-
-/* -------------------------[ search bar ]--- */
-.searchbar {
-    width: 100%;
-    border: 1px solid var(--light-border);
-    background: linear-gradient(180deg, var(--color-gray-50) 0%, var(--color-gray-100) 100%);
-    border-radius: var(--radius-md);
-    padding: var(--space-2);
-}
-
-.searchtext {
-    height: 28px;
-    padding: var(--space-1) var(--space-2);
-    border: 1px solid var(--light-border);
-    border-radius: var(--radius-md);
-    background-color: var(--color-surface);
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.searchtext:focus {
-    border-color: var(--color-link);
-    box-shadow: 0 0 0 3px rgba(74, 123, 167, 0.15);
-    outline: none;
-}
-
-/* -------------------------[ home page main links ]--- */
-a.hometblink, a.hometblink:active, a.hometblink:visited, a.hometblink:link, .hometblink {
-    text-decoration: underline;
-    color: var(--color-text-primary);
-    font-weight: bold;
-}
-
-a.hometblink:hover {
-    text-decoration: underline;
-    color: Gray;
-}
-
-#preLoader {
-    position: absolute;
-    z-index: 50000;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    vertical-align: middle;
-    background-color: rgba(255, 255, 255, .3);
-}
-
-.preLoaderText {
-    background-color: var(--color-surface);
-    border-radius: 10px;
-    opacity: .7;
-    width: 300px;
-    height: 150px;
-    margin: 70px auto;
-    padding: 50px;
-    border: 1px solid var(--color-border-dark);
-}
-
-/* -------------------------[ contextmenu in editing modules ]--- */
-.contextMenu {
-    background: var(--color-surface);
-    margin: 0;
-    padding: var(--space-1);
-    border: 1px solid var(--light-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    position: absolute;
-    z-index: 10000;
-}
-
-.cntxMnuItem {
-    background-image: none;
-    cursor: pointer;
-    color: var(--color-text-primary);
-    padding: var(--space-2) var(--space-4);
-    border-radius: var(--radius-md);
-    transition: background-color var(--transition-fast);
-}
-
-.cntxMnuItem:hover {
-    background: var(--color-gray-100);
-}
-
-.cntxMnuItemDisabled {
-    cursor: default;
-    padding: var(--space-2) var(--space-4);
-    color: var(--color-text-muted);
-    border-radius: var(--radius-md);
-}
-
-.cntxMnuItemOver {
-    cursor: pointer;
-    color: var(--color-text-primary);
-    background: var(--color-gray-200);
-    padding: var(--space-2) var(--space-4);
-    border: none;
-    border-radius: var(--radius-md);
-}
-
-.cntxMnuItem img, .cntxMnuItemOver img, .cntxMnuItemDisabled img {
-    margin: 0;
-    margin-inline-end: var(--space-2);
-}
-
-.cntxMnuItem img, .cntxMnuItemDisabled img {
-    opacity: .5;
-}
-
-.cntxMnuSeparator {
-    font-size: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--color-gray-300), transparent);
-    overflow: hidden;
-    margin: var(--space-1) var(--space-2);
 }
 
 /* ============================================================================
@@ -1269,244 +482,18 @@ a.hometblink:hover {
    ============================================================================ */
 
 /* -------------------------[ Settings Table ]--- */
-.settings {
-    width: 600px;
-}
-
-.settings tr {
-    width: 100% !important;
-}
-
-.settings th {
-    width: 200px !important;
-    text-align: start;
-    color: var(--color-gray-700);
-    font-size: 1.2em;
-}
-
-.filelist td {
-    border-bottom: 1px solid #C2C3CF;
-}
 
 /* ============================================================================
    10. Tabs System (Dynamic Tab Pane)
    Used in: Document editor, settings, multi-section forms
    ============================================================================ */
 
-.dynamic-tab-pane-control.tab-pane {
-    position: relative;
-    width: 100%;
-    margin-bottom: var(--space-3);
-}
-
-.dynamic-tab-pane-control .tab-row .tab {
-    color: var(--color-secondary-text);
-    font-size: 1em;
-    cursor: pointer;
-    display: inline;
-    margin: 3px 2px 1px 0;
-    padding: 8px 16px;
-    z-index: 1;
-    position: relative;
-    top: 1px;
-    border: 1px solid var(--color-secondary-border);
-    border-radius: 5px 5px 0 0;
-    background-color: var(--color-secondary-start);
-}
-
-.dynamic-tab-pane-control .tab-row .tab:hover {
-    text-decoration: none;
-    color: var(--color-secondary-hover-text);
-    border-color: var(--color-secondary-border);
-    background-color: var(--color-secondary-hover-start);
-    background-image: linear-gradient(var(--color-secondary-hover-start), var(--color-secondary-hover-end));
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected {
-    color: var(--color-text-primary);
-    z-index: 999;
-    top: 1px;
-    border-width: 1px;
-    border-bottom-style: solid;
-    border-color: var(--accent-blue) var(--color-neutral-button-border) var(--color-surface) var(--color-neutral-button-border);
-    border-radius: 5px 5px 0 0;
-    border-width: 1px 1px 0;
-    background-color: var(--color-surface);
-    background-image: none;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected span {
-    color: var(--color-gray-950);
-    background-color: var(--color-surface);
-    text-shadow: none;
-}
-
-.dynamic-tab-pane-control .tab-row .tab span {
-    color: inherit;
-    text-decoration: none;
-}
-
-.dynamic-tab-pane-control .tab-row .tab:hover span {
-    color: var(--color-secondary-hover-text);
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected:hover {
-    color: var(--color-text-primary);
-    border-color: var(--accent-blue) var(--color-neutral-button-border) var(--color-surface) var(--color-neutral-button-border);
-    background-color: var(--color-surface);
-    background-image: none;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected:hover span {
-    color: var(--color-gray-950);
-}
-
-.dynamic-tab-pane-control .tab-row .tab .alert {
-    color: var(--color-error-light);
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected .alert {
-    color: var(--color-error-light);
-}
-
-.dynamic-tab-pane-control .tab-page {
-    clear: both;
-    background: var(--color-surface);
-    z-index: 2;
-    position: relative;
-    top: -2px;
-    padding: 20px 15px 14px !important;
-}
-
-.dynamic-tab-pane-control .tab-row {
-    z-index: 1;
-    white-space: nowrap;
-    /* タブが増えても折り返して、段違いにならないようにする */
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.dynamic-tab-pane-control ul {
-    padding-inline: 10px;
-    padding-bottom: 5px;
-}
-
-.dynamic-tab-pane-control li {
-    padding-inline: 5px;
-}
-
-/* -------------------------[ Tree buttons ]--- */
-.treeButton {
-    display: block;
-    cursor: pointer;
-    color: var(--color-text-primary);
-    border: 1px;
-    border-bottom-color: var(--accent-blue);
-    padding: 3px 5px;
-    white-space: nowrap;
-}
-
-.treeButton:hover {
-    border: 1px solid var(--color-gray-500);
-    padding: 2px 4px;
-    background: var(--color-surface);
-}
-
-.treeButtonDisabled {
-    cursor: default;
-    border: 1px solid var(--color-gray-600);
-    padding: 2px 4px;
-    color: var(--color-text-tertiary);
-    border-width: 0;
-    opacity: .5;
-}
-
 /* -------------------------[ Welcome Page ]--- */
-a.hometblink, a.hometblink img {
-    border: 0 !important;
-    text-decoration: none !important;
-}
-
-.wm_button {
-    float: inline-start;
-    margin: 0;
-    margin-inline-end: 12px;
-    margin-bottom: 2px;
-    text-align: center;
-}
-
-/* -------------------------[ Welcome Page ]--- */
-#mainActionPages {
-    background: #f5f5f5 url(../common/images/misc/mainbg.gif) repeat-x top;
-}
-
-.tab-page {
-    border: 1px solid var(--color-text-muted);
-    border-radius: 0 0 5px 5px;
-}
-
-.sectionBody .tab-page {
-    padding: 15px 15px 20px !important;
-}
 
 /* ============================================================================
    9. Tables & Grids (Data Tables)
    Used in: Resource lists, user management, data grids
    ============================================================================ */
-
-/* -------------------------[ Pagination table ]--- */
-#max-display-records {
-    margin: 10px 0;
-}
-
-.pagination {
-    margin-top: 0;
-    margin-bottom: var(--space-3);
-}
-
-.pagination ul {
-    margin: 0;
-    display: inline;
-}
-
-.pagination li {
-    list-style: none;
-    display: inline;
-    width: 15px;
-    margin: 0 0 0 1px;
-    padding: 0;
-}
-
-.pagination li a,
-.pagination li span {
-    padding: 3px var(--space-2);
-    border: 1px solid var(--color-pagination-border);
-    text-decoration: none;
-    color: var(--color-text-primary);
-}
-
-.pagination li span {
-    color: var(--color-pagination-border);
-    cursor: default;
-}
-
-.pagination a[aria-current="page"], .pagination li a:hover {
-    color: var(--color-text-inverse);
-    background-color: var(--color-pagination-active-bg);
-    border: 1px solid var(--color-pagination-active-border);
-}
-
-fieldset.tab-page {
-    border: 1px solid var(--color-border-lighter) !important;
-}
-
-h2#edit_document_title {
-    font-size: 15px;
-    color: var(--color-section-header-start);
-    width: 100%;
-    border-bottom: none;
-    padding: 5px 10px;
-}
 
 /* ============================================================================
    11. Action Buttons (Fixed Position Controls)
@@ -1514,211 +501,10 @@ h2#edit_document_title {
    Based on: https://github.com/manse/ScienceStyle
    ============================================================================ */
 
-#actions {
-    background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
-    margin: 0;
-    padding: var(--space-2) var(--space-4) !important;
-    position: fixed;
-    right: var(--space-4);
-    text-align: right;
-    top: var(--space-2);
-    z-index: 100;
-    border-radius: var(--space-2);
-}
-
-select#stay {
-    padding: var(--space-2);
-}
-
-.actionButtons {
-    margin-bottom: var(--space-3);
-}
-
-.actionButtons:after {
-    content: "";
-    display: block;
-    clear: both;
-}
-
-ul.actionButtons {
-    margin: 0 0 var(--space-3);
-    padding: 0;
-    /* accommodate border on buttons - */
-    background: none;
-    width: auto;
-    white-space: nowrap;
-}
-
-/* 右上に浮く操作ボタン群は、縦に積むブロックの流れに入らない */
-#actions .actionButtons {
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-/* 縦の余白の決まり（assets/docs/theme-spacing.md）。
-   入れ物（#mainPane・.section・.sectionBody・.tab-page・fieldset・form）の最後の子の下に、外側の margin を足さない。
-   この規則の詳細度は (0,2,0) と #mainPane 側の (1,1,0)。ブロックの間を作る margin-bottom の規則のうち、
-   これより詳細度が高いもの（id セレクタを使う規則など）と、後ろにある同じ詳細度のものは 0 にならないので、それぞれ別に 0 にする。
-   後ろに display:none の兄弟が続くときは、非表示の要素が最後の子になるので、見えている最後の子の margin-bottom は残る */
-#mainPane > :last-child,
-:is(.section, .sectionBody, .tab-page, fieldset, form) > :last-child {
-    margin-bottom: 0;
-}
-
-/* タブの中で、表などの次に見出しの帯が続くときの間（見出しの帯の上は margin-top ではなく、前のブロックの margin-bottom で作る） */
-.tab-page > :has(+ .sectionHeader) {
-    margin-bottom: var(--space-3);
-}
-
-/* 本体の直下のブロックの間。上の margin は持たず、下の margin だけで作る。
-   form は含めない（末尾の <style> の前では :last-child に当たらず、下の margin が 0 にならないため） */
-.sectionBody > :is(div, table, fieldset) {
-    margin-bottom: var(--space-3);
-}
-
-/* サブリソース一覧（resources_list.static.php）のパンくずの下 */
-.resources-topic-path {
-    margin-bottom: var(--space-3);
-}
-
-/* システムログ（eventlog.dynamic.php）の検索フォームと概要の下 */
-.system-log-toolbar,
-.system-log-summary {
-    margin-bottom: var(--space-3);
-}
-
-/* サブリソース一覧の移動のボタンの上は、直前のブロック（表、またはページ送り）の margin-bottom で作る。
-   表 → 下のページ送りの間も、同じ規則（:is(.sectionBody, .tab-page, form) > :has(+ .pagination)）で作る。上のページ送りの前の段落なども同じ。:has 非対応のブラウザでは捨てられる */
-form > :has(+ .resources-batch-actions),
-:is(.sectionBody, .tab-page, form) > :has(+ .pagination) {
-    margin-bottom: var(--space-3);
-}
-
-/* 画面から直書きを消した分の間。画面は余白を書かず、前のブロックの margin-bottom と class で決まりを受ける。
-   :has を使う規則は別の規則に分け、:has 非対応のブラウザで一緒に捨てられないようにする */
-/* 操作ボタン列の前（バックアップ・エクスポート・テンプレートの TV の一覧など） */
-:is(.sectionBody, .tab-page, form) > :has(+ :is(ul, div).actionButtons) {
-    margin-bottom: var(--space-3);
-}
-
-/* コード欄（帯とテキスト欄の入れ物）の前（テンプレート・スニペット・チャンク・モジュール・プラグイン） */
-:is(.sectionBody, .tab-page, form) > :has(+ .code-editor) {
-    margin-bottom: var(--space-3);
-}
-
-/* タブの組の直後の操作ボタン列（ログ）。最後のタブのパネルが非表示のことがあり、前の兄弟の margin-bottom は使えない */
-.tab-pane > ul.actionButtons {
-    margin-top: var(--space-3);
-}
-
-.actionButtons li {
-    list-style: none;
-    margin-inline-end: 6px;
-    padding: 0;
-    float: inline-start;
-}
-
-.actionButtons img {
-    vertical-align: top;
-    margin-top: 1px;
-    opacity: .7;
-}
-
-.actionButtons a:hover img {
-    opacity: 1;
-}
-
-.actionButtons :is(a, button) {
-    display: block;
-    float: inline-start;
-    border-radius: var(--space-1);
-    color: var(--color-gray-800);
-    font-size: 1em;
-    font-weight: 700;
-    outline: medium none;
-    padding: var(--space-2) 12px;
-    text-decoration: none;
-    white-space: nowrap;
-    background-color: var(--color-neutral-button-start);
-}
-
-.actionButtons :is(a, button):hover {
-    border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-hover-end);
-}
-
-.actionButtons :is(a, button):active {
-    border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-active-start);
-}
-
-.actionButtons a.disabled {
-    border: 1px solid var(--color-border-default);
-    padding: 2px var(--space-1);
-    color: var(--color-text-tertiary);
-    background-color: var(--color-surface);
-    cursor: default;
-    pointer-events: none;
-}
-
-.actionButtons .opendraft a {
-    background-color: var(--color-draft-start);
-    border-color: var(--color-draft-end);
-}
-
-.actionButtons select, .actionButtons span.and {
-    display: block;
-    float: inline-start;
-}
-
-.actionButtons span.and {
-    padding: 4px 2px;
-}
-
-.actionButtons a.disabled img {
-    opacity: .3;
-}
-
-.actionButtons .and {
-    margin: 0 2px 0 5px;
-    color: var(--color-secondary-hover-text);
-    font-weight: 700;
-}
-
-#loadingmask {
-    display: none;
-}
-
 /* ============================================================================
    12. Specialized Forms (Mutate Forms, Date Pickers)
    Used in: Document editor, settings forms, template variables
    ============================================================================ */
-
-/*
-* Generic styles for all form elements
-*/
-form#mutate dt,
-form#mutate dd {
-    margin-bottom: 10px;
-}
-
-form#mutate dt label,
-form#mutate dt h3.label {
-    font-size: 1em;
-    display: inline;
-    float: inline-start;
-    width: 200px;
-    color: var(--color-error) !important;
-    font-weight: bold;
-}
-
-form#mutate dd {
-    margin-inline-start: 210px;
-}
-
-form#mutate input.disabled {
-    background-color: var(--color-section-header-start) !important;
-}
 
 form#mutate select.inputBox,
 form#mutate input,
@@ -1726,124 +512,8 @@ form#mutate textarea {
     width: 300px;
 }
 
-form#mutate textarea.textarea {
-    width: 90%;
-    height: 200px;
-}
-
-#tv_body input[type=text],
-#tv_body textarea {
-    background: var(--color-surface);
-}
-
-form#mutate textarea.tv_textareamini {
-    height: 100px;
-    width: 300px;
-    overflow-y: scroll;
-}
-
-form#mutate textarea.tv_textarea {
-    height: 100px;
-    width: 100%;
-    overflow-y: scroll;
-}
-
-/*
-* Styling for datepicker elements in settings and templavars
-*/
-form#mutate input.date,
-form#mutate input.tvdate {
-    margin-inline-end: 10px;
-}
-
-/*
-* Individual Styles for fieldset#settings_page_settings
-*/
-form#mutate fieldset#settings_page_settings input#pub_date,
-form#mutate fieldset#settings_page_settings input#unpub_date {
-    width: 150px;
-}
-
-form#mutate fieldset#settings_page_settings select {
-    width: 155px;
-}
-
-/*
-* Individual Styles for fieldset#document_content
-*/
-
-fieldset#document_content textarea#ta {
-    width: 100%;
-    height: 400px;
-    font-size: 1em;
-}
-
-/*
-* Individual Styles for fieldset#access_permissions
-*/
-fieldset#access_permissions dt label {
-    width: 200px;
-}
-
-fieldset#access_permissions dd {
-    margin-inline-start: 210px;
-}
-
-fieldset#access_permissions dl dd ul li {
-    list-style-type: none;
-}
-
-/* -------------------------[ date picker ]--- */
-input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUserPane input.DatePicker, input#datefrom.DatePicker, input#dateto.DatePicker {
-    width: 150px;
-    padding: 3px 3px 3px var(--space-6);
-    background-color: var(--color-surface);
-    background: url(../common/images/misc/datenofocus.gif) no-repeat top left var(--color-surface);
-}
-
-input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
-    background: url(../common/images/misc/datefocus.gif) no-repeat top left;
-    cursor: text;
-}
-
-.phptextarea {
-    font-family: Consolas, 'Courier New', 'Courier', monospace;
-    box-sizing: border-box;
-}
-
-/* コード欄の上の帯。背景は本文の色を面の色に薄く混ぜ（theme-variables.md）、枠は通常の枠の色にする */
-.code-editor-header {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    padding: var(--space-1) var(--space-2);
-    background-color: color-mix(in srgb, var(--color-text-primary) 6%, var(--color-surface));
-    border: 1px solid var(--color-border-default);
-    border-bottom: none;
-}
-
-.code-editor-title {
-    font-weight: bold;
-}
-
 .code-editor-options {
     color: color-mix(in srgb, var(--color-text-primary) 75%, var(--color-surface));
-}
-
-.tmplvars tr {
-    height: 24px;
-}
-
-.tvname {
-    width: 150px;
-    white-space: nowrap;
-}
-
-.okmsg {
-    background-color: var(--color-success-bg);
-    border: 2px solid var(--color-success-border);
-    padding: var(--space-2);
-    margin-bottom: var(--space-2);
 }
 
 /* ============================================================================
@@ -1854,305 +524,34 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 /* トップメニュー全体 */
 #topMenu {
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-#Navcontainer {
-    padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
-    position: relative;
-    text-shadow: none;
-    color: var(--clean-nav-text);
-}
-
-/* メインナビゲーション */
-#nav {
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-start;
-    column-gap: var(--topnav-gap);
-    row-gap: 8px;
-    flex-wrap: wrap;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-#nav > li {
-    list-style: none;
-}
-
-#nav > li > a {
-    display: block;
-    line-height: var(--topnav-item-height);
-    padding: 0 20px;
-    text-decoration: none;
-    white-space: nowrap;
-    color: var(--clean-nav-text);
-    border: none;
-    border-radius: var(--radius-md);
-    background: transparent;
-    transition: all 0.2s ease;
-}
-
-#nav > li > a:hover,
-#nav > li > a:active,
-#nav > li > a:focus-visible {
-    color: var(--clean-nav-text);
-    background: var(--clean-nav-bg-hover);
-    border: none;
-}
-
-#nav > li.active > a {
-    position: relative;
-    text-shadow: none;
-    z-index: 2;
-    color: var(--clean-nav-text);
-    background: var(--clean-nav-bg-active);
-    border: none;
-    font-weight: 700;
-}
-
-/* サブナビゲーション */
-#nav > li > ul.subnav {
-    display: none;
-    position: absolute;
-    inset-inline: 0;
-    margin: var(--radius-md) 0 0 0;
-    list-style: none;
-    padding: 4px var(--subnav-horizontal-padding);
-    min-height: var(--subnav-height);
-    align-items: center;
-    flex-wrap: wrap;
-    column-gap: var(--topnav-gap);
-    row-gap: var(--radius-md);
-    z-index: 1;
-    box-shadow: none;
-    background: var(--clean-subnav-bg);
-    border-bottom: 1px solid var(--light-border);
-}
-
-#nav > li.active > ul.subnav {
-    display: flex;
-}
-
-#nav > li > ul.subnav > li {
-    margin: 0;
-    list-style: none;
-}
-
-#nav > li > ul.subnav a {
-    cursor: pointer;
-    display: block;
-    line-height: var(--subnav-height);
-    padding: 0 18px;
-    text-decoration: none;
-    color: var(--clean-nav-text);
-    font-weight: 500;
-    border-radius: var(--radius-md);
-    transition: all 0.2s ease;
-}
-
-#nav > li > ul.subnav a:hover,
-#nav > li > ul.subnav a:focus-visible {
-    background: var(--color-surface);
-    color: var(--clean-nav-text);
-}
-
-#nav > li > ul.subnav a:active {
-    color: var(--accent-blue-hover);
-}
-
-/* 表示中の画面に対応する項目（menu.php が aria-current を付ける） */
-#nav > li > ul.subnav a[aria-current="page"] {
-    background: var(--color-surface);
-    font-weight: 700;
-}
-
-/* 補助ナビゲーション（右上） */
-#supplementalNav {
-    background: rgba(255, 255, 255, 0.98);
-    border: 1px solid var(--light-border);
-    color: var(--clean-text-secondary);
-}
-
-#supplementalNav a {
-    color: var(--clean-text-secondary);
-    font-weight: 500;
-}
-
-#supplementalNav a:hover,
-#supplementalNav a:focus-visible {
-    color: var(--clean-nav-text);
-}
-
-#supplementalNav .supplementalNav__version-label {
-    color: var(--clean-text-secondary);
-    font-weight: 600;
-}
-
-/* トップバーのリンク */
-#topbar a,
-#topbar a:link,
-#topbar a:visited {
-    color: var(--clean-text-secondary);
-    font-weight: 500;
-}
-
-#topbar a:hover {
-    color: var(--clean-nav-text);
-}
-
-/* タブデザイン。未選択はごく薄いグレーの面だけにして枠を消し、選択中の白い面が中身へつながって見えるようにする */
-.dynamic-tab-pane-control .tab-row .tab {
-    background: #f1f3f5;
-    border: 1px solid transparent;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    /* 薄いグレーの面の上でも WCAG AA(4.5:1)を満たす濃さにする */
-    color: #5c6670;
-    font-weight: 500;
-    padding: 10px var(--space-4);
-    transition: all 0.2s ease;
-}
-
-.dynamic-tab-pane-control .tab-row .tab:hover {
-    background: #e9ecef;
-    color: var(--light-text-primary);
-    border-color: transparent;
+    /* 上のメニュー（common/topmenu.css） */
+    --topnav-link-color: var(--clean-nav-text);
+    --topnav-link-hover-color: var(--clean-nav-text);
+    --topnav-item-radius: var(--radius-md) var(--radius-md) 0 0;
+    --topnav-link-hover-bg: var(--clean-nav-bg-hover);
+    --topnav-link-hover-border-color: transparent;
+    --topnav-link-active-bg: var(--clean-nav-bg-active);
+    --topnav-link-active-border-color: transparent;
+    --topnav-link-active-font-weight: 700;
+    --topnav-subnav-bg: var(--clean-subnav-bg);
+    --topnav-subnav-border-color: transparent var(--light-border);
+    --topnav-sublink-color: var(--clean-nav-text);
+    --topnav-sublink-font-weight: 500;
+    --topnav-sublink-radius: var(--radius-md);
+    --topnav-sublink-hover-bg: var(--color-surface);
+    --topnav-sublink-pressed-color: var(--accent-blue-hover);
+    /* 右上のユーザー情報（common/topmenu.css） */
+    --supplemental-nav-bg: rgba(255, 255, 255, 0.98);
+    --supplemental-nav-border-color: var(--light-border);
+    --supplemental-nav-color: var(--clean-text-secondary);
+    --supplemental-nav-link-color: var(--clean-text-secondary);
+    --supplemental-nav-link-font-weight: 500;
+    --supplemental-nav-link-hover-color: var(--clean-nav-text);
 }
 
 .dynamic-tab-pane-control .tab-row .tab:focus-visible {
     outline: 2px solid var(--accent-blue);
     outline-offset: -2px;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected {
-    background: var(--color-surface);
-    border-color: var(--clean-border) var(--clean-border) var(--color-surface) var(--clean-border);
-    border-top: 2px solid var(--accent-blue);
-    border-bottom: none;
-    color: var(--light-text-primary);
-    font-weight: 600;
-    position: relative;
-    z-index: 10;
-}
-
-.dynamic-tab-pane-control .tab-page {
-    background: var(--color-surface);
-    border: 1px solid var(--clean-border);
-    border-radius: 0 var(--radius-lg) var(--radius-lg) var(--radius-lg);
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
-}
-
-/* ボタン */
-.actionButtons :is(a, button) {
-    background: #f7f9fa;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: var(--radius-md);
-    color: var(--light-text-primary);
-    font-weight: 500;
-    transition: all 0.2s ease;
-    box-shadow: none;
-}
-
-.actionButtons :is(a, button):hover {
-    background: #eef2f5;
-    border-color: rgba(0, 0, 0, 0.12);
-    box-shadow: none;
-    transform: translateY(-1px);
-}
-
-.actionButtons :is(a, button):active {
-    background: #e2e7eb;
-    transform: translateY(0);
-    box-shadow: none;
-}
-
-.actionButtons :is(a, button):focus-visible {
-    outline: 2px solid var(--color-text-primary);
-    outline-offset: 2px;
-}
-
-.actionButtons #Button1 a,
-.actionButtons li.primary a,
-.actionButtons a.primary,
-.actionButtons a.default {
-    color: var(--color-text-inverse);
-    box-shadow: 0 2px 4px rgba(74, 123, 167, 0.25);
-    text-shadow: none;
-    font-weight: 600;
-    background-color: var(--color-primary);
-    border-color: var(--color-primary-end);
-}
-
-.actionButtons #Button1 a:hover,
-.actionButtons a:hover.default {
-    box-shadow: 0 3px 6px rgba(74, 123, 167, 0.35);
-    background-color: var(--color-primary-hover-start);
-    border-color: var(--color-primary-hover-end);
-}
-
-.actionButtons #Button1 a:active,
-.actionButtons a:active.default {
-    box-shadow: 0 1px 3px rgba(74, 123, 167, 0.25) inset;
-    background-color: var(--color-primary-active-start);
-    border-color: var(--color-primary-active-end);
-}
-
-/* セクションヘッダー。地色はごく薄いグレーにとどめ、文字の太さで階層を示す */
-.sectionHeader {
-    background: var(--light-bg-tertiary);
-    border: 1px solid var(--clean-border);
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    color: var(--light-text-primary);
-    font-weight: 600;
-}
-
-/* h1スタイル。灰色の帯と枠をやめて文字だけで示す(枠線は透明にして幅を残し、位置を変えない) */
-h1 {
-    background: transparent;
-    color: var(--light-text-primary);
-    border: 1px solid transparent;
-    border-radius: var(--radius-lg);
-    font-weight: 600;
-    padding: 12px;
-}
-
-/* フォーム要素 */
-form input[type=text],
-form input[type=password],
-form textarea {
-    border: 1px solid var(--light-border);
-    transition: all 0.2s ease;
-    background: var(--color-surface);
-}
-
-form input[type=text]:focus,
-form input[type=password]:focus,
-form textarea:focus {
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(74, 123, 167, 0.1);
-    outline: none;
-}
-
-form select {
-    border: 1px solid var(--light-border);
-    border-radius: var(--radius-md);
-    background: var(--color-surface);
-}
-
-form select:focus {
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(74, 123, 167, 0.1);
-    outline: none;
-}
-
-/* アクションエリア。操作の帯（data-table.js）とファイルブラウザの選択の帯（`.selection-dock`）も同じ見た目にする */
-#actions,
-.selection-dock:not(.is-empty) {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--clean-border);
-    border-radius: var(--radius-xl);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* モーダルでは shell.js が #actions をフッターへ移す。shell.css は位置と背景だけを戻すため、枠と影もここで外す */
@@ -2169,109 +568,21 @@ body#mainpane {
 
 /* -------------------------[ Tree Pane - Light Background ]--- */
 
-/* ツリーペイン全体の背景 */
-div.treeframebody {
-    background: linear-gradient(180deg, #fafafa 0%, #f3f4f6 100%) !important;
-    box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.04);
-    padding: var(--space-2);
-}
-
 /* ツリーメニューのツールバー */
 #treeMenu {
     background: transparent;
 }
 
-/* ツリーボタンのスタイル改善 */
-.treeButton {
-    border: 1px solid transparent;
-    border-radius: var(--space-1);
-    padding: var(--space-1) var(--radius-md);
-    transition: all 0.2s ease;
+/* 右上の操作ボタンの帯は、すりガラスにする */
+#actions {
+    backdrop-filter: blur(10px);
 }
 
-.treeButton:hover {
-    background: var(--light-bg-secondary);
-    border-color: var(--light-border);
+/* タブの中の見出しは下の線だけ、本体は枠を見せない */
+.tab-page .sectionHeader {
+    border-color: transparent transparent var(--clean-border);
 }
 
-/* ツリーホルダー */
-#treeHolder {
-    background: transparent;
-}
-
-/* コンテキストメニューのスタイル改善 */
-#mx_contextmenu {
-    position: absolute;
-    height: auto;
-    visibility: hidden;
-    z-index: 10000;
-    width: 180px;
-    margin: 0;
-    padding: var(--space-1);
-    overflow: hidden;
-    line-height: 1.4;
-    background: var(--color-surface);
-    border: 1px solid var(--light-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-}
-
-#mx_contextmenu #nameHolder {
-    text-align: start;
-    cursor: default;
-    font-weight: 600;
-    padding: var(--space-2) var(--space-4);
-    margin-bottom: var(--space-1);
-    background: linear-gradient(180deg, var(--color-primary-start) 0%, var(--color-primary-end) 100%);
-    border-radius: var(--radius-md);
-    color: var(--color-text-inverse);
-    text-shadow: none;
-}
-
-#mx_contextmenu .menuLink {
-    display: block;
-    cursor: pointer;
-    padding: var(--space-2) var(--space-4);
-    border-radius: var(--radius-md);
-    transition: all var(--transition-fast);
-    color: var(--color-text-primary);
-}
-
-#mx_contextmenu .menuLink:hover {
-    cursor: pointer;
-    padding: var(--space-2) var(--space-4);
-    background: var(--color-gray-100);
-    border: none;
-    color: var(--color-link);
-}
-
-#mx_contextmenu .menuLinkDisabled {
-    cursor: default;
-    padding: var(--space-2) var(--space-4);
-    color: var(--color-text-muted);
-    border-radius: var(--radius-md);
-}
-
-#mx_contextmenu .menuLink img,
-#mx_contextmenu .menuLink:hover img,
-#mx_contextmenu .menuLinkDisabled img {
-    margin-inline-end: var(--space-2);
-    vertical-align: middle;
-}
-
-#mx_contextmenu .menuLink img,
-#mx_contextmenu .menuLinkDisabled img {
-    opacity: .5;
-}
-
-#mx_contextmenu .menuLink:hover img {
-    opacity: 1;
-}
-
-#mx_contextmenu .seperator {
-    font-size: 0;
-    height: 1px;
-    background-color: var(--color-context-menu-separator);
-    overflow: hidden;
-    margin: 3px 1px 3px 28px;
+.tab-page .sectionBody {
+    border-color: transparent;
 }

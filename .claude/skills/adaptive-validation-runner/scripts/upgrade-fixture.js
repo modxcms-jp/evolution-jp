@@ -267,7 +267,7 @@ function cmdLoad(args) {
 
 // CLI の起動処理（manager/includes/cli/bootstrap.php）を読み込み、ガードを通さずにランナーを流す。
 // キャッシュは消さない（system_cache の無い古い DB では clearCache() が処理ごと止めるため）。
-// 出力と終了コードは php evo migrate と同じ（Applied <ID> / Nothing to migrate. / 失敗は終了コード 1）
+// 出力と終了コードは php evo.php migrate と同じ（Applied <ID> / Nothing to migrate. / 失敗は終了コード 1）
 const MIGRATE_PHP = `
 define('EVO_CLI', true);
 define('MODX_API_MODE', true);

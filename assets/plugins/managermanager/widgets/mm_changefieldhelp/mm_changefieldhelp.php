@@ -31,28 +31,32 @@ function mm_changeFieldHelp($field, $helptext = '', $roles = '', $templates = ''
         return;
     }
     $output = "//  -------------- mm_changeFieldHelp :: Begin ------------- \n";
-    $fieldtype = $mm_fields[$field]['fieldtype'];
     $fieldname = $mm_fields[$field]['fieldname'];
-    // fieldname の \\[\\] は CSS のエスケープなので外し、属性値を引用して組み立てる
-    $selector = js_literal(sprintf('%s[name="%s"]', $fieldtype, str_replace('\\', '', $fieldname)));
+    $selector = js_literal(mmFieldSelector($field));
 
     //Is this TV?
     if ($mm_fields[$field]['tv']) {
-        // 最も近い祖先の td の、直前の td の説明
+        // 行の説明。説明が空の TV は説明の部分が無いので、値のセルの末尾に作る
         $output .= sprintf(
-            'MM.all(%s).forEach(function (el) { const td = el.parentElement && el.parentElement.closest("td"); const p = td && td.previousElementSibling; if (p && p.matches("td")) { MM.html(p.querySelectorAll(":scope > span.comment"), "%s"); } });',
-            $selector,
-            jsSafe($helptext)
+            '(function (el) { let help = Evo.fieldPart(el, "help"); if (!help) { const value = Evo.fieldPart(el, "value"); if (!value) { return; } help = document.createElement("div"); help.className = "form-text"; help.setAttribute("data-field-part", "help"); value.appendChild(help); } MM.html(help, %s); })(document.querySelector(%s));',
+            mmHtmlLiteral($helptext),
+            $selector
         );
         //Or document field
     } else {
         // Give the help button an ID, and modify the alt/title text
         // title・alt はプロパティなので生の文字列を、data-powertip は属性なので hsc() したものを入れる
+        if ($fieldname === 'hidemenucheck') {
+            // 「メニューに表示」は、説明の部分の中のアイコン
+            $icons = 'MM.innerIcons(Evo.fieldPart("hidemenu", "help"))';
+        } else {
+            // 欄の兄弟のアイコン
+            $icons = 'MM.siblingIcons(' . $selector . ')';
+        }
         $output .= sprintf(
-            'MM.all(%s).forEach(function (el) { Array.from(el.parentNode.children).forEach(function (c) { if (c === el || !c.matches("img.tooltip")) { return; } c.id = "%s-help"; c.title = %s; c.alt = %s; c.setAttribute("data-powertip", %s); }); }); ',
-            $selector,
-            $fieldname,
-            js_literal($helptext),
+            'MM.setHelp(%s, %s, %s, %s);',
+            $icons,
+            js_literal($fieldname . '-help'),
             js_literal($helptext),
             js_literal(hsc($helptext))
         );

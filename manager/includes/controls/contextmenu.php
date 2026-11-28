@@ -8,6 +8,7 @@ class ContextMenu
     private $id;
     private $width;
     private $visible;
+    private static $scriptLoaded = false;
 
     public function __construct($id = '', $width = 120, $visible = false)
     {
@@ -23,7 +24,11 @@ class ContextMenu
         $this->i = 0;
     }
 
-    public function addItem($text, $action = "", $img = "", $disabled = 0)
+    /**
+     * $key を渡すと、項目に data-menu-item="$key" を付ける（開くときに、対象の状態で項目を出し分けるための印。
+     * リソースの行メニューでは DocumentMenu のキー。document-actions.js の EvoDocumentActions.applyMenuState() が使う）
+     */
+    public function addItem($text, $action = "", $img = "", $disabled = 0, $key = '')
     {
         if (!$img) {
             $img = config('base_url') . style('tx');
@@ -35,12 +40,13 @@ class ContextMenu
         } else {
             $action = "EvoShell.go('{$action}')";
         }
-        $action = " onmouseover=\"this.className='cntxMnuItemOver';\" onmouseout=\"this.className='cntxMnuItem';\" onclick=\"{$action}; hideCntxMenu('{$this->id}');\"";
+        $action = " onmouseover=\"this.className='cntxMnuItemOver';\" onmouseout=\"this.className='cntxMnuItem';\" onclick=\"{$action}; EvoContextMenu.hide('{$this->id}');\"";
         if ($disabled) {
             $action = "";
         }
+        $keyAttr = (string) $key !== '' ? " data-menu-item='" . hsc((string) $key) . "'" : '';
         $this->html .= "
-            <div class='" . ($disabled ? "cntxMnuItemDisabled" : "cntxMnuItem") . "' {$action}>
+            <div class='" . ($disabled ? "cntxMnuItemDisabled" : "cntxMnuItem") . "'{$keyAttr} {$action}>
                 <img src='{$img}' align='absmiddle' />&nbsp;{$text}
             </div>
         ";
@@ -56,29 +62,18 @@ class ContextMenu
 
     public function render()
     {
-        global $modx;
-        global $ContextMenuScript;
-
-        $html = $ContextMenuScript .
-            "<div id='{$this->id}' class='contextMenu' style='width:{$this->width}px; visibility:" . ($this->visible ? 'visible' : 'hidden') . "'>{$this->html}</div>";
-        $ContextMenuScript = ""; // reset css
-        return $html;
+        // 部品の JS は 1 ページで 1 回だけ読む
+        $script = '';
+        if (!self::$scriptLoaded) {
+            self::$scriptLoaded = true;
+            $script = '<script src="' . hsc(manager_asset('media/script/context-menu.js')) . '"></script>';
+        }
+        return $script .
+            "<div id='{$this->id}' class='contextMenu' style='min-width:{$this->width}px; visibility:" . ($this->visible ? 'visible' : 'hidden') . "'>{$this->html}</div>";
     }
 
     public function getClientScriptObject()
     {
-        return "getCntxMenu('{$this->id}')";
+        return "EvoContextMenu.get('{$this->id}')";
     }
 }
-
-$ContextMenuScript = <<<BLOCK
-<script>
-    function getCntxMenu(id) {
-        return document.getElementById(id);
-    }
-    function hideCntxMenu(id){
-        var cm = getCntxMenu(id);
-        cm.style.visibility = 'hidden';
-    }
-</script>
-BLOCK;

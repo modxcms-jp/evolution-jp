@@ -2,7 +2,7 @@
 
 /**
  * ファイルシステム操作の共通処理。コアの他のクラスに依存しない
- * (remove_installer.processor.php のようにコアを起動せずに読む場所からも使うため)。
+ * (install/instprocessor.php のようにコアを起動せずに読む場所からも使うため)。
  * シンボリックリンクの扱いの決まりは assets/docs/file-storage.md。
  */
 class Filesystem

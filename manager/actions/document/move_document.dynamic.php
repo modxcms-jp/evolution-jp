@@ -38,29 +38,36 @@ echo get_src_content($id, $parent);
 function get_src_content($id, $parent)
 {
     global $_lang;
-    $redirect = $parent == 0 ? 'index.php?a=2' : "index.php?a=120&amp;id={$parent}";
+    include_once MODX_CORE_PATH . 'controls/child_document_list_state.class.php';
+    $redirect = hsc($parent ? ChildDocumentListState::listUrl((int) $parent) : 'index.php?a=2');
     $pickerLabel = hsc(lang('parent_picker_open'));
+    // 言語ファイルの文字列は JS の alert() 向けに \n を含むため、改行へ戻してから渡す
+    $newParentLabel = hsc(lang('new_parent'));
+    $illegalParentSelf = hsc(stripcslashes(lang('illegal_parent_self')));
+    $illegalParentChild = hsc(stripcslashes(lang('illegal_parent_child')));
+    // ルートへ移せるか（ルートに置けて、許可するリソースの範囲にもルートが含まれる）。移動の処理でも同じ判定をする
+    $rootAllowed = manager()->canUseRootAsParent() ? '1' : '0';
+    $parentDenied = hsc(lang('access_permission_parent_denied'));
     $src = <<< EOT
 <h1>{$_lang['move_resource_title']}</h1>
 <div id="actions">
 	<ul class="actionButtons">
-	  <li><a href="#" onclick="document.newdocumentparent.submit();" class="primary">{$_lang['save']}</a></li>
-	  <li class="mutate"><a href="#" onclick="EvoShell.go('{$redirect}', {discard: true});">{$_lang['cancel']}</a></li>
+	  <li><a href="#" data-move-action="save" class="primary">{$_lang['save']}</a></li>
+	  <li class="mutate"><a href="#" data-move-action="cancel" data-move-url="{$redirect}">{$_lang['cancel']}</a></li>
 	</ul>
 </div>
 
 <div class="section">
 <div class="sectionBody">
 <p>{$_lang['move_resource_message']}</p>
-<form method="post" action="index.php" name='newdocumentparent'>
+<form method="post" action="index.php" data-move-form data-shell-tree="full" data-label-new-parent="{$newParentLabel}" data-illegal-parent-self="{$illegalParentSelf}" data-illegal-parent-child="{$illegalParentChild}" data-root-allowed="{$rootAllowed}" data-parent-denied="{$parentDenied}">
 <input type="hidden" name="a" value="52">
 <input type="hidden" name="id" value="{$id}">
 <p>{$_lang['resource_to_be_moved']}: <b>{$id}</b></p>
 <p><span id="parentName" class="warning">{$_lang['move_resource_new_parent']}</span>
-<button type="button" onclick="openParentPicker();">{$pickerLabel}</button></p>
+<button type="button" class="button" data-move-action="picker">{$pickerLabel}</button></p>
 <input type="hidden" name="new_parent" value="" class="inputBox">
 <br />
-<input type="save" value="Move" style="display:none">
 </form>
 </div>
 </div>
@@ -68,90 +75,13 @@ EOT;
     return $src;
 }
 
-function batch_move()
-{
-    $batch = anyv('batch');
-    if (!$batch) {
-        return;
-    }
-    foreach ($batch as $v) {
-        $ids[] = sprintf("id='%s'", db()->escape($v));
-    }
-    $where = implode(' OR ', $ids);
-    $rs = db()->select('pagetitle', '[+prefix+]site_content', $where);
-    while ($row = db()->getRow($rs)) {
-        echo hsc($row['pagetitle']) . '<br />';
-    }
-}
 
 function get_src_js()
 {
-    $newParentLabel = js_literal(lang('new_parent'));
-    // 言語ファイルの文字列は JS の alert() 向けに \n を含むため、改行へ戻してから渡す（ex_managerapi.php と同じ）
-    $illegalParentSelf = js_literal(stripcslashes(lang('illegal_parent_self')));
-    $illegalParentChild = js_literal(stripcslashes(lang('illegal_parent_child')));
-    // ルートへ移せるか（ルートに置けて、許可するリソースの範囲にもルートが含まれる）。移動の処理でも同じ判定をする
-    $rootAllowed = manager()->canUseRootAsParent() ? 'true' : 'false';
-    $parentDenied = js_literal(lang('access_permission_parent_denied'));
-    $src = <<< EOT
-<script language="javascript">
-top.mainMenu.defaultTreeFrame();
-parent.tree.ca = "move";
-function setMoveValue(pId, pName) {
-    if (pId===0 && !{$rootAllowed}) {
-        alert({$parentDenied});
-        return;
-    }
-    if (pId===0 || checkParentChildRelation(pId, pName)) {
-        document.newdocumentparent.new_parent.value=pId;
-        const label = document.getElementById('parentName');
-        const id = document.createElement('b');
-        id.textContent = pId;
-        label.textContent = {$newParentLabel} + ': ';
-        label.append(id, ' (' + pName + ')');
-    }
-}
-
-// ツリーで省略されたリソースも移動先にできるよう、タイトルか ID で検索して選ぶ。
-// 移動するリソース自身と子孫はダイアログ側で選べないようにしている
-function openParentPicker() {
-    EvoShell.openPicker(
-        'index.php?a=135&id=' + encodeURIComponent(document.newdocumentparent.id.value),
-        function (picked) {
-            document.newdocumentparent.new_parent.value = picked.id;
-            const label = document.getElementById('parentName');
-            const id = document.createElement('b');
-            id.textContent = picked.id;
-            label.textContent = {$newParentLabel} + ': ';
-            label.append(id, ' (' + picked.pagetitle + ')');
-        }
+    return sprintf(
+        '<script type="text/javascript" src="%s"></script>' . "\n" . '<script type="text/javascript">EvoMoveDocument.init();</script>' . "\n",
+        hsc(manager_asset('media/script/move-document.js'))
     );
-}
-
-// 選んだ移動先が、移動するリソース（複数移動ではそのどれか）自身か子孫なら止める。
-// ツリーのノードは親を独自の属性 p に持つので getAttribute で読む
-function checkParentChildRelation(pId, pName) {
-    const ids = document.newdocumentparent.id.value.split(',');
-    let pn = document.getElementById("node"+pId);
-    if (!pn) return false;
-    if (ids.includes(pn.id.substr(4))) {
-        alert({$illegalParentSelf});
-        return false;
-    }
-    while (pn.getAttribute("p") > 0) {
-        pn = document.getElementById("node"+pn.getAttribute("p"));
-        if (!pn) break;
-        if (ids.includes(pn.id.substr(4))) {
-            alert({$illegalParentChild});
-            return false;
-        }
-    }
-    return true;
-}
-</script>
-
-EOT;
-    return $src;
 }
 
 function show_perm_error()

@@ -2,7 +2,7 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!evo()->hasPermission('delete_template')) {
+if (!evo()->hasPermission(EvoElementTypes::get('tmplvar')['permissions']['delete'])) {
     alert()->setError(3);
     alert()->dumpError();
 }
@@ -11,19 +11,11 @@ if (!$id) {
     alert()->setError(2);
     alert()->dumpError();
 }
-$forced = get_boolvar('force');
 
-$tbl_site_content = evo()->getFullTableName('site_content');
-$tbl_site_tmplvar_contentvalues = evo()->getFullTableName('site_tmplvar_contentvalues');
-$tbl_site_tmplvars = evo()->getFullTableName('site_tmplvars');
-$tbl_site_tmplvar_templates = evo()->getFullTableName('site_tmplvar_templates');
-$tbl_site_tmplvar_access = evo()->getFullTableName('site_tmplvar_access');
-
-// check for relations
-if (!$forced) {
+if (!get_boolvar('force')) {
     $field = 'sc.id, sc.pagetitle,sc.description';
-    $from = "{$tbl_site_content} sc INNER JOIN {$tbl_site_tmplvar_contentvalues} stcv ON stcv.contentid=sc.id";
-    $where = "stcv.tmplvarid='{$id}'";
+    $from = '[+prefix+]site_content sc INNER JOIN [+prefix+]site_tmplvar_contentvalues stcv ON stcv.contentid=sc.id';
+    $where = sprintf('stcv.tmplvarid=%d', $id);
     $rs = db()->select($field, $from, $where);
     $count = db()->count($rs);
     if ($count > 0) {
@@ -44,7 +36,7 @@ if (!$forced) {
         <div id="actions">
             <ul class="actionButtons">
                 <li><a href="#" onclick="deletedocument();"><?= lang("delete") ?></a></li>
-                <li class="mutate"><a href="index.php?a=301&id=<?= $id ?>"><?= lang("cancel") ?></a></li>
+                <li class="mutate"><a href="<?= hsc(EvoFormFlow::url(['a' => EvoFormFlow::screen('tmplvar', 'edit'), 'id' => $id])) ?>"><?= lang("cancel") ?></a></li>
             </ul>
         </div>
 
@@ -57,7 +49,7 @@ if (!$forced) {
         $shown = 0;
         while ($row = db()->getRow($rs)) {
             $shown++;
-            echo '<li><span style="width: 200px"><a href="index.php?id=' . (int)$row['id'] . '&a=27">' . hsc($row['pagetitle']) . '</a></span>' . ($row['description'] != '' ? ' - ' . hsc($row['description']) : '') . '</li>';
+            echo '<li><span style="width: 200px"><a href="' . hsc(EvoFormFlow::url(['a' => EvoFormFlow::screen('document', 'edit'), 'id' => (int)$row['id']])) . '">' . hsc($row['pagetitle']) . '</a></span>' . ($row['description'] != '' ? ' - ' . hsc($row['description']) : '') . '</li>';
         }
         echo "</ul>";
         if ($count > $shown) {
@@ -70,28 +62,4 @@ if (!$forced) {
     }
 }
 
-// invoke OnBeforeTVFormDelete event
-$tmp = ["id" => $id];
-evo()->invokeEvent("OnBeforeTVFormDelete", $tmp);
-
-// delete variable
-$rs = db()->delete($tbl_site_tmplvars, "id='{$id}'");
-if (!$rs) {
-    echo "Something went wrong while trying to delete the field...";
-    exit;
-}
-
-header("Location: index.php?a=76");
-
-// delete variable's content values
-db()->delete($tbl_site_tmplvar_contentvalues, "tmplvarid='{$id}'");
-
-// delete variable's template access
-db()->delete($tbl_site_tmplvar_templates, "tmplvarid='{$id}'");
-
-// delete variable's access permissions
-db()->delete($tbl_site_tmplvar_access, "tmplvarid='{$id}'");
-
-// invoke OnTVFormDelete event
-$tmp = ["id" => $id];
-evo()->invokeEvent("OnTVFormDelete", $tmp);
+include __DIR__ . '/../element/delete_element.processor.php';

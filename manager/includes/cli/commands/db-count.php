@@ -13,9 +13,13 @@ foreach ($args as $arg) {
     }
 }
 
-$fullTable = cli_full_table_name($table);
+require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
+$fullTable = EvoDbTables::resolveWithDb($table);
+if (trim($table) === '') {
+    cli_usage('Usage: php evo.php db:count table_name [--where=condition]');
+}
 if ($fullTable === '') {
-    cli_usage('Usage: php evo db:count table_name [--where=condition]');
+    cli_usage("Error: no such table with the prefix " . db()->table_prefix . ": {$table}");
 }
 
 $sql = 'SELECT COUNT(*) AS cnt FROM ' . $fullTable;

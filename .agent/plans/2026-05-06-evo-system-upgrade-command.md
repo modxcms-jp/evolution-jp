@@ -2,7 +2,7 @@
 
 ## Purpose / Big Picture
 
-サイトの管理者が `php evo system:upgrade` を 1 回実行すると、同じ系列の新しいリリースを GitHub から取得して検証する。続けて DB とファイルのバックアップを取り、`manager/`・`install/`・ルートのファイル・`assets/` を差し替える。そのあとはブラウザでアップデーター（`install/`）を実行するだけで済む。差し替えの途中で失敗したときは、ファイルを実行前の状態に自動で戻す。
+サイトの管理者が `php evo.php system:upgrade` を 1 回実行すると、同じ系列の新しいリリースを GitHub から取得して検証する。続けて DB とファイルのバックアップを取り、`manager/`・`install/`・ルートのファイル・`assets/` を差し替える。そのあとはブラウザでアップデーター（`install/`）を実行するだけで済む。差し替えの途中で失敗したときは、ファイルを実行前の状態に自動で戻す。
 
 `assets/docs/migrations.md` の「利用者がアップデートするとき」に照らすと、この計画が自動化するのは、手順 1（ファイルを差し替える）と手順 2 の前半（`install/` を置く）である。アップデーターを動かして DB を上げる作業は、今までどおり人がブラウザで行う。
 
@@ -23,7 +23,7 @@
 - 2026-10-31: 旧計画のコード例にある `str_starts_with()` は PHP 8 の関数である。`manager/includes/helpers.php` に代わりの実装はあるが、既存のコマンド（`manager/includes/cli/commands/db-backup.php` など）にそろえて `strpos(...) === 0` を使う。
 - 2026-10-31: CLI のコマンド名は、ファイル名の `-` を `:` に読み替えて一覧に出る（`manager/includes/cli/commands/help.php`）。`manager/includes/cli/commands/system-upgrade.php` は `system:upgrade` になる。既存のコマンドは、表示をすべて英語で出す。
 - 2026-10-31: このコマンドを動かすのは、サイトに今入っている版のコードである。そのため、使えるのはこのコマンドを含む版（1.3.0 以降）からの更新に限られる。1.2 系のサイトは、今までどおり手で 1.3 へ上げる。
-- 2026-10-31: 配布 zip の `manager/` にあるのは `ht.access` で、利用者はこれを `.htaccess` に名前を変えて、管理画面を保護する（Basic 認証や IP の制限）。テーマには `manager/media/style/common/config.php.sample` があり、テーマのフォルダに `config.php` を置いて使う。`manager/` を丸ごと入れ替えると、これらが知らせなく消える。
+- 2026-10-31: 配布 zip の `manager/` には `.htaccess` の見本を置かない（2026-11-17 に古い `ht.access` を削除）。利用者は自分で `manager/.htaccess` を置いて、管理画面を保護することがある（Basic 認証や IP の制限）。テーマには `manager/media/style/common/config.php.sample` があり、テーマのフォルダに `config.php` を置いて使う。`manager/` を丸ごと入れ替えると、これらが知らせなく消える。
 - 2026-10-31: CLI では `DocumentParser::phpError()` が `true` を返す（`manager/includes/document.parser.class.inc.php` の `phpError()`）。このため、警告のあとで `error_get_last()` を呼んでも `NULL` が返り、`rename()` や `copy()` が失敗した理由を取れない。
 - 2026-10-31: `cli_export_database()` は、失敗すると `cli_usage()` を呼んで `exit` する（`manager/includes/cli/cli-helpers.php`）。呼んだ側の後片付けは飛ばされる。
 - 2026-10-31: インストーラは、`manager/includes/config.inc.php` が無ければ新規インストールと判定し、アップデートのときの認証（管理者のログイン）を求めない（`install/index.php`、`install/functions.php` の `managerConfigExists()`）。`config.inc.php` が無い新しい `manager/` を先に置くと、`install/` が既にあるサイトでは、その間だけ認証なしで新規インストールに入れてしまう。
@@ -46,8 +46,8 @@
 - 2026-10-31 / yamamoto（Claude が起案）: 新しい `manager/`・`install/` へ引き継ぐサイト固有のファイルは、決まった一覧で持つ。一覧は `manager/includes/config.inc.php`、`manager/includes/extra.config.php`、`manager/.htaccess`、`manager/.user.ini`、`manager/media/style/*/config.php`、`install/install-config.php` で、あるものだけをコピーする。一覧に無く、新しい版にも無い古い `manager/`・`install/` のファイルは引き継がない。かわりに、確認の画面と完了の表示で一覧にして、バックアップの場所を示す。代替案の「新しい版に無いファイルをすべて引き継ぐ」は、古い版のコアのファイルが残り、丸ごと入れ替える意味が無くなるので採らない。
 - 2026-10-31 / yamamoto（Claude が起案）: 引き継ぐファイルは、サイトへ移す前に、展開先（`package/manager/`・`package/install/`）へコピーしておく。サイトに `config.inc.php` の無い `manager/` が置かれる時間を作らないためである。展開先での準備はサイトを変えないので、ジャーナルにも記録しない。入れ替えは `manager/` を先に、`install/` を後に行う。
 - 2026-10-31 / yamamoto（Claude が起案）: ディレクトリの入れ替えは、コピーではなく同じファイルシステム内の `rename()` で行う。入れ替えが一瞬で済み、戻すときも `rename()` を逆にたどるだけで済む。作業用の領域（`temp/upgrade/`）がサイトと別のファイルシステムにあると `rename()` が失敗するので、事前の確認で `stat()` の `dev` を比べて止める。
-- 2026-10-31 / yamamoto（Claude が起案）: DB のバックアップは、`EvoBackupManager` の保存先へ `pre-upgrade-<自動の名前>.sql` として書く。管理画面のバックアップ管理からそのまま戻せ、`prune()` の対象（自動の名前と `pre-restore-`）にも入らない。書き出しは `manager/includes/cli/commands/db-backup.php` と同じく `cli_export_database_file()` を使う。失敗すると `exit` するが、下の終了時の処理で後片付けする。旧計画の「`temp/backup/migrate/` に SQL も置く」は取り消す。
-- 2026-10-31 / yamamoto（Claude が起案）: ファイルのバックアップ・ダウンロードした zip・展開先は、すべて `temp/upgrade/<YYYYmmdd-HHMMSS>-<ランダムな 8 文字>/` の下に置く。`temp/upgrade/.htaccess` には `EvoBackupManager::HTACCESS` と同じ内容を書く。`temp/.htaccess` とあわせて二重に守り、名前を推測しにくくする。`assets/` のバックアップは、上書きするファイルだけを取る。旧計画の「`assets/images/`・`assets/files/` を除いて丸ごと複写」は取り消す。
+- 2026-10-31 / yamamoto（Claude が起案）: DB のバックアップは、`EvoSnapshotStore` の保存先（#1561 で `EvoBackupManager` から分けた）へ `pre-upgrade-<自動の名前>.sql` として書く。管理画面のバックアップ管理からそのまま戻せ、`prune()` の対象（自動の名前と `pre-restore-`）にも入らない。書き出しは `cli_export_database_file()`（mysqldump。ログの表のデータも含む。`db:backup` は #1561 で管理画面のスナップショットと同じ中身の `cli_export_snapshot_mysqldump()` に変わった）を使う。失敗すると `exit` するが、下の終了時の処理で後片付けする。旧計画の「`temp/backup/migrate/` に SQL も置く」は取り消す。
+- 2026-10-31 / yamamoto（Claude が起案）: ファイルのバックアップ・ダウンロードした zip・展開先は、すべて `temp/upgrade/<YYYYmmdd-HHMMSS>-<ランダムな 8 文字>/` の下に置く。`temp/upgrade/.htaccess` には `EvoSnapshotStore::HTACCESS` と同じ内容を書く（`EvoSnapshotStore::protect()` が使える）。`temp/.htaccess` とあわせて二重に守り、名前を推測しにくくする。`assets/` のバックアップは、上書きするファイルだけを取る。旧計画の「`assets/images/`・`assets/files/` を除いて丸ごと複写」は取り消す。
 - 2026-10-31 / yamamoto（Claude が起案）: ロールバックはジャーナル方式とする。操作は `dir_moved`・`file_overwritten`・`file_created`・`dir_created` の 4 種で、戻し方は各操作の逆に限る。記録する時点は次のとおり。DB は自動では戻さない（ファイルを戻せば、古いコードは古い DB でそのまま動くため）。
   - `rename()` は一度で終わるので、成功したあとに記録する。
   - ファイルの上書きと作成は、途中まで書かれたファイルも戻せるように、操作の前に記録する。そのため戻し方は冪等にする。`file_overwritten` はバックアップから書き戻し、`file_created` はファイルがあれば消す。
@@ -58,7 +58,7 @@
   - 完了した: 何もしない。
   - 例外は `Throwable` で捕まえる。
   - 取得と入れ替えの間だけ、警告を `ErrorException` に変えるエラーハンドラを `set_error_handler()` で置き、失敗の理由を表示する。終わったら `restore_error_handler()` で戻す。
-- 2026-10-31 / yamamoto（Claude が起案）: POSIX 関数が使えるサーバーでは、実行する利用者（`posix_geteuid()`）が `manager/` の持ち主（`fileowner()`）と違えば止める。新しいファイルの持ち主がずれると、アップデーターが `config.inc.php` を書き直せず、Web から `install/` も消せなくなるためである。止めるときは、`sudo -u <持ち主> php evo system:upgrade` のように持ち主で実行するよう案内する。POSIX 関数が無い環境（Windows など）では、この確認を飛ばす。引き継ぐファイルは、コピーしたあと元の権限（`fileperms()`）にそろえる。
+- 2026-10-31 / yamamoto（Claude が起案）: POSIX 関数が使えるサーバーでは、実行する利用者（`posix_geteuid()`）が `manager/` の持ち主（`fileowner()`）と違えば止める。新しいファイルの持ち主がずれると、アップデーターが `config.inc.php` を書き直せず、Web から `install/` も消せなくなるためである。止めるときは、`sudo -u <持ち主> php evo.php system:upgrade` のように持ち主で実行するよう案内する。POSIX 関数が無い環境（Windows など）では、この確認を飛ばす。引き継ぐファイルは、コピーしたあと元の権限（`fileperms()`）にそろえる。
 - 2026-10-31 / yamamoto（Claude が起案）: 前回のアップデーターが済んでいない（未適用のマイグレーションがある。`EvoMigrator::hasPending()`）ときは止める。前の更新を終えてから次へ進むようにするためである。
 - 2026-10-31 / yamamoto（Claude が起案）: 表示は、既存の CLI にそろえて英語にする。次の手順の案内は、サイトの URL を決め打ちせず、「サイトの URL の後ろに `install/?action=mode`」と書く。CLI の `MODX_SITE_URL` は `http://localhost/` の仮の値であるため。
 - 2026-05-06 / yamamoto: ブラウザでのアップデーター（`install/`）の操作は自動化しない（引き続き有効）。
@@ -81,11 +81,11 @@
 
 ### 関係するファイル（リポジトリのルートから）
 
-- `evo`: CLI の入口。`php evo system:upgrade` は `manager/includes/cli/commands/system-upgrade.php` を読み込む（`:` を `-` に読み替える）。コマンドのファイルでは `$args`（コマンド名より後の引数の配列）が使える。
+- `evo.php`: CLI の入口。`php evo.php system:upgrade` は `manager/includes/cli/commands/system-upgrade.php` を読み込む（`:` を `-` に読み替える）。コマンドのファイルでは `$args`（コマンド名より後の引数の配列）が使える。
 - `manager/includes/cli/bootstrap.php`: `define-path.php` で `MODX_BASE_PATH`（サイトのルート、末尾 `/` 付き）を定義し、`DocumentParser` を作って設定を読む。`MODX_CORE_PATH` は、その中で `manager/includes/initialize.inc.php` が定義する。
 - `manager/includes/cli/cli-helpers.php`: `cli_out()`・`cli_err()`・`cli_usage($message, $code = 1)`（表示して `exit`）・`cli_export_database_file($driver, $path, $fullTables, $options)`。
 - `manager/includes/cli/commands/db-backup.php`: DB のバックアップの既存の作り。
-- `manager/includes/backup_manager.class.inc.php`: `EvoBackupManager`。`ensureDir()`、`dir()`、`autoFilename($prefix)`（`<prefix><日時>-<版>.sql`）、定数 `HTACCESS`。
+- `manager/includes/snapshot_store.class.inc.php`: `EvoSnapshotStore`。`ensureDir()`、`dir()`、`autoFilename($prefix)`（`<prefix><日時>-<版>.sql`）、`static protect($dir)`、定数 `HTACCESS`（#1561 で `EvoBackupManager` から移した。`EvoBackupManager` は作成と復元の手順で、`store()` で `EvoSnapshotStore` を返す）。
 - `manager/includes/migrator.class.inc.php`: `EvoMigrator`（`hasPending()`）。
 - `manager/includes/version.inc.php`: 版。
 - `manager/includes/update_guard.php`: 未適用のマイグレーションがあるときの 503。
@@ -143,7 +143,7 @@ CLI だけの変更で、`executeParser()`・`prepareResponse()`・`parseDocumen
    - 今の `manager/`・`install/` にあって、新しい版にも引き継ぐ一覧にも無いファイルを数える。
    - 次を表示する。今の版 → 新しい版、取得元、差し替えの対象、引き継ぐファイル、引き継がないファイル（多ければ先頭の 20 件と件数）、バックアップの置き場所。
    - `--yes` が無ければ `Continue? [y/N]` と聞く。`y`・`yes` 以外（入力の終わりを含む）なら、`Aborted.` と表示して終わる。
-8. **DB のバックアップを取る。** `EvoBackupManager` の保存先へ `pre-upgrade-<自動の名前>.sql` として書き出す。続けて、開始を記録する。
+8. **DB のバックアップを取る。** `EvoSnapshotStore` の保存先へ `pre-upgrade-<自動の名前>.sql` として書き出す。続けて、開始を記録する。
    - 形は `evo()->logEvent(0, 1, 'system:upgrade started', 'system:upgrade', ['from' => <今の版>, 'to' => <新しい版>, 'source' => <取得元>, 'db_backup' => <パス>, 'backup_dir' => <パス>])`。
    - ここで状態を `swapping` にする。
 9. **差し替える。** ここから先の操作は、すべてジャーナルに記録する。`cli_usage()` と `exit` は呼ばない。失敗は返り値で確かめ、`RuntimeException` を投げる。
@@ -189,16 +189,16 @@ Windows のサーバーでは、開いているファイルがあるとディレ
 確かめるコマンド（使い捨てのワークツリーの検証環境で、`docker compose exec -T app ...` を使う）:
 
     php -l manager/includes/cli/commands/system-upgrade.php
-    php evo system:upgrade --help
+    php evo.php system:upgrade --help
       → 使い方を表示する
-    php evo system:upgrade
+    php evo.php system:upgrade
       → 1.3 系のリリースが無いあいだは "Already up to date: 1.3.0rc2 ..." と出て、終了コード 0
         （1.3 系のリリースが出たあとは、その版を選んで確認の問い合わせまで進む）
-    php evo system:upgrade --tag=release-1.2.4J
+    php evo.php system:upgrade --tag=release-1.2.4J
       → 通信の前に、新しい版ではないとして止まる（終了コード 1）
-    echo n | php evo system:upgrade --zip=temp/upgrade-fixtures/evo-test-1.3.0.zip
+    echo n | php evo.php system:upgrade --zip=temp/upgrade-fixtures/evo-test-1.3.0.zip
       → 1.3.0rc2 → 1.3.0、差し替えの対象、引き継ぐファイルを表示し、"Aborted." で終わる。temp/upgrade/ の下に作業用のディレクトリが残らない
-    php evo system:upgrade --zip=temp/upgrade-fixtures/evil.zip
+    php evo.php system:upgrade --zip=temp/upgrade-fixtures/evil.zip
       → "Unsafe entry in zip: ../escape.txt" と出て止まる
 
 コミット: `feat(cli): system:upgrade でリリースの取得と確認までを行う`
@@ -212,7 +212,7 @@ Windows のサーバーでは、開いているファイルがあるとディレ
 確かめるコマンド（使い捨てのワークツリーで）:
 
     php -l manager/includes/cli/commands/system-upgrade.php
-    php evo system:upgrade --zip=temp/upgrade-fixtures/evo-test-1.3.0.zip --yes
+    php evo.php system:upgrade --zip=temp/upgrade-fixtures/evo-test-1.3.0.zip --yes
       → 版・バックアップ・差し替えの経過を表示し、最後に次の手順を表示する。終了コード 0
     （失敗を起こした別の使い捨てのワークツリーで同じコマンド）
       → "Rolled back. ..." と表示し、終了コード 1
@@ -224,7 +224,7 @@ Windows のサーバーでは、開いているファイルがあるとディレ
 編集するファイル: `manager/includes/cli/README.md`、`assets/docs/migrations.md`。
 
 - CLI の README に、`system:upgrade` の使い方、オプション、差し替えの対象と引き継ぐファイル、戻し方、後片付けを書く。
-- `assets/docs/migrations.md` の「利用者がアップデートするとき」に、1.3.0 以降は `php evo system:upgrade` で手順 1 と手順 2 の前半をまとめて行えることを足し、詳しくは CLI の README を参照するよう書く。手順の正本は `migrations.md` に残す。
+- `assets/docs/migrations.md` の「利用者がアップデートするとき」に、1.3.0 以降は `php evo.php system:upgrade` で手順 1 と手順 2 の前半をまとめて行えることを足し、詳しくは CLI の README を参照するよう書く。手順の正本は `migrations.md` に残す。
 - `/doc-audit` で、変えたドキュメントを確かめる。
 - Validation and Acceptance のすべてを通す。
 
@@ -260,7 +260,7 @@ Windows のサーバーでは、開いているファイルがあるとディレ
 - 管理画面の保護 `manager/.htaccess`（中身は `# site protection` の 1 行）
 - テーマの設定 `manager/media/style/<既定のテーマ>/config.php`
 
-置いたら、`php evo system:upgrade --zip=temp/upgrade-fixtures/evo-test-1.3.0.zip --yes` を実行する。次のことを確かめる。
+置いたら、`php evo.php system:upgrade --zip=temp/upgrade-fixtures/evo-test-1.3.0.zip --yes` を実行する。次のことを確かめる。
 
 - 終了コードが 0 である。最後に次の手順が表示される（`install/?action=mode` を開く、終わったら `install/` を消す、戻し方、後片付け）。
 - 版と引き継いだファイル:
@@ -276,14 +276,14 @@ Windows のサーバーでは、開いているファイルがあるとディレ
   - DB のバックアップの保存先に `pre-upgrade-*.sql` があり、管理画面のバックアップ管理の一覧に出る。
 - 公開側とアップデーター:
   - `curl -s -o /dev/null -w '%{http_code}' http://<サイト>/` が `503` を返す（未適用のマイグレーションがあるため）。
-  - 管理画面に管理者でログインし、`/install/?action=mode` からアップデーターを最後まで進める（画面の操作は Playwright で行う）。そのあと、公開側が `200` に戻り、`php evo migrate:status` が `0 pending` を表示する。
+  - 管理画面に管理者でログインし、`/install/?action=mode` からアップデーターを最後まで進める（画面の操作は Playwright で行う）。そのあと、公開側が `200` に戻り、`php evo.php migrate:status` が `0 pending` を表示する。
 - 繰り返したとき: 同じ zip でもう一度実行すると、版が新しくないので止まる（終了コード 1）。
 
 ### 失敗したら戻ること
 
-実行の前に、`find manager install assets index.php define-path.php evo sample.htaccess -type f -print0 | sort -z | xargs -0 sha256sum > <一時ファイル>` で一覧を取っておく。実行のあとに同じ一覧を取り、`diff` が空であること、終了コードが 1 で `Rolled back.` が表示されることを確かめる。場面は次の 2 つで、それぞれ新しい使い捨てのワークツリーで行う。
+実行の前に、`find manager install assets index.php define-path.php evo.php sample.htaccess -type f -print0 | sort -z | xargs -0 sha256sum > <一時ファイル>` で一覧を取っておく。実行のあとに同じ一覧を取り、`diff` が空であること、終了コードが 1 で `Rolled back.` が表示されることを確かめる。場面は次の 2 つで、それぞれ新しい使い捨てのワークツリーで行う。
 
-- **場面 rollback-assets（最後の段階で失敗）**: 配布 zip にある `assets/snippets/upgrade_probe.txt` と同じパスに、ディレクトリを作っておく（root でも書き込みに失敗させられる）。`manager/` と `install/` の入れ替えのあとで失敗するので、ディレクトリの入れ替えを戻せることが分かる。公開側が `200` を返すこと（`manager/` が戻り、未適用のマイグレーションも無い）と、`php evo log:search "system:upgrade"` で開始と失敗の記録が出ることも確かめる。
+- **場面 rollback-assets（最後の段階で失敗）**: 配布 zip にある `assets/snippets/upgrade_probe.txt` と同じパスに、ディレクトリを作っておく（root でも書き込みに失敗させられる）。`manager/` と `install/` の入れ替えのあとで失敗するので、ディレクトリの入れ替えを戻せることが分かる。公開側が `200` を返すこと（`manager/` が戻り、未適用のマイグレーションも無い）と、`php evo.php log:search "system:upgrade"` で開始と失敗の記録が出ることも確かめる。
 - **場面 rollback-manager（早い段階で失敗）**: サイトの `install` を、ディレクトリではなく同じ名前の空のファイルにしておく。`manager/` を入れ替えた直後、`install/` を移すところで失敗するので、`manager/` の入れ替えを戻せることが分かる。実行の前に `manager/includes/config.inc.php` が置かれたままであることも、一覧の比較で確かめられる。
 
 途中まで書かれたファイルを戻す動き（容量不足などで `copy()` が途中で止まる）は、実機で確実に起こす方法が無い（`ulimit -f` は PHP ごと SIGXFSZ で終わらせ、終了時の処理も走らない）。そのため、自己レビューで、`file_overwritten`・`file_created` の記録が書き込みより前にあること、戻し方が冪等であることを、コードで確かめる。
@@ -291,7 +291,7 @@ Windows のサーバーでは、開いているファイルがあるとディレ
 ### 取得の経路（場面: fetch）
 
 - 引数なしでは `Already up to date` を表示する。`--tag=release-1.2.4J` では、通信の前に止まる。
-- ダウンロードと sha256 の照合は、使い捨てのワークツリーの `manager/includes/version.inc.php` の版を `1.2.0` に書き換えてから確かめる。`echo n | php evo system:upgrade --tag=release-1.2.4J` を実行し、`SHA-256 verified.` が表示され、`Aborted.` のあと作業用のディレクトリが残らなければ合格とする。
+- ダウンロードと sha256 の照合は、使い捨てのワークツリーの `manager/includes/version.inc.php` の版を `1.2.0` に書き換えてから確かめる。`echo n | php evo.php system:upgrade --tag=release-1.2.4J` を実行し、`SHA-256 verified.` が表示され、`Aborted.` のあと作業用のディレクトリが残らなければ合格とする。
 - `evil.zip` では `Unsafe entry in zip: ../escape.txt` を表示して止まる。判定はこの表示で行う（`extractTo()` は自分で `../` を外すので、ファイルができないことだけでは判定できない）。
 
 ### 版の互換
@@ -321,7 +321,7 @@ Windows のサーバーでは、開いているファイルがあるとディレ
 
 - GitHub REST API: `GET https://api.github.com/repos/modxcms-jp/evolution-jp/releases?per_page=100` と `GET .../releases/tags/<tag>`。使う項目は `tag_name`・`prerelease`・`assets[].name`・`assets[].size`・`assets[].browser_download_url`・`assets[].digest`。`User-Agent` が要る。
 - 配布 zip: `.github/workflows/release.yml` の作り（`git archive`、トップのディレクトリ無し、名前は `evo-<tag>.zip`）。作り方が変わったら、このコマンドの展開の確認も合わせて変える。
-- `EvoBackupManager`（`manager/includes/backup_manager.class.inc.php`）: DB のバックアップの保存先、名前、保護の `.htaccess`。
+- `EvoSnapshotStore`（`manager/includes/snapshot_store.class.inc.php`）: DB のバックアップの保存先、名前、保護の `.htaccess`。
 - `EvoMigrator::hasPending()`（`manager/includes/migrator.class.inc.php`）: 事前の確認で使う。
 - `manager/includes/update_guard.php` とマイグレーション（`assets/docs/migrations.md`）: 差し替えたあと、アップデーターを実行するまで公開側を止める役割。このコマンドからは呼ばない。
 - インストーラ（`install/`）: `config.inc.php` の有無で新規とアップデートを分ける。引き継ぐファイルを先に置く順序は、これに合わせたもの。

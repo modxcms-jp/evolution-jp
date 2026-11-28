@@ -63,30 +63,6 @@ function webLoginGeneratePassword($length = 10, $allow_chars = '')
     return substr(implode('', $chars), 0, $length);
 }
 
-// Send new password to the user
-function webLoginSendNewPassword($email, $uid, $pwd, $ufn)
-{
-    global $modx, $site_url;
-    $ph = $modx->getConfig();
-    $ph['sname'] = $modx->config('site_name');
-    $ph['uid'] = $uid;
-    $ph['pwd'] = $pwd;
-    $ph['ufn'] = $ufn;
-    $ph['surl'] = MODX_SITE_URL;
-    $message = $modx->parseText(
-        sprintf($modx->config('websignupemail_message'), $uid, $pwd),
-        $ph
-    );
-    $emailsubject = $modx->config('emailsubject');
-
-    $sent = $modx->sendmail($email, $message);         //ignore mail errors in this cas
-
-    if (!$sent) {
-        webLoginAlert('Error while sending mail to ' . $modx->config('mailto'), 1);
-    }
-    return true;
-}
-
 // ログイン後の戻り先。権限が無くてログインページへ転送したときは、元の文書を優先する
 function webLoginRefUrl()
 {
@@ -121,9 +97,20 @@ function fmplang($key, $ph = [])
         'Invalid password activation key. Your password was NOT activated.' => 'アクティベーションキーが無効になっています。',
         'Your new password was successfully activated.' => 'アクティベーションしました。新しいパスワードでログインできます。',
         'Incorrect username or password entered!' => 'メールアドレスまたはパスワードが間違っています。',
-        'You are blocked and cannot log in!' => 'メールアドレスまたはパスワードが間違っています。',
+        'You cannot log in right now. Please try again later.' => 'ただいまログインできません。しばらくしてからお試しください。',
         'Please enter the security code shown in the image.' => '画像のセキュリティコードを入力してください。',
-        'Security code' => 'セキュリティコード'
+        'Security code' => 'セキュリティコード',
+        'Error while loading user account. Please contact the Site Administrator' => 'ユーザー情報を読み込めませんでした。サイトの管理者に連絡してください。',
+        'It was over expiration time' => 'パスワード再設定のリンクの有効期限が切れています。もう一度パスワードの再設定を申し込んでください。',
+        'Error while activating password.' => 'パスワードのアクティベーションに失敗しました。',
+        'Please enter your email address.' => 'メールアドレスを入力してください。',
+        'We are sorry! We cannot locate an account using that email.' => 'このメールアドレスのアカウントが見つかりません。',
+        'Error while sending mail to [+email+]. Please contact the Site Administrator' => '[+email+] へのメール送信に失敗しました。サイトの管理者に連絡してください。',
+        'Please check your email account ([+email+]) for login instructions.' => '[+email+] へパスワード再設定のメールを送りました。メールを確認してください。',
+        "The security code you entered didn't validate! Please try to login again!" => '入力されたセキュリティコードが間違っています。もう一度ログインしてください。',
+        'You are not allowed to login from this location.' => 'このIPアドレスからはログインできません。',
+        'You are not allowed to login at this time. Please try again later.' => 'この曜日はログインできません。',
+        'error replacing into active users!' => 'ログイン状態の記録に失敗しました。サイトの管理者に連絡してください。'
     ];
 
     // 翻訳が無いメッセージはそのまま返す
@@ -137,22 +124,4 @@ function fmplang($key, $ph = [])
         $value = str_replace($k, $v, $value);
     }
     return $value;
-}
-
-function webLoginGetCode($target)
-{
-    global $modx;
-    if (preg_match('@^[0-9][1-9]*$@', $target)) {
-        $content = $modx->getField('content', $target);
-        if (!$content) {
-            return sprintf("Document '%s' not found.", $target);
-        }
-        return $content;
-    }
-
-    $result = $modx->getChunk($target);
-    if (!$result) {
-        return sprintf("Chunk '%s' not found.", $target);
-    }
-    return $result;
 }

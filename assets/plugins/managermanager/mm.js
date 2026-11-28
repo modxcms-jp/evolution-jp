@@ -55,6 +55,18 @@
             });
         },
 
+        // 欄（x）が入っている編集画面の行（data-field の付いた行）。同じ行は 1 つにまとめる
+        fieldRows: function (x) {
+            const rows = [];
+            all(x).forEach(function (el) {
+                const row = window.Evo.fieldRow(el);
+                if (row && rows.indexOf(row) === -1) {
+                    rows.push(row);
+                }
+            });
+            return rows;
+        },
+
         // 表の行なども扱うので hidden 属性ではなく display で出し分ける
         hide: function (x) {
             return each(x, function (el) {
@@ -98,6 +110,103 @@
             style.textContent = cssText;
             document.head.appendChild(style);
             return style;
+        },
+
+        // 行を隠し、次の tr の中に td[colspan="2"] があれば、その td の親の tr（区切りの行）も隠す
+        hideRows: function (x) {
+            all(x).forEach(function (tr) {
+                MM.hide(tr);
+                const n = tr.nextElementSibling;
+                if (n && n.matches('tr')) {
+                    n.querySelectorAll('td[colspan="2"]').forEach(function (td) {
+                        if (td.parentElement.matches('tr')) {
+                            MM.hide(td.parentElement);
+                        }
+                    });
+                }
+            });
+        },
+
+        // 欄の兄弟の img.tooltip（説明のアイコン）
+        siblingIcons: function (x) {
+            const icons = [];
+            all(x).forEach(function (el) {
+                Array.from(el.parentNode.children).forEach(function (c) {
+                    if (c !== el && c.matches('img.tooltip')) {
+                        icons.push(c);
+                    }
+                });
+            });
+            return icons;
+        },
+
+        // 説明の部分の中の img.tooltip
+        innerIcons: function (x) {
+            const icons = [];
+            all(x).forEach(function (help) {
+                help.querySelectorAll('img.tooltip').forEach(function (c) {
+                    icons.push(c);
+                });
+            });
+            return icons;
+        },
+
+        // 説明のアイコンの id・title・alt（プロパティなので生の文字列）と data-powertip（属性なので HTML のエスケープ済みの文字列）を変える
+        setHelp: function (icons, id, text, tipHtml) {
+            icons.forEach(function (c) {
+                c.id = id;
+                c.title = text;
+                c.alt = text;
+                c.setAttribute('data-powertip', tipHtml);
+            });
+        },
+
+        // ルールの実行後に毎回行う整理（OnDocFormRender.inc.php の mm_run の最後）
+        tidyUp: function () {
+            // General tab table container is too narrow for receiving TVs -- make it a bit wider
+            all('div#tabGeneral table').forEach(function (table) {
+                table.width = '100%';
+            });
+
+            // if template variables containers are empty, remove their section
+            if (all('div.tmplvars input, div.tmplvars select, div.tmplvars textarea, div.tmplvars button').length === 0) {
+                // 箱が有るとき（TV を本文の下に出すとき）だけ、その見出しも隠す
+                if (MM.hide('div.tmplvars').length) { // Still contains an empty table and some dividers
+                    MM.hide('#tv_header');
+                }
+            }
+
+            // TV のタブは、タブの中に入力が無くなったら隠す（custom_tpl_dir の以前の tab_tv.tpl には div.tmplvars が無いので、タブの中で数える）
+            const tvTab = document.getElementById('tabTVs');
+            if (tvTab && !tvTab.querySelector('input, select, textarea, button')) {
+                MM.hide('#tabTVsHeader');
+                MM.hide(tvTab);
+            }
+
+            // 欄をすべて隠した・ほかへ移したまとまり（アコーディオンなど）は、見出しだけを残さない
+            window.Evo.hideEmptyFieldGroups();
+
+            // If template category is empty, hide the optgroup
+            all('#field_template optgroup').forEach(function (group) {
+                const visible = Array.from(group.querySelectorAll('option')).some(function (option) {
+                    return getComputedStyle(option).display !== 'none';
+                });
+                if (!visible) {
+                    MM.hide(group);
+                }
+            });
+        },
+
+        // ルールの中の includeCss() で登録された CSS を head に足す（重複は足さない）
+        loadCss: function (hrefs) {
+            hrefs.forEach(function (href) {
+                const exists = Array.from(document.head.querySelectorAll('link[rel=stylesheet]')).some(function (link) {
+                    return link.getAttribute('href') === href;
+                });
+                if (!exists) {
+                    document.head.appendChild(Object.assign(document.createElement('link'), {rel: 'stylesheet', type: 'text/css', href: href}));
+                }
+            });
         }
     };
 })();

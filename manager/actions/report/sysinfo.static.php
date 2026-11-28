@@ -7,6 +7,7 @@ if (!evo()->hasPermission('logs')) {
     alert()->dumpError();
 }
 global $database_connection_method;
+require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
 ?>
 <h1><?= lang('view_sysinfo') ?></h1>
 <div id="actions">
@@ -33,60 +34,47 @@ global $database_connection_method;
             <!-- server -->
             <div class="sectionHeader"><?= lang('view_sysinfo') ?></div>
             <div class="sectionBody" id="lyr2">
-                <table border="0" cellspacing="2" cellpadding="2">
+                <table>
                     <?php
-                    echo render_tr(
-                        lang('modx_version'),
-                        evo()->getVersionData('version')
-                    );
-                    echo render_tr(
-                        lang('release_date'),
-                        $modx_release_date
-                    );
-                    echo render_tr(
-                        'システム更新日時',
-                        evo()->toDateFormat(config('lastInstallTime'))
-                    );
-                    echo render_tr(
-                        'phpInfo()',
-                        sprintf(
-                            '<a href="#" onclick="viewPHPInfo();return false;">%s</a>',
-                            lang('view')
-                        )
-                    );
-                    echo render_tr(
-                        lang('udperms_title'),
-                        config('use_udperms') == 1 ? lang('enabled') : lang('disabled')
-                    );
-                    echo render_tr(lang('servertime'), date('H:i:s'));
-                    echo render_tr(lang('localtime'), date('H:i:s'));
-                    echo render_tr(
-                        lang('serveroffset'),
-                        (config('server_offset_time') / (60 * 60)) . ' h'
-                    );
-                    echo render_tr(lang('database_name'), db()->dbname);
-                    echo render_tr(lang('database_server'), db()->hostname);
-                    echo render_tr(lang('database_version'), db()->getVersion());
-
-                    $rs = db()->query(
-                        "show variables like 'character_set_database'"
-                    );
-                    $charset = db()->getRow($rs, 'num');
-                    echo render_tr(
-                        lang('database_charset'),
-                        $charset[1]
+                    $charset = db()->getRow(
+                        db()->query("show variables like 'character_set_database'"),
+                        'num'
                     );
                     $collation = db()->getRow(
                         db()->query("SHOW variables LIKE 'collation_database'"),
                         'num'
                     );
-                    echo render_tr(lang('database_collation'), $collation[1]);
-                    echo render_tr(lang('table_prefix'), db()->table_prefix);
-                    echo render_tr(lang('cfg_base_path'), MODX_BASE_PATH);
-                    echo render_tr(lang('cfg_base_url'), MODX_BASE_URL);
-                    echo render_tr(lang('cfg_manager_url'), MODX_MANAGER_URL);
-                    echo render_tr(lang('cfg_manager_path'), MODX_MANAGER_PATH);
-                    echo render_tr(lang('cfg_site_url'), MODX_SITE_URL);
+                    // [見出し, 値]。値は HTML。画面の外から来る値は hsc() で文字にする
+                    $items = [
+                        [lang('modx_version'), hsc(evo()->getVersionData('version'))],
+                        [lang('release_date'), hsc($modx_release_date)],
+                        ['システム更新日時', hsc(evo()->toDateFormat(config('lastInstallTime')))],
+                        [
+                            'phpInfo()',
+                            sprintf('<a href="#" onclick="viewPHPInfo();return false;">%s</a>', lang('view'))
+                        ],
+                        [lang('udperms_title'), config('use_udperms') == 1 ? lang('enabled') : lang('disabled')],
+                        [lang('servertime'), date('H:i:s')],
+                        [lang('localtime'), date('H:i:s')],
+                        [lang('serveroffset'), hsc((config('server_offset_time') / (60 * 60)) . ' h')],
+                        [lang('database_name'), hsc(db()->dbname)],
+                        [lang('database_server'), hsc(db()->hostname)],
+                        [lang('database_version'), hsc(db()->getVersion())],
+                        [lang('database_charset'), hsc($charset[1])],
+                        [lang('database_collation'), hsc($collation[1])],
+                        [lang('table_prefix'), hsc(db()->table_prefix)],
+                        [lang('cfg_base_path'), hsc(MODX_BASE_PATH)],
+                        [lang('cfg_base_url'), hsc(MODX_BASE_URL)],
+                        [lang('cfg_manager_url'), hsc(MODX_MANAGER_URL)],
+                        [lang('cfg_manager_path'), hsc(MODX_MANAGER_PATH)],
+                        [lang('cfg_site_url'), hsc(MODX_SITE_URL)],
+                    ];
+                    foreach ($items as [$label, $value]) {
+                        echo EvoFieldRow::render([
+                            'label' => $label,
+                            'body' => $value,
+                        ]);
+                    }
                     ?>
                 </table>
             </div>
@@ -127,7 +115,7 @@ global $database_connection_method;
 
                 echo '<table>';
                 foreach ($info as $key => $value) {
-                    echo '<tr><td style="padding-right:30px;vertical-align:top;">' . $key . '</td><td>' . $value . '</td></tr>' . "\n";
+                    echo EvoFieldRow::render(['label' => hsc($key), 'body' => $value]);
                 }
                 echo '</table>' . "\n";
                 echo '<h4>mbstring</h4>' . "\n" . "\n";
@@ -138,7 +126,7 @@ global $database_connection_method;
                     if (is_array($value)) {
                         $value = implode(',', $value);
                     }
-                    echo '<tr><td style="padding-right:30px;">' . $key . '</td><td>' . $value . '</td></tr>' . "\n";
+                    echo EvoFieldRow::render(['label' => hsc($key), 'body' => $value]);
                 }
                 echo '</table>' . "\n";
 
@@ -148,11 +136,11 @@ global $database_connection_method;
                 $res = db()->query("SHOW VARIABLES LIKE 'collation_database';");
                 $collation = db()->getRow($res, 'num');
 
-                echo '<tr><td style="padding-right:30px;">接続メソッド</td><td>' . $database_connection_method . '</td></tr>' . "\n";
-                echo '<tr><td style="padding-right:30px;">文字セット照合順序</td><td>' . $collation[1] . '</td></tr>' . "\n";
+                echo EvoFieldRow::render(['label' => '接続メソッド', 'body' => $database_connection_method]);
+                echo EvoFieldRow::render(['label' => '文字セット照合順序', 'body' => $collation[1]]);
                 $rs = db()->query("SHOW VARIABLES LIKE 'char%';");
                 while ($row = db()->getRow($rs)) {
-                    echo '<tr><td style="padding-right:30px;">' . $row['Variable_name'] . '</td><td>' . $row['Value'] . '</td></tr>' . "\n";
+                    echo EvoFieldRow::render(['label' => hsc($row['Variable_name']), 'body' => $row['Value']]);
                 }
                 echo '</table>' . "\n";
 
@@ -210,7 +198,6 @@ global $database_connection_method;
                         if (!db()->count($rs)) {
                             echo sprintf('<p>%s</p>', lang('no_edits_creates'));
                         } else {
-                            $i = 0;
                             $where = '';
                             while ($content = db()->getRow($rs)) {
                                 if ($where !== 'id=' . $content['editedby']) {
@@ -228,15 +215,13 @@ global $database_connection_method;
                                     }
                                 }
                                 echo sprintf(
-                                    '<tr bgcolor="%s"><td style="text-align:right;">%s</td><td><a href="index.php?a=3&id=%s">%s</a></td><td>%s</td><td>%s</td></tr>',
-                                    ($i % 2) ? '#EEEEEE' : '#FFFFFF',
+                                    '<tr><td style="text-align:right;">%s</td><td><a href="index.php?a=3&id=%s">%s</a></td><td>%s</td><td>%s</td></tr>',
                                     $content['id'],
                                     $content['id'],
                                     hsc($content['pagetitle']),
                                     hsc($user),
                                     evo()->toDateFormat($content['editedon'] + config('server_offset_time'))
                                 );
-                                $i++;
                             }
                         }
                         ?>
@@ -265,19 +250,11 @@ global $database_connection_method;
                     </thead>
                     <tbody>
                         <?php
-                        $rs = db()->query(
-                            sprintf(
-                                "SHOW TABLE STATUS FROM `%s` LIKE '%s%%'",
-                                db()->dbname,
-                                db()->table_prefix
-                            )
-                        );
-                        $limit = db()->count($rs);
-                        for ($i = 0; $i < $limit; $i++) {
-                            $log_status = db()->getRow($rs);
-                            $bgcolor = ($i % 2) ? '#EEEEEE' : '#FFFFFF';
+                        $total = 0;
+                        $totaloverhead = 0;
+                        foreach (EvoDbTables::status() as $log_status) {
                         ?>
-                            <tr bgcolor="<?= $bgcolor ?>" title="<?= $log_status['Comment'] ?>"
+                            <tr title="<?= $log_status['Comment'] ?>"
                                 style="cursor:default">
                                 <td><b class="table-name"><?= $log_status['Name'] ?></b></td>
                                 <td><?= $log_status['Engine'] ?></td>
@@ -304,11 +281,13 @@ global $database_connection_method;
                                     align="right"><?= evo()->nicesize($log_status['Index_length'] + $log_status['Data_length'] + $log_status['Data_free']) ?></td>
                             </tr>
                         <?php
-                            $total = $log_status['Index_length'] + $log_status['Data_length'];
-                            $totaloverhead = $log_status['Data_free'];
+                            $total += $log_status['Index_length'] + $log_status['Data_length'];
+                            $totaloverhead += $log_status['Data_free'];
                         }
                         ?>
-                        <tr bgcolor="#e0e0e0">
+                    </tbody>
+                    <tfoot>
+                        <tr>
                             <td valign="top"><b><?= lang('database_table_totals') ?></b></td>
                             <td colspan="3">&nbsp;</td>
                             <td dir='ltr' align="right"
@@ -317,7 +296,7 @@ global $database_connection_method;
                             <td dir='ltr' align="right"
                                 valign="top"><?= "<b>" . evo()->nicesize($total) . "</b><br />(" . number_format($total) . " B)" ?></td>
                         </tr>
-                    </tbody>
+                    </tfoot>
                 </table>
                 <?php
                 if ($totaloverhead > 0) { ?>
@@ -399,18 +378,3 @@ global $database_connection_method;
 <script type="text/javascript">
     tp = new WebFXTabPane(document.getElementById('sysinfoPane'), false);
 </script>
-
-<?php
-function render_tr($label, $content)
-{
-    $ph['label'] = $label;
-    $ph['content'] = $content;
-    $tpl = <<< EOT
-<tr>
-<td width="150">[+label+]
-<td width="20">&nbsp;</td>
-<td style="font-weight:bold;">[+content+]</td>
-</tr>
-EOT;
-    return evo()->parseText($tpl, $ph);
-}

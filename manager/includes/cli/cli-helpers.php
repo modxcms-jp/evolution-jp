@@ -29,14 +29,7 @@ function cli_stdin_is_interactive(): bool
     if (!defined('STDIN') || !is_resource(STDIN)) {
         return false;
     }
-    if (function_exists('stream_isatty')) {
-        return stream_isatty(STDIN);
-    }
-    if (function_exists('posix_isatty')) {
-        return posix_isatty(STDIN);
-    }
-
-    return false;
+    return stream_isatty(STDIN);
 }
 
 /**
@@ -152,55 +145,38 @@ function cli_mysql_defaults_file()
     return $tmpFile;
 }
 
-function cli_full_table_name($table)
-{
-    $table = trim($table);
-    if ($table === '') {
-        return '';
-    }
-    if (!preg_match('/^[A-Za-z0-9_]+$/', $table)) {
-        return '';
-    }
-    $prefix = db()->config['table_prefix'] ?? '';
-    $dbase = db()->config['dbase'] ?? '';
-    if ($dbase === '') {
-        return '';
-    }
-    if ($prefix !== '' && str_starts_with($table, $prefix)) {
-        $full = $table;
-    } else {
-        $full = $prefix . $table;
-    }
-    return sprintf('`%s`.`%s`', $dbase, $full);
-}
-
 /**
  * @param array $options ['routines' => false] で --routines --triggers の代わりに --skip-triggers を付ける
- *                       （管理画面の復元で戻せる形。db:export の既定は routines を含める）
+ *                       （管理画面の復元で戻せる形。db:export の既定は routines を含める）。
+ *                       ['noData' => true] で --no-data --skip-add-drop-table を付ける（構造だけ、DROP なし）
  */
 function cli_export_database($driver = 'mysqldump', $outputPath = '', $fullTables = [], $quiet = false, $options = [])
 {
     if ($driver !== 'mysqldump' && $driver !== 'php') {
-        cli_usage('Usage: php evo db:export [--tables=table1,table2] [--output=path] [--driver=mysqldump|php]');
+        cli_usage('Usage: php evo.php db:export [--tables=table1,table2] [--output=path] [--driver=mysqldump|php]');
     }
 
     if ($driver === 'php') {
-        global $modx;
-        if (!isset($modx) || !is_object($modx)) {
-            cli_usage('Error: MODX context is not initialized.');
-        }
-        require_once MODX_CORE_PATH . 'mysql_dumper.class.inc.php';
-        $dump = new Mysqldumper();
-        if ($fullTables) {
-            $dump->setDBtables($fullTables);
-        }
-        $sql = $dump->createDump();
-        if ($sql === false || $sql === '') {
-            cli_usage('Error: export failed.');
-        }
+        require_once MODX_CORE_PATH . 'sql_dump.class.inc.php';
+        $tables = $fullTables ?: EvoDbTables::names();
         if ($outputPath !== '') {
-            $written = file_put_contents($outputPath, $sql);
-            if ($written === false) {
+            // 書き終えたダンプを --output の先へ写す。先のファイルは mysqldump の --result-file と同じく
+            // その場で書き換える（権限・所有者・リンクの先を変えない）。ダンプを書けなかったときは先に何も書かない
+            $tmp = tempnam(MODX_CACHE_PATH, 'bktemp');
+            if ($tmp === false) {
+                cli_usage('Error: export failed.');
+            }
+            register_shutdown_function(function () use ($tmp) {
+                if (is_file($tmp)) {
+                    @unlink($tmp);
+                }
+            });
+            if (!EvoSqlDump::writeFile($tmp, $tables, ['drop' => true])) {
+                cli_usage('Error: export failed.');
+            }
+            $copied = copy($tmp, $outputPath);
+            unlink($tmp);
+            if (!$copied) {
                 cli_usage('Error: failed to write output.');
             }
             if (!$quiet) {
@@ -208,7 +184,12 @@ function cli_export_database($driver = 'mysqldump', $outputPath = '', $fullTable
             }
             return;
         }
-        echo $sql;
+        $stdout = fopen('php://output', 'wb');
+        $ok = EvoSqlDump::write($stdout, $tables, ['drop' => true]);
+        fclose($stdout);
+        if (!$ok) {
+            cli_usage('Error: export failed.');
+        }
         return;
     }
 
@@ -223,9 +204,10 @@ function cli_export_database($driver = 'mysqldump', $outputPath = '', $fullTable
 
     $routines = !array_key_exists('routines', $options) || $options['routines'];
     $cmd = sprintf(
-        'mysqldump --defaults-file=%s --single-transaction %s --no-tablespaces %s',
+        'mysqldump --defaults-file=%s --single-transaction %s --no-tablespaces%s %s',
         escapeshellarg($defaultsFile),
         $routines ? '--routines --triggers' : '--skip-triggers',
+        empty($options['noData']) ? '' : ' --no-data --skip-add-drop-table',
         escapeshellarg($dbname)
     );
 
@@ -263,6 +245,60 @@ function cli_export_database_file($driver, $path, $fullTables = [], $options = [
     });
     cli_export_database($driver, $tmp, $fullTables, true, $options);
     if (!is_file($tmp) || !rename($tmp, $path)) {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * スナップショットを mysqldump で書く（管理画面のスナップショットと同じ中身）。
+ * $structureOnly の表（ログの表）は 2 回目に --no-data --skip-add-drop-table で構造だけを書き、
+ * CREATE TABLE を CREATE TABLE IF NOT EXISTS にして続ける（戻した先の履歴を消さない）。
+ * --ignore-table-data は MariaDB と新しい MySQL にしか無いので使わない
+ */
+function cli_export_snapshot_mysqldump($path, array $tables, array $structureOnly)
+{
+    $dataTables = array_values(array_diff($tables, $structureOnly));
+    $structureTables = array_values(array_intersect($tables, $structureOnly));
+    $tmp = $path . '.' . uniqid('part', true) . '.tmp';
+    $structureTmp = $path . '.' . uniqid('part', true) . '.structure.tmp';
+    register_shutdown_function(function () use ($tmp, $structureTmp) {
+        foreach ([$tmp, $structureTmp] as $file) {
+            if (is_file($file)) {
+                @unlink($file);
+            }
+        }
+    });
+    // 表を渡さない mysqldump は DB の全部の表を書くので、空のときは呼ばない
+    if ($dataTables) {
+        cli_export_database('mysqldump', $tmp, $dataTables, true, ['routines' => false]);
+    } elseif (file_put_contents($tmp, '') === false) {
+        return false;
+    }
+    if ($structureTables) {
+        cli_export_database('mysqldump', $structureTmp, $structureTables, true, ['routines' => false, 'noData' => true]);
+        $in = fopen($structureTmp, 'rb');
+        $out = $in === false ? false : fopen($tmp, 'ab');
+        if ($out === false) {
+            if ($in !== false) {
+                fclose($in);
+            }
+            return false;
+        }
+        $ok = true;
+        while ($ok && ($line = fgets($in)) !== false) {
+            if (strpos($line, 'CREATE TABLE `') === 0) {
+                $line = 'CREATE TABLE IF NOT EXISTS `' . substr($line, strlen('CREATE TABLE `'));
+            }
+            $ok = fwrite($out, $line) === strlen($line);
+        }
+        fclose($in);
+        if (!fclose($out) || !$ok) {
+            return false;
+        }
+        unlink($structureTmp);
+    }
+    if (!is_file($tmp) || filesize($tmp) === 0 || !rename($tmp, $path)) {
         return false;
     }
     return true;

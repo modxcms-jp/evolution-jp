@@ -1,6 +1,6 @@
 # マイグレーション
 
-DB のスキーマと、設定・データの移行（アップグレードの処理）の仕組みと書き方。サイトを管理する人と、マイグレーションを書く開発者の両方が読む。
+DB のスキーマと、設定・データの移行（アップグレードの処理）の仕組みと書き方、アップグレードでサイト側のコードの書き換えが要る差。サイトを管理する人と、マイグレーションを書く開発者の両方が読む。
 
 CLI の使い方の詳細は [`manager/includes/cli/README.md`](../../manager/includes/cli/README.md)、古い版の DB を作って確かめる道具は [`.claude/skills/adaptive-validation-runner/references/upgrade-fixtures.md`](../../.claude/skills/adaptive-validation-runner/references/upgrade-fixtures.md) を正とする。ここでは参照する。
 
@@ -18,10 +18,10 @@ CLI の使い方の詳細は [`manager/includes/cli/README.md`](../../manager/in
 | 要素 | 場所 | 役割 |
 | --- | --- | --- |
 | マイグレーション | `manager/includes/migrations/` | 版依存のアップグレード処理の置き場所は、ここだけ |
-| 記録の表 | `{prefix}migrations`（既定の接頭辞で `modx_migrations`） | 適用した ID と時刻（`id`・`applied_at`）。定義はランナーだけが持ち、`create_tables.sql` には書かない |
+| 記録の表 | `{prefix}migrations`（既定の接頭辞で `modx_migrations`） | 適用した ID と時刻（`id`・`applied_at`）。定義はランナーだけが持ち、`create_tables.sql` には書かない。文字セットと照合順序は `system_settings` にそろえて作る |
 | ランナー | `manager/includes/migrator.class.inc.php` | 未適用を名前順に流して記録する。`GET_LOCK()` で同時に 2 回走らせない（30 秒待って取れなければ失敗）。アップデーターは、流してから記録するまでのあいだはロックを持たない（記録は重なっても壊れない） |
 | 補助 | `manager/includes/migration_helper.class.inc.php` | マイグレーションの関数に渡される `EvoMigrationHelper` |
-| CLI | `php evo migrate` / `migrate:status` / `make:migration` | 使い方は CLI の README |
+| CLI | `php evo.php migrate` / `migrate:status` / `make:migration` | 使い方は CLI の README |
 | 最終形の定義 | `install/sql/create_tables.sql`、`install/sql/system_eventnames.sql` | 表の定義とイベント名。毎回そろえる |
 
 `system_eventnames.sql` に同梱のイベントを足すときは、1000 より小さい空き番号を使う。1001 以上は AUTO_INCREMENT で利用者の独自イベントに割り当てられる領域なので、同梱では使わない。
@@ -41,12 +41,25 @@ CLI の使い方の詳細は [`manager/includes/cli/README.md`](../../manager/in
 
 ランナーは、キャッシュを消さない。消すのは呼び出し側（インストーラは最後に、CLI の `migrate` は適用か失敗のあとに）。
 
+### DB の既定の文字セット
+
+接続の `SET CHARACTER SET utf8mb4` は、`character_set_connection` を DB の既定の文字セットにする。DB の既定が latin1 などのままだと、表が utf8mb4 でも日本語が `?` で保存される。そのため、DB の既定を utf8mb4 にする処理を `convert2utf8mb4::convertDb()` の 1 つに置き、2 か所から呼ぶ。
+
+- アップデーターの変換（上の手順 4）: 利用者が変換を選んだとき、`ALTER DATABASE ... COLLATE utf8mb4_general_ci` にする
+- 新規インストール: 選んだ文字セットが utf8mb4 で、DB の既定がそうでないとき、表を作る前に、選んだ照合順序で既定を utf8mb4 にする（`prepareDatabaseDefaultForInstall()`）。既定がすでに utf8mb4 なら何もしない（照合順序も変えない）。この変更は既存の表に影響せず、これから作る表の既定だけが変わる
+
+`convertDb()` は `ALTER DATABASE` だけを行い、成否を返す。接続の文字セットには触れない。更新の変換では、接続は `config.inc.php` の文字セットで済んでいて、`db()->charset` はセッションの値（表の照合順序から割り出した値）なので、ここで接続をやり直すと、接続が途中から別の文字セットになりうる。新規インストールだけが、変更が成功したあとに `DBAPI::applyConnectionCharset()`（`connect()` と同じ処理）で `SET CHARACTER SET` をやり直し、`character_set_connection` を新しい既定にそろえる。変更の前後の既定はインストールのログに残る。`ALTER DATABASE` の権限が無いなど変更できないときは、インストールを止めず、結果の画面とログで知らせる。
+
+既定を変えると、この DB に `SET CHARACTER SET` でつなぐ接続の文字セットも変わる（同じ DB を共用している別のサイトを含む）。既存の表の中身は変わらない。
+
+アップデートで変換を断ったサイトや、権限が無くて変えられなかったサイトは、ダッシュボードの設定チェック（`config_check.inc.php`）が、`config.inc.php` で Unicode の接続を指定しているのに `@@character_set_connection` が Unicode でないときに警告する。直し方は、DB の管理者が `ALTER DATABASE` を実行すること。表がすでに `utf8mb4_general_ci` のサイト（1.2 で新規インストールしたものなど）は、更新の変換では DB の既定が変わらないので、この警告が残りうる。接続の方法（`SET NAMES` への変更など）は、今動いているサイトの動きが変わるため変えない。
+
 ## マイグレーションの書き方
 
 ### 作り方
 
 ```bash
-php evo make:migration add_example_column
+php evo.php make:migration add_example_column
 ```
 
 `manager/includes/migrations/<YYYYMMDD_HHMMSS>_<説明>.php` に雛形ができる。
@@ -76,9 +89,10 @@ return static function (EvoMigrationHelper $m) {
 - **版の条件を書かない**: 「1.2.0 より古ければ」のような版の比較は置かない。条件は DB とファイルの状態（列があるか、値が古い既定値と同じか）で決める。前の版が分からないサイトも同じに扱える。
 - **利用者の設定を上書きしない**: 利用者が選んだ値（テーマ・エディタ・外した権限など）は、書き換えない。直すときは、古い既定値のままの行だけを対象にする。例外として、同梱物の入れ替えで名前だけが変わった値は、同じ選択として新しい名前に移してよい（例: `20261107_130000_rename_tinymce_editor_setting.php` の使用エディター `TinyMCE` → `TinyMCE7`）。
 - **利用者のデータを消さない**: 機能を廃止して表が要らなくなっても、利用者が入れたデータ（行）が残っていれば、表を消さずに残し、要らなければ削除してよいことを `log()` で書く。消すのは空のときだけにする。アップグレードでは利用者に確認できない（CLI の `migrate` には画面が無い）ため。残した表はどのコードも読まないので、上の「同じ変更を両方に書く」の前提の例外として、上げたあとの DB にだけ残ってよい（例: `20261107_112600_retire_manager_messages.php` の `user_messages`）。
+- **配布から外したファイルは、一覧に足して消す**: 上書きで更新したサイトには、配布から外したファイルが残る。`EvoRetiredFiles::groups()` に、過去の版が配布していたファイルを足し、新しいマイグレーションから `removeRetiredFiles()` を呼ぶ。消すのは一覧のファイルと空になったフォルダーだけで、利用者が足したファイルは消さない（その場合フォルダーは残る）。フォルダーやファイルがシンボリックリンクなら触らない（`file-storage.md`）。一覧のファイルが残っていれば、設定の確認の画面（`config_check.inc.php`）が同じ一覧で知らせる。既に配った一覧の中身は変えない（例: `20261126_120000_remove_old_file_browser.php` の `mcpuk`）。
 - **ログは補助の `log()` で**: 値に秘密（パスワード、SMTP の設定など）や利用者のデータを入れない。
 - **失敗は `EvoMigrationException` で投げる**: ログは取らず投げるだけ。ランナーが ID を足して 1 回だけ記録し、そのマイグレーションを記録せずに止める。補助の `exec()` は、エラーがあれば例外を投げる。
-- **DB にある同梱物の入れ替えが要る版**: 同梱プラグインのコードなど、DB に入っている同梱物を入れ替える必要がある版は、その版のマイグレーションに入れ替えを書く。マイグレーションがあれば未適用として数えられ、アップデーターへ送られる。書き方は `install/processors/prc_insPlugins.inc.php` の作りに合わせる（同名の有効な行を無効にして控えとして残し、新しい行を入れる）。入れ替えの元は `assets/` の下の `.tpl` の docblock で、読み取りの関数 `parse_docblock()` は今は `install/functions.php` にある。初めて入れ替えのマイグレーションを書くときに、この関数を `manager/includes/` へ移し、インストーラとマイグレーションの両方から使う。
+- **DB にある同梱物の入れ替えが要る版**: 同梱プラグインのコードなど、DB に入っている同梱物を入れ替える必要がある版は、その版のマイグレーションに入れ替えを書く。マイグレーションがあれば未適用として数えられ、アップデーターへ送られる。書き方は `install/processors/prc_insPlugins.inc.php` の作りに合わせる（同名の有効な行を無効にして控えとして残し、新しい行を入れる）。入れ替えの元は `assets/` の下の `.tpl` の docblock で、読み取りの関数 `parse_docblock()` は今は `install/functions.php` にある。初めて入れ替えのマイグレーションを書くときに、この関数を `manager/includes/` へ移し、インストーラとマイグレーションの両方から使う。`@version` を上げるだけの入れ替えは任意の更新で、この決まりの代わりにはならない（[同梱の要素の雛形](#同梱の要素の雛形)を見る）。
 - **大きな表の `ALTER` は時間がかかる**: 列の型の変更や索引の追加は、行の多い表で時間がかかる。時間のかかる処理は、かかった秒数を `log()` に残す。
 
 SQL の値は、実行の直前に `db()->escape()` か `(int)` で安全化する（AGENTS.md の DB 操作の決まり）。補助の中で値を無害化しているのは `setting()` などの設定の読み書きで、それ以外の `exec()` に渡す SQL は呼ぶ側が安全化する。
@@ -92,7 +106,9 @@ SQL の値は、実行の直前に `db()->escape()` か `(int)` で安全化す�
 | 実行 | `exec($sql, $summary = null)`（失敗で例外。`$summary` を渡すと SQL の代わりにそれをログと例外に出す。値を含む SQL に使う）、`rows($sql, $summary = null)`、`table($name)`（接頭辞つきの表名） |
 | 存在確認 | `tableExists`・`columnExists`・`column`・`index`・`indexExists`・`indexColumns`・`primaryKey` |
 | 列・索引 | `addColumn`（足したら true）、`modifyColumn`（最終形と違うときだけ変える）、`syncPrimaryKey`、`addIndex`、`dropIndexIfExists`・`dropColumnIfExists`・`dropTableIfExists` |
+| 文字セット | `tableCollation`（表の文字セットと照合順序）、`matchTableCollation($table, $source)`（`$source` の表にそろえる。変えたら true） |
 | データ | `removeDuplicates($table, $keyColumns, $keepRule)`（主キー・UNIQUE を付ける前に重複行を消す） |
+| ファイル | `removeRetiredFiles($group)`（配布から外したファイルを消す。一覧は `EvoRetiredFiles::groups()`。消せなければ警告のログを残し、残っているあいだは設定の確認の画面も知らせる） |
 | 設定 | `setting`・`hasSetting`・`saveSetting`・`deleteSetting` |
 | ログ | `log($message, array $context = [], $type = 1)` |
 
@@ -102,13 +118,27 @@ SQL の値は、実行の直前に `db()->escape()` か `(int)` で安全化す�
 
 - 公開側（`manager/includes/update_guard.php`）: 未適用があればメンテナンスの表示（HTTP 503）を返す。呼ぶ位置は `index.php` の `executeParser()` より前。
 - 管理画面の入口（`manager()->isUpdatePending()`）: 未適用があればアップデーター（`install/`）へ送る。settings 権限のある人は、`install/` があればアップデーターへ送られ、無ければアップデーターを置いて実行するよう案内される。ほかの人には、`install/` の有無に関わらずメンテナンスの表示を出す。
-- `php evo health:check`: 未適用の件数を表示する。
+- 管理画面のプラグイン: 未適用があっても自動では止めない。ログイン画面とログインの処理で動かすのは、画面に欄を足してログインの処理で確かめるプラグイン（2 段階認証・パスワードの再設定など）を、待ちの間も通すため。旧版のプラグインが壊れていてアップデーターへ進めないときの抜け方は、`events-and-plugins.md` の「プラグインが失敗したとき」を参照する（ログイン後はセーフモード、ログインする前に止まるときは DB でそのプラグインを無効にしてからアップデーターを流す）。
+- `php evo.php health:check`: 未適用の件数を表示する。
 
 記録の表が読めないときは、止める側に倒す（未適用あり、として扱う）。公開側のリクエストごとに、ファイルの一覧（`glob()` 1 回）と記録の表の SELECT 1 回を行う。
 
 `index.php` の先頭近くにある、コードとキャッシュの版が同じなら DB を見ずにページのキャッシュを返す早い返し方は、ページのキャッシュの互換のための判定で、アップデート待ちの判定ではない。未適用があっても、アップデートの前に作られたページが返ることがある。
 
 `settings_version`（システム設定）は、「システム設定を保存した版、またはアップデーターで上げた版」として残す。アップデートの判定には使わず、新規インストール後にまだ保存していない（`'0'` か空）サイトの初回に設定画面へ案内する判定にだけ使う。版の表示（メニュー・システム情報・バックアップの名前・`health:check`）はコードの版（`$modx_version`）を使う。アップデーター（`install/instprocessor.php`）は、アップグレードのときに `settings_version` をコードの版へ上げる。新規インストールは `'0'` のまま残す。
+
+## 同梱の要素の雛形
+
+同梱のスニペット・プラグイン・モジュールは、`assets/{snippets,plugins,modules}/` の `*.install_base.tpl`（雛形）から DB に入る。アップデーターは、雛形の `@version` が DB の description 先頭の版と同じなら、その要素を入れ直さない。違えば入れ直す（スニペット・モジュールは同名の行を上書きし、プラグインは有効な同名の行を無効にして控えとして残し、新しい行を入れる）。
+
+- DB に入る雛形は、ファイルを読み込む 1 行（`return include MODX_BASE_PATH . 'assets/snippets/<名前>/snippet.<名前>.php';`）だけにし、処理はファイル側に置く。直しがファイルの置き換えで届き、DB の入れ直しを待たない（例: `assets/snippets/eform/`、`assets/snippets/weblogin/`）
+- `@version` は要素自身の版にする。雛形を変えたら要素の版を上げる（アップデーターに DB を作り直させる印にもなる）。処理をファイルに置いた要素は、ファイルだけの直しでは雛形を変えなくてよい。そのため雛形の版はファイルの版より古いことがある。要素の今の版はファイル側で分かる
+- アップデーターは文字列が同じかだけを見る。保守ブランチ（1.2 系など）で雛形を変えるときは、`main` と同じ文字列を使わない（同じだと、どちらかで入れ直しが起きない）。例: `main` の eForm が `1.4.5` なら、1.2 系で直した版に `1.4.5` を使わず、`main` が次に使う版（`1.4.6` など）とも重ならない版にする
+- 雛形を変えたのに `@version` が同じだと、`.github/scripts/element-version-lint.php`（CI の Element version lint）が、`release-*` タグのうち今の版以下で一番新しいものと比べて落とす
+- サイトで手を入れた要素を黙って上書きしないため、アップデーターで中身の違いを見ることはしない（見るのは `@version` だけ）
+- `@version` での入れ替えは、利用者が `/install/` を通したときにだけ起きる任意の更新で、未適用のマイグレーションが無ければアップデーターへ送られない。通さないサイトでは、古い DB のコードが動き続ける。そのため `snippet.*.php` などが読むファイルの入口（関数の名前と引数、前提にする変数）は保つ。保てない変更は、上の「DB にある同梱物の入れ替えが要る版」の決まりに従い、マイグレーションで入れ替える
+- テンプレート・TV・チャンクの雛形は、この検査の対象外（アップデートでの扱いが違う）。テンプレート・TV はアップデートでは入れ直さず（新規インストールだけ）、チャンクは版を見ずに、`@overwrite false` でなければアップデートのたびに上書きする（`install/setup.info.php`・`install/processors/prc_insTemplates.inc.php`・`prc_insChunks.inc.php`）
+- アップグレードで要素を入れ直すかどうかは、インストーラーのオプション画面のチェックでも決まる（既定はチェックあり。`install/actions/options.php`、`install/functions.php` の `shouldInstallElement()`）。チェックを外した要素は、上の「`@version` が違う」「上書きする」場合でも入れ直さない
 
 ## 利用者がアップデートするとき
 
@@ -120,22 +150,22 @@ SQL の値は、実行の直前に `db()->escape()` か `(int)` で安全化す�
 
 settings 権限のある人がいないと、管理画面からはアップデーターへ案内されず、`/install/` を直接開いてもアップデーターは動かない。DB でロールに `settings` の権限を戻してから管理画面を開き直すと、アップデーターへ送られる（権限は管理画面を開くたびに読み直される）。
 
-CLI の `php evo migrate` は、baseline が記録済みのサイトで、開発中などに足したマイグレーションを流すためのもの。古い版からは使えない（baseline が記録されていないと、何も流さずに止まる）。古い版の DB は、必ずアップデーターで上げる（イベント名の同期・utf8mb4 への変換・同梱の要素の入れ直しは、アップデーターだけが行うため）。
+CLI の `php evo.php migrate` は、baseline が記録済みのサイトで、開発中などに足したマイグレーションを流すためのもの。古い版からは使えない（baseline が記録されていないと、何も流さずに止まる）。古い版の DB は、必ずアップデーターで上げる（イベント名の同期・utf8mb4 への変換・同梱の要素の入れ直しは、アップデーターだけが行うため）。
 
 ## 止まったとき
 
 ログの場所:
 
-- システムログ: `temp/logs/system/YYYY/MM/`（JSONLines。`php evo log:tail` / `log:search` で読める）。マイグレーションの失敗は、ID とエラーがここに残る。
+- システムログ: `temp/logs/system/YYYY/MM/`（JSONLines。`php evo.php log:tail` / `log:search` で読める）。マイグレーションの失敗は、ID とエラーがここに残る。
 - インストールのログ: `temp/logs/install/YYYY/MM/`。アップデーターの進行と、適用したマイグレーションの ID（`Migrations applied`）が残る。
 
 よくある止まり方:
 
-- **長い値で止まる**: 列を縮めるとき（`site_content.alias` を 245 文字、`documentgroup_names`・`membergroup_names`・`webgroup_names` の `name` を 191 文字）に、収まらない値があると、何も変えずに止まる。該当する行の一覧（表・列・上限・行の ID・今の長さ）が、アップデーターの画面とシステムログに出る。DB の道具か `php evo db:query` で値を短くしてから、アップデーターをやり直す。
+- **長い値で止まる**: 列を縮めるとき（`site_content.alias` を 245 文字、`documentgroup_names`・`membergroup_names`・`webgroup_names` の `name` を 191 文字）に、収まらない値があると、何も変えずに止まる。該当する行の一覧（表・列・上限・行の ID・今の長さ）が、アップデーターの画面とシステムログに出る。DB の道具か `php evo.php db:query` で値を短くしてから、アップデーターをやり直す。
 - **新規インストールの途中の失敗**: 新規インストールが途中で失敗したときは、アップデーター（`install/`）をもう一度通す。
 - **ロック**: ほかの処理が走っていて 30 秒待っても取れないと、失敗になる。ほかのアップデーターや `migrate` が走っていないか確かめて、やり直す。
-- **途中の失敗**: アップデーターでは、あとの手順が失敗すると、その回に流したマイグレーションも記録されず、次のアップデーターで全部流し直される。原因を直して、アップデーターをやり直せばよい。冪等に書いてあるので、途中まで進んだ変更があっても流し直せる。アップデーターが途中で失敗したときは、CLI ではなくアップデーターでやり直す（CLI はアップデーターの残りの手順を行わない）。baseline のあとに足したマイグレーション自体の失敗は、`php evo migrate` でもやり直せる。ただし MyISAM の表の変更は、途中で戻せない。
-- **以前の版の一時ロックで管理画面にログインできない**: 以前の版は、ログインの失敗回数が上限に達すると `blocked` も 1 にしていた。この形の行の `blocked` は、マイグレーション `20261107_180000_unblock_legacy_temporary_login_locks` で外れる。マイグレーションの前でも、期限が過ぎていれば、正しいパスワードでログインした本人の行はその場で外れる（ログインの処理が、このマイグレーションの記録が無いあいだだけ同じ条件で外す）。このあいだにパスワードかキャプチャを 1 回間違えると、失敗回数を数え直さないので、また期限まで待つことになる。期限内なら、期限が過ぎてからログインし直す。それでもログインできないときは、念のための戻し方として、DB の道具か `php evo db:query` で次を流してからログインし直す。`modx_` は実際の表の接頭辞に、`5` はグローバル設定の `failed_login_attempts` の値（0 か空なら 1）に置き換える。条件はマイグレーションと同じで、管理者が付けたブロックがたまたま同じ形のときは、それも外れる。
+- **途中の失敗**: アップデーターでは、あとの手順が失敗すると、その回に流したマイグレーションも記録されず、次のアップデーターで全部流し直される。原因を直して、アップデーターをやり直せばよい。冪等に書いてあるので、途中まで進んだ変更があっても流し直せる。アップデーターが途中で失敗したときは、CLI ではなくアップデーターでやり直す（CLI はアップデーターの残りの手順を行わない）。baseline のあとに足したマイグレーション自体の失敗は、`php evo.php migrate` でもやり直せる。ただし MyISAM の表の変更は、途中で戻せない。
+- **以前の版の一時ロックで管理画面にログインできない**: 以前の版は、ログインの失敗回数が上限に達すると `blocked` も 1 にしていた。この形の行の `blocked` は、マイグレーション `20261107_180000_unblock_legacy_temporary_login_locks` で外れる。マイグレーションの前でも、期限が過ぎていれば、正しいパスワードでログインした本人の行はその場で外れる（ログインの処理が、このマイグレーションの記録が無いあいだだけ同じ条件で外す）。このあいだにパスワードかキャプチャを 1 回間違えると、失敗回数を数え直さないので、また期限まで待つことになる。期限内なら、期限が過ぎてからログインし直す。それでもログインできないときは、念のための戻し方として、DB の道具か `php evo.php db:query` で次を流してからログインし直す。`modx_` は実際の表の接頭辞に、`5` はグローバル設定の `failed_login_attempts` の値（0 か空なら 1）に置き換える。条件はマイグレーションと同じで、管理者が付けたブロックがたまたま同じ形のときは、それも外れる。
 
   ```sql
   UPDATE modx_user_attributes SET blocked=0
@@ -148,3 +178,11 @@ CLI の `php evo migrate` は、baseline が記録済みのサイトで、開発
 - **MariaDB 11 以外では、2 回目のアップデーターで `system_cache.cache_value` の型が戻る**: `create_tables.sql` が `system_cache` を毎回作り直すため（インストーラの動き）。
 - **`alias` の索引**: InnoDB の古い表（行形式が COMPACT・REDUNDANT）では、索引の長さの上限が 767 バイトで、`alias`（245 文字）全体の索引を utf8mb4 で作れない。baseline は、まず `ROW_FORMAT=DYNAMIC` にして作れるか確かめる。`DYNAMIC` にできない環境や、`DYNAMIC` にしても上限が 767 バイトの環境（MySQL 5.6 の Antelope、`innodb_large_prefix=OFF` など）では、`alias` の索引を前置き長のまま残し、ログ（種別 2）で知らせる。最終形との差になるが、動作には支障が無い。
 - **`site_tmplvar_contentvalues` の FULLTEXT 索引（`value_ft_idx`）**: 新規インストールでも baseline でも作らない（最終形に無い）。MySQL の標準のパーサーは空白で語を区切るので日本語の文では働かず、コアも同梱の拡張も `MATCH ... AGAINST` を使っていない。TV の値の保存のたびに索引の更新がかかり、InnoDB の FULLTEXT に対応していない DB（MySQL 5.5 など）では `create_tables.sql` でアップデートも止まっていた。すでに作られているサイトの索引は、外部の処理が使っているかもしれないので消さない（残っていても動作には支障が無い）。
+
+## サイトのコードの書き換えが要る差
+
+アップデーターでは直らず、テンプレート・スニペット・プラグインなどサイト側のコードを書き換える必要がある差。
+
+- **`doc('TV名')` が TV の値の文字列を返す**: 1.0.24J〜1.0.26J と、2024 年 2 月 11 日より前の 1.1.0J の開発版（版の表示は `1.1.0J`）の関数 `doc()`（`manager/includes/helpers.php`）は、TV のときに TV の配列（`name`・`value` など）を返していた。リリースされた 1.1.0J から後は、値の文字列を返す。古い版に合わせて `doc('TV名')['value']` と書いたコードは、文字列に添字を付けることになり、PHP 8 では `Cannot access offset of type string on string` で止まってページが HTTP 500 になる（PHP 7.4 では警告が出て、値の 1 文字めだけが返る）。
+  - `doc('TV名')['value']` は `doc('TV名.value')` に書き換える。古い版でも新しい版でも値の文字列を返す。新しい版だけで動かすなら `doc('TV名')` でもよい。`value` 以外も `doc('TV名.caption')` のようにドットでつないで取れる。
+  - 対象は関数の `doc()` だけ。`evo()->doc('TV名')` と `$modx->documentObject['TV名']` は今も TV の配列を返すので、`['value']` を付けたままでよい。

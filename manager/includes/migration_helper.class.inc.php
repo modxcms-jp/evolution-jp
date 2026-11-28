@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/retired_files.class.inc.php';
+
 /**
  * マイグレーションの失敗。ログに残すコンテキストを持ち、ランナーが 1 回だけ記録する
  * （マイグレーション側はログせずに投げるだけでよい）
@@ -265,6 +267,55 @@ class EvoMigrationHelper
             'ENGINE' => strtoupper((string)$rows[0]['ENGINE']),
             'ROW_FORMAT' => strtoupper((string)$rows[0]['ROW_FORMAT']),
         ];
+    }
+
+    /**
+     * 表の文字セットと照合順序。表が無ければ null
+     *
+     * @return array|null ['charset' => 文字セット, 'collation' => 照合順序]
+     */
+    public function tableCollation($table): ?array
+    {
+        $this->assertName($table);
+        $rows = $this->rows(sprintf(
+            'SELECT c.CHARACTER_SET_NAME, t.TABLE_COLLATION FROM INFORMATION_SCHEMA.TABLES t'
+            . ' JOIN INFORMATION_SCHEMA.COLLATIONS c ON c.COLLATION_NAME = t.TABLE_COLLATION'
+            . " WHERE t.TABLE_SCHEMA='%s' AND t.TABLE_NAME='%s'",
+            db()->escape(db()->config['dbase']),
+            db()->escape(db()->config['table_prefix'] . $table)
+        ));
+        if (!$rows) {
+            return null;
+        }
+        return [
+            'charset' => $this->assertName($rows[0]['CHARACTER_SET_NAME']),
+            'collation' => $this->assertName($rows[0]['TABLE_COLLATION']),
+        ];
+    }
+
+    /**
+     * 表の文字セットと照合順序を $source の表にそろえる（列も変換する）。
+     * どちらかの表が無いか、もうそろっていれば何もしない。変えたら true
+     */
+    public function matchTableCollation($table, $source): bool
+    {
+        $current = $this->tableCollation($table);
+        $target = $this->tableCollation($source);
+        if (!$current || !$target || $current['collation'] === $target['collation']) {
+            return false;
+        }
+        $this->exec(sprintf(
+            'ALTER TABLE %s CONVERT TO CHARACTER SET %s COLLATE %s',
+            $this->table($table),
+            $target['charset'],
+            $target['collation']
+        ));
+        $this->log('Changed the table collation', [
+            'table' => $table,
+            'from' => $current['collation'],
+            'to' => $target['collation'],
+        ]);
+        return true;
     }
 
     /**
@@ -625,6 +676,29 @@ class EvoMigrationHelper
             db()->escape($name)
         ));
         return true;
+    }
+
+    /**
+     * 配布から外したファイル（EvoRetiredFiles の一覧）を消し、結果をログに残す。消せなかったファイルは警告で知らせる
+     * （残っているあいだは、設定の確認の画面も知らせる）。2 回目は何もしない。消したファイルがあれば true
+     */
+    public function removeRetiredFiles($group): bool
+    {
+        $result = EvoRetiredFiles::remove($group);
+        if ($result['removed']) {
+            $this->log('Removed files that are no longer distributed', [
+                'group' => $group,
+                'count' => count($result['removed']),
+                'folder_kept' => $result['kept'],
+            ]);
+        }
+        if ($result['failed']) {
+            $this->log('Could not remove files that are no longer distributed. Delete them by hand', [
+                'group' => $group,
+                'files' => $result['failed'],
+            ], 2);
+        }
+        return (bool)$result['removed'];
     }
 
     /**

@@ -58,53 +58,9 @@ if (!class_exists('dateFilter')) {
 // Date Filter Parameters
 // ---------------------------------------------------
 
-$source = isset($dateFilterSource) ? $dateFilterSource : 'get';
-/*
-	Param: dateFilterSource
-
-	Purpose:
-	Source for the day, month, and year to filter by
-
-	Options:
-	get - gets the value of year, month, and day from the URL (pre-appended with the Ditto ID)
-	params - gets the value from the snippet cal
-	text - name of the request variable to use
-
-	Default:
-	get
-*/
-$dateSource = isset($dateSource) ? $dateSource : 'createdon';
-/*
-	Param: dateSource
-
-	Purpose:
-	Source of the [+date+] placeholder
-
-	Options:
-	# - Any UNIX timestamp from MODX fields or TVs such as createdon, pub_date, or editedon
-
-	Default:
-	'createdon'
-
-	Related:
-	- <dateFormat>
-*/
-if (!isset($dateFilterDefault)) $dateFilterDefault = 0;
-/*
-	Param: dateFilterDefault
-
-	Purpose:
-	Determine the default filter
-
-	Options:
-	0 - filter off
-	1 - current year
-	2 - current year and month
-	3 - current year, month, and day
-
-	Default:
-	0
-*/
+$source = $dateFilterSource ?? 'get';
+$dateSource = $dateSource ?? 'createdon';
+$dateFilterDefault = $dateFilterDefault ?? 0;
 if ($source === 'get') {
     // 先頭のゼロも含めて 4 桁まで（'02' は 2、'02026' は 0）
     $readDatePart = static function ($name) use ($dittoID) {
@@ -116,49 +72,14 @@ if ($source === 'get') {
     $day = $readDatePart('day');
 } elseif ($source === 'params') {
     $month = isset($month) ? (int)$month : 0;
-    /*
-        Param: month
-
-        Purpose:
-        Month to filter by
-
-        Options:
-        # - Number between 1-12 (inclusive) that corresponds to the month to filter by
-
-        Default:
-        [NULL]
-    */
     $year = isset($year) ? (int)$year : 0;
-    /*
-        Param: year
-
-        Purpose:
-        Year to filter by
-
-        Options:
-        # - Any numerical year (4 numbers; ex: 2006)
-
-        Default:
-        [NULL]
-    */
     $day = isset($day) ? (int)$day : 0;
-    /*
-        Param: day
-
-        Purpose:
-        Day to filter by
-
-        Options:
-        # - Any numerical day within the current month
-
-        Default:
-        [NULL]
-    */
 } else {
     $year = $month = $day = 0;
     $sourceValue = request_strvar($dittoID . $source);
-    if ($sourceValue) {
-        $date = getdate(strtotime($sourceValue));
+    $timestamp = $sourceValue ? strtotime($sourceValue) : false;
+    if ($timestamp !== false) {
+        $date = getdate($timestamp);
         $year = $date['year'];
         $month = $date['mon'];
         $day = $date['mday'];
@@ -171,10 +92,6 @@ if ($source === 'get') {
 
 
 switch ($dateFilterDefault) {
-    case 0:
-        // do nothing
-        break;
-
     case 1:
         $cDate = getdate();
         $year = ($year) ? $year : $cDate['year'];
@@ -199,45 +116,21 @@ switch ($dateFilterDefault) {
 // ---------------------------------------------------
 
 if ($year) {
-    $modx->setPlaceholder($dittoID . 'year', $year);
-    /*
-        Placeholder: year
-
-        Content:
-        Year being filtered by
-    */
+    evo()->setPlaceholder($dittoID . 'year', $year);
 }
 if ($month && $year) {
     $month_text = date('F', mktime(10, 10, 10, $month, 10, $year));
-    $modx->setPlaceholder($dittoID . 'month', $month_text);
-    /*
-        Placeholder: month
-
-        Content:
-        Month being filtered by
-    */
-    $modx->setPlaceholder($dittoID . 'month_numeric', $month);
-    /*
-        Placeholder: month
-
-        Content:
-        Numeric version of the month being filtered by
-    */
+    evo()->setPlaceholder($dittoID . 'month', $month_text);
+    evo()->setPlaceholder($dittoID . 'month_numeric', $month);
 }
 if ($day && $month && $year) {
-    $modx->setPlaceholder($dittoID . 'day', $day);
-    /*
-        Placeholder: day
-
-        Content:
-        Day being filtered by
-    */
+    evo()->setPlaceholder($dittoID . 'day', $day);
 }
 
 // ---------------------------------------------------
 // Date Filter Execution
 // ---------------------------------------------------
-if ($year || ($year && $month) || ($year && $month && $day)) {
+if ($year) {
     $dateFilterOject = new dateFilter($month, $year, $day, $dateSource);
     $filters['custom']['dateFilter'] = [$dateSource, [$dateFilterOject, 'execute']];
 }

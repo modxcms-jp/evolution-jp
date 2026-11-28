@@ -22,11 +22,20 @@ if ($install_aborted) {
 <h2><?= $results_title ?></h2>
 <?php
 echo $content;
+// 完了のあとに install フォルダーを自動で消せるか。消せるときだけ、消す処理へ渡す 1 回限りの値をセッションに残す
+$can_remove_installer = !$install_aborted && $errors == 0
+    && (is_writable('../install') || is_webmatrix()) && !is_iis();
 // インストーラの値（DB のパスワードなど）は残さない。ログインを保つときは、インストーラの値だけを消す
 if ($keep_login) {
     keepManagerLoginAfterUpgrade();
 } else {
     $_SESSION = [];
+}
+$cleanup_token = '';
+if ($can_remove_installer) {
+    $cleanup_token = bin2hex(random_bytes(16));
+    sessionv('*installer_cleanup', $cleanup_token);
+} elseif (!$keep_login) {
     session_destroy();
 }
 
@@ -44,12 +53,18 @@ if ($install_aborted) {
 
 if ($errors == 0) {
     // check if install folder is removeable
-    if ((is_writable('../install') || is_webmatrix()) && !is_iis()) { ?>
+    if ($can_remove_installer) { ?>
         <label style="float:left;line-height:18px;">
             <input
                 type="checkbox" id="rminstaller" value="1" checked
             ><?= lang('remove_install_folder_auto') ?>
         </label>
+        <form
+            id="rminstallform" method="post" hidden
+            action="../manager/processors/remove_installer.processor.php"
+        >
+            <input type="hidden" name="token" value="<?= hsc($cleanup_token) ?>">
+        </form>
         <?php
     } else {
         ?>
@@ -72,7 +87,7 @@ if ($errors == 0) {
         el.addEventListener('click', function () {
             var rminstaller = document.getElementById('rminstaller');
             if (rminstaller && rminstaller.checked) {
-                window.location.href = "../manager/processors/remove_installer.processor.php?rminstall=1";
+                document.getElementById('rminstallform').submit();
             } else {
                 window.location.href = "../manager/";
             }

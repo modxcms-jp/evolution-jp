@@ -26,17 +26,17 @@ function mm_renameSection($section, $newname, $roles = '', $templates = '')
 
     switch ($section) {
         case 'content':
-            $output .= 'MM.html("div#content_header", "' . jsSafe($newname) . '");' . "\n";
+            // 本文の見出しは既定では隠れている。名前を変えたら出す
+            $output .= 'MM.html("div#content_header", ' . mmHtmlLiteral($newname) . ').forEach(function (el) { el.hidden = false; });' . "\n";
             break;
 
         case 'tvs':
-            $output .= '
-            MM.html("div#tv_header", "' . jsSafe($newname) . '");
-            ';
+            // 本文の下の見出しと TV のタブの名前の両方を変える（mm_renameTab('tv') と同じ）
+            mm_renameTab('tv', $newname, $roles, $templates);
             break;
 
         case 'access': // These have moved to tabs in 1.0.1
-            $output .= 'MM.html("div#sectionAccessHeader", "' . jsSafe($newname) . '");' . "\n";
+            $output .= 'MM.html("div#sectionAccessHeader", ' . mmHtmlLiteral($newname) . ');' . "\n";
             break;
     }
 

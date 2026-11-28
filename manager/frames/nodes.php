@@ -12,6 +12,8 @@ if (evo()->getLoginUserType() !== 'manager') {
     exit('Not Logged In!');
 }
 
+include_once MODX_CORE_PATH . 'controls/resource_tree.class.php';
+
 // save folderstate
 
 if (getv('savestateonly')) {
@@ -28,11 +30,16 @@ if (getv('savestateonly')) {
 
 // setup sorting
 if (request_strvar('tree_sortby')) {
-    $_SESSION['tree_sortby'] = request_strvar('tree_sortby');
+    sessionv('*tree_sortby', request_strvar('tree_sortby'));
 }
 
 if (request_strvar('tree_sortdir')) {
-    $_SESSION['tree_sortdir'] = request_strvar('tree_sortdir');
+    sessionv('*tree_sortdir', request_strvar('tree_sortdir'));
+}
+
+$showDeleted = request_boolvar('tree_show_deleted', null);
+if ($showDeleted !== null) {
+    sessionv('*tree_show_deleted', $showDeleted ? 1 : 0);
 }
 
 global $opened, $opened2;
@@ -86,12 +93,10 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
         $parent = 0;
     }
 
-    // setup spacer
-    $spacer = get_spacer($indent);
-    $tree_orderby = get_tree_orderby();
+    $tree_orderby = ResourceTree::orderBy();
     $cond = manager()->documentAccessCondition('sc');
 
-    $access = tree_access_condition();
+    $access = tree_visibility_condition();
     $field = [];
     $field[] = 'DISTINCT sc.id,pagetitle,menutitle,parent,isfolder,published,deleted';
     $field[] = 'type,menuindex,hidemenu,alias,contentType,privateweb, privatemgr';
@@ -99,6 +104,10 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
         ? '1 AS has_access'
         : sprintf('MAX(IF(%s, 1, 0)) AS has_access', $cond);
     $field[] = 'rev.status AS status';
+    // 右クリックメニューの確認に出す、操作に巻き込まれる子の有無を行ごとに 1 回の問い合わせで取る。
+    // 条件の正本は DocAPI: 削除（ゴミ箱に無いリソース）では削除していない子（idsWithLiveChildren()）、
+    // 完全に削除（ゴミ箱のリソース）ではすべての子（idsWithChildren()）
+    $field[] = sprintf("EXISTS(SELECT 1 FROM %s AS ch WHERE ch.parent=sc.id AND (sc.deleted='1' OR ch.deleted='0')) AS has_affected_children", db()->getFullTableName('site_content'));
     // ノード名を日付にするときは、ツリーの行の問い合わせで日付も取る（文書ごとに getDocumentObject() を呼ばない）
     $date_field = get_node_date_field();
     if ($date_field !== null) {
@@ -162,10 +171,9 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
         }
     }
 
-    $pad = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
     if ($hasChild == 0 && $container_status === 'asis') {
         $tpl = tplEmptyFolder();
-        $param = ['spacer' => $spacer . $pad, 'icon_deletedpage' => style('tree_deletedpage'), 'msg' => lang('empty_folder')];
+        $param = ['icon_deletedpage' => style('tree_deletedpage'), 'msg' => lang('empty_folder')];
         $output .= $modx->parseText($tpl, $param);
     }
 
@@ -173,13 +181,14 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
     $node_name_source = evo()->config('resource_tree_node_name');
     global $privateweb, $privatemgr;
     while ($row = db()->getRow($result, 'num')):
-        [$id, $pagetitle, $menutitle, $parent, $isfolder, $published, $deleted, $type, $menuindex, $hidemenu, $alias, $contenttype, $privateweb, $privatemgr, $hasAccess, $hasDraft, $nodeDate] = array_pad($row, 17, null);
+        [$id, $pagetitle, $menutitle, $parent, $isfolder, $published, $deleted, $type, $menuindex, $hidemenu, $alias, $contenttype, $privateweb, $privatemgr, $hasAccess, $hasDraft, $hasAffectedChildren, $nodeDate] = array_pad($row, 18, null);
         $nodetitle = getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder, $nodeDate);
 
         $class = getClassName($published, $deleted, $hidemenu, $hasAccess);
 
         $ph['id'] = $id;
         $ph['hasdraft'] = !empty($hasDraft) ? 1 : 0;
+        $ph['haschildren'] = (int)$hasAffectedChildren;
 
         $draftDisplay = '';
         if ($modx->config('enable_draft')) {
@@ -193,33 +202,30 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
 
         $ph['alt'] = getAlt($id, $alias, $menuindex, $hidemenu, $privatemgr, $privateweb);
         $ph['parent'] = $parent;
-        $ph['spacer'] = $spacer;
         $ph['pagetitle'] = hsc(js_literal($pagetitle));
         $url = $modx->makeUrl($id, '', '', 'full');
         $ph['url'] = hsc(js_literal($url));
         $ph['published'] = $published;
         $ph['deleted'] = $deleted;
         $hankaku_title = mb_convert_kana($nodetitle, 'Kas');
-        $shortenTitle = getShortenTitle($hankaku_title, sessionv('tree_sortby'));
         $ph['nodetitleDisplay'] = sessionv('tree_sortby')==='id'
             ? sprintf(
-                '<span>[%s%s]</span> <span class="%s">%s</span>',
+                '<span>[%s%s]</span> <span class="%s tree-node-title">%s</span>',
                 $modx_textdir === 'rtl' ? '&rlm;' : '',
                 $id,
                 $class,
-                $shortenTitle
+                $hankaku_title
             )
             : sprintf(
-                '<span class="%s">%s</span> <span>[%s%s]</span>',
+                '<span class="%s tree-node-title">%s</span> <span>[%s%s]</span>',
                 $class,
-                $shortenTitle,
+                $hankaku_title,
                 $modx_textdir === 'rtl' ? '&rlm;' : '',
                 $id
             );
         $ph['pageIdDisplay'] = '';
         $ph['draftDisplay'] = $draftDisplay;
         $ph['_lang_click_to_context'] = lang('click_to_context');
-        $ph['pad'] = $pad;
         $ph['pid'] = "'p{$id}'";
 
         if (!$isfolder) {
@@ -324,21 +330,17 @@ function tplPageNode()
 	id="node[+id+]"
 	p="[+parent+]"
 	style="white-space: nowrap;"
-><div>[+spacer+][+pad+]<img
+><div class="tree-row is-leaf"><img
 	id="p[+id+]"
 	title="[+_lang_click_to_context+]"
-	style="cursor: pointer"
+	class="tree-node-icon"
 	src="[+icon+]"
-	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],event);return false;"
+	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],[+haschildren+],event);return false;"
 	oncontextmenu="this.onclick(event);return false;"
-	onmouseover="setCNS(this, 1)"
-	onmouseout="setCNS(this, 0)"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+]"
-/>&nbsp;<span
+/><span
 	p="[+parent+]"
 	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
-	onmouseover="setHoverClass(this, 1);"
-	onmouseout="setHoverClass(this, 0);"
 	class="treeNode"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 	oncontextmenu="document.getElementById([+pid+]).onclick(event);return false;"
@@ -351,7 +353,7 @@ EOT;
 function tplFopenNode()
 {
     $src = <<< EOT
-<div id="node[+id+]" p="[+parent+]" style="white-space: nowrap;"><div>[+spacer+]<img
+<div id="node[+id+]" p="[+parent+]" style="white-space: nowrap;"><div class="tree-row"><img
 	id="s[+id+]"
 	style="cursor:pointer;"
 	src="[+_style_tree_minusnode+]"
@@ -360,22 +362,18 @@ function tplFopenNode()
 />&nbsp;<img
 	id="f[+id+]"
 	title="[+_lang_click_to_context+]"
-	style="cursor: pointer"
+	class="tree-node-icon"
 	src="[+icon+]"
-	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],event);return false;"
+	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],[+haschildren+],event);return false;"
 	oncontextmenu="this.onclick(event);return false;"
-	onmouseover="setCNS(this, 1)"
-	onmouseout="setCNS(this, 0)"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
-/>&nbsp;<span
+/><span
 	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
-	onmouseover="setHoverClass(this, 1);"
-	onmouseout="setHoverClass(this, 0);"
 	class="treeNode"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 	oncontextmenu="document.getElementById([+fid+]).onclick(event);return false;"
 	title="[+alt+]"
->[+draftDisplay+][+nodetitleDisplay+]</span>[+pageIdDisplay+]</div><div id="c[+id+]" style="display:block;">
+>[+draftDisplay+][+nodetitleDisplay+]</span>[+pageIdDisplay+]</div><div id="c[+id+]" class="tree-children" style="display:block;">
 
 EOT;
     return $src;
@@ -384,7 +382,7 @@ EOT;
 function tplFcloseNode()
 {
     $src = <<< EOT
-<div id="node[+id+]" p="[+parent+]" style="white-space: nowrap;"><div>[+spacer+]<img
+<div id="node[+id+]" p="[+parent+]" style="white-space: nowrap;"><div class="tree-row"><img
 	id="s[+id+]"
 	style="cursor: pointer"
 	src="[+_style_tree_plusnode+]"
@@ -393,68 +391,31 @@ function tplFcloseNode()
 />&nbsp;<img
 	id="f[+id+]"
 	title="[+_lang_click_to_context+]"
-	style="cursor: pointer"
+	class="tree-node-icon"
 	src="[+icon+]"
-	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],event);return false;"
+	onclick="showPopup([+id+],[+pagetitle+],[+published+],[+deleted+],[+hasdraft+],[+haschildren+],event);return false;"
 	oncontextmenu="this.onclick(event);return false;"
-	onmouseover="setCNS(this, 1)"
-	onmouseout="setCNS(this, 0)"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
-/>&nbsp;<span
+/><span
 	onclick="if(parent.tree.ca=='open'||parent.tree.ca=='docinfo'||parent.tree.ca=='doclist') parent.tree.ca='[+ca+]';treeAction([+id+], [+pagetitle+]); setSelected(this);"
-	onmouseover="setHoverClass(this, 1);"
-	onmouseout="setHoverClass(this, 0);"
 	class="treeNode"
 	onmousedown="itemToChange=[+id+]; selectedObjectName=[+pagetitle+]; selectedObjectDeleted=[+deleted+]; selectedObjectUrl=[+url+];"
 	oncontextmenu="document.getElementById([+fid+]).onclick(event);return false;"
 	title="[+alt+]"
->[+draftDisplay+][+nodetitleDisplay+]</span>[+pageIdDisplay+]</div><div id="c[+id+]" style="display:none;"></div></div>
+>[+draftDisplay+][+nodetitleDisplay+]</span>[+pageIdDisplay+]</div><div id="c[+id+]" class="tree-children" style="display:none;"></div></div>
 
 EOT;
     return $src;
 }
 
-function get_tree_orderby()
-{
-    // 並べ替えの列と向きは、ツリーの選択肢にあるものだけを使う
-    $sortby = sessionv('tree_sortby', config('resource_tree_sortby_default', 'menuindex'));
-    if (!in_array($sortby, ['isfolder', 'pagetitle', 'id', 'menuindex', 'createdon', 'editedon'], true)) {
-        $sortby = 'menuindex';
-    }
-    $sortdir = sessionv('tree_sortdir', 'asc');
-    $sortdir = is_string($sortdir) && strtoupper($sortdir) === 'DESC' ? 'DESC' : 'ASC';
-    $orderby = sprintf('sc.%s %s', $sortby, $sortdir);
-
-    // Folder sorting gets special setup ;) Add menuindex and pagetitle
-    if ($sortby === 'isfolder') {
-        $orderby .= ', sc.menuindex ASC';
-    }
-    // 続きの読み込み（LIMIT）で順序が揺れないよう、一意なキーで並びを確定させる
-    $orderby .= ', sc.editedon DESC, sc.id ASC';
-    return $orderby;
-}
-
 /**
  * allowed_parents があるとき、表示を許可されたリソースだけに絞る条件
- * 非コンテナは parseNode() の isContainAllowed() と同じ判定になる（判定の正は ManagerAPI::allowedDocsCondition()）
+ * 非コンテナは parseNode() の isContainAllowed() と同じ判定になる。0 を含む設定では SQL では絞らず、表示は isContainAllowed() が決める（判定の正は ManagerAPI::allowedDocsCondition()）
  */
 function allowed_docs_condition()
 {
     $cond = manager()->allowedDocsCondition('sc');
     return $cond === '' ? '' : 'AND ' . $cond;
-}
-
-function get_spacer($indent)
-{
-    $spacer = '';
-    for ($i = 1; $i <= $indent; $i++) {
-        if ($i !== 1) {
-            $spacer .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-        } else {
-            $spacer .= '&nbsp;&nbsp;&nbsp;';
-        }
-    }
-    return $spacer;
 }
 
 function get_node_date_field()
@@ -606,7 +567,6 @@ function moreNode($indent, $parent, $offset, $remaining)
     return evo()->parseText(
         tplMoreNode(),
         [
-            'spacer' => get_spacer($indent) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
             'icon' => style('tree_deletedpage'),
             'indent' => (int)$indent,
             'parent' => (int)$parent,
@@ -618,12 +578,12 @@ function moreNode($indent, $parent, $offset, $remaining)
 
 function tplMoreNode()
 {
-    return '<div class="moreNode" style="white-space:nowrap;">[+spacer+]<img src="[+icon+]">&nbsp;<span class="emptyNode" style="cursor:pointer;" onclick="loadMoreNodes(this,[+indent+],[+parent+],[+offset+]);">[+msg+]</span></div>';
+    return '<div class="moreNode tree-row is-leaf" style="white-space:nowrap;"><img src="[+icon+]">&nbsp;<span class="emptyNode" style="cursor:pointer;" onclick="loadMoreNodes(this,[+indent+],[+parent+],[+offset+]);">[+msg+]</span></div>';
 }
 
 function tplEmptyFolder()
 {
-    return '<div style="white-space:nowrap;">[+spacer+]<img src="[+icon_deletedpage+]">&nbsp;<span class="emptyNode">[+msg+]</span></div>';
+    return '<div class="tree-row is-leaf" style="white-space:nowrap;"><img src="[+icon_deletedpage+]">&nbsp;<span class="emptyNode">[+msg+]</span></div>';
 
 }
 
@@ -668,40 +628,33 @@ function parseNode($tpl, $param, $id)
 }
 
 /**
- * ツリーに表示してよいリソースだけに絞る条件（getNodes() と hasChildren() で共通）
- * 文書グループで絞らない利用者と tree_show_protected が有効なときは絞らない
+ * ツリーに表示するリソースだけに絞る条件（getNodes() と hasChildren() で共通）
+ * 文書グループで絞らない利用者と tree_show_protected が有効なときは権限では絞らない
  * （判定は ManagerAPI::documentAccessCondition()。tree_show_protected は表示だけの設定で、
- * 開けない文書は has_access=0 の印つきで出す）
+ * 開けない文書は has_access=0 の印つきで出す）。削除済みはセッション tree_show_deleted が 1 のときだけ含める（初期値は tree.php が resource_tree_show_deleted_default で入れる）
  */
-function tree_access_condition()
+function tree_visibility_condition()
 {
-    if (config('tree_show_protected')) {
-        return '';
+    $condition = '';
+    if (!config('tree_show_protected')) {
+        $cond = manager()->documentAccessCondition('sc');
+        if ($cond !== '') {
+            $condition = 'AND ' . $cond;
+        }
     }
-    $cond = manager()->documentAccessCondition('sc');
-    return $cond === '' ? '' : 'AND ' . $cond;
+    if (!sessionv('tree_show_deleted')) {
+        $condition .= ' AND sc.deleted=0';
+    }
+    return $condition;
 }
 
 function hasChildren($id) {
     $result = db()->select(
         'sc.id',
         '[+prefix+]site_content AS sc',
-        sprintf('sc.parent=%d %s', (int)$id, tree_access_condition()),
+        sprintf('sc.parent=%d %s', (int)$id, tree_visibility_condition()),
         '',
         '1'
     );
     return db()->count($result) ? true : false;
-}
-
-function getShortenTitle($title, $sortby) {
-    if ($sortby === 'id') {
-        return $title;
-    }
-    if (!config('manager_treepane_trim_title')) {
-        return $title;
-    }
-    if (mb_strwidth($title) <= 24) {
-        return $title;
-    }
-    return mb_strimwidth($title, 0, 22) . ' ...';
 }

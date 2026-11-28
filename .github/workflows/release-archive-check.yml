@@ -1,0 +1,20 @@
+name: Release archive check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  release_archive_check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 配布物（git archive）に必須ファイルが入っているかを確かめる
+      - name: Check required files in archive
+        run: bash .github/scripts/release-archive-check.sh

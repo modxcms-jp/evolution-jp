@@ -29,8 +29,20 @@ if ($lastInstallTime && sessionv('modx.session.created.time') && sessionv('mgrVa
     }
 }
 
+// ロール設定の変更を反映する（メニューやツリーの部分更新 a=1 も権限で表示を変えるため、action によらず読み直す）。
+// 削除・ブロックされたユーザーのセッションは破棄されるので、ログインし直させる
+if (sessionv('mgrValidated') && !manager()->refreshMgrPermissions()) {
+    if (isEvoPaneRequest() || serverv('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest') {
+        // クライアント側でページ全体を読み直させる（読み直した先でログイン画面が出る）
+        header('X-Evo-Login: required');
+        exit;
+    }
+    header('Location: ' . MODX_MANAGER_URL);
+    exit;
+}
+
 $theme_path = MODX_MANAGER_PATH . sprintf('media/style/%s/', evo()->config('manager_theme'));
-$touch_path = MODX_CACHE_PATH . 'touch.siteCache.idx.php';
+$touch_path = manager_login_guard_path();
 if (!sessionv('mgrValidated')) {
     // AJAXシェルと管理画面の AJAX（Evo.fetch など）からの要求にはログイン要求を示すヘッダーを返し、
     // クライアント側でフルリロードさせる
@@ -105,9 +117,6 @@ if (manager()->action != 1) {
     }
     sessionv('*mgrDocgroups', manager()->getMgrDocgroups(evo()->getLoginUserID()));
 }
-
-// メニューやツリーの部分更新（a=1）も権限で表示を変えるため、action によらず読み直す
-manager()->refreshMgrPermissions();
 
 clearstatcache(true, $touch_path);
 if ($touch_path && is_file($touch_path)) {

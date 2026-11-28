@@ -4,6 +4,8 @@
  * ファイルブラウザの画面(HTML と、JS へ渡す設定)。画面の本体(markup())は共通で、置かれる場所ごとの外側だけを分ける。
  * 範囲の違いは JS の設定の値(apiParams など)と入口の JS(entry)だけで表し、管理モードにだけあるダイアログは外側で足す。
  */
+require_once __DIR__ . '/ThumbnailService.php';
+
 class BrowserView
 {
     /**
@@ -22,20 +24,20 @@ class BrowserView
         'fb_loading', 'preview', 'fb_rename', 'delete',
         'fb_selected_count', 'fb_no_match', 'fb_empty_folder',
         'fb_col_name', 'fb_col_mtime', 'fb_col_type', 'fb_col_size', 'fb_type_folder', 'fb_type_file', 'fb_type_file_noext', 'fb_load_failed', 'fb_no_subfolders',
-        'fb_network_error',
+        'fb_network_error', 'fb_content_format_title',
         'fb_move_partial_failed', 'fb_move_failed', 'fb_rename_failed', 'fb_rename_prompt',
         'fb_confirm_delete_file', 'fb_confirm_delete_folder', 'fb_confirm_delete_files', 'fb_delete_failed', 'fb_delete_partial_failed',
         'fb_mkdir_prompt', 'fb_mkdir_failed',
         'open', 'move', 'fb_pick_this_file', 'fb_new_folder', 'fb_upload', 'fb_context_menu',
-        'fb_copy', 'fb_cut', 'fb_paste', 'fb_copy_partial_failed', 'fb_copy_failed',
+        'fb_copy', 'fb_cut', 'fb_paste', 'fb_duplicate', 'fb_copy_partial_failed', 'fb_copy_failed',
         'fb_download', 'fb_download_preparing', 'fb_download_failed',
-        'fb_edit', 'fb_edit_overwrite_confirm', 'fb_edit_saving', 'fb_edit_save_failed', 'fb_edit_load_failed', 'fb_edit_encode_failed',
-        'fb_err_too_large', 'fb_confirm_overwrite',
+        'fb_edit', 'fb_edit_overwrite_confirm', 'fb_edit_saving', 'fb_edit_save_failed', 'fb_edit_load_failed', 'fb_edit_open_not_found', 'fb_edit_open_not_editable', 'fb_edit_encode_failed', 'fb_edit_summary', 'fb_edit_resize_hint', 'fb_edit_resize_limit',
+        'fb_err_too_large', 'fb_confirm_overwrite', 'fb_discard_confirm',
         // 管理モードだけが使う(js/manage.js・js/textEditor.js)
         'fb_text_loading', 'fb_err_text_link', 'fb_text_readonly_write', 'fb_text_readonly_encoding',
-        'fb_text_saving', 'fb_text_saved', 'fb_text_save_failed', 'fb_text_discard_confirm',
+        'fb_text_saving', 'fb_text_saved', 'fb_text_save_failed',
         'fb_new_file', 'fb_new_file_prompt', 'fb_new_file_failed',
-        'fb_unzip', 'fb_confirm_unzip', 'fb_unzip_failed', 'fb_unzip_done', 'fb_unzip_entry_failed',
+        'fb_unzip', 'fb_confirm_unzip', 'fb_unzip_failed', 'fb_unzip_done', 'fb_unzip_entry_failed', 'fb_unzip_renamed', 'fb_unzip_renamed_more',
     ];
 
     /**
@@ -62,6 +64,7 @@ class BrowserView
             'csrfToken' => function_exists('getCurrentCsrfToken') ? getCurrentCsrfToken() : '',
             'initialFolder' => $options['initialFolder'] ?? '',
             'initialSelect' => $options['initialSelect'] ?? '',
+            'initialEdit' => !empty($options['initialEdit']),
             'rootLabel' => $options['rootLabel'],
             // zip を作れない環境では、2 件以上のダウンロードを出さない(1 件はそのまま送れる)
             'zip' => $config->canCreateZip(),
@@ -71,7 +74,11 @@ class BrowserView
             'editMaxPixels' => BrowserConfig::EDIT_MAX_PIXELS,
             // 最初からエディターで開く拡張子。ほかのファイルも、サーバーが中身をテキストと認めれば開ける
             'textExtensions' => BrowserConfig::TEXT_EXTENSIONS,
+            // サムネイルの URL に入れる版(ブラウザーのキャッシュも、作り方を変えたときに切り替わる)
+            'thumbVersion' => ThumbnailService::CACHE_VERSION,
             'maxUploadSize' => $options['maxUploadSize'],
+            // ファイルを置く操作(アップロード・画像の別名保存)をしてよいか。false ならボタン・ドロップ・別名保存を無効にする(API も 403 で断る)
+            'canUpload' => (bool) $options['canUpload'],
             'lang' => $messages,
         ];
     }
@@ -100,6 +107,7 @@ class BrowserView
         $markup .= '    </div>';
         $markup .= '  </div>';
         $markup .= '  <div class="evo-fb-notice" role="status" data-role="notice" hidden>' . hsc(lang('fb_not_writable')) . '</div>';
+        $markup .= '  <div class="evo-fb-notice" role="status" data-role="upload-notice"' . ($jsConfig['canUpload'] ? ' hidden' : '') . '>' . hsc(lang('fb_upload_forbidden')) . '</div>';
         $markup .= '  <div class="evo-fb-body">';
         $markup .= '    <div class="evo-fb-tree" id="evoFbTree" data-role="tree"></div>';
         $markup .= '    <div class="evo-fb-content">';
@@ -110,20 +118,14 @@ class BrowserView
         $markup .= '      <div class="evo-fb-selectionbar selection-dock is-hidden" data-role="selectionbar">';
         $markup .= '        <span data-role="selection-count" role="status"></span>';
         $markup .= '        <button type="button" class="selection-dock-link" data-action="clear-selection">' . hsc(lang('fb_clear_selection')) . '</button>';
-        $markup .= '        <ul class="actionButtons">';
-        $markup .= '          <li><button type="button" data-action="bulk-copy">' . hsc(lang('fb_copy')) . '</button></li>';
-        $markup .= '          <li><button type="button" data-action="bulk-cut">' . hsc(lang('fb_cut')) . '</button></li>';
-        $markup .= '          <li><button type="button" data-action="bulk-download">' . hsc(lang('fb_download')) . '</button></li>';
-        $markup .= '          <li><button type="button" data-action="bulk-move">' . hsc(lang('move')) . '</button></li>';
-        $markup .= '          <li class="is-danger"><button type="button" data-action="bulk-delete">' . hsc(lang('delete')) . '</button></li>';
-        $markup .= '        </ul>';
+        $markup .= '        <ul class="actionButtons" data-role="selection-actions"></ul>';
         $markup .= '      </div>';
         $markup .= '    </div>';
         $markup .= '  </div>';
         $markup .= '  <div class="evo-fb-uploads" data-role="uploads"></div>';
-        $markup .= '  <div class="evo-fb-overlay" data-role="move-overlay" hidden>';
-        $markup .= '    <div class="evo-fb-overlay-panel" role="dialog" aria-modal="true" aria-labelledby="evoFbMoveTitle" data-role="move-panel">';
-        $markup .= '      <div class="evo-fb-overlay-header" id="evoFbMoveTitle">' . hsc(lang('fb_move_dest_title')) . '</div>';
+        $markup .= '  <dialog class="evo-fb-overlay" aria-labelledby="evoFbMoveTitle" data-role="move-overlay">';
+        $markup .= '    <div class="evo-fb-overlay-panel" data-role="move-panel">';
+        $markup .= self::titleBar('evoFbMoveTitle', hsc(lang('fb_move_dest_title')));
         $markup .= '      <div class="evo-fb-path" data-role="move-path"></div>';
         $markup .= '      <div class="evo-fb-grid evo-fb-grid-folders" data-role="move-grid"></div>';
         $markup .= '      <div class="evo-fb-overlay-footer">';
@@ -131,9 +133,10 @@ class BrowserView
         $markup .= '        <button type="button" class="evo-fb-btn evo-fb-btn-primary" data-role="move-confirm">' . hsc(lang('fb_move_here')) . '</button>';
         $markup .= '      </div>';
         $markup .= '    </div>';
-        $markup .= '  </div>';
-        $markup .= '  <div class="evo-fb-overlay" data-role="preview-overlay" hidden>';
-        $markup .= '    <div class="evo-fb-overlay-panel evo-fb-preview-panel" role="dialog" aria-modal="true" aria-label="' . hsc(lang('preview')) . '" data-role="preview-panel">';
+        $markup .= '  </dialog>';
+        $markup .= '  <dialog class="evo-fb-overlay" aria-labelledby="evoFbPreviewTitle" data-role="preview-overlay">';
+        $markup .= '    <div class="evo-fb-overlay-panel evo-fb-preview-panel" data-role="preview-panel">';
+        $markup .= self::titleBar('evoFbPreviewTitle', hsc(lang('preview')));
         $markup .= '      <img class="evo-fb-preview-img" data-role="preview-img" alt="">';
         $markup .= '      <video class="evo-fb-preview-media" data-role="preview-video" controls preload="metadata" hidden></video>';
         $markup .= '      <audio class="evo-fb-preview-audio" data-role="preview-audio" controls preload="metadata" hidden></audio>';
@@ -144,59 +147,119 @@ class BrowserView
         $markup .= '        <span class="evo-fb-preview-actions" data-role="preview-actions"></span>';
         $markup .= '      </div>';
         $markup .= '    </div>';
-        $markup .= '  </div>';
-        $markup .= '  <div class="evo-fb-overlay" data-role="edit-overlay" hidden>';
-        $markup .= '    <div class="evo-fb-overlay-panel evo-fb-edit-panel" role="dialog" aria-modal="true" aria-labelledby="evoFbEditTitle" data-role="edit-panel">';
-        $markup .= '      <div class="evo-fb-overlay-header" id="evoFbEditTitle">' . hsc(lang('fb_edit_title')) . ' <span class="evo-fb-edit-name" data-role="edit-name"></span></div>';
-        $markup .= '      <div class="evo-fb-edit-body">';
-        $markup .= '      <div class="evo-fb-edit-stage" data-role="edit-stage"><div class="evo-fb-edit-wrap" data-role="edit-wrap"><canvas data-role="edit-canvas"></canvas><div class="evo-fb-edit-crop" data-role="edit-crop" hidden></div></div></div>';
+        $markup .= '  </dialog>';
+        $markup .= '  <dialog class="evo-fb-overlay" aria-labelledby="evoFbEditTitle" data-role="edit-overlay">';
+        $markup .= '    <div class="evo-fb-overlay-panel evo-fb-edit-panel" data-role="edit-panel">';
+        $markup .= self::titleBar('evoFbEditTitle', hsc(lang('fb_edit_title')) . ' <span class="evo-fb-edit-name" data-role="edit-name"></span>');
+        $markup .= '      <div class="evo-fb-edit-layout">';
+        $markup .= self::imageEditorStage();
         $markup .= '      <div class="evo-fb-edit-controls">';
-        $markup .= '        <fieldset class="evo-fb-edit-group"><legend>' . hsc(lang('fb_edit_rotate')) . '</legend>';
-        $markup .= '          <button type="button" class="evo-fb-btn" data-role="edit-rotate-left">' . hsc(lang('fb_edit_rotate_left')) . '</button>';
-        $markup .= '          <button type="button" class="evo-fb-btn" data-role="edit-rotate-right">' . hsc(lang('fb_edit_rotate_right')) . '</button>';
-        $markup .= '        </fieldset>';
-        $markup .= '        <fieldset class="evo-fb-edit-group"><legend>' . hsc(lang('fb_edit_crop')) . '</legend>';
-        $markup .= '          <label>X <input type="number" min="0" step="1" data-role="edit-crop-x"></label>';
-        $markup .= '          <label>Y <input type="number" min="0" step="1" data-role="edit-crop-y"></label>';
-        $markup .= '          <label>' . hsc(lang('fb_edit_width')) . ' <input type="number" min="1" step="1" data-role="edit-crop-w"></label>';
-        $markup .= '          <label>' . hsc(lang('fb_edit_height')) . ' <input type="number" min="1" step="1" data-role="edit-crop-h"></label>';
-        $markup .= '          <button type="button" class="evo-fb-btn" data-role="edit-crop-clear">' . hsc(lang('fb_edit_crop_clear')) . '</button>';
-        $markup .= '          <div class="evo-fb-edit-note">' . hsc(lang('fb_edit_crop_hint')) . '</div>';
-        $markup .= '        </fieldset>';
-        $markup .= '        <fieldset class="evo-fb-edit-group"><legend>' . hsc(lang('fb_edit_resize')) . '</legend>';
-        $markup .= '          <label>' . hsc(lang('fb_edit_width')) . ' <input type="number" min="1" step="1" data-role="edit-out-w"></label>';
-        $markup .= '          <label>' . hsc(lang('fb_edit_height')) . ' <input type="number" min="1" step="1" data-role="edit-out-h"></label>';
-        $markup .= '          <label class="evo-fb-edit-check"><input type="checkbox" data-role="edit-keep-ratio" checked> ' . hsc(lang('fb_edit_keep_ratio')) . '</label>';
-        $markup .= '          <div class="evo-fb-edit-note">' . hsc(sprintf(lang('fb_edit_resize_hint'), BrowserConfig::EDIT_MAX_DIMENSION)) . '</div>';
-        $markup .= '        </fieldset>';
-        $markup .= '        <fieldset class="evo-fb-edit-group"><legend>' . hsc(lang('fb_edit_save_as')) . '</legend>';
-        $markup .= '          <label class="evo-fb-edit-check"><input type="radio" name="evoFbEditMode" value="copy" data-role="edit-mode" checked> ' . hsc(lang('fb_edit_save_copy')) . '</label>';
-        $markup .= '          <label class="evo-fb-edit-check"><input type="radio" name="evoFbEditMode" value="overwrite" data-role="edit-mode"> ' . hsc(lang('fb_edit_save_overwrite')) . '</label>';
-        $markup .= '        </fieldset>';
+        $markup .= self::imageEditorControls();
         $markup .= '      </div>';
-        $markup .= '      <div class="evo-fb-edit-note">' . hsc(lang('fb_edit_exif_notice')) . '</div>';
+        $markup .= '      <div class="evo-fb-edit-foot">';
+        $markup .= '        <div class="evo-fb-edit-note" role="status" data-role="edit-status"></div>';
+        $markup .= '        <div class="evo-fb-edit-error" role="alert" data-role="edit-error" hidden></div>';
+        $markup .= '        <div class="evo-fb-edit-save-mode" role="radiogroup" aria-labelledby="evoFbEditSaveAs">';
+        $markup .= '          <span class="evo-fb-edit-heading" id="evoFbEditSaveAs">' . hsc(lang('fb_edit_save_as')) . '</span>';
+        $markup .= '          <label class="evo-fb-edit-check"><input type="radio" name="evoFbEditMode" value="copy" data-role="edit-mode"' . ($jsConfig['canUpload'] ? ' checked' : ' disabled') . '> ' . hsc(lang('fb_edit_save_copy')) . '</label>';
+        $markup .= '          <label class="evo-fb-edit-check"><input type="radio" name="evoFbEditMode" value="overwrite" data-role="edit-mode"' . ($jsConfig['canUpload'] ? '' : ' checked') . '> ' . hsc(lang('fb_edit_save_overwrite')) . '</label>';
+        $markup .= '        </div>';
+        if (!$jsConfig['canUpload']) {
+            $markup .= '        <div class="evo-fb-edit-note">' . hsc(lang('fb_upload_forbidden')) . '</div>';
+        }
+        $markup .= '        <div class="evo-fb-edit-note">' . hsc(lang('fb_edit_exif_notice')) . '</div>';
         $markup .= '      </div>';
-        $markup .= '      <div class="evo-fb-edit-note" role="status" data-role="edit-status"></div>';
-        $markup .= '      <div class="evo-fb-edit-error" role="alert" data-role="edit-error" hidden></div>';
-        $markup .= '      <div class="evo-fb-overlay-footer">';
+        $markup .= '      <div class="evo-fb-overlay-footer evo-fb-edit-footer">';
         $markup .= '        <button type="button" class="evo-fb-btn" data-role="edit-cancel">' . hsc(lang('cancel')) . '</button>';
         $markup .= '        <button type="button" class="evo-fb-btn evo-fb-btn-primary" data-role="edit-save">' . hsc(lang('save')) . '</button>';
         $markup .= '      </div>';
+        $markup .= '      </div>';
         $markup .= '    </div>';
-        $markup .= '  </div>';
+        $markup .= '  </dialog>';
         $markup .= $extras;
         $markup .= '</div>';
 
         return $markup;
     }
 
+    /**
+     * ダイアログの見出しの帯と ×(見た目は evo-dialog.js の .evo-titlebar、× は overlay.js が Esc と同じ処理につなぐ)
+     *
+     * @param string $id 見出しの id(パネルの aria-labelledby が指す)
+     * @param string $titleHtml エスケープ済みの見出し
+     */
+    private static function titleBar($id, $titleHtml)
+    {
+        return '<div class="evo-titlebar"><div class="evo-titlebar-title" id="' . $id . '">' . $titleHtml . '</div>'
+            . '<button type="button" class="evo-titlebar-close" aria-label="' . hsc(lang('close')) . '">&times;</button></div>';
+    }
+
+    /** 画像の編集の、プレビューとトリミングの枠。枠には四隅と各辺の中央のつまみ、操作中だけ出す 3 分割の線を置く */
+    private static function imageEditorStage()
+    {
+        $handles = '';
+        foreach (['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'] as $handle) {
+            $handles .= '<span class="evo-fb-edit-handle" data-handle="' . $handle . '"></span>';
+        }
+
+        return '        <div class="evo-fb-edit-stage" data-role="edit-stage"><div class="evo-fb-edit-wrap" data-role="edit-wrap">'
+            . '<canvas data-role="edit-canvas"></canvas>'
+            . '<div class="evo-fb-edit-shade" aria-hidden="true"><div class="evo-fb-edit-shade-hole" data-role="edit-shade-hole" hidden></div></div>'
+            . '<div class="evo-fb-edit-crop" data-role="edit-crop" hidden><span class="evo-fb-edit-guides"></span>' . $handles . '</div>'
+            . '</div></div>';
+    }
+
+    /** 画像の編集の操作欄。書き出しの順と同じ 回転 → トリミング → リサイズ の 3 つに分ける */
+    private static function imageEditorControls()
+    {
+        // 縦横比のボタンは、範囲をその比率に合わせるだけで固定しない。選んでいる間にもう一度押すと縦横を入れ替える(表示は JS が 3:4 などに変える)
+        $ratios = '<button type="button" class="evo-fb-btn" data-role="edit-ratio" data-ratio="1:1" aria-pressed="false" title="' . hsc(lang('fb_edit_ratio_square')) . '">1:1</button>';
+        foreach (['4:3', '3:2', '16:9'] as $ratio) {
+            $ratios .= '<button type="button" class="evo-fb-btn" data-role="edit-ratio" data-ratio="' . $ratio . '" aria-pressed="false" title="' . hsc(lang('fb_edit_ratio_toggle')) . '">' . $ratio . '</button>';
+        }
+
+        $html = '';
+        $html .= '          <div class="evo-fb-edit-group" role="group" aria-labelledby="evoFbEditRotate">';
+        $html .= '            <div class="evo-fb-edit-heading" id="evoFbEditRotate">' . hsc(lang('fb_edit_rotate')) . '</div>';
+        $html .= '            <div class="evo-fb-edit-buttons">';
+        $html .= '              <button type="button" class="evo-fb-btn" data-role="edit-rotate-left">&#8634; ' . hsc(lang('fb_edit_rotate_left')) . '</button>';
+        $html .= '              <button type="button" class="evo-fb-btn" data-role="edit-rotate-right">&#8635; ' . hsc(lang('fb_edit_rotate_right')) . '</button>';
+        $html .= '            </div>';
+        $html .= '          </div>';
+        $html .= '          <div class="evo-fb-edit-group" role="group" aria-labelledby="evoFbEditCrop">';
+        $html .= '            <div class="evo-fb-edit-heading" id="evoFbEditCrop">' . hsc(lang('fb_edit_crop')) . '</div>';
+        $html .= '            <div class="evo-fb-edit-label" id="evoFbEditRatio">' . hsc(lang('fb_edit_ratio')) . '</div>';
+        $html .= '            <div class="evo-fb-edit-buttons" role="group" aria-labelledby="evoFbEditRatio">' . $ratios . '</div>';
+        $html .= '            <div class="evo-fb-edit-label">' . hsc(lang('fb_edit_crop_area')) . '</div>';
+        $html .= '            <div class="evo-fb-edit-fields">';
+        $html .= '              <label><span>X</span><input type="number" min="0" step="1" data-role="edit-crop-x"></label>';
+        $html .= '              <label><span>Y</span><input type="number" min="0" step="1" data-role="edit-crop-y"></label>';
+        $html .= '              <label><span>' . hsc(lang('fb_edit_width')) . '</span><input type="number" min="1" step="1" data-role="edit-crop-w"></label>';
+        $html .= '              <label><span>' . hsc(lang('fb_edit_height')) . '</span><input type="number" min="1" step="1" data-role="edit-crop-h"></label>';
+        $html .= '            </div>';
+        $html .= '            <div class="evo-fb-edit-note">' . hsc(lang('fb_edit_crop_hint')) . '</div>';
+        $html .= '          </div>';
+        $html .= '          <div class="evo-fb-edit-group" role="group" aria-labelledby="evoFbEditResize">';
+        $html .= '            <div class="evo-fb-edit-heading" id="evoFbEditResize">' . hsc(lang('fb_edit_resize')) . '</div>';
+        $html .= '            <div class="evo-fb-edit-fields">';
+        $html .= '              <label><span>' . hsc(lang('fb_edit_width')) . '</span><input type="number" min="1" step="1" data-role="edit-out-w"></label>';
+        $html .= '              <label><span>' . hsc(lang('fb_edit_height')) . '</span><input type="number" min="1" step="1" data-role="edit-out-h"></label>';
+        $html .= '            </div>';
+        $html .= '            <label class="evo-fb-edit-check"><input type="checkbox" data-role="edit-keep-ratio" checked> ' . hsc(lang('fb_edit_keep_ratio')) . '</label>';
+        $html .= '            <div class="evo-fb-edit-summary" data-role="edit-summary"></div>';
+        $html .= '            <div class="evo-fb-edit-note" data-role="edit-resize-hint"></div>';
+        $html .= '          </div>';
+
+        return $html;
+    }
+
     /** 管理モードにだけあるダイアログ(テキストの表示・編集)。markup() の $extras へ渡す。見た目はテーマの CSS をそのまま使う */
     public static function manageExtras()
     {
         $html = '';
-        $html .= '  <div class="evo-fb-overlay" data-role="text-overlay" hidden>';
-        $html .= '    <div class="evo-fb-overlay-panel evo-fb-text-panel" role="dialog" aria-modal="true" aria-labelledby="evoFbTextTitle" data-role="text-panel">';
-        $html .= '      <div class="evo-fb-overlay-header" id="evoFbTextTitle">' . hsc(lang('fb_text_title')) . '</div>';
+        $html .= '  <dialog class="evo-fb-overlay" aria-labelledby="evoFbTextTitle" data-role="text-overlay">';
+        $html .= '    <div class="evo-fb-overlay-panel evo-fb-text-panel" data-role="text-panel">';
+        $html .= self::titleBar('evoFbTextTitle', hsc(lang('fb_text_title')));
         $html .= '      <div class="code-editor evo-fb-text-editor">';
         $html .= '        <div class="code-editor-header">';
         $html .= '          <span class="code-editor-title" data-role="text-name"></span>';
@@ -211,7 +274,7 @@ class BrowserView
         $html .= '        <button type="button" class="evo-fb-btn evo-fb-btn-primary" data-role="text-save" disabled>' . hsc(lang('save')) . '</button>';
         $html .= '      </div>';
         $html .= '    </div>';
-        $html .= '  </div>';
+        $html .= '  </dialog>';
 
         return $html;
     }
@@ -264,9 +327,10 @@ class BrowserView
 <head>
     <meta charset="<?= $modx->config('modx_charset') ?>">
     <title><?= hsc($title) ?></title>
-    <link rel="stylesheet" href="../../style/<?= hsc($theme) ?>/style.css?<?= asset_version(MODX_MANAGER_PATH . "media/style/{$theme}/style.css") ?>">
+    <?= manager_theme_stylesheets() ?>
     <link rel="stylesheet" href="../../style/common/selection-dock.css?<?= asset_version(MODX_MANAGER_PATH . 'media/style/common/selection-dock.css') ?>">
     <link rel="stylesheet" href="filebrowser.css?<?= asset_version(MODX_MANAGER_PATH . 'media/browser/evo/filebrowser.css') ?>">
+    <script src="../../script/evo-dialog.js?<?= asset_version(MODX_MANAGER_PATH . 'media/script/evo-dialog.js') ?>"></script>
 </head>
 <body class="evo-fb-standalone">
 <?= self::markup($jsConfig, $extras) ?>

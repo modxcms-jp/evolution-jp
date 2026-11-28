@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TinyMCE7\Editor;
 
 use TinyMCE7\Config\ConfigRepository;
+use TinyMCE7\Config\PluginList;
 use TinyMCE7\Config\PreferenceResolver;
 use TinyMCE7\Support\Language;
 
@@ -67,13 +68,6 @@ final class EditorInitializer
 
         $uiLanguage = $this->language->detectUiLanguage();
 
-        if (array_key_exists('image_cropper', $config)) {
-            $imageCropperOptions = is_array($config['image_cropper']) ? $config['image_cropper'] : [];
-            unset($config['image_cropper']);
-        } else {
-            $imageCropperOptions = [];
-        }
-
         if (empty($config['language'])) {
             $config['language'] = $uiLanguage;
         }
@@ -102,12 +96,33 @@ final class EditorInitializer
 
         $config = $this->preferences->applyToolbarPreset($config);
         $config = $this->preferences->applyMenubarPreference($config);
+        $config = $this->preferences->applyToolbarVisibility($config);
         $config = $this->preferences->applyEnterMode($config);
+        // 「書式」を足す行を画面に出るボタンで決めるため、ひな形のボタンの有無を先に決める
+        $config = $this->applyTemplates($config, empty($params['forfrontend']));
+        if (empty($params['forfrontend']) && !isset($config['link_list'])) {
+            // ダイアログを開くたびに、ログイン中の利用者のセッションで取りに行く
+            $config['link_list'] = MODX_BASE_URL . 'assets/plugins/tinymce7/link-list.php';
+        }
+        if (empty($params['forfrontend']) && !isset($config['modx_link_open'])) {
+            // 本文の [~id~] のリンクを開くときに、公開側の URL を聞く先（js/link-open.js）
+            $config['modx_link_open'] = [
+                'url' => MODX_BASE_URL . 'assets/plugins/tinymce7/link-list.php',
+                'missing' => $this->language->translate('tinymce7_link_open_missing', 'The linked document was not found.'),
+                'failed' => $this->language->translate('tinymce7_link_open_failed', 'Could not get the URL. Check that you are still logged in.'),
+                'blocked' => $this->language->translate('tinymce7_link_open_blocked', 'The browser blocked the new window.'),
+            ];
+        }
+        if (empty($params['forfrontend']) && !isset($config['modx_tag_names_url'])) {
+            // 本文のタグの補完と色付けに使う名前の一覧。エディターの初期化のときに取りに行き、同じ画面のエディターで分け合う（js/tag-assist.js）
+            $config['modx_tag_names_url'] = MODX_BASE_URL . 'assets/plugins/tinymce7/tag-names.php';
+        }
         $config = $this->preferences->applyCssSelectors($config);
+        $config = $this->preferences->applyLinkRel($config);
+        $config = $this->preferences->applySandboxIframes($config);
         $config = $this->preferences->applyBodyAttributes($config);
 
         $config = $this->applyEditorCssPath($config);
-        $config = $this->applyTemplates($config, empty($params['forfrontend']));
 
         // 同梱の TinyMCE が後から読むプラグイン・スキン・言語ファイルのキャッシュ対策（利用者の cache_suffix を優先）
         if (empty($config['cache_suffix'])) {
@@ -118,28 +133,46 @@ final class EditorInitializer
         }
 
         [$config, $fileBrowser] = $this->fileBrowserResolver->resolve($config, $params);
+        // 画像編集もピッカーの API を使うので、ピッカーを使えない利用者には付けない
+        // 管理画面ではセッションで決める。フロントのページはキャッシュに入りセッションごとに変えられないので、mcpuk なら出し、使えない人が開いたときはピッカーが断る
+        $isManager = empty($params['forfrontend']);
+        $canEditImage = $fileBrowser === 'mcpuk' && (!$isManager || $this->fileBrowserResolver->canUsePicker());
+        if ($canEditImage) {
+            $config['modx_image_edit_label'] = $this->language->translate('tinymce7_image_edit', 'Edit image');
+        }
+        $screen = $isManager ? $this->managerScreen() : ['target' => null, 'newDocument' => false];
+        $canUploadPasted = $this->canUploadPasted($fileBrowser, $screen['target']);
+        // 画面によらず、権限 file_upload が無いために受けないときは、新しいリソースでも貼り付けた画像を受けず、理由を知らせる（js/editor-setup.js）。
+        // mcpuk でない・ピッカーを使えないなど、権限以外の理由では知らせない
+        $uploadForbidden = $isManager
+            && $fileBrowser === 'mcpuk'
+            && $this->fileBrowserResolver->canUsePicker('images')
+            && !$this->fileBrowserResolver->canUploadToPicker();
+        $config = $this->applyPastedUpload($config, $canUploadPasted, $screen['newDocument'], $uploadForbidden);
+        if ($isManager) {
+            $config['modx_loss_notice'] = $this->lossNoticeLabels();
+        }
 
         $configJson = $this->configRepository->encode($config);
 
         $scripts = [
-            $this->scriptFactory->scriptTag($this->scriptFactory->tinymceScriptUrl($config)),
+            $this->scriptFactory->scriptTag($this->scriptFactory->tinymceScriptUrl($config), 'tinymce'),
         ];
 
-        $imageCropperJson = json_encode($imageCropperOptions, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-        if ($imageCropperJson === false) {
-            $imageCropperJson = '{}';
-        }
-
-        $scripts[] = $this->scriptFactory->inlineScript('window.tinymce7CropperConfig = ' . $imageCropperJson . ';');
-
-        if (!empty($imageCropperOptions['enabled'])) {
-            $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/tinymce-cropper.js'));
-        }
-
         if ($fileBrowser === 'mcpuk') {
-            $scripts[] = $this->scriptFactory->inlineScript($this->fileBrowserResolver->mcpukBootstrapScript());
+            $scripts[] = $this->scriptFactory->inlineScript($this->fileBrowserResolver->mcpukBootstrapScript(
+                $canEditImage,
+                $canUploadPasted ? $this->pastedUploadSettings($screen['target']) : null
+            ));
             $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/mcpuk-picker.js'));
         }
+
+        if ($isManager) {
+            $scripts[] = '<link rel="stylesheet" href="' . hsc($this->scriptFactory->bundledAssetUrl('css/loss-notice.css')) . '">';
+            $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/tag-assist.js'));
+            $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/link-open.js'));
+        }
+        $scripts[] = $this->scriptFactory->scriptTag($this->scriptFactory->bundledAssetUrl('js/editor-setup.js'));
 
         $output = [];
         $output[] = implode("\n", $scripts);
@@ -147,6 +180,10 @@ final class EditorInitializer
         $output[] = '(function() {';
         $output[] = '    if (typeof tinymce === "undefined") {';
         $output[] = '        console.error("TinyMCE 7 is not loaded. Check assets/plugins/tinymce7/tinymce/js/tinymce/tinymce.min.js");';
+        $output[] = '        return;';
+        $output[] = '    }';
+        $output[] = '    if (typeof window.tinymce7EditorSetup !== "function") {';
+        $output[] = '        console.error("TinyMCE7: assets/plugins/tinymce7/js/editor-setup.js is not loaded.");';
         $output[] = '        return;';
         $output[] = '    }';
         $output[] = '    const config = ' . $configJson . ';';
@@ -157,72 +194,153 @@ final class EditorInitializer
         $output[] = '    switch (' . json_encode($fileBrowser) . ') {';
         $output[] = '        case "mcpuk":';
         $output[] = '            config.file_picker_callback = window.mceModxFilePicker || undefined;';
+        if ($canUploadPasted) {
+            $output[] = '            config.images_upload_handler = window.mceModxImageUpload || undefined;';
+        }
         $output[] = '            break;';
         $output[] = '        default:';
         $output[] = '            if (!config.file_picker_callback) {';
         $output[] = '                delete config.file_picker_callback;';
         $output[] = '            }';
         $output[] = '    }';
-        // 本文の変更を管理画面の未保存の印(documentDirty)に反映する。iframe の中の変更は input 欄の change では拾えない。
-        // 設定ファイルやサイトが setup を持っていても上書きせず、その後ろに重ねる
+        if ($isManager && $this->preferences->detectKeepScripts()) {
+            // 正規表現は JSON で渡せないので JS 側で足す。設定ファイルの protect があれば消さずに足す
+            $output[] = '    config.protect = (config.protect || []).concat(window.tinymce7KeepScriptsProtect);';
+        }
+        // 設定ファイルやサイトが setup を持っていても上書きせず、先に呼んでからエディター共通の設定を重ねる
         $output[] = '    const userSetup = typeof config.setup === "function" ? config.setup : null;';
         $output[] = '    config.setup = function(editor) {';
         $output[] = '        if (userSetup) {';
         $output[] = '            userSetup.call(this, editor);';
         $output[] = '        }';
-        $output[] = '        editor.on("dirty", function() {';
-        $output[] = '            if ("documentDirty" in window) {';
-        $output[] = '                window.documentDirty = true;';
-        $output[] = '            }';
-        $output[] = '        });';
-        // リッチテキストのエディタは、内容が変わったら元の欄(textarea)に bubbles の input イベントを送る決まり。
-        // iframe の中の変更はフォームから見えないため、フォームの input を拾う仕組み(ライブプレビューの自動更新など)へ伝える。
-        // 値の書き戻しは送信前の triggerSave() が行うので、ここでは通知だけ。初期化時の SetContent は変更ではないので送らない
-        $output[] = '        const notifyInput = function() {';
-        $output[] = '            const el = editor.getElement();';
-        $output[] = '            if (el && el.tagName === "TEXTAREA") {';
-        $output[] = '                el.dispatchEvent(new Event("input", {bubbles: true}));';
-        $output[] = '            }';
-        $output[] = '        };';
-        // 変換中(compositionstart から compositionend まで)は、input・change・undo・redo・SetContent のどれでも送らず、確定(compositionend)で 1 回送る
-        $output[] = '        let composing = false;';
-        // composition イベントも元の欄へ送り、フォーム側の変換中の判定を普通の欄と同じ処理にする。変換の途中で blur したら、compositionend が来なくても元の欄へ終わりを伝えて印を戻す
-        $output[] = '        const notifyComposition = function(type) {';
-        $output[] = '            const el = editor.getElement();';
-        $output[] = '            if (el && el.tagName === "TEXTAREA") {';
-        $output[] = '                el.dispatchEvent(new CompositionEvent(type, {bubbles: true}));';
-        $output[] = '            }';
-        $output[] = '        };';
-        $output[] = '        editor.on("compositionstart", function() {';
-        $output[] = '            composing = true;';
-        $output[] = '            notifyComposition("compositionstart");';
-        $output[] = '        });';
-        $output[] = '        editor.on("compositionend", function() {';
-        $output[] = '            composing = false;';
-        $output[] = '            notifyInput();';
-        $output[] = '            notifyComposition("compositionend");';
-        $output[] = '        });';
-        $output[] = '        editor.on("blur", function() {';
-        $output[] = '            if (composing) {';
-        $output[] = '                composing = false;';
-        $output[] = '                notifyComposition("compositionend");';
-        $output[] = '            }';
-        $output[] = '        });';
-        $output[] = '        const notifyUnlessComposing = function() {';
-        $output[] = '            if (!composing) {';
-        $output[] = '                notifyInput();';
-        $output[] = '            }';
-        $output[] = '        };';
-        $output[] = '        editor.on("input change undo redo", notifyUnlessComposing);';
-        $output[] = '        editor.on("init", function() {';
-        $output[] = '            editor.on("SetContent", notifyUnlessComposing);';
-        $output[] = '        });';
+        $output[] = '        window.tinymce7EditorSetup(editor);';
         $output[] = '    };';
         $output[] = '    tinymce.init(config);';
         $output[] = '})();';
         $output[] = '</script>';
 
         $event->output(implode("\n", $output));
+    }
+
+    /**
+     * 管理画面の、エディターを出している画面。貼り付けた画像の名前（pasted-doc-12-1.png）に使う、リソースかチャンクの ID の有無を決める。
+     * manager()->action と id で判定する（リソースの編集 27・下書きの編集 131/132 と、チャンクの編集 78 は id が要る）。
+     * target は、ID のある画面の ['kind' => 'doc'|'chunk', 'id' => int]。ID の無い画面（新しいリソース 4・72、新しいチャンク 77、ほか）は null。
+     * newDocument は、新しいリソースの画面（保存するまで ID が無いので、アップロードせず data: 画像を置き、保存時の変換がファイルにする）
+     *
+     * @return array{target: array{kind: string, id: int}|null, newDocument: bool}
+     */
+    private function managerScreen(): array
+    {
+        // ManagerAPI は管理画面でだけ読み込まれる（forfrontend を付けずにフロントで呼ばれたときは、ID の無い画面）
+        if (!evo()->isBackend() || !manager()) {
+            return ['target' => null, 'newDocument' => false];
+        }
+        $action = (int) manager()->action;
+        $id = request_intvar('id');
+
+        if (in_array($action, [27, 131, 132], true) && $id > 0) {
+            return ['target' => ['kind' => 'doc', 'id' => $id], 'newDocument' => false];
+        }
+        if (in_array($action, [4, 72, 27, 131, 132], true)) {
+            return ['target' => null, 'newDocument' => true];
+        }
+        if ($action === 78 && $id > 0) {
+            return ['target' => ['kind' => 'chunk', 'id' => $id], 'newDocument' => false];
+        }
+
+        return ['target' => null, 'newDocument' => false];
+    }
+
+    /**
+     * 貼り付け・ドロップした画像を、ファイルピッカーの API でアップロードして本文に URL を入れるか。
+     * 使えるのは、管理画面のエディターで、ID のある画面（managerScreen() の target）で、ファイルブラウザが mcpuk で、
+     * このセッションがピッカーの images を使え（api.php と同じ PickerScope::authorize()）、アップロードの権限 file_upload があり（PickerScope::allows()）、アップロードできる画像の拡張子が 1 つ以上あるとき。
+     * フロントのエディターでは使わない。フロントのページはキャッシュに入り、セッションごとの CSRF トークンを埋め込めないため。
+     * 使えないときは、貼り付けの画像を受けない（applyPastedUpload()）
+     *
+     * @param array{kind: string, id: int}|null $target
+     */
+    private function canUploadPasted(string $fileBrowser, ?array $target): bool
+    {
+        return $target !== null
+            && $fileBrowser === 'mcpuk'
+            && function_exists('getCurrentCsrfToken')
+            && $this->fileBrowserResolver->canUploadToPicker()
+            && $this->fileBrowserResolver->imagesFileTypes() !== [];
+    }
+
+    /**
+     * 貼り付けのアップロードの設定。どちらのときも、画像のダイアログのアップロードタブは出さない
+     * （画像の入口はファイルピッカーの参照ボタンと、貼り付け・ドロップ）。
+     * アップロードしないときは、新しいリソースだけ貼り付けた画像を受ける（data: のまま置き、保存時の変換が ID の決まった後にファイルにする）。
+     * ほかは、本文に data: 画像が入らないよう受けない（チャンクは保存時の変換の対象外）。
+     * 権限 file_upload が無いとき（$uploadForbidden）は、新しいリソースでも受けず、受けない理由の文言を渡す
+     */
+    private function applyPastedUpload(array $config, bool $canUploadPasted, bool $newDocument, bool $uploadForbidden): array
+    {
+        $config['image_uploadtab'] = false;
+        if ($canUploadPasted) {
+            $config['images_file_types'] = implode(',', $this->fileBrowserResolver->imagesFileTypes());
+            $config['modx_upload_not_saved_message'] = $this->language->translate(
+                'tinymce7_upload_not_saved',
+                'Saving was cancelled because an image upload did not finish. Please save again.'
+            );
+        } else {
+            $config['paste_data_images'] = $newDocument && !$uploadForbidden;
+            if ($uploadForbidden) {
+                $config['modx_upload_forbidden_message'] = $this->language->translate(
+                    'tinymce7_upload_forbidden',
+                    'You do not have permission to upload, so pasted images are not saved.'
+                );
+            }
+        }
+
+        return $config;
+    }
+
+    /**
+     * 保存すると本文から失われる・変わるものを開いた時点で知らせる通知の文言（js/editor-setup.js の bindLossNotice）。
+     * %s と %d は JS 側で、名前と件数に置き換える
+     *
+     * @return array<string, mixed>
+     */
+    private function lossNoticeLabels(): array
+    {
+        return [
+            'lost' => $this->language->translate(
+                'tinymce7_loss_lost',
+                'If you save now, the following will be removed: %s.'
+            ),
+            'item' => $this->language->translate('tinymce7_loss_item', '%s (%d)'),
+            'separator' => $this->language->translate('tinymce7_loss_separator', ', '),
+            'names' => [
+                'event' => $this->language->translate('tinymce7_loss_event', 'attributes such as onclick'),
+                'javascript' => $this->language->translate('tinymce7_loss_javascript', 'values starting with javascript:'),
+            ],
+            'sandbox' => $this->language->translate(
+                'tinymce7_loss_sandbox',
+                'If you save now, a sandbox attribute is added to iframes, and embedded content may stop working.'
+            ),
+            'consult' => $this->language->translate(
+                'tinymce7_loss_consult',
+                'If you do not want this change, please consult the site administrator.'
+            ),
+        ];
+    }
+
+    /**
+     * @param array{kind: string, id: int} $target
+     * @return array{url: string, csrfToken: string, kind: string, id: int}
+     */
+    private function pastedUploadSettings(array $target): array
+    {
+        return [
+            'kind' => $target['kind'],
+            'id' => $target['id'],
+            'url' => $this->fileBrowserResolver->mcpukApiUrl(),
+            'csrfToken' => (string) getCurrentCsrfToken(),
+        ];
     }
 
     /**
@@ -241,7 +359,7 @@ final class EditorInitializer
             return $config;
         }
 
-        $config['plugins'] = $this->appendPlugin($config['plugins'] ?? [], 'modxtemplate');
+        $config['plugins'] = PluginList::append($config['plugins'] ?? [], 'modxtemplate');
         $externalPlugins = is_array($config['external_plugins'] ?? null) ? $config['external_plugins'] : [];
         $externalPlugins['modxtemplate'] = $this->scriptFactory->bundledAssetUrl('js/modx-template.js');
         $config['external_plugins'] = $externalPlugins;
@@ -262,24 +380,6 @@ final class EditorInitializer
      * @param string|array $plugins
      * @return string|array
      */
-    private function appendPlugin($plugins, string $name)
-    {
-        if (is_array($plugins)) {
-            if (!in_array($name, $plugins, true)) {
-                $plugins[] = $name;
-            }
-
-            return $plugins;
-        }
-
-        $list = preg_split('/[\s,]+/', trim((string)$plugins), -1, PREG_SPLIT_NO_EMPTY) ?: [];
-        if (!in_array($name, $list, true)) {
-            $list[] = $name;
-        }
-
-        return implode(' ', $list);
-    }
-
     /**
      * @param mixed $toolbar
      * @return mixed
@@ -337,15 +437,32 @@ final class EditorInitializer
             return $cssUrl;
         }
 
-        $pathPart = parse_url($editorCssPath, PHP_URL_PATH);
-        if (!is_string($pathPart) || $pathPart === '') {
-            $pathPart = $editorCssPath;
+        $localPath = $this->localCssPath($cssUrl);
+        if ($localPath === null) {
+            return $cssUrl;
         }
 
-        $localPath = defined('MODX_BASE_PATH')
-            ? MODX_BASE_PATH . ltrim($pathPart, '/')
-            : ltrim($pathPart, '/');
-
         return $this->scriptFactory->versionedUrl($cssUrl, $localPath);
+    }
+
+    /**
+     * サイト内を指す CSS の URL から、ファイルの場所を求める（サイトの外なら null）。
+     * URL は MODX_BASE_URL を含むので、それを除いて MODX_BASE_PATH に付ける。
+     */
+    private function localCssPath(string $cssUrl): ?string
+    {
+        $urlPath = parse_url($cssUrl, PHP_URL_PATH);
+        if (!is_string($urlPath) || $urlPath === '') {
+            return null;
+        }
+
+        $baseUrl = defined('MODX_BASE_URL') ? MODX_BASE_URL : '/';
+        if (strpos($urlPath, $baseUrl) !== 0) {
+            return null;
+        }
+
+        $basePath = defined('MODX_BASE_PATH') ? MODX_BASE_PATH : '';
+
+        return $basePath . substr($urlPath, strlen($baseUrl));
     }
 }

@@ -18,7 +18,7 @@ try {
 if ($requiresInstaller) {
     cli_usage(
         'This database has not been upgraded with the installer yet. '
-        . 'Upgrade it with the installer (install/) instead of php evo migrate.'
+        . 'Upgrade it with the installer (install/) instead of php evo.php migrate.'
     );
 }
 

@@ -1,10 +1,5 @@
 <?php
 ini_set('display_errors', 1);
-function setOption($fieldName, $value = '')
-{
-    $_SESSION[$fieldName] = $value;
-    return $value;
-}
 
 function getOption($fieldName)
 {
@@ -143,11 +138,15 @@ function compare_check($params)
         return 'disabled';
     }
 
+    $row = db()->getRow($rs);
+    // DB にまだ行が無い部品は、比べるまでもなく入れる
+    if (!$row) {
+        return 'no exists';
+    }
+
     if (mode($category) === 'name_compare') {
         return 'same';
     }
-
-    $row = db()->getRow($rs);
 
     if (mode($category) === 'version_compare') {
         $strongPos = strpos($row['description'], '</strong>');
@@ -786,6 +785,9 @@ function renderUpgradePermissionRequired()
 
 function renderUpgradeAuthRequired()
 {
+    // Ajax の入口からも呼ばれるため、戻り先は現在の URL でなくインストーラのトップにする
+    // インストーラと管理画面では URL の組み立てが違うので、ホストを含まないパスで入れる
+    sessionv('*save_uri', MODX_BASE_URL . 'install/');
     $ph = ph();
     $ph['install_config_title'] = lang('upgrade_auth_required_title');
     $ph['install_config_message'] = lang('upgrade_auth_required_message');
@@ -875,20 +877,6 @@ function lang_name()
     return sessionv('install_language', browser_lang());
 }
 
-function withSample($installset)
-{
-    if (sessionv('is_upgradeable')) {
-        return false;
-    }
-    if (!sessionv('installdata')) {
-        return false;
-    }
-    if (!in_array('sample', $installset)) {
-        return false;
-    }
-    return true;
-}
-
 function shouldInstallElement($index, $installset, $selected, $installSampleData = false)
 {
     $selected = is_array($selected) ? $selected : [];
@@ -924,8 +912,53 @@ function hasInstallableElement($items, $selected, $installSampleData = false)
     return false;
 }
 
+// DB の既定の文字セットを utf8mb4 にする。変更できなくても止めず、画面とログで知らせる
+function convertDatabaseDefault($convert, $collation)
+{
+    if ($convert->convertDb($collation)) {
+        return true;
+    }
+    log_install_event('Failed to change the database default charset to utf8mb4', [
+        'collation' => $collation,
+        'error' => db()->conn->error
+    ]);
+    printf(
+        '<p><span class="notok">%s</span></p>',
+        sprintf(
+            lang('database_default_charset_failed'),
+            hsc(db()->dbase),
+            hsc($collation)
+        )
+    );
+    return false;
+}
+
+// 新規インストールで、表を作る前に呼ぶ。選んだ文字セットが utf8mb4 で、DB の既定がそうでないとき、既定を utf8mb4 にする
+// （既定が latin1 などのままだと、接続の character_set_connection がそれになり、日本語が ? で保存される）
+function prepareDatabaseDefaultForInstall()
+{
+    if (sessionv('database_charset') !== 'utf8mb4') {
+        return;
+    }
+    include_once MODX_SETUP_PATH . 'convert2utf8mb4.php';
+    $convert = new convert2utf8mb4();
+    if ($convert->getDefaultCharset() === 'utf8mb4') {
+        return;
+    }
+    $before = [$convert->getDefaultCharset(), $convert->getDefaultCollation()];
+    if (!convertDatabaseDefault($convert, sessionv('database_collation'))) {
+        return;
+    }
+    // SET CHARACTER SET は character_set_connection を DB の既定にするので、変えたあとの既定でやり直す
+    db()->applyConnectionCharset();
+    log_install_event('Changed the database default charset to utf8mb4', [
+        'from' => $before,
+        'to' => ['utf8mb4', sessionv('database_collation')]
+    ]);
+}
+
 function convert2utf8mb4() {
-    include MODX_SETUP_PATH . 'convert2utf8mb4.php';
+    include_once MODX_SETUP_PATH . 'convert2utf8mb4.php';
     $convert = new convert2utf8mb4();
 
     if (!$convert->isAvailable()) {
@@ -945,14 +978,13 @@ function convert2utf8mb4() {
     }
 
     echo "<p>tableのcollationをutf8mb4_general_ciに変換します。</p>";
-    if ($collation !== 'utf8mb4_general_ci') {
-        $convert->convertDb();
-    }
+    $databaseConverted = $collation === 'utf8mb4_general_ci' || convertDatabaseDefault($convert, 'utf8mb4_general_ci');
 
     $count = $convert->convertTablesWithPrefix(sessionv('table_prefix', 'modx_'));
     if ($count) {
         echo sprintf(
-            "<p>Database and tables collation have been changed to utf8mb4_general_ci. %d tables have been converted.</p>",
+            "<p>%s collation have been changed to utf8mb4_general_ci. %d tables have been converted.</p>",
+            $databaseConverted ? 'Database and tables' : 'Tables',
             $count
         );
     } else {
@@ -974,9 +1006,9 @@ function installerSessionKeys()
         'test', 'currentAction', 'prevAction', 'install_language', 'is_upgradeable',
         'database_server', 'database_user', 'database_password', 'dbase', 'table_prefix',
         'database_collation', 'database_charset', 'database_connection_method',
-        'adminname', 'adminemail', 'adminpass', 'adminpassconfirm', 'managerlanguage',
+        'adminname', 'adminemail', 'adminpass', 'adminpassconfirm', 'adminpass_hash', 'managerlanguage',
         'chkagree', 'installdata', 'template', 'tv', 'chunk', 'snippet', 'plugin', 'module',
-        'convert_to_utf8mb4', 'install_log_path',
+        'convert_to_utf8mb4', 'install_log_path', 'installer_cleanup',
     ];
 }
 
@@ -1001,7 +1033,7 @@ function validateSessionValues() {
     : [
         'table_prefix',
         'adminname',
-        'adminpass',
+        'adminpass_hash',
         'adminemail',
         'database_charset',
         'database_collation',
@@ -1037,4 +1069,49 @@ function buildConfigFile($template, array $values)
         $replacePairs["[+{$key}+]"] = var_export($value, true);
     }
     return strtr($template, $replacePairs);
+}
+
+/**
+ * 送られた管理者のパスワードを確かめ、通ればハッシュだけをセッション（adminpass_hash）に持つ。平文はセッションにも画面にも残さない。
+ * 欄が空で、すでにハッシュがあれば（前の画面へ戻ってまた進んだとき）そのまま使う。入れた値が通らなければ、持っていたハッシュも捨てる。
+ * 決まりは管理画面と同じ EvoPasswordPolicy（assets/docs/password-policy.md）
+ *
+ * @param bool $required 進むとき true（決まりに合わなければエラー文を返す）。戻るときは false（合ったときだけ持ち、エラーにしない）
+ * @return string エラー文か ''
+ */
+function installerTakeAdminPassword($required)
+{
+    require_once MODX_CORE_PATH . 'password_policy.class.inc.php';
+    $password = post_textvar('adminpass', '');
+    $confirm = post_textvar('adminpassconfirm', '');
+    if ($password === '') {
+        return !$required || sessionv('adminpass_hash') ? '' : lang('alert_enter_adminpassword');
+    }
+    $error = installerAdminPasswordError($password, $confirm);
+    // 入れた値が通らなければ、前に通ったものも捨てる（変えようとした値が断られたのに、前の値が黙って残らないように）
+    sessionv('*adminpass_hash', $error === '' ? EvoPasswordPolicy::hash($password) : null);
+    return $required ? $error : '';
+}
+
+/**
+ * 管理者のパスワードが決まりに合わなければエラー文、合えば ''
+ */
+function installerAdminPasswordError($password, $confirm)
+{
+    if ($password !== $confirm) {
+        return lang('alert_adminpassword_mismatch');
+    }
+    $reason = EvoPasswordPolicy::check($password, [
+        (string) sessionv('adminname', ''),
+        (string) sessionv('adminemail', ''),
+    ]);
+    if ($reason === '') {
+        return '';
+    }
+    return sprintf(
+        lang('password_error_' . $reason),
+        EvoPasswordPolicy::MIN_LENGTH,
+        EvoPasswordPolicy::MAX_BYTES,
+        EvoPasswordPolicy::RECOMMENDED_LENGTH
+    );
 }

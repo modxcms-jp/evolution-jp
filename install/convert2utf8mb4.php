@@ -39,19 +39,33 @@ class convert2utf8mb4 {
         return strpos($this->getConfigContent(), "'utf8mb4'") !== false;
     }
 
-    public function convertDb()
+    /**
+     * DB の既定の文字セットを utf8mb4 にする（既存の表は変わらず、これから作る表の既定だけが変わる）。
+     * 変更できなければ false。接続の文字セットには触れない（呼び出し側が必要なら applyConnectionCharset() を呼ぶ）
+     */
+    public function convertDb($collation = 'utf8mb4_general_ci')
     {
-        db()->exec(
+        return (bool) db()->exec(
             sprintf(
-                "ALTER DATABASE `%s` CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci",
-                db()->dbase
-            )
+                "ALTER DATABASE `%s` CHARACTER SET = utf8mb4 COLLATE = %s",
+                str_replace('`', '``', db()->dbase),
+                db()->escape($collation)
+            ),
+            false
         );
     }
 
     public function getDefaultCharset() {
+        return $this->getSchemaDefault('DEFAULT_CHARACTER_SET_NAME');
+    }
+
+    public function getDefaultCollation() {
+        return $this->getSchemaDefault('DEFAULT_COLLATION_NAME');
+    }
+
+    private function getSchemaDefault($column) {
         $rs = db()->select(
-            'DEFAULT_CHARACTER_SET_NAME',
+            $column,
             'INFORMATION_SCHEMA.SCHEMATA',
             sprintf("SCHEMA_NAME = '%s'", db()->dbase)
         );
@@ -95,7 +109,8 @@ class convert2utf8mb4 {
             'web_user_settings',
             'web_users',
             'webgroup_access',
-            'webgroup_names'
+            'webgroup_names',
+            'migrations'
         ];
     }
 
@@ -154,15 +169,5 @@ class convert2utf8mb4 {
         }
 
         return count($tables);
-    }
-
-    public function getDbCollation()
-    {
-        $rs = db()->select(
-            'DEFAULT_COLLATION_NAME',
-            'INFORMATION_SCHEMA.SCHEMATA',
-            sprintf("SCHEMA_NAME = '%s'", db()->dbase)
-        );
-        return db()->getValue($rs);
     }
 }

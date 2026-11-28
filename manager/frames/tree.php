@@ -3,21 +3,25 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-$esc_request = db()->escape(anyv());
+$esc_request = anyv() ? db()->escape(anyv()) : [];
 
 $resourceTreeNodeName = config('resource_tree_node_name', '');
 $fieldtype = is_string($resourceTreeNodeName) && strpos($resourceTreeNodeName, 'edon') !== false
     ? 'date'
     : 'str';
+if (sessionv('tree_show_deleted') === null) {
+    sessionv('*tree_show_deleted', config('resource_tree_show_deleted_default') ? 1 : 0);
+}
+$showDeleted = (bool)sessionv('tree_show_deleted');
 if (!sessionv('tree_sortby')) {
-    $_SESSION['tree_sortby'] = tree_sortby_default(
+    sessionv('*tree_sortby', tree_sortby_default(
         config('resource_tree_sortby_default','menuindex')
-    );
+    ));
 }
 if (!sessionv('tree_sortdir')) {
-    $_SESSION['tree_sortdir'] = tree_sortdir_default(
+    sessionv('*tree_sortdir', tree_sortdir_default(
         config('resource_tree_sortdir_default','ASC')
-    );
+    ));
 }
 
 // シェルの部品（header.inc.php が描く。再読み込みは shell.js の reloadPartial）。単独のページとしては出さない
@@ -46,6 +50,7 @@ if (!sessionv('tree_sortdir')) {
         var selectedObject = 0;
         var selectedObjectDeleted = 0;
         var selectedObjectName = "";
+        var selectedObjectHasChildren = false;
         var _rc = 0; // added to fix onclick body event from closing ctx menu
 
         var openedArray = [];
@@ -69,49 +74,11 @@ if (!sessionv('tree_sortdir')) {
         }
         ?>
 
-        function showPopup(id, title, pub, del, draft, e) {
+        function showPopup(id, title, pub, del, draft, hasChildren, e) {
             var x, y
             var mnu = document.getElementById('mx_contextmenu');
-            var permpub = <?= manager()->can('document.publish') ? 1 : 0 ?>;
-            var permdel = <?= manager()->can('document.delete') ? 1 : 0 ?>;
-            // 下書きのある文書の「編集」の出し分けだけが使う。公開・非公開の項目の権限（permpub）とは別で、publish_document の有無そのもの
-            var hasPublishPermission = <?= evo()->hasPermission('publish_document') ? 'true' : 'false' ?>;
-            // 権限や設定によって出ない項目もあるため、あるときだけ切り替える
-            function showItem(id, shown) {
-                var item = document.getElementById(id);
-                if (item) item.style.display = shown ? '' : 'none';
-            }
-            if (draft == 1) {
-                showItem('itemcreateDraft', false);
-                showItem('itemeditDraft', true);
-            } else {
-                showItem('itemcreateDraft', true);
-                showItem('itemeditDraft', false);
-            }
-            if (permpub == 1) {
-                showItem('item61', true);
-                showItem('item62', true);
-                if (pub == 1) showItem('item61', false);
-                else showItem('item62', false);
-            }
-            if (!hasPublishPermission) {
-                if (draft == 1) showItem('item27', false);
-                else showItem('item27', true);
-            }
-
-            if (permdel == 1) {
-                showItem('item6', true);
-                showItem('item63', true);
-                showItem('item64', true);
-                if (del == 1) {
-                    showItem('item6', false);
-                    showItem('item61', false);
-                    showItem('item62', false);
-                } else {
-                    showItem('item63', false);
-                    showItem('item64', false);
-                }
-            }
+            // 項目は、リソースの状態で出し分ける（決まりは一覧の行メニューと同じ DocumentMenu の表）
+            EvoDocumentActions.applyMenuState(mnu, {published: pub == 1, deleted: del == 1, draft: draft == 1});
             // position:fixed のためビューポート座標をそのまま使う
             x = e.clientX > 0 ? e.clientX : e.pageX;
             y = e.clientY > 0 ? e.clientY : e.pageY;
@@ -122,15 +89,13 @@ if (!sessionv('tree_sortdir')) {
             }
             itemToChange = id;
             selectedObjectName = title;
+            selectedObjectHasChildren = hasChildren == 1;
             dopopup(x + 5, y);
             e.cancelBubble = true;
             return false;
         }
 
         function dopopup(x, y) {
-            if (selectedObjectName.length > 20) {
-                selectedObjectName = selectedObjectName.substr(0, 20) + "...";
-            }
             x = x<?= $modx_textdir === 'rtl' ? '-190' : '';?>;
             var mnu = document.getElementById('mx_contextmenu');
             var nameHolder = document.getElementById('nameHolder');
@@ -147,8 +112,9 @@ if (!sessionv('tree_sortdir')) {
 
         // 子の行の入れ物(#c<id>)を高さ 0 との間で短く広げ縮めする。
         // 終わったら height / opacity / overflow を外し、今までと同じ素の状態に戻す。
+        // onDone: 動き終わったら呼ぶ（動かさないときもすぐ呼ぶ。途中で別の動きに切り替わったときは呼ばない）
         var TREE_SLIDE_MS = 180;
-        function slideTreeBox(box, open, fromEmpty) {
+        function slideTreeBox(box, open, fromEmpty, onDone) {
             var reduce = window.matchMedia
                 && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             // 途中から向きを変えるので、動いている最中の値を先に測ってから止める
@@ -169,6 +135,7 @@ if (!sessionv('tree_sortdir')) {
                 if (box.slideCancel) box.slideCancel();
                 if (!open) box.style.display = 'none';
                 delete box.dataset.closing;
+                if (onDone) onDone();
             }
 
             if (open) {
@@ -206,22 +173,35 @@ if (!sessionv('tree_sortdir')) {
             timer = setTimeout(finish, TREE_SLIDE_MS + 120);
         }
 
+        function setTreeSign(id, open) {
+            var signImg = document.getElementById('s' + id);
+            if (signImg) {
+                signImg.src = open ? <?= js_literal(style('tree_minusnode')) ?> : <?= js_literal(style('tree_plusnode')) ?>;
+            }
+        }
+
+        // フォルダを閉じた状態として覚える（開閉の印と openedArray）。箱の表示は呼び出し側が決める
+        function markTreeFolderClosed(id) {
+            setTreeSign(id, false);
+            openedArray[id] = 0;
+        }
+
+        // 開いたときは、子が描けたら true で解決する Promise を返す（閉じた・取れなかったときは false）。
+        // ノードの onclick は戻り値を使わない。tree.js の revealPaneDocument() が親を順に開くのに使う
         function toggleNode(node, indent, id, expandAll, privatenode) {
             privatenode = (!privatenode || privatenode == '0') ? '0' : '1';
             var box = document.getElementById('c' + id);
             var rpcNodeText;
 
-            var signImg = document.getElementById('s' + id);
-            var folderImg = document.getElementById('f' + id);
+            var opened = Promise.resolve(false);
 
-            if (box.style.display === 'block' && box.dataset.closing !== '1') {
+            if (isTreeBoxOpen(box)) {
                 // collapse
-                signImg.src = <?= js_literal(style('tree_plusnode')) ?>;
-                openedArray[id] = 0;
+                markTreeFolderClosed(id);
                 slideTreeBox(box, false);
             } else {
                 // expand
-                signImg.src = <?= js_literal(style('tree_minusnode')) ?>;
+                setTreeSign(id, true);
 
                 rpcNodeText = box.innerHTML;
                 openedArray[id] = 1;
@@ -240,32 +220,40 @@ if (!sessionv('tree_sortdir')) {
                         "expandAll": expandAll + folderState
                     });
                     // 失敗時は従来どおり何もしない
-                    Evo.fetch('index.php?' + params.toString())
+                    opened = Evo.fetch('index.php?' + params.toString())
                         .then(function (response) {
                             return response.ok ? response.text() : null;
                         })
                         .then(function (html) {
                             delete box.dataset.loading;
-                            if (html === null) return;
+                            if (html === null) return false;
                             // 取得中に別の操作があっても、この行へ差し込む
                             rpcLoadData(html, box);
                             // 取得中に閉じられていたら、閉じたままにする
                             if (openedArray[id] != 1) {
                                 box.style.display = 'none';
-                                return;
+                                syncTreeToggleAll();
+                                return false;
                             }
                             slideTreeBox(box, true, true);
+                            return true;
                         })
-                        .catch(function () { delete box.dataset.loading; });
+                        .catch(function () {
+                            delete box.dataset.loading;
+                            return false;
+                        });
                     box.style.display = 'block';
                 } else {
                     slideTreeBox(box, true);
+                    opened = Promise.resolve(true);
                 }
             }
 
             Evo.fetch(
                 'index.php?a=1&f=nodes&savestateonly=1' + getFolderState()
             ).catch(function () {});
+            syncTreeToggleAll();
+            return opened;
         }
 
         function emptyTrash() {
@@ -355,19 +343,22 @@ if (is_array($evtOut)) {
 }
 ?>
 <div class="treeframebody">
-    <div id="treeSplitter"></div>
-
     <div class="tree-toolbar">
         <table id="treeMenu" width="100%" border="0" cellpadding="0" cellspacing="0">
             <tr>
                 <td>
                     <table cellpadding="0" cellspacing="0" border="0">
                         <tr>
-                            <td><a href="#" class="treeButton" id="treeExpand" onclick="expandTree();"
+                            <td><a href="#" class="treeButton" id="treeExpand" onclick="expandTree();return false;"
                                     title="<?= lang('expand_tree') ?>"><?= style('expand_tree') ?></a>
                             </td>
-                            <td><a href="#" class="treeButton" id="treeCollapse" onclick="collapseTree();"
+                            <td hidden><a href="#" class="treeButton" id="treeCollapse" onclick="collapseTree();return false;"
                                     title="<?= lang('collapse_tree') ?>"><?= style('collapse_tree') ?></a>
+                            </td>
+                            <td><a href="#" role="button" class="treeButton" id="treeAutoCollapse" aria-pressed="false"
+                                    onclick="toggleTreeAutoCollapse();return false;"
+                                    title="<?= lang('tree_auto_collapse') ?>"><?= style('auto_collapse_tree') ?></a>
+                                <script>syncTreeAutoCollapse();</script>
                             </td>
                             <?php if (manager()->canCreateDocumentUnder(0)) { ?>
                                 <td><a href="#" class="treeButton" id="treeNewResource"
@@ -384,6 +375,10 @@ if (is_array($evtOut)) {
                             </td>
                             <td><a href="#" class="treeButton" id="treeSort" onclick="showSorter(event);return false;"
                                     title="<?= lang('sort_tree') ?>"><?= style('sort_tree') ?></a></td>
+                            <td><a href="#" role="button" class="treeButton<?= $showDeleted ? ' is-active' : '' ?>" id="treeToggleDeleted"
+                                    aria-pressed="<?= $showDeleted ? 'true' : 'false' ?>"
+                                    onclick="toggleDeletedNodes();return false;"
+                                    title="<?= lang('tree_show_deleted') ?>"><?= style('show_deleted_tree') ?></a></td>
                             <?php if (evo()->hasPermission('empty_trash')) { ?>
                                 <td><a href="#" id="treeEmptyTrash" class="treeButtonDisabled"
                                         title="<?= lang('empty_recycle_bin_empty') ?>"><?= style('empty_recycle_bin_empty') ?></a>
@@ -395,7 +390,14 @@ if (is_array($evtOut)) {
                 <td align="right">
                     <table cellpadding="0" cellspacing="0" border="0">
                         <tr>
-                            <td><a href="#" class="treeButton" id="treeHide" onclick="top.mainMenu.hideTreeFrame();"
+                            <?php if (manager_tree_narrow()) { ?>
+                                <td class="tree-pin-cell"><a href="#" role="button" class="treeButton" id="treePin" aria-pressed="false"
+                                        onclick="EvoShell.toggleTreePin();return false;"
+                                        title="<?= lang('tree_pin') ?>"><?= style('pin_tree') ?></a>
+                                    <script>EvoShell.syncTreePin();</script>
+                                </td>
+                            <?php } ?>
+                            <td><a href="#" class="treeButton" id="treeHide" onclick="top.mainMenu.hideTreeFrame(true);"
                                     title="<?= lang('hide_tree') ?>"><?= style('hide_tree') ?></a></td>
                         </tr>
                     </table>
@@ -415,7 +417,7 @@ if (is_array($evtOut)) {
                 <table style="width:100%;border:none;padding:0;margin:0">
                     <tr>
                         <td style="padding-left: 10px;padding-top: 1px;" colspan="2">
-                            <select name="sortby" style="font-size: 12px;">
+                            <select name="sortby">
                                 <option
                                     value="isfolder"
                                     <?= isSelectedTreeSortby('isfolder') ?>
@@ -445,7 +447,7 @@ if (is_array($evtOut)) {
                     </tr>
                     <tr>
                         <td width="99%" style="padding-left: 10px;padding-top: 1px;">
-                            <select name="sortdir" style="font-size: 12px;">
+                            <select name="sortdir">
                                 <option
                                     value="DESC"
                                     <?= isSelectedTreeSortDir('DESC') ?>
@@ -472,7 +474,7 @@ if (is_array($evtOut)) {
         </div>
     </div>
 
-    <div id="treeHolder">
+    <div id="treeHolder"<?= config('manager_treepane_trim_title') ? ' class="is-trim-title"' : '' ?>>
         <?php
         // invoke OnTreeRender event
         $evtOut = evo()->invokeEvent('OnManagerTreePrerender', $esc_request);
@@ -480,8 +482,9 @@ if (is_array($evtOut)) {
             echo implode("\n", $evtOut);
         }
         ?>
-        <div><?= style('tree_showtree') ?>&nbsp;<span class="rootNode"
-                                                                onclick="treeAction(0, <?= hsc(js_literal(config('site_name'))) ?>);"><b><?= hsc(config('site_name')) ?></b></span>
+        <div>
+            <div class="tree-root-row"><?= style('tree_showtree') ?>&nbsp;<span class="rootNode"
+                    onclick="treeAction(0, <?= hsc(js_literal(config('site_name'))) ?>);"><b><?= hsc(config('site_name')) ?></b></span></div>
             <div id="treeRoot"></div>
         </div>
         <?php
@@ -496,12 +499,7 @@ if (is_array($evtOut)) {
     <script type="text/javascript">
         // Set 'treeNodeSelected' class on document node when editing via Context Menu
         function setActiveFromContextMenu(doc_id) {
-            document.querySelectorAll('.treeNodeSelected').forEach(function (el) {
-                el.classList.remove('treeNodeSelected');
-            });
-            var node = document.getElementById('node' + doc_id);
-            var span = node ? node.querySelector('span') : null;
-            if (span) span.className = 'treeNodeSelected';
+            selectTreeNode(doc_id);
         }
 
         // Context menu stuff
@@ -536,53 +534,50 @@ if (is_array($evtOut)) {
                     EvoShell.navigate("index.php?a=72&pid=" + itemToChange);
                     break;
                 case '94' : // duplicate
-                    if (confirm(<?= js_literal(stripcslashes(lang('confirm_resource_duplicate'))) ?>) == true) {
+                    EvoDocumentActions.run('duplicate', [Number(itemToChange)], function () {
                         setActiveFromContextMenu(itemToChange);
                         EvoCsrf.post("index.php?a=94&id=" + itemToChange);
-                    }
+                    }, {title: selectedObjectName});
                     break;
                 case '6' : // delete
                     if (selectedObjectDeleted == 0) {
-                        if (confirm("'" + selectedObjectName + "'\n\n" + <?= js_literal(stripcslashes(lang('confirm_delete_resource'))) ?>) == true) {
+                        EvoDocumentActions.run('delete', [Number(itemToChange)], function () {
                             EvoCsrf.post("index.php?a=6&id=" + itemToChange);
-                        }
+                        }, {hasChildren: selectedObjectHasChildren, title: selectedObjectName});
                     } else {
-                        alert("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('already_deleted'))) ?>);
+                        EvoDialog.alert(Evo.escapeHtml("'" + selectedObjectName + "' ") + <?= js_literal(stripcslashes(lang('already_deleted'))) ?>, '', null, {icon: 'warning'});
                     }
                     break;
                 case '63' : // undelete
                     if (selectedObjectDeleted == 0) {
-                        alert("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('not_deleted'))) ?>);
+                        EvoDialog.alert(Evo.escapeHtml("'" + selectedObjectName + "' ") + <?= js_literal(stripcslashes(lang('not_deleted'))) ?>, '', null, {icon: 'warning'});
                     } else {
-                        if (confirm("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('confirm_undelete'))) ?>) == true) {
+                        EvoDocumentActions.run('undelete', [Number(itemToChange)], function () {
                             EvoCsrf.post("index.php?a=63&id=" + itemToChange);
-                        }
+                        }, {title: selectedObjectName});
                     }
                     break;
                 case '64' : // delete
                     if (selectedObjectDeleted == 1) {
-                        if (confirm("'" + selectedObjectName + "'\n\n" + <?= js_literal(stripcslashes(lang('confirm_delete_resource'))) ?>) == true) {
+                        // ゴミ箱のこのリソースを、子孫ごと完全に削除する
+                        EvoDocumentActions.run('purge', [Number(itemToChange)], function () {
                             EvoCsrf.post("index.php?a=64&id=" + itemToChange);
-                        }
+                        }, {hasChildren: selectedObjectHasChildren, title: selectedObjectName});
                     } else {
-                        alert("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('already_deleted'))) ?>);
+                        EvoDialog.alert(Evo.escapeHtml("'" + selectedObjectName + "' ") + <?= js_literal(stripcslashes(lang('not_deleted'))) ?>, '', null, {icon: 'warning'});
                     }
                     break;
                 case '61' : // publish
-                    if (confirm("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('confirm_publish'))) ?>) == true) {
+                    EvoDocumentActions.run('publish', [Number(itemToChange)], function () {
                         setActiveFromContextMenu(itemToChange);
                         EvoCsrf.post("index.php?a=61&id=" + itemToChange);
-                    }
+                    }, {title: selectedObjectName});
                     break;
                 case '62' : // unpublish
-                    if (itemToChange != <?= (int) config('site_start') ?>) {
-                        if (confirm("'" + selectedObjectName + "' " + <?= js_literal(stripcslashes(lang('confirm_unpublish'))) ?>) == true) {
-                            setActiveFromContextMenu(itemToChange);
-                            EvoCsrf.post("index.php?a=62&id=" + itemToChange);
-                        }
-                    } else {
-                        alert('Document is linked to site_start variable and cannot be unpublished!');
-                    }
+                    EvoDocumentActions.run('unpublish', [Number(itemToChange)], function () {
+                        setActiveFromContextMenu(itemToChange);
+                        EvoCsrf.post("index.php?a=62&id=" + itemToChange);
+                    }, {title: selectedObjectName});
                     break;
                 case 'pv' : // preview
                     setActiveFromContextMenu(itemToChange);
@@ -599,58 +594,26 @@ if (is_array($evtOut)) {
         }
 
     </script>
-    <?php
-    function getTplCtxMenu()
-    {
-        $tpl = <<< EOT
-<!-- Contextual Menu Popup Code -->
-<div id="mx_contextmenu" onselectstart="return false;">
-    <div id="nameHolder">&nbsp;</div>
-		[+itemEditDoc+]
-		[+itemDocList+]
-		[+itemNewDoc+]
-		[+itemMoveDoc+]
-		[+itemDuplicateDoc+]
-		[+=========1+]
-		[+itemPubDoc+][+itemUnPubDoc+]
-		[+itemDelDoc+][+itemUndelDoc+][+itemDelDocComplete+]
-		[+=========2+]
-		[+itemWebLink+]
-		[+=========3+]
-		[+itemCreateDraft+]
-		[+itemEditDraft+]
-		[+itemDocInfo+]
-		[+itemViewPage+]
-	</div>
+    <!-- Contextual Menu Popup Code -->
+    <div id="mx_contextmenu" onselectstart="return false;">
+        <div id="nameHolder">&nbsp;</div>
+        <?php
+        // 項目は DocumentMenu の表から描く（一覧の行メニューと同じ定義）。id は「item<キー>」
+        include_once(MODX_CORE_PATH . 'controls/document_menu.class.php');
+        foreach (DocumentMenu::items() as $item) {
+            if ($item['separator']) {
+                echo '<div class="seperator"></div>';
+            }
+            echo sprintf(
+                '<div class="menuLink" id="item%1$s" data-menu-item="%1$s" onclick="menuHandler(\'%1$s\'); hideMenu();"><img src="%2$s" />%3$s</div>',
+                hsc($item['key']),
+                hsc($item['icon']),
+                $item['text']
+            );
+        }
+        ?>
+    </div>
 </div>
-EOT;
-        return $tpl;
-    }
-
-    $ph = [];
-    $ph['itemEditDoc'] = itemEditDoc(); // edit
-    $ph['itemDocList'] = itemDocList(); // Resource list
-    $ph['itemNewDoc'] = itemNewDoc(); // new Resource
-    $ph['itemMoveDoc'] = itemMoveDoc(); // move
-    $ph['itemDuplicateDoc'] = itemDuplicateDoc(); // duplicate
-    $ph['=========1'] = itemSeperator1();
-    $ph['itemPubDoc'] = itemPubDoc(); // publish
-    $ph['itemUnPubDoc'] = itemUnPubDoc(); // unpublish
-    $ph['itemDelDoc'] = itemDelDoc(); // delete
-    $ph['itemUndelDoc'] = itemUndelDoc(); // undelete
-    $ph['itemDelDocComplete'] = itemDelDocComplete(); // undelete
-    $ph['=========2'] = itemSeperator2();
-    $ph['itemWebLink'] = itemWebLink(); //  new Weblink
-    $ph['=========3'] = itemSeperator3();
-    $ph['itemCreateDraft'] = itemCreateDraft(); // create draft
-    $ph['itemEditDraft'] = itemEditDraft(); // edit draft
-    $ph['itemDocInfo'] = itemDocInfo(); // undelete
-    $ph['itemViewPage'] = itemViewPage(); // preview
-
-    $tpl = getTplCtxMenu();
-    echo evo()->parseText($tpl, $ph);
-
-    ?>
 <script>
     // 旧フレーム参照(top.tree.X)互換のためツリー操作関数を公開する
     window.tree = window.tree || {};
@@ -671,211 +634,6 @@ EOT;
 function select($cond = false)
 {
     return ($cond) ? ' selected="selected"' : '';
-}
-
-function tplMenuItem()
-{
-    return <<< EOT
-<div class="menuLink" id="item[+action+]" onclick="menuHandler('[+action+]'); hideMenu();">
-	<img src="[+img+]" />[+text+]
-</div>
-EOT;
-}
-
-function itemEditDoc()
-{
-    if (!manager()->can('document.edit')) {
-        return '';
-    }
-    $ph['action'] = '27';
-    $ph['img'] = style('icons_edit_document');
-    $ph['text'] = lang('edit_resource');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemCreateDraft()
-{
-    if (!config('enable_draft')) {
-        return '';
-    }
-
-    $ph['action'] = 'createDraft';
-    $ph['img'] = style('icons_new_document');
-    $ph['text'] = lang("create_draft");
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemEditDraft()
-{
-    if (!config('enable_draft')) {
-        return '';
-    }
-
-    $ph['action'] = 'editDraft';
-    $ph['img'] = style('icons_edit_document');
-    $ph['text'] = lang("edit_draft");
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemDocList()
-{
-    if (!evo()->hasPermission('view_document')) {
-        return '';
-    }
-    $ph['action'] = '120';
-    $ph['img'] = style('icons_table');
-    $ph['text'] = lang('view_child_resources_in_container');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemNewDoc()
-{
-    if (!manager()->can('document.create')) {
-        return '';
-    }
-    $ph['action'] = '4';
-    $ph['img'] = style('icons_new_document');
-    $ph['text'] = lang('create_resource_here');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemMoveDoc()
-{
-    if (!manager()->can('document.move')) {
-        return '';
-    }
-    $ph['action'] = '51';
-    $ph['img'] = style('icons_move_document');
-    $ph['text'] = lang('move_resource');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemDuplicateDoc()
-{
-    if (!manager()->can('document.duplicate')) {
-        return '';
-    }
-    $ph['action'] = '94';
-    $ph['img'] = style('icons_resource_duplicate');
-    $ph['text'] = lang('resource_duplicate');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemSeperator1()
-{
-    if (
-        manager()->can('document.edit')
-        || manager()->can('document.create')
-        || manager()->can('document.move')
-        || manager()->can('document.duplicate')
-    ) {
-        return '<div class="seperator"></div>';
-    }
-
-    return '';
-}
-
-function itemPubDoc()
-{
-    if (!manager()->can('document.publish')) {
-        return '';
-    }
-    $ph['action'] = '61';
-    $ph['img'] = style('icons_publish_document');
-    $ph['text'] = lang('publish_resource');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemUnPubDoc()
-{
-    if (!manager()->can('document.publish')) {
-        return '';
-    }
-    $ph['action'] = '62';
-    $ph['img'] = style('icons_unpublish_resource');
-    $ph['text'] = lang('unpublish_resource');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemDelDoc()
-{
-    if (!manager()->can('document.delete')) {
-        return '';
-    }
-    $ph['action'] = '6';
-    $ph['img'] = style('icons_delete');
-    $ph['text'] = lang('delete_resource');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemUndelDoc()
-{
-    if (!manager()->can('document.delete')) {
-        return '';
-    }
-    $ph['action'] = '63';
-    $ph['img'] = style('icons_undelete_resource');
-    $ph['text'] = lang('undelete_resource');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemDelDocComplete()
-{
-    if (!evo()->hasPermission('empty_trash')) {
-        return '';
-    }
-    $ph['action'] = '64';
-    $ph['img'] = style('icons_delete_complete');
-    $ph['text'] = lang('delete_resource_complete');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemSeperator2()
-{
-    if (manager()->can('document.publish') || manager()->can('document.delete')) {
-        return '<div class="seperator"></div>';
-    }
-
-    return '';
-}
-
-function itemWebLink()
-{
-    if (!manager()->can('document.create')) {
-        return '';
-    }
-    $ph['action'] = '72';
-    $ph['img'] = style('icons_weblink');
-    $ph['text'] = lang('create_weblink_here');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemSeperator3()
-{
-    if (manager()->can('document.create')) {
-        return '<div class="seperator"></div>';
-    }
-
-    return '';
-}
-
-function itemDocInfo()
-{
-    if (!evo()->hasPermission('view_document')) {
-        return '';
-    }
-    $ph['action'] = '3';
-    $ph['img'] = style('icons_information');
-    $ph['text'] = lang('resource_overview');
-    return evo()->parseText(tplMenuItem(), $ph);
-}
-
-function itemViewPage()
-{
-    $ph['action'] = 'pv';
-    $ph['img'] = style('icons_information');
-    $ph['text'] = lang('preview_resource');
-    return evo()->parseText(tplMenuItem(), $ph);
 }
 
 function isSelectedTreeSortby($name) {

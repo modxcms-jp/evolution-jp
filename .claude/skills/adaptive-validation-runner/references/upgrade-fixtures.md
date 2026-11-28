@@ -48,9 +48,9 @@ EVO_VALIDATE_NAME=<名前> EVO_BIND_IP=<アドレス> EVO_WORK_DIR=<work> \
 
 `<work>/uf.sh load <work>/fixture-1.0.0J.sql` のように使う。
 
-### `migrate`（道具）と `php evo migrate`（CLI）の違い
+### `migrate`（道具）と `php evo.php migrate`（CLI）の違い
 
-| | 道具の `migrate` | CLI の `php evo migrate` |
+| | 道具の `migrate` | CLI の `php evo.php migrate` |
 | --- | --- | --- |
 | ガード（`requiresInstaller()`） | 通さない | 通る。baseline のファイルがあり、まだ記録されていない DB では、何も流さず「アップデーターで上げる」旨を出して終了コード 1 |
 | キャッシュ | 消さない | 1 本でも適用したか失敗したときに `clearCache()` で消す。`system_cache` の無い DB（1.0.20J より前）では、ここで `Error` を出して止まる（baseline のファイルがあれば、その前にガードで止まる） |
@@ -174,7 +174,7 @@ rm -rf temp/logs/system/*
 - 文字セットと照合順序: 利用者がインストーラで選ぶ utf8mb4 への変換（`convert2utf8mb4()`）の役
 - ストレージエンジン: 古いサイトの MyISAM を変える処理がもともと無く、この計画の非対象
 
-`diff` の出力は、`なし`（`<ref>` にあって `<target>` に無い列・索引）、`余分`（`<ref>` に無い列・索引）、`相違`（定義が違う）、`表なし`（`<ref>` にあって `<target>` に無い表）の 4 種類。`<ref>` に無い表は「残す表」（消えた表 `event_log`・`keyword_xref`・`site_content_metatags`・`site_keywords`・`site_metatags` やサンプルの `jot_*`。利用者のデータが入っているので消さない）として別に出す。
+`diff` の出力は、`なし`（`<ref>` にあって `<target>` に無い列・索引）、`余分`（`<ref>` に無い列・索引）、`相違`（定義が違う）、`表なし`（`<ref>` にあって `<target>` に無い表）の 4 種類。`<ref>` に無い表は「残す表」（消えた表 `event_log`・`keyword_xref`・`site_content_metatags`・`site_keywords`・`site_metatags` のうち行が入っているもの（空なら `20261118_130000_drop_empty_retired_tables` が消す）や、サンプルの `jot_*`。利用者のデータが入っているので消さない）として別に出す。
 
 ## 古い版のコードを動かさない理由
 

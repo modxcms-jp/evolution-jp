@@ -19,7 +19,7 @@ interface:
     11) 実装を伴う計画では、想定コミット単位と Conventional Commits 準拠の日本語コミットメッセージ案を `Concrete Steps` または `Artifacts and Notes` に含める。
 
     `/validate-plan [path]`:
-    1) 対象 ExecPlan を `references/quality-checklist.md` で検証する。
+    1) 対象 ExecPlan を `.claude/skills/exec-plan/references/quality-checklist.md` で検証する。
     2) 必須12セクション、非交渉要件、アンチパターンを確認する。
     3) トークン効率（重複説明、冗長なコード全文、過剰な長文）を確認し、精度を落とさず短縮できる箇所を特定する。
     4) 指摘は「不足内容」「修正案」「修正後に確認すべき観点」の順で提示する。

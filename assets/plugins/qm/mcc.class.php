@@ -3,6 +3,8 @@
 /**
  * QuickManager+ Manager Control Class
  *
+ * 編集画面で隠す対象と保存・キャンセルの設定を集め、assets/plugins/qm/js/qm-edit.js の QMEdit.init() に渡す。
+ *
  * @author      Mikko Lammi, www.maagit.fi
  * @license     GNU General Public License (GPL), http://www.gnu.org/copyleft/gpl.html
  * @version     1.5.5 updated 02/08/2010
@@ -11,72 +13,41 @@
 if (!class_exists('Mcc')) {
     class Mcc
     {
-        var $script;
         var $head;
+        // 保存・キャンセルの文言と、キャンセルの戻り先（QMEdit.init() の controls）
+        var $controls = [];
+        // 隠す対象（QMEdit.init() の hide）
+        var $hide = [];
         var $tabs;
         var $sections;
-        var $fields;
 
         //_______________________________________________________
         function __construct()
         {
+            // タブの id（見出しの id は、これに Header を付けたもの）
             $this->tabs = [
-                'general' => ['index' => 1, 'id' => 'tabGeneral'],
-                'settings' => ['index' => 2, 'id' => 'tabSettings'],
-                'access' => ['index' => 3, 'id' => 'tabAccess']
+                'general' => 'tabGeneral',
+                'settings' => 'tabSettings',
+                'tv' => 'tabTVs',
+                'access' => 'tabAccess'
             ];
 
+            // 隠す要素。tvs は、TV を本文の下に出すときの見出しと本体と、TV のタブに出すときのタブ
             $this->sections = [
-                'docsettings' => ['index' => 0, 'name' => 'DocSettings'],
-                'content' => ['index' => 1, 'name' => 'Content'],
-                'tvs' => ['index' => 2, 'name' => 'TVs']
+                'docsettings' => '#tabGeneral > table, #tabGeneral > [data-field-group]',
+                'content' => '#content_header, #content_body',
+                'tvs' => '#tv_header, #tv_body, #tabTVsHeader, #tabTVs'
             ];
-
-            $this->fields = ['content', 'pagetitle', 'longtitle', 'menuindex', 'parent', 'description', 'alias', 'link_attributes', 'introtext', 'template', 'menutitle'];
-        }
-
-        //_______________________________________________________
-        function addLine($line)
-        {
-            $this->script .= $line . "\n";
         }
 
         //_______________________________________________________
         function Output()
         {
-            $out = $this->head;
-            $this->addLine('document.body.style.display = "block";');
-            // qmHide: 要素の配列や NodeList を隠す（無い要素は飛ばす。表の行も扱うので hidden ではなく display を none に）
-            $out .= '<script type="text/javascript">Evo.ready(function () {' . "\n"
-                . 'var qmHide = function (els) { Array.prototype.forEach.call(els, function (el) { if (el) { el.style.display = "none"; } }); };' . "\n"
-                . $this->script
-                . '});</script>';
+            $config = ['controls' => $this->controls, 'hide' => $this->hide];
 
-            return $out;
-        }
-
-        // Template
-        //_______________________________________________________
-        function hideTemplate($tpl)
-        {
-            $this->addLine(
-                'document.querySelectorAll("select#field_template option").forEach(function (el) { if (el.getAttribute("value") === '
-                . js_literal($tpl)
-                . ') { el.remove(); } });'
-            );
-        }
-
-        //_______________________________________________________
-        function hideTemplates($tpls)
-        {
-            if (is_array($tpls)) {
-                foreach ($tpls as $tpl) {
-                    $this->hideTemplate($tpl);
-                }
-                $this->hideTemplate(0); // remove blank
-            } else {
-                $this->hideTemplate(0); // remove blank
-            }
+            return $this->head
+                . '<script src="' . hsc(site_asset(MODX_SITE_URL . 'assets/plugins/qm/js/qm-edit.js')) . '"></script>'
+                . '<script>QMEdit.init(' . js_value($config) . ');</script>';
         }
 
         // Section
@@ -85,18 +56,7 @@ if (!class_exists('Mcc')) {
         {
             $section = trim($section);
             if (!isset($this->sections[$section])) return;
-            $sectionBodyIndex = $this->sections[$section]['index'];
-            $sectionHeaderIndex = $sectionBodyIndex - 1;
-
-            // Handle docsettings
-            if ($sectionHeaderIndex == -1) {
-                $this->addLine('qmHide([document.querySelector("#tabGeneral table")]);');
-                return;
-            }
-
-            // 文書の中で n 番目（0 始まり）の 1 つだけ（以前の :eq(n) と同じ）
-            $this->addLine('qmHide([document.querySelectorAll("div.sectionHeader")[' . $sectionHeaderIndex . ']]);');
-            $this->addLine('qmHide([document.querySelectorAll("div.sectionBody")[' . $sectionBodyIndex . ']]);');
+            $this->hide[] = ['sel' => $this->sections[$section], 'all' => true];
         }
 
         // Tab
@@ -105,10 +65,10 @@ if (!class_exists('Mcc')) {
         {
             $tab = trim($tab);
             if (!isset($this->tabs[$tab])) return;
-            $tabIndex = $this->tabs[$tab]['index'];
-            $tabId = $this->tabs[$tab]['id'];
-            $this->addLine('qmHide(document.querySelectorAll("div#documentPane h2:nth-child(' . $tabIndex . ')"));');
-            $this->addLine('qmHide([document.getElementById("' . $tabId . '")]);');
+            // TV は置き場所の設定（tvs_below_content）に関係なく効くよう、セクションの指定と同じに隠す
+            if ($tab === 'tv') return $this->hideSection('tvs');
+            $tabId = $this->tabs[$tab];
+            $this->hide[] = ['sel' => '#' . $tabId . 'Header, #' . $tabId, 'all' => true];
         }
 
         // Field
@@ -119,29 +79,8 @@ if (!class_exists('Mcc')) {
             // field names only (used in a selector)
             if (!preg_match('/^[A-Za-z0-9_\-]+$/', $field)) return;
             if ($field == 'content') return $this->hideSection($field);
-            // 祖先の tr をすべて隠す（直近の 1 つではない。以前の .parents("tr") と同じ）
-            $this->addLine(
-                'document.querySelectorAll(\'[name="' . $field . '"]\').forEach(function (el) { for (var p = el.parentElement; p; p = p.parentElement) { if (p.tagName === "TR") { p.style.display = "none"; } } });'
-            );
-        }
-
-        //_______________________________________________________
-        function showFields($fields)
-        {
-            if (!($fields = explode(',', $fields))) return;
-            foreach ($fields as $key => $value) {
-                $fields[$key] = trim($value);
-            }
-            foreach ($this->fields as $field) {
-                if (!in_array($field, $fields))
-                    $this->hideField($field);
-            }
-        }
-
-        //_______________________________________________________
-        function doSafe($string)
-        {
-            $string = htmlentities($string, ENT_QUOTES, config('modx_charset'));
+            // $field は欄の name。その欄が入っている行（data-field の付いた行）を隠す
+            $this->hide[] = ['field' => $field];
         }
     }
 }

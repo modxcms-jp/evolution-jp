@@ -3,7 +3,7 @@
  * mm_ddMaxLength
  * @version 1.0.1 (2012-01-13)
  *
- * Позволяет ограничить количество вводимых символов в TV.
+ * TV に入力できる文字数を制限する
  *
  * @copyright 2012, DivanDesign
  * http://www.DivanDesign.ru
@@ -44,59 +44,12 @@ function mm_ddMaxLength($tvs = '', $roles = '', $templates = '', $length = 150)
     $output .= includeJs($base_url . 'assets/plugins/managermanager/widgets/ddmaxlength/ddmaxlength.js');
     $output .= includeCss($base_url . 'assets/plugins/managermanager/widgets/ddmaxlength/ddmaxlength.css');
 
+    $fieldIds = [];
     foreach ($tvs as $tv) {
-        $output .= '
-MM.all("#tv' . $tv['id'] . '").forEach(function (field) {
-    field.classList.add("ddMaxLengthField");
-    field.parentElement.insertAdjacentHTML("beforeend", "<div class=\"ddMaxLengthCount\"><span></span></div>");
-    ddMaxLength(field, {
-        max: ' . $length . ',
-        containerSelector: "div.ddMaxLengthCount span",
-        warningClass: "maxLenghtWarning"
-    });
-});
-        ';
+        $fieldIds[] = 'tv' . $tv['id'];
     }
-
-    // 残りが負の欄があれば保存を止める（以前の return false と同じく、既定の動作と伝播の両方を止める）
-    $output .= '
-(function () {
-    const form = document.getElementById("mutate");
-    if (!form) { return; }
-    form.addEventListener("submit", function (e) {
-        const ddErrors = [];
-        MM.all("div.ddMaxLengthCount span").forEach(function (span) {
-            const box = span.parentElement ? span.parentElement.closest(".ddMaxLengthCount") : null;
-            const fields = box && box.parentElement ? MM.all(".ddMaxLengthField", box.parentElement) : [];
-            if (parseInt(span.textContent) < 0) {
-                fields.forEach(function (field) {
-                    field.classList.add("maxLenghtErrorField");
-                    field.addEventListener("focus", function () {
-                        fields.forEach(function (f) { f.classList.remove("maxLenghtErrorField"); });
-                    });
-                });
-                // 欄の祖先の行にある、最初の列の項目名（文書の順につなぐ）
-                const titles = [];
-                MM.parents(fields, "tr").forEach(function (tr) {
-                    MM.all(":scope td:first-child .mutate-field-title", tr).forEach(function (t) {
-                        if (titles.indexOf(t) === -1) { titles.push(t); }
-                    });
-                });
-                titles.sort(function (a, b) {
-                    return a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
-                });
-                ddErrors.push(titles.map(function (t) { return t.textContent; }).join(""));
-            }
-        });
-
-        if (ddErrors.length > 0) {
-            alert("Некорректно заполнены поля: " + ddErrors.join(","));
-            e.preventDefault();
-            e.stopPropagation();
-        }
-    });
-})();
-    ';
+    $output .= 'mmDdMaxLength.attach(' . js_value($fieldIds) . ', ' . (int)$length . ');' . "\n";
+    $output .= 'mmDdMaxLength.guardSubmit(' . js_literal(lang('max_length_exceeded')) . ');' . "\n";
 
     $output .= "\n// ---------------- mm_ddMaxLength :: End -------------";
 

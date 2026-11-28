@@ -25,7 +25,7 @@ Evolution CMS JP Edition の開発ワークフロー。
 
 ### /work
 1. `AGENTS.md` のドキュメントマップから関連ファイルを特定
-2. ExecPlan を伴うタスクの初回着手時は `docker compose exec <app-service> php evo skill:init --plan=<plan_id> --skill=project-worker` で run を初期化する
+2. ExecPlan を伴うタスクの初回着手時は `docker compose exec <app-service> php evo.php skill:init --plan=<plan_id> --skill=project-worker` で run を初期化する
 3. 複雑なタスクはステップごとの計画を提示
 4. `AGENTS.md` の規約を厳守して実装
 5. 規約チェック: No jQuery / No Frames / Helpers First / Secure SQL

@@ -9,10 +9,10 @@
 
 class ditto
 {
-    public $template, $resource, $format, $debug, $advSort, $sqlOrderBy, $customReset, $fields, $constantFields, $prefetch, $sortOrder, $customPlaceholdersMap;
-    public $tmpCache = [];
+    public $template, $format, $advSort, $sqlOrderBy, $customReset, $fields, $constantFields, $prefetch, $sortOrder;
+    public $tvPrefixFields = [];
 
-    function __construct($format, $language, $debug)
+    function __construct($format, $language)
     {
         $this->format = $format;
         $GLOBALS['ditto_lang'] = $language;
@@ -42,12 +42,7 @@ class ditto
             ]
         ];
         $this->sortOrder = false;
-        $this->customPlaceholdersMap = [];
         $this->template = new template();
-
-        if ($debug !== null) {
-            $this->debug = new debug($debug);
-        }
     }
 
     // ---------------------------------------------------
@@ -80,10 +75,6 @@ class ditto
     {
         if ($type === false) {
             $type = $this->getDocVarType($name);
-        }
-        if ($type === 'tv:prefix') {
-            $type = 'tv';
-            $name = substr($name, 2);
         }
         if ($location === '*') {
             $this->fields['backend'][$type][] = $name;
@@ -142,6 +133,9 @@ class ditto
     function setDisplayFields($fields, $hiddenFields)
     {
         $this->fields['display'] = $fields;
+        foreach ($fields['unknown'] ?? [] as $field) {
+            $this->noteTvPrefixField($field);
+        }
         if ($this->fields['display']['qe']) {
             $this->addField('pagetitle', 'display', 'db');
         }
@@ -165,16 +159,29 @@ class ditto
             return 'tv';
         }
 
-        if (in_array(substr($field, 2), $tvFields, true)) {
-            return 'tv:prefix';
-            // TODO: Remove TV Prefix support
-        }
-
         if (in_array($field, $dbFields, true)) {
             return 'db';
         }
 
+        $this->noteTvPrefixField($field);
         return 'unknown';
+    }
+
+    // ---------------------------------------------------
+    // Function: noteTvPrefixField
+    // Remember a field written as "tv" + TV name to report it (it is not read as the TV)
+    // ---------------------------------------------------
+
+    private function noteTvPrefixField($field)
+    {
+        $field = (string) $field;
+        if (strpos($field, 'tv') !== 0 || isset($this->tvPrefixFields[$field])) {
+            return;
+        }
+        $tvName = substr($field, 2);
+        if (in_array($tvName, $this->constantFields['tv'], true)) {
+            $this->tvPrefixFields[$field] = $tvName;
+        }
     }
 
     // ---------------------------------------------------
@@ -246,10 +253,6 @@ class ditto
         $advSort = ['pub_date', 'unpub_date', "editedon", "deletedon", "publishedon"];
         $type = $this->getDocVarType($sortBy);
         switch ($type) {
-            case 'tv:prefix':
-                $sortBy = substr($sortBy, 2);
-                $this->advSort = true;
-                break;
             case 'tv':
                 $this->advSort = true;
                 break;
@@ -338,7 +341,6 @@ class ditto
         }
 
         $customPlaceholders = $ph;
-        // set custom placeholder
         foreach ($ph as $name => $value) {
             if ($name === '*') {
                 continue;
@@ -373,7 +375,6 @@ class ditto
                     '',
                     $output
                 );
-                // remove chunk that is not wanted
             }
         }
 
@@ -386,13 +387,13 @@ class ditto
 
         if (in_array('author', $custom_v, true)) {
             $placeholders['author'] = self::getAuthor($resource['createdby']);
-        } // set author placeholder
+        }
         if (in_array('title', $custom_v, true)) {
             $placeholders['title'] = $resource['pagetitle'];
-        }// set title placeholder
+        }
         if (in_array('ditto_iteration', $custom_v, true)) {
             $placeholders['ditto_iteration'] = $x;
-        } // set sequence placeholder
+        }
 
         if (in_array('class', $custom_v, true)) {
             if (evo()->documentIdentifier == $resource['id']) {
@@ -402,7 +403,6 @@ class ditto
             }
         }
 
-        // set url placeholder
         if (in_array('url', $custom_v, true)) {
             if ($resource['id'] == evo()->config('site_start')) {
                 $placeholders['url'] = MODX_SITE_URL;
@@ -423,7 +423,7 @@ class ditto
                 }
                 $timestamp = $timestamp[1] + $timestamp[0];
             }
-            $placeholders['date'] = $this->mb_strftime($dateFormat, $timestamp);
+            $placeholders['date'] = evo()->mb_strftime($dateFormat, $timestamp);
         }
 
         return $placeholders;
@@ -480,33 +480,21 @@ class ditto
 
             if (is_array($source)) {
                 if (strpos($source[0], ',') !== false) {
-                    $fields = explode(',', $source[0]);
-                    foreach ($fields as $field) {
+                    foreach (explode(',', $source[0]) as $field) {
                         if (!empty($field)) {
                             $this->addField($field, $source[1]);
-                            $this->customPlaceholdersMap[$name] = $field;
                         }
                     }
                 } else {
                     $this->addField($source[0], $source[1]);
-                    $this->customPlaceholdersMap[$name] = $source[0];
                 }
-            } else if (is_array($value)) {
-                $fields = explode(',', $source);
-                foreach ($fields as $field) {
+            } elseif (is_array($value)) {
+                foreach (explode(',', $source) as $field) {
                     if (!empty($field)) {
-                        $field = trim($field);
-                        $this->addField($field, 'display');
-                        $this->customPlaceholdersMap[$name] = $field;
+                        $this->addField(trim($field), 'display');
                     }
                 }
             }
-
-            $qe = is_array($value) ? ($value[2] ?? null) : null;
-            if ($qe === null) {
-                continue; // the next placeholders still need their fields
-            }
-            $this->customPlaceholdersMap[$name] = ['qe', $qe];
         }
     }
 
@@ -525,9 +513,7 @@ class ditto
             $this->fields['display']['db'][] = 'createdby';
         }
 
-        if (count($this->fields['display']['tv']) >= 0) {
-            $this->addField('published', 'display', 'db');
-        }
+        $this->addField('published', 'display', 'db');
     }
 
     // ---------------------------------------------------
@@ -554,6 +540,42 @@ class ditto
     }
 
     // ---------------------------------------------------
+    // Function: xmlText
+    // Plain text (titles, names) of an XML element: entities already written (&amp; &copy; &#169;) become the character, then & < > " ' are escaped
+    // ---------------------------------------------------
+
+    static function xmlText($text)
+    {
+        return self::xmlEscape(
+            html_entity_decode((string)$text, ENT_QUOTES | ENT_HTML5, evo()->config('modx_charset') ?: 'UTF-8')
+        );
+    }
+
+    // ---------------------------------------------------
+    // Function: xmlEscape
+    // Value that may hold HTML source (content, introtext, TVs): escaped as it is, so the HTML reads back unchanged
+    // ---------------------------------------------------
+
+    static function xmlEscape($value)
+    {
+        return htmlspecialchars(
+            (string)$value,
+            ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401,
+            evo()->config('modx_charset') ?: 'UTF-8'
+        );
+    }
+
+    // ---------------------------------------------------
+    // Function: cdata
+    // Value put inside <![CDATA[ ]]>: a "]]>" in it is split so that it does not end the section
+    // ---------------------------------------------------
+
+    static function cdata($value)
+    {
+        return str_replace(']]>', ']]]]><![CDATA[>', (string)$value);
+    }
+
+    // ---------------------------------------------------
     // Function: userSort
     // Sort the resource array by a user defined function
     // ---------------------------------------------------
@@ -568,8 +590,6 @@ class ditto
     // ---------------------------------------------------
     // Function: multiSort
     // Sort the resource array by multiple fields
-    // Rows->Columns portion by Jon L. -- intel352@gmail.com
-    // Link: http://de3.php.net/manual/en/function.array-multisort.php#73498
     // ---------------------------------------------------
 
     function multiSort($resource, $orderBy)
@@ -630,7 +650,6 @@ class ditto
         if (($summarize == 0 && $summarize !== 'all') || (is_array($IDs) && !$IDs) || $IDs === false || $IDs === '') {
             return [];
         }
-        // Get starting IDs;
         switch ($IDType) {
             case 'parents':
                 $documentIDs = $this->getChildIDs(
@@ -646,19 +665,16 @@ class ditto
         // 非公開の親の除外は後段でしか行わないため、&seeThruUnpub=0 のときは速い経路を通さない
         if ($this->advSort == false && $hideFolders == 0 && $showInMenuOnly == 0 && $myWhere == '' && $filter == false && $hidePrivate == 1 && $seeThruUnpub) {
             $this->prefetch = false;
-            $documents = $this->getDocumentsIDs($documentIDs, $showPublishedOnly);
-            $documentIDs = [];
-            if ($documents) {
-                foreach ($documents as $doc) {
-                    $documentIDs[] = $doc['id'];
-                }
+            $documents = $this->getDocumentsIDs($documentIDs, $showPublishedOnly) ?: [];
+            if (!$randomize && $this->followsDocumentsOrder()) {
+                $documents = $this->unsort($documents, event()->param('documents'));
+                $this->sortOrder = array_flip(array_column($documents, 'id'));
             }
-            return $documentIDs;
+            return array_column($documents, 'id');
         }
 
         $this->prefetch = true;
 
-        // Create where clause
         $where = [];
         if ($hideFolders) {
             $where[] = 'isfolder = 0';
@@ -669,14 +685,10 @@ class ditto
         if ($myWhere != '') {
             $where[] = $myWhere;
         }
-        // set limit
         $where = implode(' AND ', $where);
         $limit = ($limit == 0) ? '' : $limit;
 
         $customReset = $this->customReset;
-        if ($this->debug) {
-            $this->addField('pagetitle', 'backend', 'db');
-        }
         if ($customReset) {
             $this->addField('createdon', 'backend', 'db');
         }
@@ -695,11 +707,9 @@ class ditto
         );
         if ($resource) {
             $resource = array_values($resource);
-            // remove #'s from keys
 
             if (!$seeThruUnpub) {
                 $parentList = $this->getParentList();
-                // get parent list
             }
             foreach ($resource as $i => $iValue) {
                 if (!$seeThruUnpub) {
@@ -716,9 +726,6 @@ class ditto
                     }
                 }
             }
-            if ($this->debug) {
-                $dbg_resource = $resource;
-            }
             if ($filter) {
                 $filterObj = new filter();
                 $resource = $filterObj->execute($resource, $filter);
@@ -728,7 +735,7 @@ class ditto
             }
             if ($this->advSort && !$randomize) {
                 $resource = $this->multiSort($resource, $orderBy);
-            } elseif (event()->param('documents') && !event()->param('orderBy')) {
+            } elseif ($this->followsDocumentsOrder()) {
                 $resource = $this->unsort(
                     $resource,
                     event()->param('documents')
@@ -753,31 +760,26 @@ class ditto
                     if (in_array($key2, $readyFields)) {
                         $keep[$iKey][$key2] = $v2;
                     }
-                    if ($this->getDocVarType($key2) === 'tv:prefix') {
-                        if (in_array(substr($key2, 2), $readyFields)) {
-                            $keep[$iKey][$key2] = $v2;
-                        }
-                    }
                 }
             }
 
             $this->prefetch = ['resource' => $keep, 'fields' => $fields];
-            if ($this->debug) {
-                $this->prefetch['dbg_resource'] = $dbg_resource;
-                $this->prefetch['dbg_IDs_pre'] = $documentIDs;
-                $this->prefetch['dbg_IDs_post'] = $processedIDs;
-            }
             if ($processedIDs) {
                 if ($randomize) {
                     shuffle($processedIDs);
                 }
                 $this->sortOrder = array_flip($processedIDs);
-                // saves the order of the documents for use later
             }
             return $processedIDs;
         }
 
         return [];
+    }
+
+    // &documents without &orderBy: the documents come out in the order they are listed
+    private function followsDocumentsOrder()
+    {
+        return event()->param('documents') && !event()->param('orderBy');
     }
 
     private function unsort($docs, $ids)
@@ -789,10 +791,11 @@ class ditto
         $ids = explode(',', $ids);
         $rs = [];
         foreach ($ids as $id) {
-            // documents not retrieved (unpublished, deleted, filtered) are skipped
+            // documents not retrieved (unpublished, deleted, filtered) are skipped; a repeated id keeps its first position
             $id = trim($id);
             if (isset($docs_tmp[$id])) {
                 $rs[] = $docs_tmp[$id];
+                unset($docs_tmp[$id]);
             }
         }
         return $rs;
@@ -807,7 +810,6 @@ class ditto
         $type = $this->getDocVarType($field);
         if ($type === 'unknown') {
             return $resource;
-            // handle vad field passed
         }
         $random = new random();
         foreach ($resource as $document) {
@@ -917,13 +919,11 @@ class ditto
         $row['docid'] = $contentId;
         $v = evo()->tvProcessor($row);
         $docs[$k][$name] = $v;
-        $docs[$k]['tv' . $name] = $v;
     }
 
     // ---------------------------------------------------
     // Function: getChildIDs
     // Get the IDs ready to be processed
-    // Similar to the modx version by the same name but much faster
     // ---------------------------------------------------
 
     function getChildIDs($IDs, $depth)
@@ -950,19 +950,7 @@ class ditto
             return false;
         }
         sort($ids);
-        $access = '';
-        if ($publicOnly) {
-            // get document groups for current user
-            $docgrp = evo()->getUserDocGroups();
-            if (evo()->isFrontend()) {
-                $access = sprintf(
-                    'sc.privateweb=0 %s',
-                    $docgrp ? ' OR dg.document_group IN (' . implode(',', $docgrp) . ')' : ''
-                );
-            } else {
-                $access = manager()->documentAccessCondition('sc');
-            }
-        }
+        $access = $publicOnly ? $this->accessCondition() : '';
 
         if ($extraWhere !== '') {
             $_ = explode('AND', $extraWhere);
@@ -986,7 +974,7 @@ class ditto
             $published ? 'AND sc.published=1' : '',
             $deleted,
             $where ?? '',
-            ($publicOnly && $access !== '') ? sprintf('AND (%s)', $access) : '',
+            $access !== '' ? 'AND ' . $access : '',
             $sort ? ' ORDER BY ' . $sort : '',
             ($limit) ? 'LIMIT ' . $limit : ''
         );
@@ -1007,7 +995,7 @@ class ditto
                 $row[$dateSource] += evo()->config('server_offset_time');
             }
 
-            if ($this->prefetch == true && $this->sortOrder !== false) {
+            if ($this->sortOrder) {
                 $row['ditto_sort'] = $this->sortOrder[$docid];
             }
 
@@ -1016,7 +1004,6 @@ class ditto
             $docs[$x] = $row;
             if (!empty($this->prefetch['resource'])) {
                 $docs[$x] = array_merge($row, $this->prefetch['resource'][$x]);
-                // merge the prefetch array and the normal array
             }
         }
 
@@ -1039,7 +1026,7 @@ class ditto
         }
 
         $docs = $this->array_merge_recursive($docs, $TVData);
-        if ($this->prefetch && $this->sortOrder) {
+        if ($this->sortOrder) {
             uasort($docs, function ($a, $b) {
                 return strnatcmp($a['ditto_sort'], $b['ditto_sort']);
             });
@@ -1059,8 +1046,25 @@ class ditto
         return $org;
     }
     // ---------------------------------------------------
-    // Function: getDocumentsLite
-    // Get an array of documents
+    // Function: accessCondition
+    // SQL condition (on sc / dg) that leaves the documents the visitor may see; '' when nothing is hidden
+    // ---------------------------------------------------
+
+    private function accessCondition()
+    {
+        if (!evo()->isFrontend()) {
+            return manager()->documentAccessCondition('sc');
+        }
+        $docGroups = evo()->getUserDocGroups();
+        if (!$docGroups) {
+            return '(sc.privateweb=0)';
+        }
+        return sprintf('(sc.privateweb=0 OR dg.document_group IN (%s))', implode(',', array_map('intval', $docGroups)));
+    }
+
+    // ---------------------------------------------------
+    // Function: getDocumentsIDs
+    // Get the ids of the documents the visitor may see
     // ---------------------------------------------------
 
     function getDocumentsIDs($ids = [], $published = 1)
@@ -1069,52 +1073,23 @@ class ditto
             return false;
         }
 
-        $where = [];
-        $docGroup = evo()->getUserDocGroups();
-        if ($docGroup) {
-            $where[] = sprintf('sc.id IN (%s)', implode(',', $ids));
-            $where[] = 'AND sc.deleted=0';
-            if (evo()->isFrontend()) {
-                $where[] = sprintf(
-                    'AND (sc.privateweb=0 OR dg.document_group IN (%s))',
-                    implode(',', $docGroup)
-                );
-            } else {
-                $cond = manager()->documentAccessCondition('sc');
-                if ($cond !== '') {
-                    $where[] = 'AND ' . $cond;
-                }
-            }
-            if ($published) {
-                $where[] = 'AND sc.published=1';
-            }
-            $where[] = 'GROUP BY sc.id';
-            $rs = db()->select(
-                'DISTINCT sc.id',
-                '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document=sc.id',
-                $where
-            );
-        } else {
-            $where[] = sprintf('id IN (%s)', implode(',', $ids));
-            $where[] = 'AND deleted=0';
-            if (evo()->isFrontend()) {
-                $where[] = 'AND privateweb=0';
-            } else {
-                $cond = manager()->documentAccessCondition('');
-                if ($cond !== '') {
-                    $where[] = 'AND ' . $cond;
-                }
-            }
-            if ($published) {
-                $where[] = 'AND published=1';
-            }
-            $where[] = 'GROUP BY id';
-            $rs = db()->select(
-                'DISTINCT id',
-                '[+prefix+]site_content',
-                $where
-            );
+        $where = [
+            sprintf('sc.id IN (%s)', implode(',', $ids)),
+            'AND sc.deleted=0',
+        ];
+        $access = $this->accessCondition();
+        if ($access !== '') {
+            $where[] = 'AND ' . $access;
         }
+        if ($published) {
+            $where[] = 'AND sc.published=1';
+        }
+        $where[] = 'GROUP BY sc.id';
+        $rs = db()->select(
+            'DISTINCT sc.id',
+            '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document=sc.id',
+            $where
+        );
 
         $docs = [];
         while ($row = db()->getRow($rs)) {
@@ -1122,7 +1097,6 @@ class ditto
         }
         return $docs;
     }
-
 
     // ---------------------------------------------------
     // Function: buildURL
@@ -1173,26 +1147,6 @@ class ditto
         $cID = ($id !== false) ? $id : (evo()->documentObject['id'] ?? '');
         $url = evo()->makeURL(trim($cID), '', $queryString);
         return evo()->config('xhtml_urls') ? $url : str_replace('&', '&amp;', $url);
-    }
-
-    // ---------------------------------------------------
-    // Function: getParam
-    // Get a parameter or use the default language value
-    // ---------------------------------------------------
-
-    function getParam($param)
-    {
-        // get a parameter value and if it is not set get the default language string value
-        global $ditto_lang;
-
-        if (substr($param, 0, 1) === '@') {
-            return $this->template->fetch($param);
-        }
-        if (evo()->hasChunk($param)) {
-            return evo()->getChunk($param);
-        }
-
-        return event()->param($param);
     }
 
     // ---------------------------------------------------
@@ -1354,18 +1308,23 @@ class ditto
         global $dittoID;
         $set = evo()->getPlaceholder($dittoID . 'ditto_pagination_set');
         if ($paginate && $set !== true) {
-            evo()->setPlaceholder($dittoID . 'next', '');
-            evo()->setPlaceholder($dittoID . 'previous', '');
-            evo()->setPlaceholder($dittoID . 'prev', '');
-            evo()->setPlaceholder($dittoID . 'splitter', '');
-            evo()->setPlaceholder($dittoID . 'start', 0);
-            evo()->setPlaceholder($dittoID . 'urlStart', '#start');
-            evo()->setPlaceholder($dittoID . 'stop', 0);
-            evo()->setPlaceholder($dittoID . 'total', 0);
-            evo()->setPlaceholder($dittoID . 'pages', '');
-            evo()->setPlaceholder($dittoID . 'perPage', 0);
-            evo()->setPlaceholder($dittoID . 'totalPages', 0);
-            evo()->setPlaceholder($dittoID . 'currentPage', 0);
+            evo()->toPlaceholders(
+                [
+                    'next' => '',
+                    'previous' => '',
+                    'prev' => '',
+                    'splitter' => '',
+                    'start' => 0,
+                    'urlStart' => '#start',
+                    'stop' => 0,
+                    'total' => 0,
+                    'pages' => '',
+                    'perPage' => 0,
+                    'totalPages' => 0,
+                    'currentPage' => 0
+                ],
+                $dittoID
+            );
         }
         return $text;
     }
@@ -1373,29 +1332,13 @@ class ditto
     // ---------------------------------------------------
     // Function: relToAbs
     // Convert relative urls to absolute URLs
-    // Based on script from http://wintermute.com.au/bits/2005-09/php-relative-absolute-links/
     // ---------------------------------------------------
-    function relToAbs($text, $base)
+    static function relToAbs($text, $base)
     {
         return preg_replace(
             '#(href|src)="([^:"]*)"#',
             '$1="' . $base . '$2"',
             $text
         );
-    }
-
-    function mb_strftime($format = '', $timestamp = '')
-    {
-        global $modx;
-        if (method_exists($modx, 'mb_strftime')) {
-            return evo()->mb_strftime($format, $timestamp);
-        }
-
-        $dateTime = new DateTime();
-        $dateTime->setTimestamp($timestamp);
-
-        $dateFormat = $format?: evo()->toDateFormat(null, 'formatOnly') . ' %H:%M';
-
-        return $dateTime->format($dateFormat);
     }
 }

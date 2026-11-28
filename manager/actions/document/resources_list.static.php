@@ -8,13 +8,13 @@ if (!hasPermission('view_document')) {
     alert()->setError(3);
     alert()->dumpError();
 }
+include_once(MODX_CORE_PATH . 'controls/child_document_list_state.class.php');
+
 $id = get_intvar('id');
-if ($id && !evo()->checkPermissions($id)) {
+if (!ChildDocumentListState::canOpen($id)) {
     alert()->setError(3, lang('access_permission_denied'));
     alert()->dumpError();
 }
-
-include_once(MODX_CORE_PATH . 'controls/child_document_list_state.class.php');
 
 // 一括の操作。ボタンは操作ごとの権限があるものだけ出し、チェックボックスと選択の部品はどれか 1 つの権限があれば出す
 $canBatchMove = manager()->can('document.move');
@@ -164,6 +164,13 @@ if (!$numRecords) {
         $docs[$row['id']] = $row;
     }
 
+    // 行メニューの確認に出す、操作に巻き込まれる子の有無。削除（ゴミ箱に無い行）では削除していない子、完全に削除（ゴミ箱の行）ではすべての子
+    $trashedIds = array_keys(array_filter($docs, function ($doc) {
+        return (int) $doc['deleted'] === 1;
+    }));
+    $withLiveChildren = evo()->doc->idsWithLiveChildren(array_merge(array_keys($docs), $allChildIds));
+    $withAnyChildren = evo()->doc->idsWithChildren($trashedIds);
+
     $rows = [];
     $tpl = '<div class="title">[+icon+][+statusIcon+]</div><a href="[+link+]">[+title+][+description+]</a>';
     foreach ($docs as $docid => $doc) {
@@ -174,6 +181,15 @@ if (!$numRecords) {
         if ($accessCond === '') {
             $doc['has_access'] = 1;
         }
+        // 行メニューが開くときに読む行の状態（値は DataTable が出すときにエスケープする）。下書きの有無はツリー（nodes.php）と同じ見方
+        $menuState = [
+            'data-published' => (int) $doc['published'],
+            'data-deleted' => (int) $doc['deleted'],
+            'data-draft' => in_array($doc['status'], ['draft', 'standby'], true) ? 1 : 0,
+            'data-title' => $doc['pagetitle'],
+            'data-preview-url' => evo()->makeUrl($docid, '', '', 'full'),
+            'data-has-children' => in_array((int) $docid, (int) $doc['deleted'] ? $withAnyChildren : $withLiveChildren, true) ? 1 : 0,
+        ];
         $doc = hsc($doc);
 
         $doc['icon'] = getIcon($doc);
@@ -190,7 +206,9 @@ if (!$numRecords) {
         $col['title'] = parseText($tpl, $doc);
         $col['publishedon'] = getPublishedOn($doc);
         $col['editedon'] = getEditedon($doc['editedon']);
+        $col['menuindex'] = (int) $doc['menuindex'];
         $col['status'] = getStatus($doc);
+        $col['menuState'] = $menuState;
         $rows[] = $col;
     }
 
@@ -199,16 +217,30 @@ if (!$numRecords) {
         $columns[] = ['key' => 'checkbox', 'label' => '<input type="checkbox" data-select-all="batch[]" aria-label="' . hsc(lang('select_all')) . '">', 'labelHtml' => true, 'html' => true, 'class' => 'is-shrink'];
     }
     $columns = array_merge($columns, [
-        ['key' => 'docid', 'label' => lang('id'), 'class' => 'is-shrink', 'sort' => 'id'],
+        ['key' => 'docid', 'label' => lang('id'), 'class' => 'is-shrink', 'sort' => 'id', 'sortFirst' => 'desc'],
         ['key' => 'title', 'label' => lang('resource_title'), 'html' => true, 'sort' => 'pagetitle'],
-        ['key' => 'publishedon', 'label' => lang('publish_date'), 'html' => true, 'sort' => 'publishedon'],
-        ['key' => 'editedon', 'label' => lang('editedon'), 'html' => true, 'sort' => 'editedon'],
-        ['key' => 'status', 'label' => lang('page_data_status'), 'html' => true],
+        ['key' => 'publishedon', 'label' => lang('publish_date'), 'html' => true, 'sort' => 'publishedon', 'sortFirst' => 'desc'],
+        ['key' => 'editedon', 'label' => lang('editedon'), 'html' => true, 'sort' => 'editedon', 'sortFirst' => 'desc'],
+        [
+            'key' => 'menuindex',
+            'label' => sprintf(
+                '<span aria-hidden="true" title="%s (menuindex)">%s</span><span class="is-visually-hidden">%s</span>',
+                hsc(lang('resource_opt_menu_index')),
+                hsc(lang('resources_list_col_menuindex')),
+                hsc(lang('resource_opt_menu_index'))
+            ),
+            'labelHtml' => true,
+            'class' => 'is-shrink',
+            'sort' => 'menuindex',
+        ],
+        ['key' => 'status', 'label' => lang('page_data_status'), 'html' => true, 'sort' => 'status'],
     ]);
     $table = new DataTable($columns, [
         'id' => 'children',
         'tableClass' => 'grid',
-        'rowClasses' => ['gridItem', 'gridAltItem'],
+        'rowAttributes' => function (array $row) {
+            return $row['menuState'];
+        },
         'selection' => $canBatch ? [
             'name' => 'batch[]',
             'ids' => $allChildIds,
@@ -232,14 +264,15 @@ if (!$numRecords) {
     // 上のページ送りは表の上の行（作成のボタンの右）に出し、下は右に寄せる
     $navTop = $nav;
     $children_output = $table->render($rows, $links)
-        . ($nav !== '' ? '<div class="resources-list-pager-bottom">' . $nav . '</div>' : '');
+        . ($nav !== '' ? '<div class="list-pager-bottom">' . $nav . '</div>' : '');
     if ($canBatch) {
         // ボタンごとの送り先は formaction（フォームに hidden の a を置くと、a の値が衝突する）。
         // 操作の種類は URL の op で渡し、今のページ・並べ替え・検索語（q）も同じ URL で引き継ぐ。削除は確認のダイアログを出す
         $returnQuery = ChildDocumentListState::returnQuery();
         // ボタンは選択件数の帯の隣に出す（data-table.js が data-selection-actions の欄を帯へ移す）。
         // 帯に「n 件を選択」と出るので、ボタンは短い文言にし、元の長い文言は title に残す
-        $button = function ($label, $title, $a, $op = '', $confirm = '', $class = '') use ($returnQuery) {
+        // 確認は document-actions.js の operations の表から引く。ボタンは操作の名前（data-batch-op）だけ持つ
+        $button = function ($label, $title, $a, $op = '', $class = '') use ($returnQuery) {
             $url = 'index.php?a=' . $a . ($op !== '' ? '&op=' . $op . $returnQuery : '');
             // 見た目は各テーマの .actionButtons の規則に任せる（リンクにはできないので button で formaction を使う）
             return sprintf(
@@ -247,7 +280,7 @@ if (!$numRecords) {
                 $class !== '' ? ' class="' . hsc($class) . '"' : '',
                 hsc($title),
                 hsc($url),
-                $confirm !== '' ? ' onclick="' . hsc('return confirm(' . js_literal(stripcslashes($confirm)) . ');') . '"' : '',
+                $op !== '' ? ' data-batch-op="' . hsc($op) . '"' : '',
                 hsc($label)
             );
         };
@@ -260,7 +293,7 @@ if (!$numRecords) {
             $buttons .= $button(lang('unpublish_resource'), lang('resources_list_unpublish_checked'), 121, 'unpublish');
         }
         if ($canBatchDelete) {
-            $buttons .= $button(lang('delete'), lang('resources_list_delete_checked'), 121, 'delete', lang('resources_list_confirm_delete_checked'), 'is-danger');
+            $buttons .= $button(lang('delete'), lang('resources_list_delete_checked'), 121, 'delete', 'is-danger');
         }
         $children_output .= '<div class="resources-batch-actions" data-selection-actions="batch[]"><ul class="actionButtons">' . $buttons . '</ul></div>';
     }
@@ -268,10 +301,11 @@ if (!$numRecords) {
 
 // context menu
 include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
-$cm = new ContextMenu('cntxm', 180);
+$menuId = 'cntxm';
+$cm = new ContextMenu($menuId, 180);
 echo getContextMenu($cm);
 
-echo get_jscript($id, $cm);
+echo get_jscript($menuId, $withLiveChildren ?? []);
 
 ?>
     <script type="text/javascript" src="<?= manager_asset('media/script/data-table.js') ?>"></script>
@@ -281,17 +315,31 @@ echo get_jscript($id, $cm);
         <ul class="actionButtons">
             <?php
             $tpl = '<li id="%s" class="mutate"><a href="#" onclick="%s">%s</a></li>';
+            $docButton = function ($buttonId, $action, $label) use ($id) {
+                // 確認は document-actions.js の operations の表から引く。削除は、子があるかだけ渡す
+                $attr = $action === 'delete'
+                    ? ' data-has-children="' . (evo()->doc->hasLiveChildren($id) ? '1' : '0') . '"'
+                    : '';
+                return sprintf(
+                    '<li id="%s" class="mutate"><a href="#" data-doc-action="%s" data-doc-id="%d"%s>%s</a></li>',
+                    $buttonId,
+                    $action,
+                    (int) $id,
+                    $attr,
+                    $label
+                );
+            };
             if (manager()->can('document.edit') && $id != 0 && manager()->isInAllowedParents($id)) {
-                echo sprintf($tpl, 'Button1', 'editdocument();', lang('edit'));
+                echo $docButton('Button1', 'edit', lang('edit'));
             }
             if (manager()->can('document.move') && $id != 0 && manager()->isInAllowedParents($id)) {
-                echo sprintf($tpl, 'Button2', 'movedocument();', lang('move'));
+                echo $docButton('Button2', 'move', lang('move'));
             }
             if (manager()->can('document.duplicate') && $id != 0 && manager()->isInAllowedParents($id)) {
-                echo sprintf($tpl, 'Button4', 'duplicatedocument();', lang('duplicate'));
+                echo $docButton('Button4', 'duplicate', lang('duplicate'));
             }
             if (manager()->can('document.delete') && $id != 0 && manager()->isInAllowedParents($id)) {
-                echo sprintf($tpl, 'Button3', 'deletedocument();', lang('delete'));
+                echo $docButton('Button3', 'delete', lang('delete'));
             }
 
             $prev = sprintf("window.open(%s,'previeWin')", hsc(js_literal(evo()->makeUrl($id))));
@@ -326,7 +374,7 @@ echo get_jscript($id, $cm);
                 );
             }
             // 中身が無いとき（作成の権限が無く、ページ送りも無い）は出さない
-            $toolbar = ($createButtons . $navTop) !== '' ? '<div class="resources-list-toolbar">' . $createButtons . $navTop . '</div>' : '';
+            $toolbar = ($createButtons . $navTop) !== '' ? '<div class="list-toolbar">' . $createButtons . $navTop . '</div>' : '';
             echo <<< EOT
 <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php" onkeydown="{$enterGuard}">
 <input type="hidden" name="parent" value="{$id}" />
@@ -445,7 +493,7 @@ function getStatus($doc)
 {
     global $_lang;
 
-    if (!$doc['published'] && (request_time() < $doc['pub_date'] || $doc['unpub_date'] < request_time())) {
+    if (empty($doc['published'])) {
         return parseText('<span class="unpublishedDoc">[+page_data_unpublished+]</span>', $_lang);
     }
     return parseText('<span class="publishedDoc">[+page_data_published+]</span>', $_lang);
@@ -476,153 +524,26 @@ function _getIconPath($doc)
     return style('tree_folder');
 }
 
-function get_jscript($id, $cm)
+// $withLiveChildren: 一覧のリソース（ほかのページの分も含む）のうち、削除していない子を持つものの ID（一括の削除の確認に使う）
+function get_jscript($menuId, array $withLiveChildren)
 {
     global $modx_textdir;
 
-    $contextm = $cm->getClientScriptObject();
-    $textdir = $modx_textdir === 'rtl' ? '-190' : '';
     // メニューの操作後の戻り先に、今のページ・並べ替え・検索語（q）を残す
     $returnQuery = ChildDocumentListState::returnQuery();
-    $page = $returnQuery !== '' ? ' + ' . js_literal($returnQuery) : '';
 
-    $siteStart = (int) evo()->config('site_start');
+    $config = sprintf(
+        '{menuId:%s,rtl:%s,returnQuery:%s,withChildren:%s}',
+        js_literal($menuId),
+        $modx_textdir === 'rtl' ? 'true' : 'false',
+        js_literal($returnQuery),
+        js_value($withLiveChildren)
+    );
 
-    $js_confirm_resource_duplicate = js_literal(stripcslashes(lang('confirm_resource_duplicate')));
-    $js_confirm_delete_resource = js_literal(stripcslashes(lang('confirm_delete_resource')));
-    $js_confirm_publish = js_literal(stripcslashes(lang('confirm_publish')));
-    $js_confirm_unpublish = js_literal(stripcslashes(lang('confirm_unpublish')));
-    $js_confirm_undelete = js_literal(stripcslashes(lang('confirm_undelete')));
-
-    $block = <<< EOT
-<style type="text/css">
-a span.withmenu {border:1px solid transparent;}
-a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
-.nowrap {white-space:nowrap;}
-.disable {color:#777;}
-</style>
-<script type="text/javascript">
-    function duplicatedocument() {
-        if (confirm({$js_confirm_resource_duplicate}) == true) {
-            EvoCsrf.post("index.php?id={$id}&a=94");
-        }
-    }
-    function deletedocument() {
-        if (confirm({$js_confirm_delete_resource}) == true) {
-            EvoCsrf.post("index.php?id={$id}&a=6");
-        }
-    }
-    function editdocument() {
-        EvoShell.go("index.php?id={$id}&a=27");
-    }
-    function movedocument() {
-        EvoShell.go("index.php?id={$id}&a=51");
-    }
-
-    // AJAXで再訪した際にスクリプトが再実行されるため、再宣言可能なvarを使う
-    var selectedItem;
-    var contextm = {$contextm};
-    function showContentMenu(id,e){
-        selectedItem=id;
-        //offset menu if RTL is selected
-        contextm.style.left = (e.pageX || (e.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft))){$textdir}+10+"px";
-        contextm.style.top = (e.pageY || (e.clientY + (document.documentElement.scrollTop || document.body.scrollTop)))-150 + 'px';
-        contextm.style.visibility = "visible";
-        e.cancelBubble=true;
-        return false;
-    }
-
-    function menuAction(a) {
-        let id = selectedItem;
-        const gotoUrl = EvoShell.go;
-        switch(a) {
-            case 27:        // edit
-                gotoUrl('index.php?a=27&id='+id);
-                break;
-            case 4:         // new Resource
-                gotoUrl('index.php?a=4&pid='+id);
-                break;
-            case 51:        // move
-                gotoUrl('index.php?a=51&id='+id{$page});
-                break;
-            case 94:        // duplicate
-                if(confirm({$js_confirm_resource_duplicate})==true)
-                {
-                    EvoCsrf.post('index.php?a=94&id='+id{$page});
-                }
-                break;
-            case 61:        // publish
-                if(confirm({$js_confirm_publish})==true)
-                {
-                    EvoCsrf.post('index.php?a=61&id='+id{$page});
-                }
-                break;
-            case 62:        // unpublish
-                if (id != {$siteStart})
-                {
-                    if(confirm({$js_confirm_unpublish})==true)
-                    {
-                        EvoCsrf.post("index.php?a=62&id=" + id{$page});
-                    }
-                }
-                else
-                {
-                    alert('Document is linked to site_start variable and cannot be unpublished!');
-                }
-                break;
-            case 6:         // delete
-                if(confirm({$js_confirm_delete_resource})==true)
-                {
-                    EvoCsrf.post('index.php?a=6&id='+id{$page});
-                }
-                break;
-            case 63:        // undelete
-                if(confirm({$js_confirm_undelete})==true)
-                {
-                    EvoCsrf.post("index.php?a=63&id=" + id{$page});
-                }
-                break;
-            case 72:         // new Weblink
-                gotoUrl('index.php?a=72&pid='+id);
-                break;
-            case 3:        // view
-                gotoUrl('index.php?a=3&id='+id);
-                break;
-        }
-    }
-    // シェルの遷移で積み重ならないよう 1 回だけ登録する（contextm は実行時に最新の var を読む）
-    if (!window.evoContextMenuClose) {
-        window.evoContextMenuClose = true;
-        document.addEventListener('click', function(){
-            contextm.style.visibility = "hidden";
-        });
-    }
-
-    // 表は画面の差し替えで消える。<script> を表の後ろに置かず、Evo.ready で表ができてから登録する
-    Evo.ready(function () {
-        const table = document.querySelector('[data-table="children"]');
-        if (!table) {
-            return;
-        }
-        table.addEventListener('click', function (e) {
-            const el = e.target.closest('[data-row-menu]');
-            // タイトルのクリックはリンクとして動かす。メニューはアイコンのクリックで開く
-            if (el && el.tagName === 'IMG') {
-                showContentMenu(Number(el.dataset.rowMenu), e);
-                e.preventDefault();
-            }
-        });
-        table.addEventListener('contextmenu', function (e) {
-            const el = e.target.closest('[data-row-menu]');
-            if (el) {
-                showContentMenu(Number(el.dataset.rowMenu), e);
-                e.preventDefault();
-            }
-        });
-    });
-</script>
-EOT;
-    return $block;
+    return sprintf(
+        '<script type="text/javascript">EvoDocumentActions.initChildMenu(%s);</script>',
+        $config
+    );
 }
 
 function getReturnAction($current)
@@ -639,7 +560,7 @@ function getReturnAction($current)
         return 'index.php?a=120';
     }
 
-    return 'index.php?a=120&id=' . $current['parent'];
+    return ChildDocumentListState::listUrl((int) $current['parent']);
 }
 
 function getTopicPath($id)
@@ -684,49 +605,21 @@ function getTopicPath($id)
     );
 }
 
+// 項目は DocumentMenu の表から描く（ツリーの右クリックメニューと同じ定義）。開くときに、行の状態で出し分ける
 function getContextMenu($cm)
 {
-    if (manager()->can('document.edit')) {
-        $cm->addItem(lang('edit_resource'), "js:menuAction(27)", style('icons_edit_document'));
-    }
-    if (manager()->can('document.create')) {
-        $cm->addItem(lang('create_resource_here'), "js:menuAction(4)", style('icons_new_document'));
-    }
-    if (manager()->can('document.move')) {
-        $cm->addItem(lang('move_resource'), "js:menuAction(51)", style('icons_move_document'));
-    }
-    if (manager()->can('document.duplicate')) {
-        $cm->addItem(lang('resource_duplicate'), "js:menuAction(94)", style('icons_resource_duplicate'));
-    }
-    if (0 < $cm->i) {
-        $cm->addSeparator();
-        $cm->i = 0;
-    }
-    if (manager()->can('document.publish')) {
-        $cm->addItem(lang('publish_resource'), "js:menuAction(61)", style('icons_publish_document'));
-    }
-    if (manager()->can('document.publish')) {
-        $cm->addItem(lang('unpublish_resource'), "js:menuAction(62)", style('icons_unpublish_resource'));
-    }
-    if (manager()->can('document.delete')) {
-        $cm->addItem(lang('delete_resource'), "js:menuAction(6)", style('icons_delete'));
-    }
-    if (manager()->can('document.delete')) {
-        $cm->addItem(lang('undelete_resource'), "js:menuAction(63)", style('icons_undelete_resource'));
-    }
-    if (0 < $cm->i) {
-        $cm->addSeparator();
-        $cm->i = 0;
-    }
-    if (manager()->can('document.create')) {
-        $cm->addItem(lang('create_weblink_here'), "js:menuAction(72)", style('icons_weblink'));
-    }
-    if (0 < $cm->i) {
-        $cm->addSeparator();
-        $cm->i = 0;
-    }
-    if (hasPermission('view_document')) {
-        $cm->addItem(lang('resource_overview'), "js:menuAction(3)", style('icons_resource_overview'));
+    include_once(MODX_CORE_PATH . 'controls/document_menu.class.php');
+    foreach (DocumentMenu::items() as $item) {
+        if ($item['separator']) {
+            $cm->addSeparator();
+        }
+        $cm->addItem(
+            $item['text'],
+            sprintf("js:EvoDocumentActions.menu('%s')", $item['key']),
+            $item['icon'],
+            0,
+            $item['key']
+        );
     }
     return $cm->render();
 }

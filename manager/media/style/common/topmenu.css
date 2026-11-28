@@ -1,0 +1,187 @@
+/*
+ * 上のメニュー（menu.php の #Navcontainer・#nav・ul.subnav）と、右上のユーザー情報（#topbar・#supplementalNav）。
+ * 余白と項目・サブメニューの高さは全テーマ共通。細いメニューの RevoStyle と、下線を帯の下端に置く下線の型のテーマは、高さの変数を変える。
+ * 型（タブ・ピル・下線）の違いと色は、テーマが #topMenu か :root の --topnav-* で決める（theme-variables.md の「上のメニュー」）。
+ * 一部のテーマにしかない飾り（すりガラスの効果、文字の影など）は、テーマの規則に書く。
+ * 既定値は RevoClassic の値。
+ */
+@layer evo-components {
+    #Navcontainer {
+        position: relative;
+        /* 段の高さは、menu.php の fitMenuHeight() がサブメニューの帯の下端に合わせる */
+        padding: var(--topnav-padding-top, 12px) 16px calc(var(--subnav-height, 26px) + 2 * var(--topnav-subnav-padding-y, 6px) + 2px);
+        color: var(--topnav-link-color, #e1f1f4);
+        text-shadow: none;
+    }
+
+    #nav {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 8px 4px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    #nav > li {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    /* 項目。下の枠の太さは、下線の型のテーマが --topnav-underline-width で太くする */
+    #nav > li > a {
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+        height: var(--topnav-item-height, 32px);
+        padding: 0 16px;
+        border: var(--topnav-item-border-width, 1px) solid transparent;
+        border-bottom-width: var(--topnav-underline-width, 1px);
+        border-radius: var(--topnav-item-radius, 6px 6px 0 0);
+        background: transparent;
+        color: var(--topnav-item-color, var(--topnav-link-color, #e1f1f4));
+        font-weight: var(--topnav-item-font-weight, normal);
+        text-decoration: none;
+        white-space: nowrap;
+        transition: color .2s ease, background-color .2s ease, border-color .2s ease;
+    }
+
+    #nav > li > a:is(:hover, :active, :focus-visible) {
+        border-color: var(--topnav-link-hover-border-color, var(--topnav-border, #10475a));
+        background: var(--topnav-link-hover-bg, #195a70);
+        color: var(--topnav-link-hover-color, #fff);
+    }
+
+    /* 選んでいる項目。タブの型では、下の枠を透明にしてサブメニューの帯とつなげる */
+    #nav > li.active > a {
+        position: relative;
+        z-index: 2;
+        border-color: var(--topnav-link-active-border-color, var(--topnav-border, #10475a) var(--topnav-link-active-bg, #1b2e37) transparent);
+        background: var(--topnav-link-active-bg, #1b2e37);
+        color: var(--topnav-link-hover-color, #fff);
+        font-weight: var(--topnav-link-active-font-weight, var(--topnav-item-font-weight, normal));
+    }
+
+    /* サブメニューの帯。選んでいる項目の下に、横いっぱいに出す */
+    #nav > li > ul.subnav {
+        display: none;
+        position: absolute;
+        inset-inline: 0;
+        /* タブの型では項目の下端に 1px 重ね、帯の上の枠を、選んでいる項目（重なりの順が上）で隠す。項目と帯がつながって見える */
+        top: calc(var(--topnav-padding-top, 12px) + var(--topnav-item-height, 32px) - var(--topnav-subnav-overlap, 1px));
+        z-index: 1;
+        box-sizing: border-box;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0 4px;
+        margin: 0;
+        padding: var(--topnav-subnav-padding-y, 6px) 16px;
+        border-block: 1px solid;
+        border-block-color: var(--topnav-subnav-border-color, var(--topnav-border, #10475a));
+        background: var(--topnav-subnav-bg, var(--topnav-link-active-bg, #1b2e37));
+        box-shadow: var(--topnav-subnav-shadow, none);
+        list-style: none;
+    }
+
+    #nav > li.active > ul.subnav {
+        display: flex;
+    }
+
+    #nav > li > ul.subnav > li {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    #nav > li > ul.subnav a {
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+        height: var(--subnav-height, 26px);
+        padding: 0 16px;
+        border-bottom: var(--topnav-underline-width, 0) solid transparent;
+        border-radius: var(--topnav-sublink-radius, 999px);
+        background: transparent;
+        color: var(--topnav-sublink-color, #f1fbfc);
+        font-weight: var(--topnav-sublink-font-weight, normal);
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: color .2s ease, background-color .2s ease, border-color .2s ease;
+    }
+
+    #nav > li > ul.subnav a:is(:hover, :focus-visible) {
+        border-bottom-color: var(--topnav-sublink-hover-border-color, transparent);
+        background: var(--topnav-sublink-hover-bg, #184753);
+        color: var(--topnav-sublink-hover-color, var(--topnav-link-hover-color, #fff));
+    }
+
+    #nav > li > ul.subnav a:active {
+        color: var(--topnav-sublink-pressed-color, #d9edf1);
+    }
+
+    /* 表示中の画面に対応する項目（menu.php が aria-current を付ける） */
+    #nav > li > ul.subnav a[aria-current="page"] {
+        border-bottom-color: var(--topnav-sublink-hover-border-color, transparent);
+        background: var(--topnav-sublink-hover-bg, #184753);
+        color: var(--topnav-sublink-hover-color, var(--topnav-link-hover-color, #fff));
+        font-weight: bold;
+    }
+
+    /* 右上のユーザー情報（menu.php の #topbar・#supplementalNav）。上のメニューの項目の段に置き、右端にそろえる */
+    #topbar {
+        position: relative;
+        margin: 0;
+        padding: 0;
+        color: var(--color-text-primary, inherit);
+    }
+
+    #supplementalNav {
+        position: absolute;
+        /* 項目より 4px 上に置き、下のサブメニューの帯との間を空ける */
+        top: calc(var(--topnav-padding-top, 12px) - 4px);
+        inset-inline-end: 16px;
+        z-index: 111;
+        display: flex;
+        align-items: center;
+        column-gap: 12px;
+        box-sizing: border-box;
+        height: var(--topnav-item-height, 32px);
+        margin: 0;
+        padding: 0 var(--supplemental-nav-padding-x, 18px);
+        border: 1px solid var(--supplemental-nav-border-color, transparent);
+        border-radius: 999px;
+        background: var(--supplemental-nav-bg, linear-gradient(180deg, rgba(15, 23, 24, .4), rgba(16, 35, 37, .4)));
+        box-shadow: var(--supplemental-nav-shadow, none);
+        color: var(--supplemental-nav-color, var(--topnav-link-color, #e1f1f4));
+        font-weight: 500;
+        line-height: 1;
+    }
+
+    #supplementalNav .supplementalNav__item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    #supplementalNav .supplementalNav__version-label {
+        font-weight: 600;
+        letter-spacing: .02em;
+    }
+
+    #supplementalNav a:any-link {
+        margin: 0;
+        padding: 0;
+        color: var(--supplemental-nav-link-color, #aab1b9);
+        font-weight: var(--supplemental-nav-link-font-weight, bold);
+        text-decoration: none;
+        transition: color .15s ease;
+    }
+
+    #supplementalNav a:any-link:is(:hover, :focus-visible) {
+        color: var(--supplemental-nav-link-hover-color, #fff);
+    }
+}
