@@ -325,25 +325,10 @@ if (getv('submitok')) {
     $targetError = $built['error'];
     $searchTargetInput = $query->target();
 
-    // 閲覧できるリソースの条件（文書グループ。式はここ 1 か所）。checkPermissions() と同じく、use_udperms が無効・管理者なら制限しない。
-    // tree_show_protected が無効なら、ツリー（nodes.php の getNodes()）と同じく結果から外す（$accessWhere）。
-    // 有効なら、ツリーと同じくタイトルは出すが、本文の抜粋は閲覧できる行にだけ作る（can_view。document_data.static.php は拒否するため）
-    $accessExpr = '';
-    if (config('use_udperms') && !manager()->isAdmin()) {
-        $mgrDocgroups = array_map('intval', (array) sessionv('mgrDocgroups', []));
-        $access = 'privatemgr=0';
-        if ($mgrDocgroups) {
-            $access .= sprintf(
-                ' OR id IN (SELECT document FROM %s WHERE document_group IN (%s))',
-                db()->getFullTableName('document_groups'),
-                implode(',', $mgrDocgroups)
-            );
-        }
-        $accessExpr = '(' . $access . ')';
-    }
-    $accessWhere = config('tree_show_protected') ? '' : $accessExpr;
-    $canViewColumn = config('tree_show_protected') && $accessExpr !== '' ? $accessExpr : '1';
-
+    // ドキュメントグループによる絞り込み（判定は ManagerAPI::documentAccessCondition()。この問い合わせは表に別名が無い）。
+    // 検索は開けない文書の題名と、本文に語を含むことを明かしてしまうので、表示だけの設定の tree_show_protected は見ず、常に絞る
+    $accessCond = manager()->documentAccessCondition('');
+    $accessWhere = $accessCond === '' ? '' : '(' . $accessCond . ')';
     if ($accessWhere !== '') {
         $where[] = $accessWhere;
     }
@@ -395,14 +380,14 @@ if (getv('submitok')) {
     $pager = new DataTablePager($total, (int) config('number_of_results') ?: 20, $links->page());
     $rs = db()->select(
         // 本文は抜粋に使う先頭だけを取る（大きな本文を全件ぶん読まない）
-        'id, contenttype, pagetitle, longtitle, description, SUBSTRING(content, 1, 5000) AS content_head, ' . $canViewColumn . ' AS can_view, deleted, published, isfolder, type',
+        'id, contenttype, pagetitle, longtitle, description, SUBSTRING(content, 1, 5000) AS content_head, deleted, published, isfolder, type',
         '[+prefix+]site_content',
         implode(' and ', $where),
         $orderby,
         $pager->limit() > 0 ? sprintf('%d, %d', $pager->offset(), $pager->limit()) : ''
     );
     // タイトルを押したときの行き先。編集の権限が無ければ、リソースの情報の画面
-    $action = evo()->hasPermission('edit_document') ? '27' : '3';
+    $action = manager()->can('document.edit') ? '27' : '3';
     ?>
     <div class="section">
         <div class="sectionHeader"><?= lang('search_results') ?></div>
@@ -478,9 +463,6 @@ if (getv('submitok')) {
                     $fromContent = $text === '';
                     if ($fromContent) {
                         // 正規表現が失敗しても（不正な UTF-8・バックトラックの上限）、空にして抜粋なしにする
-                        if (!(int) $row['can_view']) {
-                            return ''; // 閲覧できないリソースの本文は、抜粋に出さない
-                        }
                         $text = mb_scrub((string) $row['content_head']);
                         $text = preg_replace('/\[\[.*?\]\]|\[\*.*?\*\]|\[\+.*?\+\]|\[~.*?~\]|\[\(.*?\)\]|\{\{.*?\}\}|\[!.*?!\]/su', ' ', $text) ?? '';
                         $text = html_entity_decode(strip_tags(preg_replace('/<(script|style)\b.*?<\/\1>/si', ' ', $text) ?? ''), ENT_QUOTES, $charset);

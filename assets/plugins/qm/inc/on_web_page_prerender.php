@@ -43,7 +43,7 @@ else {
             $controls .= $editButton;
         }
 
-        if ($this->addbutton == 'true' && $access) {
+        if ($this->addbutton == 'true' && manager()->canCreateDocumentUnder($docID)) {
             // Add button
             $addButton = '
 <li class="qmAdd">
@@ -51,10 +51,7 @@ else {
 </li>
 ';
 
-            // Does user have permissions to add document
-            if (evo()->hasPermission('new_document')) {
-                $controls .= $addButton;
-            }
+            $controls .= $addButton;
         }
 
         // Custom add buttons if not empty and enough permissions
@@ -107,6 +104,10 @@ else {
                     $customButton = '';
                     switch ($buttonAction) {
                         case 'new':
+                            // 新規作成の権限・範囲・親の文書グループを、親の id で確かめる（追加ボタンと同じ判定）
+                            if (!manager()->canCreateDocumentUnder((int)$buttonParentId)) {
+                                break;
+                            }
                             $customButton = '
 <li class="qm-custom-' . $i . ' qmCustom">
 <a class="qmButton qmCustom colorbox" href="' . MODX_SITE_URL . 'manager/index.php?a=4&amp;pid=' . $buttonParentId . '&amp;quickmanager=1&amp;customaddtplid=' . $buttonTplId . '"><span>' . $buttonTitle . '</span></a>
@@ -211,11 +212,6 @@ else {
 
         // Search and create new document buttons in to the content
         if ($this->tvbuttons == 'true' && $access) {
-            // Set and get user doc groups for TV permissions
-            $this->docGroup = '';
-            $mrgDocGroups = sessionv('mgrDocgroups');
-            if (!empty($mrgDocGroups)) $this->docGroup = implode(",", $mrgDocGroups);
-
             // Create TV buttons and check TV permissions
             $output = preg_replace_callback('/<!-- ' . preg_quote($this->tvbclass, '/') . ' ([^\\"\'\(\)<>!?]+) -->/', [&$this, 'createTvButtons'], $output);
         }

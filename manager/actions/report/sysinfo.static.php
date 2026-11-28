@@ -186,10 +186,12 @@ require_once MODX_CORE_PATH . 'db_tables.class.inc.php';
                     </thead>
                     <tbody>
                         <?php
+                        // 文書グループによる絞り込み（判定は ManagerAPI::documentAccessCondition()）
+                        $accessCond = manager()->documentAccessCondition('');
                         $rs = db()->select(
                             'id, pagetitle, editedby, editedon',
                             evo()->getFullTableName('site_content'),
-                            'deleted=0',
+                            'deleted=0' . ($accessCond === '' ? '' : ' AND ' . $accessCond),
                             'editedon DESC',
                             20
                         );

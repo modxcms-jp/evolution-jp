@@ -12,15 +12,23 @@ if (!$id) {
     alert()->dumpError();
 }
 
-$rs = db()->select(
-    'id, pagetitle',
-    '[+prefix+]site_content',
-    [where('template', '=', $id), and_where('deleted', '=', 0)]
-);
-if (db()->count($rs) > 0) {
+// 使用中かの判定は権限で絞らず全件で行い、一覧に出す行だけ開ける文書に絞る
+$where = sprintf('template=%d AND deleted=0', $id);
+$limit = db()->count(db()->select('id', '[+prefix+]site_content', $where));
+if ($limit > 0) {
+    $accessCond = manager()->documentAccessCondition('');
+    $rs = db()->select(
+        'id, pagetitle',
+        '[+prefix+]site_content',
+        $accessCond !== '' ? "{$where} AND {$accessCond}" : $where
+    );
+    $shown = db()->count($rs);
     echo "This template is in use. Please set the documents using the template to another template. Documents using this template:<br />";
     while ($row = db()->getRow($rs)) {
         echo (int) $row['id'] . ' - ' . hsc($row['pagetitle']) . "<br />\n";
+    }
+    if ($limit > $shown) {
+        echo hsc(sprintf(lang('resources_hidden_by_permission'), $limit - $shown)) . "<br />\n";
     }
     exit;
 }

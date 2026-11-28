@@ -1,5 +1,5 @@
 <?php
-function getTmplvars($docid, $template_id, $docgrp)
+function getTmplvars($docid, $template_id)
 {
     // SQL に渡す直前に整数にそろえる（差し戻しの値が入ることがある）
     $docid = (int)$docid;
@@ -10,6 +10,9 @@ function getTmplvars($docid, $template_id, $docgrp)
     }
 
     $tmplVars = [];
+
+    // 文書グループで絞る条件（#1338）。判定の正は ManagerAPI
+    $cond = manager()->tmplvarAccessCondition('tv');
 
     $rs = db()->select(
         [
@@ -31,15 +34,9 @@ function getTmplvars($docid, $template_id, $docgrp)
                     $docid
                 )
                 :
-                '',
-            'LEFT JOIN [+prefix+]site_tmplvar_access AS tva ON tva.tmplvarid=tv.id'
+                ''
         ],
-        sprintf(
-            "tvtpl.templateid=%d AND (1='%s' OR ISNULL(tva.documentgroup) %s)",
-            $template_id,
-            manager()->isAdmin() ? 1 : 0,
-            $docgrp ? sprintf(' OR tva.documentgroup IN (%s)', $docgrp) : ''
-        ),
+        sprintf('tvtpl.templateid=%d', $template_id) . ($cond === '' ? '' : " AND {$cond}"),
         'tvtpl.rank,tv.rank, tv.id'
     );
 
@@ -162,7 +159,7 @@ function rte_fields()
     if (config('use_editor') == 1 && doc('richtext') == 1) {
         $rte_fields[] = 'ta';
     }
-    $tmplVars = getTmplvars(request_intvar('id'), doc('template'), getDocgrp());
+    $tmplVars = getTmplvars(request_intvar('id'), doc('template'));
     foreach ($tmplVars as $tv) {
         // Go through and display all Template Variables
         if ($tv['type'] === 'richtext' || $tv['type'] === 'htmlarea') {
@@ -189,8 +186,6 @@ function getGroups($docid)
 
 function getUDGroups($id)
 {
-    global $permissions_yes, $permissions_no;
-
     if (manager()->action == 27 && $id) {
         $docid = $id;
     } elseif (request_intvar('pid')) {
@@ -208,8 +203,6 @@ function getUDGroups($id)
 
     $permissions = []; // New Permissions array list (this contains the HTML)
     $access = manager()->documentGroupAccess();
-    $permissions_yes = $access['yes']; // 出すグループのうち、所属している数
-    $permissions_no = $access['no']; // 出すグループのうち、所属していない数
     $notPublic = false; // true if the document belongs to any of the listed groups
 
     // Query the permissions and names from above
@@ -300,11 +293,11 @@ function getUDGroups($id)
 
     if (!$permissions) {
         // 出すグループはあるが、どれにも所属していないときは、タブを出さない（空の配列）
-        return $permissions_no && !$access['ids'] ? [] : false;
+        return $access['no'] && !$access['ids'] ? [] : false;
     }
 
     // Add the "All Document Groups" item if we have rights in both contexts
-    if (hasPermission('access_permissions') && hasPermission('web_access_permissions')) {
+    if (manager()->isAdmin()) {
         array_unshift(
             $permissions,
             html_tag(
@@ -497,32 +490,32 @@ function checkPermissions($id)
 {
     global $modx;
 
-    $isAllowed = manager()->isAllowed($id);
-    // 新規作成（4・72）で pid を指定したときは、ここでは止めない
-    // （後段で、作成先の親の文書グループのアクセス権だけを確かめる）
-    $isEditAction = in_array(manager()->action, [27, 131, 132]);
-    if (!$isAllowed && ($isEditAction || get_strvar('pid') === '')) {
-        alert()->setError(3);
-        alert()->dumpError();
-    }
-
     $i = manager()->action;
-    if ($isEditAction) {
+    if (in_array($i, [27, 131, 132])) {
         // 編集・下書きの画面は文書の ID が必須
         abort_if_invalid_id('id', true);
-    }
-    if ($i == 27) {
-        if (!hasPermission('view_document')) {
+        // 開けない理由の判定は ManagerAPI の documentEditorDenial()（QuickManager と同じ）。理由ごとに出し分ける
+        $denial = manager()->documentEditorDenial($id);
+        if ($denial === 'no_permission' && $i == 27) {
             $modx->config['remember_last_tab'] = 0;
+        }
+        if ($i == 27 && in_array($denial, ['', 'document_group'], true)) {
+            // 範囲と view_document を通った後（文書グループの確認の前）にロックを外す
+            manager()->remove_locks('27');
+        }
+        if ($denial === 'document_group') {
+            alert()->setError(3, lang('access_permission_denied'));
+            alert()->dumpError();
+        } elseif ($denial !== '') {
             alert()->setError(3);
             alert()->dumpError();
         }
-        manager()->remove_locks('27');
-        if (!evo()->checkPermissions($id)) {
-            alert()->setError(3, lang('access_permission_denied'));
+    } elseif ($i == 72 || $i == 4) {
+        // 新規作成。作成先の親の範囲は保存の処理が確かめる。id を付けた要求は文書を読むので、その文書の範囲をここで確かめる
+        if ((int)$id && !manager()->isInAllowedParents($id)) {
+            alert()->setError(3);
             alert()->dumpError();
         }
-    } elseif ($i == 72 || $i == 4) {
         if (!hasPermission('new_document')) {
             alert()->setError(3);
             alert()->dumpError();
@@ -532,15 +525,6 @@ function checkPermissions($id)
                 alert()->setError(3);
                 alert()->dumpError();
             }
-        }
-    } elseif ($i == 132 || $i == 131) {
-        if (!hasPermission('view_document')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        if (!evo()->checkPermissions($id)) {
-            alert()->setError(3, lang('access_permission_denied'));
-            alert()->dumpError();
         }
     } else {
         alert()->setError(3);
@@ -557,33 +541,22 @@ function checkDocLock($id)
     }
 }
 
-// get document groups for current user
-function getDocgrp()
-{
-    if (sessionv('mgrDocgroups')) {
-        return implode(',', sessionv('mgrDocgroups'));
-    } else {
-        return '';
-    }
-}
-
-function db_value($id, $docgrp)
+function db_value($id)
 {
     if ($id === '0') {
         return [];
     }
 
+    // 文書グループによる絞り込み（判定は ManagerAPI::documentAccessCondition()。絞らないときは空）
+    $where = [sprintf("sc.id='%d'", (int) $id)];
+    $cond = manager()->documentAccessCondition('sc');
+    if ($cond !== '') {
+        $where[] = 'AND ' . $cond;
+    }
     $rs = db()->select(
         'DISTINCT sc.*',
         '[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id',
-        sprintf(
-            "sc.id='%s' %s",
-            $id,
-            (manager()->isAdmin() || !$docgrp) ? '' : sprintf(
-                'AND (sc.privatemgr=0 OR dg.document_group IN (%s))',
-                $docgrp
-            )
-        )
+        $where
     );
     $limit = db()->count($rs);
     if ($limit > 1) {

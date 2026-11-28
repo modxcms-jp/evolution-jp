@@ -29,6 +29,7 @@
 
 - `loadExtension()` によって `DBAPI`（`manager/includes/extenders/dbapi/mysqli.inc.php` など）が遅延ロードされ、必要な拡張のみを読み込みます。
 - TV は `getDocumentObject()` 内でドキュメントと同時に取得され、後続の解析パスでコアフィールドと同じ扱いを受けます。
+- 権限・文書グループによる絞り込みの判定（ManagerAPI の `bypassesDocumentGroups()`・`documentAccessCondition()` など、`checkPermissions()`、DocumentParser の取得の関数の分岐）の置き場所と決まりは `permissions.md` を正とします。文書グループで絞る問い合わせは、自前で条件を書かずにそこに挙げた判定を使います。
 
 ## イベントフローの概要
 

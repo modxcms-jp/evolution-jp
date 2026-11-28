@@ -16,6 +16,67 @@ $this->manager = new ManagerAPI;
 // Content manager wrapper class
 class ManagerAPI
 {
+    /**
+     * エレメントの種類。キーは OPERATION_PERMISSIONS の 'element.<種類>.manage'・'element.<種類>.save' に対応する
+     * （TV はテンプレートの権限に従う）
+     */
+    private const ELEMENT_TYPES = ['template', 'snippet', 'chunk', 'plugin', 'module'];
+
+    /**
+     * 操作 → 必要なロールの権限。ロールの権限の組み合わせの正（can() が引く）。
+     * 'all' はすべて、'any' はどれか 1 つ（両方あれば、'all' のすべてと 'any' のどれか）。
+     * 文書の操作の組み合わせは、処理（manager/processors/ と manager/actions/ の先頭の確かめ）が今求めるものに合わせてある。
+     * 通る経路が複数ある操作は、すべての経路の条件を合わせたもの
+     */
+    private const OPERATION_PERMISSIONS = [
+        // 文書。編集画面（a=27）を開く入口の edit_document は、処理が見る view_document（ロールの編集画面で外せない）とは別に入口の条件として持つ
+        'document.edit' => ['all' => ['edit_document']],
+        'document.save' => ['all' => ['save_document']],
+        // 新規作成（a=4・72 の保存 a=5 は save_document と、新規のとき new_document を求める）
+        'document.create' => ['all' => ['new_document', 'save_document']],
+        // 複製（a=94）
+        'document.duplicate' => ['all' => ['new_document', 'save_document']],
+        // 移動。画面 a=51 は move・save・publish、処理 a=52 は move・edit を求め、a=51 から a=52 へ続けて通る
+        'document.move' => ['all' => ['move_document', 'save_document', 'publish_document', 'edit_document']],
+        // 公開・非公開（a=61・62、一括の a=121 の publish・unpublish）
+        'document.publish' => ['all' => ['save_document', 'publish_document']],
+        // 削除・元に戻す（a=6・63、一括の a=121 の delete）
+        'document.delete' => ['all' => ['delete_document']],
+        // モジュール。実行（a=112。execute_module.processor.php）。グループの絞り込みは canExecuteModule() が合わせる
+        'module.execute' => ['all' => ['exec_module']],
+        // 管理ユーザー・Web ユーザー・ロール。一覧（a=75・99・86）の先頭の確かめは edit_*、
+        // 一覧の入口は、押した先（a=11・87・38 の画面、削除の処理 a=12・90・37 など）が求める権限に合わせる
+        'role.edit' => ['all' => ['edit_role']],
+        'role.create' => ['all' => ['new_role']],
+        'user.edit' => ['all' => ['edit_user']],
+        'user.create' => ['all' => ['new_user']],
+        'user.delete' => ['all' => ['delete_user']],
+        'webuser.edit' => ['all' => ['edit_web_user']],
+        'webuser.create' => ['all' => ['new_web_user']],
+        'webuser.delete' => ['all' => ['delete_web_user']],
+        // テンプレート・TV の複製（処理 a=96 は new_template、a=304 は edit_template を求める）
+        'template.duplicate' => ['all' => ['new_template']],
+        'tmplvar.duplicate' => ['all' => ['edit_template']],
+        // エレメントの管理を開く（新規作成か編集のどちらか）
+        'element.template.manage' => ['any' => ['new_template', 'edit_template']],
+        'element.snippet.manage' => ['any' => ['new_snippet', 'edit_snippet']],
+        'element.chunk.manage' => ['any' => ['new_chunk', 'edit_chunk']],
+        'element.plugin.manage' => ['any' => ['new_plugin', 'edit_plugin']],
+        'element.module.manage' => ['any' => ['new_module', 'edit_module']],
+        // エレメントの保存
+        'element.template.save' => ['all' => ['save_template']],
+        'element.snippet.save' => ['all' => ['save_snippet']],
+        'element.chunk.save' => ['all' => ['save_chunk']],
+        'element.plugin.save' => ['all' => ['save_plugin']],
+        'element.module.save' => ['all' => ['save_module']],
+    ];
+
+    /** @var array|null モジュールの ID → その利用者がグループ経由で実行できるか（グループの指定があるモジュールだけ） */
+    private $moduleGroupAccessCache;
+    /** @var array|null [設定値, 範囲の中の文書の ID の配列, その array_flip（判定用の集合）]（設定値が変わったら作り直す） */
+    private $allowedDocIdsCache;
+    /** @var array|null [設定値, 許可した親の祖先の ID の配列] */
+    private $allowedAncestorIdsCache;
 
     public $action; // action directive
 
@@ -916,6 +977,13 @@ class ManagerAPI
             . "\n    });\n</script>\n";
     }
 
+    /**
+     * ロールが access_permissions と web_access_permissions の両方を持つか。
+     * バックアップの復元・ファイルブラウザー・モジュールの実行・ユーザーの削除などにも使うので、
+     * 文書グループの絞り込みの判定には使わない（bypassesDocumentGroups() を使う。#1338）
+     *
+     * @return bool
+     */
     public function isAdmin()
     {
         if (!hasPermission('access_permissions')) {
@@ -927,6 +995,185 @@ class ManagerAPI
         }
 
         return true;
+    }
+
+    /**
+     * 操作に必要なロールの権限を、OPERATION_PERMISSIONS の表から引いて判定する。
+     * 操作の名前は表のキー（'document.move' など）。表は権限の組み合わせだけを持つので、
+     * 範囲・文書グループが要る操作は、呼ぶ側が canAccessDocument() などを合わせる
+     *
+     * @param string $operation OPERATION_PERMISSIONS のキー
+     * @return bool
+     * @throws InvalidArgumentException 知らない操作のとき
+     */
+    public function can(string $operation): bool
+    {
+        if (!isset(self::OPERATION_PERMISSIONS[$operation])) {
+            throw new InvalidArgumentException("Unknown operation: {$operation}");
+        }
+        $rule = self::OPERATION_PERMISSIONS[$operation];
+        foreach ($rule['all'] ?? [] as $permission) {
+            if (!hasPermission($permission)) {
+                return false;
+            }
+        }
+        if (!isset($rule['any'])) {
+            return true;
+        }
+        foreach ($rule['any'] as $permission) {
+            if (hasPermission($permission)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * その種類のエレメントの管理を開けるか（新規作成か編集のどちらかの権限がある）。
+     * 使う場所: エレメントの管理（a=76。element/resources.static.php）のタブと一覧、
+     * メニューのモジュールの管理（frames/menu.php）、ダッシュボードのモジュールのアイコン
+     * （main/welcome.static.php）。作成・編集できる人だけに出す入口で、モジュール管理（a=106）の画面は
+     * exec_module だけでも開ける（permissions.md の分かっている課題を参照）
+     *
+     * @param string $type ELEMENT_TYPES の値（template・snippet・chunk・plugin・module）
+     * @return bool
+     * @throws InvalidArgumentException 知らない種類のとき
+     */
+    public function canManageElement($type)
+    {
+        if (!in_array($type, self::ELEMENT_TYPES, true)) {
+            throw new InvalidArgumentException("Unknown element type: {$type}");
+        }
+        return $this->can("element.{$type}.manage");
+    }
+
+    /**
+     * エレメントの管理（a=76）を開けるか（メニューの項目の出し分け）。
+     * テンプレート・スニペット・チャンク・プラグインのどれかを管理できる（モジュールは別の入口 a=106）。
+     * 使う場所: manager/frames/menu.php
+     *
+     * @return bool
+     */
+    public function canOpenElementManager()
+    {
+        foreach (array_diff(self::ELEMENT_TYPES, ['module']) as $type) {
+            if ($this->canManageElement($type)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * テンプレート・スニペット・チャンク・プラグイン・モジュールのどれかを保存できるか。
+     * 使う場所: カテゴリの削除（delete_category.processor.php）と、エレメントの管理の削除リンク
+     *
+     * @return bool
+     */
+    public function canSaveAnyElement()
+    {
+        foreach (self::ELEMENT_TYPES as $type) {
+            if ($this->can("element.{$type}.save")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * そのモジュールを実行してよいか。実行（a=112）の処理・メインメニュー・ダッシュボード・
+     * モジュール管理の一覧の実行のメニューがこの判定を使う（#1408・#1357）。
+     * exec_module を持つこと。そのうえで、管理者（isAdmin()）は全部、それ以外は use_udperms が有効なときだけ、
+     * モジュールのグループ（site_module_access）で絞る。グループの指定が無いモジュールは誰でも、
+     * 指定があれば所属者だけ。use_udperms が無効のときに絞らないのは、グループを付け外しする欄と保存が
+     * 有効なときだけ働くので、有効だった時期の結びつきが見えないまま効き始めないようにするため
+     *
+     * @param int $moduleId
+     * @return bool
+     */
+    public function canExecuteModule(int $moduleId): bool
+    {
+        if (!$this->can('module.execute')) {
+            return false;
+        }
+        if ($this->isAdmin() || evo()->config('use_udperms') != 1) {
+            return true;
+        }
+        $access = $this->moduleGroupAccess();
+        return !isset($access[$moduleId]) || $access[$moduleId];
+    }
+
+    /**
+     * 実行してよいモジュールの一覧（無効のモジュールは含めない）。canExecuteModule() で絞る。
+     * 使う場所: メインメニュー（frames/menu.php）・ダッシュボード（main/welcome.static.php）
+     *
+     * @return array[] id・name・icon の行の配列（editedon の新しい順）
+     */
+    public function getExecutableModules(): array
+    {
+        if (!$this->can('module.execute')) {
+            return [];
+        }
+        $rs = db()->select(
+            'id, name, icon',
+            '[+prefix+]site_modules',
+            'disabled != 1',
+            'editedon DESC'
+        );
+        $modules = [];
+        while ($row = db()->getRow($rs)) {
+            if ($this->canExecuteModule((int)$row['id'])) {
+                $modules[] = $row;
+            }
+        }
+        return $modules;
+    }
+
+    /**
+     * グループの指定があるモジュールについて、ログイン中の利用者がどれかのグループに所属しているか。
+     * グループの指定が無いモジュールのキーは無い。リクエスト内でキャッシュする
+     *
+     * @return bool[] モジュールの ID => 所属しているか
+     */
+    private function moduleGroupAccess(): array
+    {
+        if ($this->moduleGroupAccessCache !== null) {
+            return $this->moduleGroupAccessCache;
+        }
+        $rs = db()->select(
+            'sma.module, sma.usergroup, mg.member',
+            '[+prefix+]site_module_access sma'
+            . ' LEFT JOIN [+prefix+]member_groups mg ON mg.user_group = sma.usergroup AND mg.member = '
+            . (int)evo()->getLoginUserID()
+        );
+        $access = [];
+        while ($row = db()->getRow($rs)) {
+            $moduleId = (int)$row['module'];
+            $access[$moduleId] = ($access[$moduleId] ?? false) || ($row['usergroup'] && $row['member']);
+        }
+        return $this->moduleGroupAccessCache = $access;
+    }
+
+    /**
+     * 文書グループの「衝突」の知らせを出すか。
+     * 出すグループがあるのに、利用者がどれにも所属していない（そのため選べるグループが無い）。
+     * 管理者（isAdmin()）は対象外で、グループの権限（access_permissions・web_access_permissions）の
+     * どちらかを持つときだけ。
+     * 使う場所: 文書の編集・下書きの編集画面（mutate_content.dynamic.php・mutate_draft.dynamic.php）。
+     * use_udperms が有効なときだけ呼ぶ前提（ここでは use_udperms を見ない）
+     *
+     * @return bool
+     */
+    public function hasDocumentGroupCollision()
+    {
+        if ($this->isAdmin()) {
+            return false;
+        }
+        $access = $this->documentGroupAccess();
+        if ($access['yes'] != 0 || $access['no'] <= 0) {
+            return false;
+        }
+        return hasPermission('access_permissions') || hasPermission('web_access_permissions');
     }
 
     // get user's document groups
@@ -1032,85 +1279,162 @@ class ManagerAPI
     }
 
     /**
-     *    Secure Manager Documents
-     *    This script will mark manager documents as private
-     *
-     *    A document will be marked as private only if a manager user group
-     *    is assigned to the document group that the document belongs to.
-     *
+     * 1 つの文書の非公開の印（privatemgr・privateweb）を、実際の所属から求め直す。
+     * id が 0 や空だと setMgrDocsAsPrivate()・setWebDocsAsPrivate() は全文書を計算するので、
+     * その落とし穴をここで防ぎ、正の id のときだけ行う。
      */
-    public function setMgrDocsAsPrivate($docid = '')
+    public function refreshDocumentPrivateFlags($docId)
     {
-        db()->update(
-            ['privatemgr' => 0],
-            '[+prefix+]site_content',
-            $docid ? sprintf("id='%s'", $docid) : 'privatemgr=1'
-        );
-
-        $rs = db()->select(
-            'sc.id',
-            [
-                '[+prefix+]site_content sc',
-                'LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id',
-                'LEFT JOIN [+prefix+]membergroup_access mga ON mga.documentgroup = dg.document_group'
-            ],
-            $docid > 0 ? sprintf("sc.id='%s' AND mga.id > 0", $docid) : 'mga.id > 0'
-        );
-
-        $ids = db()->getColumn('id', $rs);
-
-        if (!$ids) {
-            return '';
+        $docId = (int)$docId;
+        if ($docId < 1) {
+            return;
         }
-
-        $ids = implode(',', $ids);
-        db()->update(
-            ['privatemgr' => 1],
-            '[+prefix+]site_content',
-            sprintf('id IN (%s)', $ids)
-        );
-        return $ids;
+        $this->setWebDocsAsPrivate($docId);
+        $this->setMgrDocsAsPrivate($docId);
     }
 
     /**
-     *    Secure Web Documents
-     *    This script will mark web documents as private
+     * 管理側の非公開の印（privatemgr）を計算し直す
      *
-     *    A document will be marked as private only if a web user group
-     *    is assigned to the document group that the document belongs to.
+     * 文書が付く文書グループのどれかに、管理側のユーザーグループへのアクセス
+     * （membergroup_access）の結びつきがあれば 1、無ければ 0 にする。
+     * 0 と 1 は 1 回の UPDATE で書くので、計算の途中で非公開の文書の印が 0 に戻る間はない。
      *
+     * @param int|string $docid 正の id ならその文書だけ。正の整数にならない値（0 以下・空・数字でない文字列）は全文書
+     * @return string 印を 1 にした文書の id のカンマ区切り（無ければ ''）
+     */
+    public function setMgrDocsAsPrivate($docid = '')
+    {
+        return $this->recalcPrivateFlag(
+            'privatemgr',
+            'membergroup_access',
+            'mga',
+            (int)$docid
+        );
+    }
+
+    /**
+     * Web 側の非公開の印（privateweb）を計算し直す
+     *
+     * 文書が付く文書グループのどれかに、Web 側のユーザーグループへのアクセス
+     * （webgroup_access）の結びつきがあれば 1、無ければ 0 にする。
+     * 0 と 1 は 1 回の UPDATE で書くので、計算の途中で非公開の文書の印が 0 に戻る間はない。
+     *
+     * @param int|string $docid 正の id ならその文書だけ。正の整数にならない値（0 以下・空・数字でない文字列）は全文書
+     * @return string 印を 1 にした文書の id のカンマ区切り（無ければ ''）
      */
     public function setWebDocsAsPrivate($docid = '')
     {
-        db()->update(
-            ['privateweb' => 0],
-            '[+prefix+]site_content',
-            $docid ? sprintf("id='%s'", $docid) : 'privateweb=1'
+        return $this->recalcPrivateFlag(
+            'privateweb',
+            'webgroup_access',
+            'wga',
+            (int)$docid
         );
+    }
 
-        $rs = db()->select(
-            'DISTINCT sc.id',
-            [
-                '[+prefix+]site_content sc',
-                'LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id',
-                'LEFT JOIN [+prefix+]webgroup_access wga ON wga.documentgroup = dg.document_group'
-            ],
-            $docid ? sprintf("sc.id='%s' AND wga.id > 0", $docid) : 'wga.id > 0'
-        );
-
-        $ids = db()->getColumn('id', $rs);
-
-        if (!$ids) {
-            return '';
+    /**
+     * 非公開の印の列を 1 回の UPDATE で書き直す
+     *
+     * 結びつきのある文書を派生表にして LEFT JOIN で 1 回の UPDATE にする。派生表は site_content を
+     * 読まない（更新する表は副問い合わせで読めないため）。IN (副問い合わせ) の形にすると、
+     * MySQL 5.7 では文書 1 行ごとに副問い合わせを走らせて遅くなる。1 件のときは派生表も
+     * その文書の結びつきだけに絞る。
+     * JOIN 付きの UPDATE は db()->update() の想定する使い方ではないため、db()->query() で流す。
+     * $column・$accessTable・$alias は呼び出し元が固定で渡す。$docid は (int) 済みの値。
+     */
+    private function recalcPrivateFlag($column, $accessTable, $alias, $docid)
+    {
+        if ($docid > 0) {
+            $linkedDocs = sprintf(' AND dg.document = %d', $docid);
+            $where = sprintf('sc.id = %d', $docid);
+        } else {
+            $linkedDocs = '';
+            $where = sprintf('(sc.%s = 1 OR x.document IS NOT NULL)', $column);
         }
 
-        $ids = implode(',', $ids);
-        db()->update(
-            ['privateweb' => 1],
-            '[+prefix+]site_content',
-            sprintf("id IN (%s)", $ids)
+        db()->query(
+            db()->replaceFullTableName(
+                sprintf(
+                    'UPDATE [+prefix+]site_content sc'
+                    . ' LEFT JOIN (SELECT DISTINCT dg.document FROM [+prefix+]document_groups dg'
+                    . ' INNER JOIN [+prefix+]%s %s ON %s.documentgroup = dg.document_group'
+                    . ' WHERE %s.id > 0%s) x ON x.document = sc.id'
+                    . ' SET sc.%s = IF(x.document IS NULL, 0, 1) WHERE %s',
+                    $accessTable,
+                    $alias,
+                    $alias,
+                    $alias,
+                    $linkedDocs,
+                    $column,
+                    $where
+                )
+            )
         );
-        return $ids;
+
+        // 戻り値（印が付いた id）は UPDATE の後に求める
+        $rs = db()->select(
+            'id',
+            '[+prefix+]site_content',
+            $docid > 0
+                ? sprintf('id = %d AND %s = 1', $docid, $column)
+                : sprintf('%s = 1', $column)
+        );
+        return implode(',', db()->getColumn('id', $rs) ?: []);
+    }
+
+    /**
+     * 文書グループを削除する
+     *
+     * 文書グループは管理側・Web 側で共通の表なので、どちらの画面から消しても
+     * 文書グループの id を持つ 5 つの表（install/sql/create_tables.sql）
+     * document_groups・documentgroup_names・membergroup_access・
+     * site_tmplvar_access・webgroup_access の行をすべて消す。
+     * そのグループに付いていた文書があれば、privatemgr / privateweb を全件で計算し直し、
+     * 印ごとキャッシュされたページを消すためページキャッシュも消す。
+     *
+     * @param int $groupId
+     * @return bool 失敗したら false
+     */
+    public function deleteDocumentGroup($groupId)
+    {
+        $groupId = (int)$groupId;
+        if ($groupId <= 0) {
+            return false;
+        }
+
+        // 削除の後では分からなくなるので、このグループに付いた文書があるかを先に確かめる
+        $hasDocuments = (bool)db()->getValue(
+            db()->select(
+                'document',
+                '[+prefix+]document_groups',
+                sprintf('document_group=%d', $groupId),
+                '',
+                1
+            )
+        );
+
+        $result = true;
+        $targets = [
+            ['[+prefix+]documentgroup_names', 'id'],
+            ['[+prefix+]document_groups', 'document_group'],
+            ['[+prefix+]membergroup_access', 'documentgroup'],
+            ['[+prefix+]site_tmplvar_access', 'documentgroup'],
+            ['[+prefix+]webgroup_access', 'documentgroup'],
+        ];
+        foreach ($targets as [$table, $column]) {
+            if (!db()->delete($table, sprintf('%s=%d', $column, $groupId))) {
+                $result = false;
+            }
+        }
+
+        if ($hasDocuments) {
+            $this->setMgrDocsAsPrivate();
+            $this->setWebDocsAsPrivate();
+            evo()->clearCache(['target' => 'pagecache']);
+        }
+
+        return $result;
     }
 
     public function getStylePath()
@@ -1181,9 +1505,10 @@ class ManagerAPI
      * $docIds の親を $parentId に変えられないとき、その理由を表示用の文言で返す。変えられるなら空文字。
      * 循環と存在（invalidParentMessage()）、ドキュメントグループ（evo()->checkPermissions()）、
      * 許可するリソースの範囲（isInAllowedParents()）の順に確かめる。
+     * 親がルート（0）のときは、文書グループの確認の代わりに canPlaceAtRoot() で決める。
      * 親が今の親から変わるときだけ呼ぶ（範囲の頂点の文書の今の親は範囲の外のため）。
      *
-     * @param int[] $docIds 親を変える文書
+     * @param int[] $docIds 親を変える文書。新規作成・取り込みなら空配列
      * @param int $parentId 新しい親の ID
      * @return string
      */
@@ -1194,64 +1519,69 @@ class ManagerAPI
         if ($message) {
             return $message;
         }
+        // ルートへの変更は、文書グループへのアクセスではなく「ルートに置いてよいか」で決める
+        if ($parentId === 0) {
+            return $this->canUseRootAsParent() ? '' : lang('access_permission_parent_denied');
+        }
         if (!evo()->checkPermissions($parentId) || !$this->isInAllowedParents($parentId)) {
             return lang('access_permission_parent_denied');
         }
         return '';
     }
 
+    /**
+     * 文書が、許可するリソースの範囲の中か。判定は isInAllowedParents() と同じ（範囲の判定の正）。
+     * $id が 0 のときは、リクエストの pid を見る（pid が無ければ true）。
+     * 外部のコードが使うことがあるので残している。新しいコードは isInAllowedParents() を使う
+     *
+     * @param int $id
+     * @return bool
+     */
     public function isAllowed($id)
     {
-        global $modx;
-
         if (!$id) {
             // pid が送られたかどうかだけを見る（'0'・空は無いものと同じ）
             if (!anyv('pid')) {
                 return true;
             }
 
-            // 形式違い・配列は 0（ルート）になり、ルートが許可の一覧に無ければ下で拒否される
+            // 形式違い・配列は 0（ルート）になり、ルートが許可の一覧に無ければ拒否される
             $id = request_intvar('pid');
         }
 
-        if (!evo()->conf_var('allowed_parents')) {
-            return true;
-        }
-
-        if (!isset(evo()->user_allowed_docs)) {
-            evo()->user_allowed_docs = $this->getUserAllowedDocs();
-        }
-
-        if (!in_array($id, (array)evo()->user_allowed_docs)) {
-            return false;
-        }
-
-        return true;
+        return $this->isInAllowedParents($id);
     }
 
+    /**
+     * ツリー・一覧に出してよい文書か。範囲の中か、範囲の頂点の祖先（そこへたどる途中の文書）なら true。
+     * 表示用で、行ごとに呼ばれるため DB に問い合わせず、getUserAllowedDocs() の集合（リクエスト内でキャッシュ）で判定する。
+     * ルート（0 以下）は常に true。リクエストの値は読まない。保存の判定は鮮度が要るので isInAllowedParents() を使う
+     *
+     * @param int $id
+     * @return bool
+     */
     public function isContainAllowed($id)
     {
-        if ($this->isAllowed($id)) {
+        $id = (int)$id;
+        if ($id <= 0 || !evo()->conf_var('allowed_parents')) {
             return true;
         }
-
-        $childlen = evo()->getChildIds($id);
-        if (!$childlen) {
+        $allowed = $this->getAllowedParentIds();
+        if (in_array(0, $allowed, true)) {
+            return true;
+        }
+        if (!$allowed) {
             return false;
         }
-
-        foreach ($childlen as $child) {
-            if (in_array($child, (array)evo()->user_allowed_docs)) {
-                return true;
-            }
-        }
-        return false;
+        $this->getUserAllowedDocs();
+        return isset($this->allowedDocIdsCache[2][$id])
+            || in_array($id, $this->allowedParentAncestorIds(), true);
     }
 
     /**
      * 文書が、ログイン中の利用者の「許可するリソース」（allowed_parents）の範囲の中かを返す。
      * 文書を変える処理から、確かめる文書や作成先・移動先の親の ID を明示して呼ぶ。リクエストの値は読まない。
-     * 設定が空なら常に true（画面の側の isAllowed() と同じ基準）。設定があるのに正しい ID が 1 つも無いときは false。
+     * 設定が空なら常に true。設定があるのに正しい ID が 1 つも無いときは false。
      * 一覧に 0（ルート）が含まれていれば、サイト全体を許可する設定として常に true（制限なし）。
      * 一覧に 0 が無いとき、ルート（0）は範囲の外（false）。存在しない ID は、設定に書いた ID そのものでなければ範囲の外。
      * 存在の確認は呼ぶ側で行う。
@@ -1307,33 +1637,38 @@ class ManagerAPI
         return $ids;
     }
 
+    /**
+     * 範囲の中の文書の ID の一覧（許可するリソースに書いた ID と、その子孫すべて）。
+     * isInAllowedParents() と同じ基準（深さの上限なし・削除済みも含む）。
+     * 一覧の大きさが問題になる絞り込みには allowedDocsCondition() を使う
+     *
+     * @return int[]|string 制限なし（設定が空、または 0 を含む）なら []、正しい ID が 1 つも無いなら ''、
+     *                      それ以外は範囲の中の ID の配列
+     */
     public function getUserAllowedDocs()
     {
-        global $modx;
-
-        $modx->user_allowed_docs = [];
-        $allowed_parents = $this->getAllowedParentIds();
-
-        if (!$allowed_parents) {
+        $setting = (string)evo()->conf_var('allowed_parents');
+        if ($setting === '') {
+            return [];
+        }
+        $parents = $this->getAllowedParentIds();
+        if (!$parents) {
             return '';
         }
-
-        // 0（ルート）を含むときは getChildIds(0) がサイト全体を返す（修正前と同じ）
-        $_ = [];
-        foreach ($allowed_parents as $parent) {
-            $children = evo()->getChildIds($parent);
-            $_[] = $parent;
-            foreach ($children as $child) {
-                $_[] = $child;
-            }
+        if (in_array(0, $parents, true)) {
+            return [];
         }
-        $modx->user_allowed_docs = $_;
-        return $modx->user_allowed_docs;
+        if ($this->allowedDocIdsCache === null || $this->allowedDocIdsCache[0] !== $setting) {
+            $ids = $this->collectAllowedDocIds();
+            $this->allowedDocIdsCache = [$setting, $ids, array_flip($ids)];
+        }
+        return $this->allowedDocIdsCache[1];
     }
 
     /**
-     * allowed_parents の範囲の中の文書だけに絞る SQL の条件式（前に AND は付けない）。制限なし（設定が空、または 0 を含む）なら空文字。
-     * 範囲は getUserAllowedDocs() の一覧と同じ（許可した親と、その子孫。削除済みとその下を除き、10 階層まで）
+     * 範囲の中の文書だけに絞る SQL の条件式（前に AND は付けない）。制限なし（設定が空、または 0 を含む）なら空文字。
+     * 結果は isInAllowedParents() が true になる文書と同じ。
+     * 祖先をたどる条件を SQL で書くと深さが固定になるため、許可した親から子孫の ID を集めて IN で絞る
      *
      * @param string $alias site_content の別名（呼ぶ側の固定の文字列。別名が無い問い合わせは空）
      * @return string
@@ -1356,10 +1691,85 @@ class ManagerAPI
         );
     }
 
-    // ルート直下にリソースを作ってよいか
+    /**
+     * 許可した親から、子孫を深さの上限なし・削除済みも含めて集める（循環しても止まる）
+     *
+     * @return int[]
+     */
+    private function collectAllowedDocIds()
+    {
+        $found = [];
+        $level = array_map('intval', $this->getAllowedParentIds());
+        foreach ($level as $id) {
+            if ($id > 0) {
+                $found[$id] = true;
+            }
+        }
+        while ($level) {
+            $rs = db()->select(
+                'id',
+                '[+prefix+]site_content',
+                sprintf('parent IN (%s)', implode(',', $level))
+            );
+            $level = [];
+            while ($row = db()->getRow($rs)) {
+                $child = (int)$row['id'];
+                if (!isset($found[$child])) {
+                    $found[$child] = true;
+                    $level[] = $child;
+                }
+            }
+        }
+        return array_keys($found);
+    }
+
+    /**
+     * 許可した親それぞれの祖先の ID（範囲の頂点へたどる途中の文書。ツリーに出す・初期に開くために使う）。
+     * 深さの上限なしで DB の parent をたどる
+     *
+     * @return int[]
+     */
+    public function allowedParentAncestorIds()
+    {
+        $setting = (string)evo()->conf_var('allowed_parents');
+        if ($setting === '') {
+            return [];
+        }
+        if ($this->allowedAncestorIdsCache === null || $this->allowedAncestorIdsCache[0] !== $setting) {
+            $ids = [];
+            foreach ($this->getAllowedParentIds() as $parent) {
+                foreach ($this->getAncestorIds($parent) as $ancestor) {
+                    $ids[$ancestor] = $ancestor;
+                }
+            }
+            $this->allowedAncestorIdsCache = [$setting, array_values($ids)];
+        }
+        return $this->allowedAncestorIdsCache[1];
+    }
+
+    // udperms_allowroot の設定（向き A の材料）。ルートに置けるかの判定には canPlaceAtRoot() を使う。
+    // udperms_allowroot は文書グループの設定の 1 つなので、文書グループの絞り込みと同じ管理者の判定を使う
     public function isAllowroot()
     {
-        return evo()->hasPermission('save_role') || (bool)evo()->config('udperms_allowroot');
+        return $this->bypassesDocumentGroups() || (bool)evo()->config('udperms_allowroot');
+    }
+
+    /**
+     * 文書をルート（親が 0）に置いてよいか。ルートに置く入口（新規・保存での親の変更・移動・複製・
+     * 親の選択・作成のボタン）は、すべてこの判定を使う。
+     *
+     * 考え方（向き B）: udperms_allowroot は文書グループの設定の 1 つで、use_udperms が有効なときだけ効く
+     * （設定の画面でも有効なときだけ見える）。use_udperms が無効なら誰でもルートに置ける。
+     * 向き A（use_udperms に関係なく udperms_allowroot で決める）に切り替えるなら、この 1 行だけを
+     * isAllowroot() にすればよい。
+     *
+     * 許可するリソースの範囲（isInAllowedParents(0)）は別の判定なので、ここには混ぜない。
+     *
+     * @return bool
+     */
+    public function canPlaceAtRoot()
+    {
+        return evo()->config('use_udperms') != 1 || $this->isAllowroot();
     }
 
     // PHP の設定から求めたアップロードサイズの上限（バイト数）。無制限なら 0
@@ -1570,33 +1980,247 @@ class ManagerAPI
     }
 
     /**
-     * 文書グループの集合が付いた文書を、この利用者が管理画面で開けるか。
-     * 編集画面が文書を開くときの 2 つの確認を、そのまま式にしたもの。
-     * - 到達できる（$reachable）: 集合に管理側で非公開のグループ（membergroup_access に行がある。
-     *   setMgrDocsAsPrivate() と同じ定義。これが privatemgr=1 の元）が無い、または利用者の所属
-     *   （sessionv('mgrDocgroups')）と重なる
-     * - checkPermissions()（document.parser.subparser.trait.php）: save_role があるか、$reachable
-     * - db_value()（mutate_content/functions.php）: isAdmin()、所属が空、または $reachable のとき絞り込みを省く
-     * 両方を通ったときだけ true。use_udperms が 1 でなければ常に true。
-     * 2 つの確認の食い違い自体は #1338 で 1 か所にまとめる。
-     * sessionv('mgrDocgroups') は、管理画面のリクエストで accesscontrol.inc.php が読み直す値が前提
-     * （管理画面のリクエストで使う）
+     * 文書グループの絞り込みを受けない管理者か（#1338）。
+     * アクセスの規則（ユーザーグループの権限・ロール）を自分で変えられる人: isAdmin()、
+     * または save_role を持つ人（自分のロールに access_permissions・web_access_permissions を付けて
+     * isAdmin() になれるため、save_role だけのロールを絞っても守りにならない）。
+     * use_udperms は見ない（公開側の判定にも使うため）。管理画面の絞り込みは restrictsByDocumentGroups() を通す
+     *
+     * @return bool
+     */
+    public function bypassesDocumentGroups()
+    {
+        return $this->isAdmin() || evo()->hasPermission('save_role');
+    }
+
+    /**
+     * ログイン中の利用者の所属（セッション mgrDocgroups）を、重複のない正の整数の配列で返す。
+     * mgrDocgroups は管理画面のリクエストごとに accesscontrol.inc.php が読み直す
+     *
+     * @return int[]
+     */
+    public function userMgrDocumentGroupIds()
+    {
+        $ids = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])), function ($id) {
+            return $id > 0;
+        });
+        return array_values(array_unique($ids));
+    }
+
+    /**
+     * 管理画面で文書を文書グループで絞るか。use_udperms が 1 で、管理者でないとき
+     *
+     * @return bool
+     */
+    public function restrictsByDocumentGroups()
+    {
+        return evo()->config('use_udperms') == 1 && !$this->bypassesDocumentGroups();
+    }
+
+    /**
+     * 文書グループで絞るときの SQL の条件式（前に AND は付けない）。絞らないときは空文字。
+     * 「届く」文書: privatemgr=0、または所属のグループに入っている文書。
+     * privatemgr の列で見るこの式と、保存前の集合で見る canOpenWithDocumentGroups() の定義は同じ
+     * （所属のグループはすべて管理側で非公開）。privatemgr の印が実際の所属と合わない経路は #1353。
+     * 結合に頼らない副問い合わせなので、どの問い合わせにも入れられる
+     *
+     * @param string $alias site_content の別名（呼ぶ側の固定の文字列。別名が無い問い合わせは空）
+     * @return string
+     * @throws InvalidArgumentException $alias が識別子でないとき
+     */
+    public function documentAccessCondition($alias = 'sc')
+    {
+        $alias = (string)$alias;
+        if ($alias !== '' && !preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $alias)) {
+            throw new InvalidArgumentException('Invalid table alias');
+        }
+        if (!$this->restrictsByDocumentGroups()) {
+            return '';
+        }
+        $a = $alias === '' ? '' : $alias . '.';
+        $groupIds = $this->userMgrDocumentGroupIds();
+        if (!$groupIds) {
+            return "{$a}privatemgr=0";
+        }
+        return sprintf(
+            '(%sprivatemgr=0 OR %sid IN (SELECT document FROM %s WHERE document_group IN (%s)))',
+            $a,
+            $a,
+            db()->getFullTableName('document_groups'),
+            implode(',', $groupIds)
+        );
+    }
+
+    /**
+     * 文書を、この利用者が文書グループの面で管理画面で扱ってよいか。絞らないなら true。
+     * 絞るとき（restrictsByDocumentGroups() が真のとき）に限り、存在しない文書は false。
+     * 絞らないときは id によらず true（checkPermissions() の修正前と同じ）
+     *
+     * @param int|string $docId
+     * @return bool
+     */
+    public function canAccessDocument($docId)
+    {
+        $cond = $this->documentAccessCondition('sc');
+        if ($cond === '') {
+            return true;
+        }
+        $rs = db()->select(
+            'COUNT(sc.id)',
+            '[+prefix+]site_content sc',
+            sprintf('sc.id=%d AND %s', (int)$docId, $cond)
+        );
+        return (int)db()->getValue($rs) === 1;
+    }
+
+    /**
+     * 文書の編集画面（a=27・131・132）を開けない理由を返す。開けるなら空文字。
+     * 理由の順は、許可するリソースの範囲（isInAllowedParents()）、view_document の権限、文書グループ（canAccessDocument()）。
+     * 入口は理由ごとにエラーの出し方を変える。リクエストの値は読まない
+     *
+     * @param int|string $docId
+     * @return string 'invalid_id'|'out_of_range'|'no_permission'|'document_group'|''
+     */
+    public function documentEditorDenial($docId)
+    {
+        $docId = (int)$docId;
+        if ($docId <= 0) {
+            return 'invalid_id';
+        }
+        if (!$this->isInAllowedParents($docId)) {
+            return 'out_of_range';
+        }
+        if (!evo()->hasPermission('view_document')) {
+            return 'no_permission';
+        }
+        if (!$this->canAccessDocument($docId)) {
+            return 'document_group';
+        }
+        return '';
+    }
+
+    /**
+     * 文書の編集画面を、この利用者が開けるか（documentEditorDenial() が空か）。
+     * 保存できるかは save_document（呼ぶ側が見る）。QuickManager のボタンの表示と TV の保存が使う
+     *
+     * @param int|string $docId
+     * @return bool
+     */
+    public function canOpenDocumentEditor($docId)
+    {
+        return $this->documentEditorDenial($docId) === '';
+    }
+
+    /**
+     * 親の下に文書を新規作成する画面（a=4 に pid を付けたもの）を、この利用者が開けるか。
+     * 新規作成の権限（can('document.create')。保存 a=5 が求める new_document と save_document）、
+     * 許可するリソースの範囲（isInAllowedParents()。保存の処理と同じ）、親の文書グループ（canAccessDocument()）を見る。
+     * 親が 0 以下（ルート）のときは、保存の処理と同じく canPlaceAtRoot() と、ルートが許可するリソースの範囲の中にあるか（isInAllowedParents(0)）の両方を見る。
+     * リクエストの値は読まない。メニュー・ダッシュボード・ツリー・文書一覧・QuickManager（追加ボタンとカスタムの「new」ボタン）・
+     * 保存後の「続けて新規」（save_resource.processor.php）が使う
+     *
+     * @param int|string $parentId
+     * @return bool
+     */
+    public function canCreateDocumentUnder($parentId)
+    {
+        if (!$this->can('document.create')) {
+            return false;
+        }
+        $parentId = (int)$parentId;
+        if ($parentId <= 0) {
+            return $this->canUseRootAsParent();
+        }
+        return $this->isInAllowedParents($parentId) && $this->canAccessDocument($parentId);
+    }
+
+    /**
+     * ルート（親が 0）を親にできるか。ルートに置いてよい（canPlaceAtRoot()）うえで、
+     * ルートが許可するリソースの範囲の中にある（isInAllowedParents(0)）ときだけ true。
+     * 新規作成・移動・インポートなど、ルートを親にする入口の判定の正。new_document は見ない
+     *
+     * @return bool
+     */
+    public function canUseRootAsParent()
+    {
+        return $this->canPlaceAtRoot() && $this->isInAllowedParents(0);
+    }
+
+    /**
+     * 文書グループで絞るときの、TV（テンプレート変数）の SQL の条件式（前に AND は付けない）。絞らないときは空文字。
+     * TV のアクセスの判定の正はここ（編集画面・保存・QuickManager が使う）。
+     * 絞るかどうかは文書の判定と同じ restrictsByDocumentGroups()（#1338）。
+     * 「届く」TV: site_tmplvar_access に行が無い、または所属のグループの行がある。
+     * 副問い合わせは外側の行を参照しない（相関なし）。別名があってもなくても同じ式で、
+     * どの問い合わせにも入れられる。site_tmplvar_access.tmplvarid は NOT NULL
+     * （install/sql/create_tables.sql）なので、NOT IN が NULL で崩れることは無い
+     *
+     * @param string $alias site_tmplvars の別名（呼ぶ側の固定の文字列。別名が無い問い合わせは空）
+     * @return string
+     * @throws InvalidArgumentException $alias が識別子でないとき
+     */
+    public function tmplvarAccessCondition($alias = 'tv')
+    {
+        $alias = (string)$alias;
+        if ($alias !== '' && !preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $alias)) {
+            throw new InvalidArgumentException('Invalid table alias');
+        }
+        if (!$this->restrictsByDocumentGroups()) {
+            return '';
+        }
+        $a = $alias === '' ? '' : $alias . '.';
+        $table = db()->getFullTableName('site_tmplvar_access');
+        $groupIds = $this->userMgrDocumentGroupIds();
+        $unrestricted = sprintf('%sid NOT IN (SELECT tmplvarid FROM %s)', $a, $table);
+        if (!$groupIds) {
+            return $unrestricted;
+        }
+        return sprintf(
+            '(%s OR %sid IN (SELECT tmplvarid FROM %s WHERE documentgroup IN (%s)))',
+            $unrestricted,
+            $a,
+            $table,
+            implode(',', $groupIds)
+        );
+    }
+
+    /**
+     * TV を、この利用者が文書グループの面で扱ってよいか。絞らないなら true。
+     * 絞るとき（restrictsByDocumentGroups() が真のとき）に限り、存在しない TV は false
+     *
+     * @param int|string $tmplvarId
+     * @return bool
+     */
+    public function canAccessTmplvar($tmplvarId)
+    {
+        $cond = $this->tmplvarAccessCondition('tv');
+        if ($cond === '') {
+            return true;
+        }
+        $rs = db()->select(
+            'COUNT(tv.id)',
+            '[+prefix+]site_tmplvars tv',
+            sprintf('tv.id=%d AND %s', (int)$tmplvarId, $cond)
+        );
+        return (int)db()->getValue($rs) === 1;
+    }
+
+    /**
+     * 文書グループの集合が付いた文書を、この利用者が管理画面で開けるか（#1318）。
+     * 絞らない（restrictsByDocumentGroups() が false）、または集合が届く（管理側で非公開のグループが
+     * 無い、または利用者の所属と重なる）とき true。documentAccessCondition() と同じ定義を、
+     * 保存前の集合に当てたもの
      *
      * @param int[] $groupIds 文書に付く文書グループの id
      * @return bool
      */
     public function canOpenWithDocumentGroups($groupIds)
     {
-        if (evo()->config('use_udperms') != 1) {
+        if (!$this->restrictsByDocumentGroups()) {
             return true;
         }
         $private = $this->mgrPrivateDocumentGroupIds($groupIds);
-        $mine = array_map('intval', (array)sessionv('mgrDocgroups', []));
-        $reachable = !$private || (bool)array_intersect($private, $mine);
-
-        $passCheckPermissions = evo()->hasPermission('save_role') || $reachable;
-        $passDbValue = $this->isAdmin() || !$mine || $reachable;
-        return $passCheckPermissions && $passDbValue;
+        return !$private || (bool)array_intersect($private, $this->userMgrDocumentGroupIds());
     }
 
     /**

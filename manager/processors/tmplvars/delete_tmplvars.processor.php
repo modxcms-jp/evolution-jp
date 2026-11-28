@@ -13,12 +13,17 @@ if (!$id) {
 }
 
 if (!get_boolvar('force')) {
-    $rs = db()->select(
-        'sc.id, sc.pagetitle,sc.description',
-        '[+prefix+]site_content sc INNER JOIN [+prefix+]site_tmplvar_contentvalues stcv ON stcv.contentid=sc.id',
-        where('stcv.`tmplvarid`', '=', $id)
-    );
-    if (db()->count($rs) > 0) {
+    $field = 'sc.id, sc.pagetitle,sc.description';
+    $from = '[+prefix+]site_content sc INNER JOIN [+prefix+]site_tmplvar_contentvalues stcv ON stcv.contentid=sc.id';
+    $where = sprintf('stcv.tmplvarid=%d', $id);
+    $rs = db()->select($field, $from, $where);
+    $count = db()->count($rs);
+    if ($count > 0) {
+        // 使用中かの判定（$count）は全件で行い、一覧の行だけ開ける文書に絞る
+        $accessCond = manager()->documentAccessCondition('sc');
+        if ($accessCond !== '') {
+            $rs = db()->select($field, $from, "{$where} AND {$accessCond}");
+        }
         include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
         ?>
         <script type="text/javascript">
@@ -41,10 +46,15 @@ if (!get_boolvar('force')) {
         <?php
         echo "<p>" . lang('tmplvar_inuse') . "</p>";
         echo "<ul>";
+        $shown = 0;
         while ($row = db()->getRow($rs)) {
+            $shown++;
             echo '<li><span style="width: 200px"><a href="' . hsc(EvoFormFlow::url(['a' => EvoFormFlow::screen('document', 'edit'), 'id' => (int)$row['id']])) . '">' . hsc($row['pagetitle']) . '</a></span>' . ($row['description'] != '' ? ' - ' . hsc($row['description']) : '') . '</li>';
         }
         echo "</ul>";
+        if ($count > $shown) {
+            echo '<p>' . hsc(sprintf(lang('resources_hidden_by_permission'), $count - $shown)) . '</p>';
+        }
         echo '</div>';
         echo '</div>';
         include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');

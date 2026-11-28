@@ -45,6 +45,9 @@ function get_src_content($id, $parent)
     $newParentLabel = hsc(lang('new_parent'));
     $illegalParentSelf = hsc(stripcslashes(lang('illegal_parent_self')));
     $illegalParentChild = hsc(stripcslashes(lang('illegal_parent_child')));
+    // ルートへ移せるか（ルートに置けて、許可するリソースの範囲にもルートが含まれる）。移動の処理でも同じ判定をする
+    $rootAllowed = manager()->canUseRootAsParent() ? '1' : '0';
+    $parentDenied = hsc(lang('access_permission_parent_denied'));
     $src = <<< EOT
 <h1>{$_lang['move_resource_title']}</h1>
 <div id="actions">
@@ -57,7 +60,7 @@ function get_src_content($id, $parent)
 <div class="section">
 <div class="sectionBody">
 <p>{$_lang['move_resource_message']}</p>
-<form method="post" action="index.php" data-move-form data-shell-tree="full" data-label-new-parent="{$newParentLabel}" data-illegal-parent-self="{$illegalParentSelf}" data-illegal-parent-child="{$illegalParentChild}">
+<form method="post" action="index.php" data-move-form data-shell-tree="full" data-label-new-parent="{$newParentLabel}" data-illegal-parent-self="{$illegalParentSelf}" data-illegal-parent-child="{$illegalParentChild}" data-root-allowed="{$rootAllowed}" data-parent-denied="{$parentDenied}">
 <input type="hidden" name="a" value="52">
 <input type="hidden" name="id" value="{$id}">
 <p>{$_lang['resource_to_be_moved']}: <b>{$id}</b></p>

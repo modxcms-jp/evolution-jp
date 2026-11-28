@@ -322,7 +322,7 @@ function fieldParent()
 function fieldsTV()
 {
     global $tmplVars;
-    // $tmplVars = getTmplvars(request_intvar('id'),doc('template'),getDocgrp());
+    // $tmplVars = getTmplvars(request_intvar('id'), doc('template'));
     $total = count($tmplVars);
     if (!$total) {
         return '';

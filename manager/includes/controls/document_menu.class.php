@@ -16,7 +16,8 @@ final class DocumentMenu
      *   group:   区切りのグループ。前の項目とグループが変わる所に区切り線を引く
      *   lang:    項目の文言の言語キー
      *   icon:    アイコンの style() のキー
-     *   perms:   要る権限（すべて要る）。1 つでも無ければ項目を出さない
+     *   operation: 要る操作（ManagerAPI の can() に渡す名前。権限の組み合わせは ManagerAPI の OPERATION_PERMISSIONS が正）
+     *   perms:   操作の表に無い、ほかに要る権限（すべて要る）。operation と perms のどちらかが欠ければ項目を出さない
      *   setting: 有効なときだけ項目を出す設定名（無ければ常に出す）
      *   hide:    リソースの状態で隠す条件の並び。どれか 1 つの条件のキーがすべて状態と一致したら隠す。
      *            状態のキーは published・deleted・draft（下書きがある）・canPublish（利用者に publish_document の権限がある）。
@@ -25,7 +26,7 @@ final class DocumentMenu
     private const ITEMS = [
         '27' => [
             'group' => 'edit', 'lang' => 'edit_resource', 'icon' => 'icons_edit_document',
-            'perms' => ['edit_document'],
+            'operation' => 'document.edit',
             'hide' => [['draft' => true, 'canPublish' => false]],
         ],
         '120' => [
@@ -34,44 +35,44 @@ final class DocumentMenu
         ],
         '4' => [
             'group' => 'edit', 'lang' => 'create_resource_here', 'icon' => 'icons_new_document',
-            'perms' => ['new_document'],
+            'operation' => 'document.create',
         ],
         '51' => [
             'group' => 'edit', 'lang' => 'move_resource', 'icon' => 'icons_move_document',
-            'perms' => ['move_document', 'save_document', 'publish_document'],
+            'operation' => 'document.move',
         ],
         '94' => [
             'group' => 'edit', 'lang' => 'resource_duplicate', 'icon' => 'icons_resource_duplicate',
-            'perms' => ['new_document', 'save_document'],
+            'operation' => 'document.duplicate',
         ],
         '61' => [
             'group' => 'state', 'lang' => 'publish_resource', 'icon' => 'icons_publish_document',
-            'perms' => ['save_document', 'publish_document'],
+            'operation' => 'document.publish',
             'hide' => [['published' => true], ['deleted' => true]],
         ],
         '62' => [
             'group' => 'state', 'lang' => 'unpublish_resource', 'icon' => 'icons_unpublish_resource',
-            'perms' => ['save_document', 'publish_document'],
+            'operation' => 'document.publish',
             'hide' => [['published' => false], ['deleted' => true]],
         ],
         '6' => [
             'group' => 'state', 'lang' => 'delete_resource', 'icon' => 'icons_delete',
-            'perms' => ['delete_document'],
+            'operation' => 'document.delete',
             'hide' => [['deleted' => true]],
         ],
         '63' => [
             'group' => 'state', 'lang' => 'undelete_resource', 'icon' => 'icons_undelete_resource',
-            'perms' => ['delete_document'],
+            'operation' => 'document.delete',
             'hide' => [['deleted' => false]],
         ],
         '64' => [
             'group' => 'state', 'lang' => 'delete_resource_complete', 'icon' => 'icons_delete_complete',
-            'perms' => ['delete_document', 'empty_trash'],
+            'operation' => 'document.delete', 'perms' => ['empty_trash'],
             'hide' => [['deleted' => false]],
         ],
         '72' => [
             'group' => 'weblink', 'lang' => 'create_weblink_here', 'icon' => 'icons_weblink',
-            'perms' => ['new_document'],
+            'operation' => 'document.create',
         ],
         'createDraft' => [
             'group' => 'view', 'lang' => 'create_draft', 'icon' => 'icons_new_document',
@@ -102,7 +103,10 @@ final class DocumentMenu
         if (!$item) {
             return false;
         }
-        foreach ($item['perms'] as $perm) {
+        if (isset($item['operation']) && !manager()->can($item['operation'])) {
+            return false;
+        }
+        foreach ($item['perms'] ?? [] as $perm) {
             if (!evo()->hasPermission($perm)) {
                 return false;
             }

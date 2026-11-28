@@ -76,14 +76,8 @@ switch ($operation) {
         if (empty($group)) {
             exit("No document group name specified for deletion");
         } else {
-            if (!$rs = db()->delete($tbl_documentgroup_names, "id='{$group}'")) {
-                exit("Unable to delete group. SQL failed.");
-            }
-            if (!$rs = db()->delete($tbl_webgroup_access, "documentgroup='{$group}'")) {
-                exit("Unable to delete group from access table. SQL failed.");
-            }
-            if (!$rs = db()->delete('[+prefix+]document_groups', "document_group='{$group}'")) {
-                exit("Unable to delete document-group links. SQL failed.");
+            if (!manager()->deleteDocumentGroup($group)) {
+                exit('Unable to delete document group. SQL failed.');
             }
         }
         break;
@@ -154,8 +148,8 @@ if ($updategroupaccess == true) {
         'SET dgn.private_webgroup = (wga.webgroup IS NOT NULL)';
     $rs = db()->query($sql);
 
-    // 公開側のページキャッシュは privateweb を見て配信するので、紐付けを変えたら消す
-    evo()->clearCache();
+    // ページキャッシュは文書の privateweb ごと残るので、印が変わったら消す（管理側の印は公開側の判定に使わない）
+    evo()->clearCache(['target' => 'pagecache']);
 }
 
 header('Location: index.php?a=91');

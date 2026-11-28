@@ -20,7 +20,7 @@ if (!$id) {
 evo()->loadExtension('DocAPI');
 $icons_path = manager_style_image_path('icons');
 
-if (!manager()->isAllowed($id)) {
+if (!manager()->isInAllowedParents($id)) {
     alert()->setError(3);
     alert()->dumpError();
 }
@@ -35,11 +35,10 @@ evo()->updatePublishStatus();
 $where = [
     sprintf("sc.id=%d", $id)
 ];
-if (sessionv('mgrDocgroups') && !manager()->isAdmin()) {
-    $where[] = sprintf(
-        "AND (sc.privatemgr=0 OR dg.document_group IN (%s))",
-        implode(',', sessionv('mgrDocgroups'))
-    );
+// 文書グループによる絞り込み（判定は ManagerAPI::documentAccessCondition()）
+$accessCond = manager()->documentAccessCondition('sc');
+if ($accessCond !== '') {
+    $where[] = 'AND ' . $accessCond;
 }
 $rs = db()->select(
     'DISTINCT sc.*',
@@ -127,28 +126,28 @@ if (isset($content['parent']) && $content['parent'] != 0) {
 
 <div id="actions">
     <ul class="actionButtons">
-        <?php if (evo()->hasPermission('save_document')) : ?>
+        <?php if (manager()->can('document.edit')) : ?>
             <li id="Button1" class="mutate">
                 <a href="#" data-doc-action="edit" data-doc-id="<?= (int) $id ?>">
                     <?= lang('edit') ?>
                 </a>
             </li>
         <?php endif; ?>
-        <?php if (evo()->hasPermission('save_document') && evo()->hasPermission('move_document')) : ?>
+        <?php if (manager()->can('document.move')) : ?>
             <li id="Button2" class="mutate">
                 <a href="#" data-doc-action="move" data-doc-id="<?= (int) $id ?>">
                     <?= lang('move') ?>
                 </a>
             </li>
         <?php endif; ?>
-        <?php if (evo()->hasPermission('new_document') && evo()->hasPermission('save_document')) : ?>
+        <?php if (manager()->can('document.duplicate')) : ?>
             <li id="Button4">
                 <a href="#" data-doc-action="duplicate" data-doc-id="<?= (int) $id ?>">
                     <?= lang('duplicate') ?>
                 </a>
             </li>
         <?php endif; ?>
-        <?php if (evo()->hasPermission('delete_document') && evo()->hasPermission('save_document')) : ?>
+        <?php if (manager()->can('document.delete')) : ?>
             <li id="Button3">
                 <a href="#" data-doc-action="delete" data-doc-id="<?= (int) $id ?>" data-has-children="<?= evo()->doc->hasLiveChildren($id) ? '1' : '0' ?>">
                     <?= lang('delete') ?>

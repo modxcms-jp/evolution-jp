@@ -57,9 +57,7 @@ if (!sessionv('tree_sortdir')) {
         <?php
         if (!sessionv('openedArray')) {
             if(config('allowed_parents')) {
-                $_SESSION['openedArray'] = openedArray(
-                    config('allowed_parents')
-                ) ?: [];
+                $_SESSION['openedArray'] = manager()->allowedParentAncestorIds();
             } else {
                 $_SESSION['openedArray'] = [];
             }
@@ -362,7 +360,7 @@ if (is_array($evtOut)) {
                                     title="<?= lang('tree_auto_collapse') ?>"><?= style('auto_collapse_tree') ?></a>
                                 <script>syncTreeAutoCollapse();</script>
                             </td>
-                            <?php if (evo()->hasPermission('new_document') && manager()->isAllowroot()) { ?>
+                            <?php if (manager()->canCreateDocumentUnder(0)) { ?>
                                 <td><a href="#" class="treeButton" id="treeNewResource"
                                         onclick="EvoShell.navigate('index.php?a=4');return false;"
                                         title="<?= lang('add_resource') ?>"><?= style('add_doc_tree') ?></a>
@@ -636,23 +634,6 @@ if (is_array($evtOut)) {
 function select($cond = false)
 {
     return ($cond) ? ' selected="selected"' : '';
-}
-
-function openedArray($allowed_parents)
-{
-    $allowed_parents = explode(',', $allowed_parents);
-    $openedArray = [];
-    foreach ($allowed_parents as $allowed_parent) {
-        $_ = evo()->getParentIds($allowed_parent);
-        if (!$_) {
-            continue;
-        }
-        // $openedArray[] = $allowed_parent;
-        foreach ($_ as $v) {
-            $openedArray[] = $v;
-        }
-    }
-    return $openedArray;
 }
 
 function isSelectedTreeSortby($name) {

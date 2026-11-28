@@ -18,14 +18,12 @@ if (request_intvar('id')) {
     checkDocLock(request_intvar('id'));
 }
 
-$docgrp = getDocgrp();
-
 global $default_template; // For plugins (ManagerManager etc...)
 $default_template = getDefaultTemplate();
 
 global $docObject;
 if (request_intvar('id')) {
-    $docObject = db_value(request_intvar('id'), $docgrp);
+    $docObject = db_value(request_intvar('id'));
 } else {
     $docObject = default_value(request_intvar('pid'), request_intvar('newtemplate'));
 }
@@ -48,7 +46,7 @@ if (preg_match('/[1-9][0-9]*/', request_intvar('newtemplate'))) {
     $docObject['template'] = request_intvar('newtemplate');
 }
 
-$tmplVars = getTmplvars(request_intvar('id'), doc('template'), $docgrp);
+$tmplVars = getTmplvars(request_intvar('id'), doc('template'));
 $docObject += $tmplVars;
 if (manager()->action == 131 && request_intvar('id')) {
     $docObject = mergeDraft(
@@ -98,7 +96,6 @@ $body[] = parseText(
 );
 
 if (config('use_udperms') == 1) {
-    global $permissions_yes, $permissions_no;
     $permissions = getUDGroups(request_intvar('id'));
 
     // See if the Access Permissions section is worth displaying...
@@ -108,12 +105,7 @@ if (config('use_udperms') == 1) {
         $ph['_lang_access_permissions_docs_message'] = lang('access_permissions_docs_message');
         $ph['UDGroups'] = implode("\n", $permissions);
         $body[] = parseText(file_get_tpl('tab_access.tpl'), $ph);
-    } elseif (
-        !manager()->isAdmin() && $permissions_yes == 0 && $permissions_no > 0
-        && (sessionv('mgrPermissions.access_permissions') == 1
-            ||
-            sessionv('mgrPermissions.web_access_permissions') == 1)
-    ) {
+    } elseif (manager()->hasDocumentGroupCollision()) {
         $body[] = '<p>' . lang('access_permissions_docs_collision') . '</p>';
     }
 }

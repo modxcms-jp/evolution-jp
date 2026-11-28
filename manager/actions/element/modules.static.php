@@ -20,12 +20,10 @@ $listmode = get_choicevar('listmode', ['0', '1'], '0');
 // context menu
 include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
 $cm = new ContextMenu("cntxm", 150);
-$cm->addItem(
-    lang("run_module"),
-    "js:menuAction(1)",
-    style('icons_save'),
-    (!evo()->hasPermission('exec_module') ? 1 : 0)
-);
+// 実行のメニューは、モジュールごとに実行してよいか（ManagerAPI::canExecuteModule()）が違うので、
+// 実行できる項目と実行できない（無効の）項目を並べ、showContentMenu() が行ごとに切り替える
+$cm->addItem(lang("run_module"), "js:menuAction(1)", style('icons_save'), 0);
+$cm->addItem(lang("run_module"), "js:menuAction(1)", style('icons_save'), 1);
 $cm->addSeparator();
 $cm->addItem(
     lang("edit"),
@@ -52,8 +50,11 @@ echo $cm->render();
     var selectedItem;
     var contextm = <?= $cm->getClientScriptObject() ?>;
 
-    function showContentMenu(id, e) {
+    function showContentMenu(id, e, canExecute) {
         selectedItem = id;
+        // 先頭の 2 項目が実行のメニュー（実行できる項目・できない項目）
+        contextm.children[0].style.display = canExecute ? '' : 'none';
+        contextm.children[1].style.display = canExecute ? 'none' : '';
         e = e || window.event;
         var scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft || 0;
         var scrollTop = document.documentElement.scrollTop || document.body.scrollTop || 0;
@@ -115,7 +116,7 @@ echo $cm->render();
         table.addEventListener('click', function (e) {
             const el = e.target.closest('[data-row-menu]');
             if (el) {
-                showContentMenu(Number(el.dataset.rowMenu), e);
+                showContentMenu(Number(el.dataset.rowMenu), e, el.dataset.canExecute === '1');
                 e.preventDefault();
             }
         });
@@ -179,8 +180,9 @@ echo $cm->render();
                 'html' => true,
                 'format' => function ($value, array $row) {
                     return sprintf(
-                        '<a class="gridRowIcon" href="#" data-row-menu="%d" title="%s"><img src="%s" width="32" height="32" alt=""></a>',
+                        '<a class="gridRowIcon" href="#" data-row-menu="%d" data-can-execute="%d" title="%s"><img src="%s" width="32" height="32" alt=""></a>',
                         (int) $row['id'],
+                        (!$row['disabled'] && manager()->canExecuteModule((int) $row['id'])) ? 1 : 0, // 無効のモジュールは実行の処理が断るので、実行できない行にする（権限ではなく状態）
                         hsc(lang('click_to_context')),
                         hsc($value !== '' && $value !== null ? $value : style('icons_modules'))
                     );

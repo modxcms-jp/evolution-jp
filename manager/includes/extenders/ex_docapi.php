@@ -22,9 +22,6 @@ class DocAPI
 
         $f['editedon'] = $f['createdon'];
         $f['editedby'] = $f['createdby'];
-        if ($groups) {
-            $f['privatemgr'] = 1;
-        }
 
 //		$f = $this->setPubStatus($f);
         $newdocid = $this->getNewDocID();
@@ -59,11 +56,22 @@ class DocAPI
 
         if ($groups) {
             foreach ($groups as $group) {
+                $group = (int)$group;
+                if ($group < 1) {
+                    continue;
+                }
                 db()->insert(
                     ['document_group' => $group, 'document' => $id],
                     '[+prefix+]document_groups'
                 );
             }
+            // DocAPI は use_udperms に関係なくグループを書くので、印も関係なく計算する
+            // ManagerAPI は公開側・CLI からも呼ばれるので、無ければ読み込む
+            // （#1338 の PR-A（#1361）で manager() が自分で読み込むようになったら不要）
+            if (!evo()->manager) {
+                evo()->loadExtension('ManagerAPI');
+            }
+            manager()->refreshDocumentPrivateFlags($id);
         }
         evo()->clearCache();
         return $id;
@@ -274,7 +282,7 @@ class DocAPI
 
     /**
      * テンプレートに割り当てた TV の行を rank 順に返す。$checkAccess が真なら、今の管理ユーザーが変えられる TV だけ
-     * （site_tmplvar_access。ロールが 1 のユーザーは全部）
+     * （判定は ManagerAPI::tmplvarAccessCondition()。文書グループで絞らない利用者は全部）
      */
     public function templateTmplvars($template, $checkAccess = true)
     {
@@ -282,23 +290,16 @@ class DocAPI
         if (!$template) {
             return [];
         }
-        $where = sprintf("tvtpl.templateid='%d'", $template);
-        if ($checkAccess) {
-            $docgrp = sessionv('mgrDocgroups')
-                ? implode(',', array_map('intval', sessionv('mgrDocgroups')))
-                : '';
-            $where .= sprintf(
-                " AND (1='%s' OR ISNULL(tva.documentgroup) %s)",
-                (int)sessionv('mgrRole'),
-                $docgrp ? sprintf('OR tva.documentgroup IN (%s)', $docgrp) : ''
-            );
+        $where = sprintf('tvtpl.templateid=%d', $template);
+        $cond = $checkAccess ? manager()->tmplvarAccessCondition('tv') : '';
+        if ($cond !== '') {
+            $where .= " AND {$cond}";
         }
         $rs = db()->select(
             'DISTINCT tv.*',
             [
                 '[+prefix+]site_tmplvars AS tv',
-                'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid = tv.id',
-                'LEFT JOIN [+prefix+]site_tmplvar_access tva ON tva.tmplvarid=tv.id'
+                'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid = tv.id'
             ],
             $where,
             'tv.rank'
@@ -736,42 +737,9 @@ class DocAPI
         return $form_v;
     }
 
-    public function canSaveDoc()
-    {
-        return evo()->hasPermission('save_document');
-    }
-
-    public function canPublishDoc()
-    {
-        if (evo()->hasPermission('new_document')) {
-            return 1;
-        }
-
-        if (!(evo()->documentObject['published'] ?? 0)) {
-            return 1;
-        }
-
-        return 0;
-    }
-
     public function canSaveDraft()
     {
         return 1;
-    }
-
-    public function canMoveDoc()
-    {
-        return evo()->hasPermission('save_document');
-    }
-
-    public function canCopyDoc()
-    {
-        return (evo()->hasPermission('new_document') && evo()->hasPermission('save_document'));
-    }
-
-    public function canDeleteDoc()
-    {
-        return (evo()->hasPermission('save_document') && evo()->hasPermission('delete_document'));
     }
 
     /**
@@ -997,14 +965,56 @@ class DocAPI
         return $result;
     }
 
-    public function canCreateDoc()
+    /**
+     * @deprecated 1.4 で非推奨、1.5 で消す。manager()->can('document.move') を使う
+     */
+    public function canMoveDoc()
     {
-        return evo()->hasPermission('new_document');
+        return $this->deprecatedCan('canMoveDoc', 'document.move');
     }
 
+    /**
+     * @deprecated 1.4 で非推奨、1.5 で消す。manager()->can('document.duplicate') を使う
+     */
+    public function canCopyDoc()
+    {
+        return $this->deprecatedCan('canCopyDoc', 'document.duplicate');
+    }
+
+    /**
+     * @deprecated 1.4 で非推奨、1.5 で消す。manager()->can('document.delete') を使う
+     */
+    public function canDeleteDoc()
+    {
+        return $this->deprecatedCan('canDeleteDoc', 'document.delete');
+    }
+
+    /**
+     * @deprecated 1.4 で非推奨、1.5 で消す。manager()->can('document.create') を使う
+     */
+    public function canCreateDoc()
+    {
+        return $this->deprecatedCan('canCreateDoc', 'document.create');
+    }
+
+    /**
+     * @deprecated 1.4 で非推奨、1.5 で消す。manager()->can('document.edit') を使う
+     */
     public function canEditDoc()
     {
-        return evo()->hasPermission('edit_document');
+        return $this->deprecatedCan('canEditDoc', 'document.edit');
+    }
+
+    /**
+     * 非推奨の can*Doc() の中身。警告を残し、判定は ManagerAPI の操作の表（can()）に任せる（assets/docs/deprecations.md）
+     */
+    private function deprecatedCan(string $method, string $operation): bool
+    {
+        logDeprecated(
+            "DocAPI::{$method}()",
+            "DocAPI::{$method}() is deprecated. Use manager()->can('{$operation}') instead."
+        );
+        return manager()->can($operation);
     }
 
     public function existsDoc($id = 0)

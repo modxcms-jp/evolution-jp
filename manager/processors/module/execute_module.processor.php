@@ -2,15 +2,13 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!evo()->hasPermission('exec_module')) {
+if (!manager()->can('module.execute')) {
     alert()->setError(3);
     alert()->dumpError();
 }
 
 $id = request_intvar('id');
 
-$tbl_site_module_access = evo()->getFullTableName('site_module_access');
-$tbl_member_groups = evo()->getFullTableName('member_groups');
 $tbl_site_modules = evo()->getFullTableName('site_modules');
 
 // make sure the id's a number
@@ -19,41 +17,11 @@ if (!$id) {
     exit;
 }
 
-// グループによる制限は、管理者以外に、文書グループの機能が有効なときだけ行う。
-// モジュールのグループを付け外しする欄（mutate_module.dynamic.php）と保存
-// （save_module.processor.php）は use_udperms が有効なときだけ働くので、無効のサイトで
-// 有効だった時期の結びつきが、見えないまま効き始めないようにする。
-if (!manager()->isAdmin() && config('use_udperms') == 1) {
-    $userid = (int)evo()->getLoginUserID();
-    $sql = sprintf(
-        "SELECT sma.usergroup, mg.member FROM %s sma LEFT JOIN %s mg ON mg.user_group = sma.usergroup AND mg.member = %d WHERE sma.module = %d",
-        $tbl_site_module_access,
-        $tbl_member_groups,
-        $userid,
-        (int)$id
-    );
-    $rs = db()->query($sql);
-
-    //initialize permission to -1, if it stays -1 no permissions
-    //attached so permission granted
-    $permissionAccessInt = -1;
-
-    while ($row = db()->getRow($rs)) {
-        if ($row['usergroup'] && $row["member"]) {
-            //if there are permissions and this member has permission, ofcourse
-            //this is granted
-            $permissionAccessInt = 1;
-        } elseif ($permissionAccessInt == -1) {
-            //if there are permissions but this member has no permission and the
-            //variable was still in init state we set permission to 0; no permissions
-            $permissionAccessInt = 0;
-        }
-    }
-
-    if ($permissionAccessInt == 0) {
-        alert()->setError(3);
-        alert()->dumpError();
-    }
+// 管理者以外は、use_udperms が有効なときだけ、モジュールのグループで絞る（判定は ManagerAPI::canExecuteModule()。
+// メインメニュー・ダッシュボード・モジュール管理の一覧の実行のメニューも同じ判定）
+if (!manager()->canExecuteModule($id)) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 $moduleListUrl = js_literal(EvoFormFlow::url(['a' => EvoFormFlow::screen('module', 'close')]));

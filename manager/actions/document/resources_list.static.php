@@ -17,9 +17,9 @@ if (!ChildDocumentListState::canOpen($id)) {
 }
 
 // 一括の操作。ボタンは操作ごとの権限があるものだけ出し、チェックボックスと選択の部品はどれか 1 つの権限があれば出す
-$canBatchMove = hasPermission('move_document');
-$canBatchDelete = hasPermission('delete_document');
-$canBatchPublish = hasPermission('save_document') && hasPermission('publish_document');
+$canBatchMove = manager()->can('document.move');
+$canBatchDelete = manager()->can('document.delete');
+$canBatchPublish = manager()->can('document.publish');
 $canBatch = $canBatchMove || $canBatchDelete || $canBatchPublish;
 
 evo()->loadExtension('DocAPI');
@@ -48,24 +48,25 @@ if (!isset($current['id'])) {
     $current['id'] = 0;
 }
 
-$docgrp = sessionv('mgrDocgroups') ? implode(',', sessionv('mgrDocgroups')) : '';
-$in_docgrp = !empty($docgrp) ? " OR dg.document_group IN (" . $docgrp . ")" : '';
+// 文書グループで絞る式（絞らない利用者・use_udperms=0 のときは空）。判定は ManagerAPI::documentAccessCondition()
+$accessCond = manager()->documentAccessCondition('sc');
 
 $keyword = ChildDocumentListState::keyword();
 $keywordCondition = ChildDocumentListState::keywordCondition($keyword);
 $where = [];
 $where[] = "sc.parent='" . $id . "'";
-if (!manager()->isAdmin() && !config('tree_show_protected')) {
-    $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
+// tree_show_protected は表示だけの設定。有効なら開けない文書も has_access=0 の印つきで出す
+if ($accessCond !== '' && !config('tree_show_protected')) {
+    $where[] = 'AND ' . $accessCond;
 }
 if ($keywordCondition !== null) {
     $where[] = $keywordCondition;
 }
-// 管理者でないときは、表の行と同じ has_access も取る（GROUP BY sc.id なので件数は DISTINCT sc.id と同じ）
-if (manager()->isAdmin()) {
+// 絞るときは、表の行と同じ has_access も取る（GROUP BY sc.id なので件数は DISTINCT sc.id と同じ）
+if ($accessCond === '') {
     $countFields = 'DISTINCT sc.id';
 } else {
-    $countFields = sprintf('sc.id, MAX(IF(sc.privatemgr=0 %s, 1, 0)) AS has_access', $in_docgrp);
+    $countFields = sprintf('sc.id, MAX(IF(%s, 1, 0)) AS has_access', $accessCond);
     $where[] = 'GROUP BY sc.id';
 }
 $rs = db()->select(
@@ -77,7 +78,7 @@ $numRecords = db()->count($rs);
 // 「この一覧のすべてを選択」で使う全件の ID。件数を数えた問い合わせの結果を使い回す（DB の問い合わせは増やさない）。
 // ID を data 属性に入れて、一括操作（移動の a=51・削除・公開・非公開の a=121）の batch[] はそのまま受ける形にした
 // （「親の id と q」を送る方式は、受ける側で絞り込みを組み直す必要があり、一括操作と #1243 の絞り込みの両方に手が入る）。HTML の大きさは 1 件あたり数バイト。
-// 表の行と同じく、一覧に見える（isContainAllowed()）ものだけを入れる。tree_show_protected=1 の管理者でない利用者には
+// 表の行と同じく、一覧に見える（isContainAllowed()）ものだけを入れる。tree_show_protected=1 の絞る利用者には
 // has_access=0 の子も一覧に出るが、一括操作の checkPermissions() で操作全体が止まるので、全件の ID からは外す
 $allChildIds = [];
 while ($row = db()->getRow($rs)) {
@@ -127,14 +128,14 @@ if (!$numRecords) {
     $children_output = '';
     $f = [];
     $f[] = 'DISTINCT sc.*';
-    if (!manager()->isAdmin()) {
-        $f['has_access'] = sprintf('MAX(IF(sc.privatemgr=0 %s, 1, 0))', $in_docgrp);
+    if ($accessCond !== '') {
+        $f['has_access'] = sprintf('MAX(IF(%s, 1, 0))', $accessCond);
     }
     $f[] = 'rev.status';
     $where = [];
     $where[] = "sc.parent='" . $id . "'";
-    if (!manager()->isAdmin() && !evo()->config('tree_show_protected')) {
-        $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
+    if ($accessCond !== '' && !config('tree_show_protected')) {
+        $where[] = 'AND ' . $accessCond;
     }
     if ($keywordCondition !== null) {
         $where[] = $keywordCondition;
@@ -177,7 +178,7 @@ if (!$numRecords) {
             continue;
         }
 
-        if (manager()->isAdmin()) {
+        if ($accessCond === '') {
             $doc['has_access'] = 1;
         }
         // 行メニューが開くときに読む行の状態（値は DataTable が出すときにエスケープする）。下書きの有無はツリー（nodes.php）と同じ見方
@@ -328,16 +329,16 @@ echo get_jscript($menuId, $withLiveChildren ?? []);
                     $label
                 );
             };
-            if (hasPermission('save_document') && $id != 0 && manager()->isAllowed($id)) {
+            if (manager()->can('document.edit') && $id != 0 && manager()->isInAllowedParents($id)) {
                 echo $docButton('Button1', 'edit', lang('edit'));
             }
-            if (hasPermission('move_document') && hasPermission('save_document') && $id != 0 && manager()->isAllowed($id)) {
+            if (manager()->can('document.move') && $id != 0 && manager()->isInAllowedParents($id)) {
                 echo $docButton('Button2', 'move', lang('move'));
             }
-            if (evo()->doc->canCopyDoc() && $id != 0 && manager()->isAllowed($id)) {
+            if (manager()->can('document.duplicate') && $id != 0 && manager()->isInAllowedParents($id)) {
                 echo $docButton('Button4', 'duplicate', lang('duplicate'));
             }
-            if (hasPermission('delete_document') && hasPermission('save_document') && $id != 0 && manager()->isAllowed($id)) {
+            if (manager()->can('document.delete') && $id != 0 && manager()->isInAllowedParents($id)) {
                 echo $docButton('Button3', 'delete', lang('delete'));
             }
 
@@ -361,7 +362,7 @@ echo get_jscript($menuId, $withLiveChildren ?? []);
             $enterGuard = hsc("if (event.key === 'Enter' && !event.target.closest('button, a, textarea, input[type=submit], input[type=button]')) { event.preventDefault(); }");
             // 2 行目: 作成のボタン（表に子を足す操作）とページ送り。0 件でも作成のボタンは出す
             $createButtons = '';
-            if (hasPermission('new_document')) {
+            if (manager()->canCreateDocumentUnder($id)) {
                 $createButtons = sprintf(
                     '<ul class="actionButtons resources-list-create">'
                     . '<li class="mutate"><a href="index.php?a=4&amp;pid=%1$d">%2$s</a></li>'
@@ -551,7 +552,7 @@ function getReturnAction($current)
         return 'index.php?a=2';
     }
 
-    if (!manager()->isAllowed($current['parent'])) {
+    if (!manager()->isInAllowedParents($current['parent'])) {
         return 'index.php?a=120';
     }
 
@@ -591,8 +592,8 @@ function getTopicPath($id)
         }
         if (!evo()->checkPermissions($topic)) {
             // ツリーと同じく、アクセスできない文書は tree_show_protected が有効なら表示のみ（リンクなし）、無効なら出さない
-            $topics[] = evo()->config('tree_show_protected') ? hsc($doc['alias']) : '…';
-        } elseif (manager()->isAllowed($topic)) {
+            $topics[] = config('tree_show_protected') ? hsc($doc['alias']) : '…';
+        } elseif (manager()->isInAllowedParents($topic)) {
             $topics[] = sprintf('<a href="index.php?a=120&id=%d">%s</a>', (int)$topic, hsc($doc['alias']));
         } else {
             $topics[] = hsc($doc['alias']);

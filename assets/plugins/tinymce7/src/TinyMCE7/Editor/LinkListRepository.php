@@ -87,27 +87,13 @@ final class LinkListRepository
     }
 
     /**
-     * 文書グループで絞る条件。use_udperms が無効、または管理者なら絞らない。
-     * 式の形はツリー（manager/frames/nodes.php の tree_visibility_condition()）と同じ。ただし use_udperms が無効なら絞らない
-     * （ツリーは use_udperms を見ずに privatemgr で絞る。この一覧は保存の確かめ ManagerAPI::canOpenWithDocumentGroups() と同じ）。
+     * 文書グループで絞る条件（判定は ManagerAPI::documentAccessCondition()。絞らない利用者と use_udperms が無効のときは空）。
      * tree_show_protected は見ない。一覧に出すのはリンクを張れる文書だけ。
      */
     private function accessCondition(): string
     {
-        if (!evo()->config('use_udperms') || manager()->isAdmin()) {
-            return '';
-        }
-
-        $groups = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])));
-        if (!$groups) {
-            return ' AND sc.privatemgr=0';
-        }
-
-        return sprintf(
-            ' AND (sc.privatemgr=0 OR sc.id IN (SELECT document FROM %s WHERE document_group IN (%s)))',
-            db()->getFullTableName('document_groups'),
-            implode(',', $groups)
-        );
+        $cond = manager()->documentAccessCondition('sc');
+        return $cond === '' ? '' : ' AND ' . $cond;
     }
 
     /**

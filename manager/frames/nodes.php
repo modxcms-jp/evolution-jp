@@ -94,26 +94,25 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
     }
 
     $tree_orderby = ResourceTree::orderBy();
-    $mgr_docgroups = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])));
-    $in_docgrp = $mgr_docgroups
-        ? sprintf('OR dg.document_group IN (%s)', implode(',', $mgr_docgroups))
-        : ''
-    ;
+    $cond = manager()->documentAccessCondition('sc');
 
     $access = tree_visibility_condition();
     $field = [];
     $field[] = 'DISTINCT sc.id,pagetitle,menutitle,parent,isfolder,published,deleted';
     $field[] = 'type,menuindex,hidemenu,alias,contentType,privateweb, privatemgr';
-    if (!manager()->isAdmin()) {
-        $field[] = sprintf('MAX(IF(sc.privatemgr=0 %s, 1, 0)) AS has_access', $in_docgrp);
-    } else {
-        $field[] = '1 AS has_access';
-    }
+    $field[] = $cond === ''
+        ? '1 AS has_access'
+        : sprintf('MAX(IF(%s, 1, 0)) AS has_access', $cond);
     $field[] = 'rev.status AS status';
     // 右クリックメニューの確認に出す、操作に巻き込まれる子の有無を行ごとに 1 回の問い合わせで取る。
     // 条件の正本は DocAPI: 削除（ゴミ箱に無いリソース）では削除していない子（idsWithLiveChildren()）、
     // 完全に削除（ゴミ箱のリソース）ではすべての子（idsWithChildren()）
     $field[] = sprintf("EXISTS(SELECT 1 FROM %s AS ch WHERE ch.parent=sc.id AND (sc.deleted='1' OR ch.deleted='0')) AS has_affected_children", db()->getFullTableName('site_content'));
+    // ノード名を日付にするときは、ツリーの行の問い合わせで日付も取る（文書ごとに getDocumentObject() を呼ばない）
+    $date_field = get_node_date_field();
+    if ($date_field !== null) {
+        $field[] = sprintf('sc.%s AS node_date', $date_field);
+    }
     $from = '[+prefix+]site_content AS sc';
     $from .= ' LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
     $from .= " LEFT JOIN [+prefix+]site_revision rev on rev.elmid = sc.id AND (rev.status='draft' OR rev.status='standby') AND rev.element='resource'";
@@ -182,8 +181,8 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '', $offset =
     $node_name_source = evo()->config('resource_tree_node_name');
     global $privateweb, $privatemgr;
     while ($row = db()->getRow($result, 'num')):
-        [$id, $pagetitle, $menutitle, $parent, $isfolder, $published, $deleted, $type, $menuindex, $hidemenu, $alias, $contenttype, $privateweb, $privatemgr, $hasAccess, $hasDraft, $hasAffectedChildren] = $row;
-        $nodetitle = getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder);
+        [$id, $pagetitle, $menutitle, $parent, $isfolder, $published, $deleted, $type, $menuindex, $hidemenu, $alias, $contenttype, $privateweb, $privatemgr, $hasAccess, $hasDraft, $hasAffectedChildren, $nodeDate] = array_pad($row, 18, null);
+        $nodetitle = getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder, $nodeDate);
 
         $class = getClassName($published, $deleted, $hidemenu, $hasAccess);
 
@@ -411,7 +410,7 @@ EOT;
 
 /**
  * allowed_parents があるとき、表示を許可されたリソースだけに絞る条件
- * 非コンテナは parseNode() の isContainAllowed() と同じ判定になる。0 を含む設定では SQL では絞らず、表示は isContainAllowed() が決める
+ * 非コンテナは parseNode() の isContainAllowed() と同じ判定になる。0 を含む設定では SQL では絞らず、表示は isContainAllowed() が決める（判定の正は ManagerAPI::allowedDocsCondition()）
  */
 function allowed_docs_condition()
 {
@@ -419,7 +418,15 @@ function allowed_docs_condition()
     return $cond === '' ? '' : 'AND ' . $cond;
 }
 
-function getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder)
+function get_node_date_field()
+{
+    $source = evo()->config('resource_tree_node_name');
+    return in_array($source, ['createdon', 'editedon', 'publishedon', 'pub_date', 'unpub_date'], true)
+        ? $source
+        : null;
+}
+
+function getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder, $nodeDate = null)
 {
     global $modx;
 
@@ -444,10 +451,8 @@ function getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $i
         case 'publishedon':
         case 'pub_date':
         case 'unpub_date':
-            $doc = $modx->getDocumentObject('id', $id);
-            $date = $doc[$node_name_source];
-            if (!empty($date)) {
-                $rs = $modx->toDateFormat($date);
+            if (!empty($nodeDate)) {
+                $rs = $modx->toDateFormat($nodeDate);
             } else {
                 $rs = '- - -';
             }
@@ -624,21 +629,18 @@ function parseNode($tpl, $param, $id)
 
 /**
  * ツリーに表示するリソースだけに絞る条件（getNodes() と hasChildren() で共通）
- * 管理者と tree_show_protected が有効なときは権限では絞らない。削除済みはセッション tree_show_deleted が 1 のときだけ含める（初期値は tree.php が resource_tree_show_deleted_default で入れる）
+ * 文書グループで絞らない利用者と tree_show_protected が有効なときは権限では絞らない
+ * （判定は ManagerAPI::documentAccessCondition()。tree_show_protected は表示だけの設定で、
+ * 開けない文書は has_access=0 の印つきで出す）。削除済みはセッション tree_show_deleted が 1 のときだけ含める（初期値は tree.php が resource_tree_show_deleted_default で入れる）
  */
 function tree_visibility_condition()
 {
-    $groups = array_filter(array_map('intval', (array)sessionv('mgrDocgroups', [])));
-    if (config('tree_show_protected') || manager()->isAdmin()) {
-        $condition = '';
-    } elseif (!$groups) {
-        $condition = 'AND sc.privatemgr=0';
-    } else {
-        $condition = sprintf(
-            'AND (sc.privatemgr=0 OR sc.id IN (SELECT document FROM %s WHERE document_group IN (%s)))',
-            db()->getFullTableName('document_groups'),
-            implode(',', $groups)
-        );
+    $condition = '';
+    if (!config('tree_show_protected')) {
+        $cond = manager()->documentAccessCondition('sc');
+        if ($cond !== '') {
+            $condition = 'AND ' . $cond;
+        }
     }
     if (!sessionv('tree_show_deleted')) {
         $condition .= ' AND sc.deleted=0';

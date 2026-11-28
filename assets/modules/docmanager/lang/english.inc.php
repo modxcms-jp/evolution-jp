@@ -133,6 +133,7 @@ $_lang['DM_process_update_error'] = 'Update has completed but encountered errors
 $_lang['DM_process_blocked'] = 'Nothing was changed. Update was stopped:';
 $_lang['DM_process_date_invalid'] = 'Invalid date. Nothing was changed. Please check the date format.';
 $_lang['DM_process_no_permission'] = 'You do not have permission to change document group access.';
+$_lang['DM_process_no_access'] = 'Skipped %d document(s) that you cannot open because of document group restrictions.';
 $_lang['DM_process_back'] = 'Back';
 
 //-- manager access logging

@@ -53,7 +53,7 @@ template('id');
                 <?php endif; ?>
                 <?php
                 if (request_intvar('a') === 16) {
-                    if (evo()->hasPermission('new_template')) {
+                    if (manager()->can('template.duplicate')) {
                         echo manager()->ab([
                             'onclick' => 'duplicaterecord();',
                             'label' => lang('duplicate')

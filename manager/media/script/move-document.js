@@ -46,7 +46,12 @@ if (!window.EvoMoveDocument) {
 
         // ツリーのクリックから呼ばれる（tree.php の treeAction が main.setMoveValue を呼ぶ）
         function setMoveValue(pId, pName) {
-            if (!form()) {
+            const f = form();
+            if (!f) {
+                return;
+            }
+            if (pId === 0 && f.dataset.rootAllowed !== '1') {
+                EvoDialog.alert(f.dataset.parentDenied, '', null, {icon: 'warning'});
                 return;
             }
             if (pId === 0 || checkParentChildRelation(pId)) {

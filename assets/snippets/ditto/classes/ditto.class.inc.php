@@ -1052,18 +1052,14 @@ class ditto
 
     private function accessCondition()
     {
-        if (evo()->isFrontend()) {
-            $private = 'sc.privateweb';
-        } elseif (sessionv('mgrRole') != 1) {
-            $private = 'sc.privatemgr';
-        } else {
-            return '';
+        if (!evo()->isFrontend()) {
+            return manager()->documentAccessCondition('sc');
         }
         $docGroups = evo()->getUserDocGroups();
         if (!$docGroups) {
-            return "({$private}=0)";
+            return '(sc.privateweb=0)';
         }
-        return sprintf('(%s=0 OR dg.document_group IN (%s))', $private, implode(',', array_map('intval', $docGroups)));
+        return sprintf('(sc.privateweb=0 OR dg.document_group IN (%s))', implode(',', array_map('intval', $docGroups)));
     }
 
     // ---------------------------------------------------

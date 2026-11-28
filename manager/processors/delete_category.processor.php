@@ -2,13 +2,7 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (
-    !hasPermission('save_plugin')
-    && !hasPermission('save_snippet')
-    && !hasPermission('save_chunk')
-    && !hasPermission('save_template')
-    && !hasPermission('save_module')
-) {
+if (!manager()->canSaveAnyElement()) {
     header('Location: index.php?a=76');
     return;
 }

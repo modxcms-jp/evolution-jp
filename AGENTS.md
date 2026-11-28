@@ -159,6 +159,7 @@ fix(db): 実行直前でエスケープ処理を統一
 | `manager-shell.md`      | 管理画面のシェル・frameset 互換の名前 |
 | `manager-components.md` | 管理画面の共通の部品の一覧・新しい部品を足すときの決まり |
 | `manager-dialog.md`     | 管理画面のダイアログ（EvoDialog） |
+| `permissions.md`        | 権限・文書グループ |
 | `manager-notice.md`     | 管理画面の知らせ（トースト。EvoNotice・manager()->notice()） |
 | `manager-form-row.md`   | 管理画面のフォームの行（EvoFieldRow）・直書きの style の振り分け |
 | `ui-wording.md`         | 管理画面の文言（言語ファイルの書き方・表記） |

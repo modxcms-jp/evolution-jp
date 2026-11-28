@@ -20,13 +20,13 @@ $cm->addItem(
     lang("edit"),
     "js:menuAction(1)",
     style('icons_edit_document'),
-    (!evo()->hasPermission('edit_web_user') ? 1 : 0)
+    (!manager()->can('webuser.edit') ? 1 : 0)
 );
 $cm->addItem(
     lang("delete"),
     "js:menuAction(2)",
     style('icons_delete'),
-    (!evo()->hasPermission('delete_web_user') ? 1 : 0)
+    (!manager()->can('webuser.delete') ? 1 : 0)
 );
 echo $cm->render();
 
@@ -116,7 +116,7 @@ echo $cm->render();
         <div class="actionButtons">
             <table border="0" style="width:100%">
                 <tr>
-                    <?php if (evo()->hasPermission('new_web_user')): ?>
+                    <?php if (manager()->can('webuser.create')): ?>
                         <td><a class="default" href="index.php?a=87"><?= lang('new_web_user') ?></a>
                         </td>
                     <?php endif; ?>

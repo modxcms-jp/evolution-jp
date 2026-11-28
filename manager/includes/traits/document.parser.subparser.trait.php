@@ -1131,6 +1131,7 @@ trait DocumentParserSubParserTrait
         $this->regClientScript($src, $options, $startup);
     }
 
+    // 文書グループの絞り込みの判定の正は ManagerAPI（bypassesDocumentGroups()・canAccessDocument()。#1338）
     function checkPermissions($docid = false, $duplicateDoc = false)
     {
         // 配列など文字列・数値でない値（id[]=1 を渡したときなど）は、権限があるとみなさない
@@ -1143,7 +1144,7 @@ trait DocumentParserSubParserTrait
 
         $allowroot = evo()->config('udperms_allowroot');
 
-        if (evo()->hasPermission('save_role')) {
+        if (manager()->bypassesDocumentGroups()) {
             return true;
         }
 
@@ -1163,31 +1164,11 @@ trait DocumentParserSubParserTrait
 
         $rs = db()->select('parent', '[+prefix+]site_content', "id='{$docid}'");
         $parent = db()->getValue($rs);
-        if ($duplicateDoc == true && $parent == 0 && $allowroot == 0) {
-            return false; // deny duplicate document at root if Allow Root is No
+        if ($duplicateDoc == true && $parent == 0 && !manager()->canPlaceAtRoot()) {
+            return false; // ルートに置けないときは、ルートの文書の複製も止める
         }
 
-        // get document groups for current user
-        if (evo()->session('mgrDocgroups')) {
-            foreach (sessionv('mgrDocgroups') as $v) {
-                $docgrp[] = "dg.document_group='{$v}'";
-            }
-            $docgrps = implode(' || ', $docgrp);
-            $where_docgrp = "({$docgrps} || sc.privatemgr = 0)";
-        } else {
-            $where_docgrp = 'sc.privatemgr = 0';
-        }
-
-        $field = 'COUNT(DISTINCT sc.id)';
-        $from = '[+prefix+]site_content sc';
-        $from .= ' LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
-        $from .= ' LEFT JOIN [+prefix+]documentgroup_names dgn ON dgn.id = dg.document_group';
-        $where = "sc.id='{$docid}' AND {$where_docgrp}";
-
-        // COUNT() の値で判定する（count() は結果の行数で、集計クエリでは常に1になる）
-        $total = (int) db()->getValue(db()->select($field, $from, $where));
-
-        return $total === 1;
+        return manager()->canAccessDocument($docid);
     }
 
     /*
@@ -2221,24 +2202,26 @@ trait DocumentParserSubParserTrait
         // build query
         $from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
         if ($where === false) {
-            // get document groups for current user
-            if ($modx->getUserDocGroups()) {
-                $docgrp = implode(',', $modx->getUserDocGroups());
-                $cond = sprintf(
-                    "OR dg.document_group IN (%s) OR 1='%s'",
-                    $docgrp,
-                    sessionv('mgrRole')
-                );
+            if ($modx->isFrontend()) {
+                // 絞り込みを受けない管理者は条件なし（#1338）
+                $access = '';
+                if (!$modx->managerBypassesDocumentGroups()) {
+                    $access = 'sc.privateweb=0';
+                    if ($modx->getUserDocGroups()) {
+                        $access .= sprintf(
+                            ' OR dg.document_group IN (%s)',
+                            implode(',', $modx->getUserDocGroups())
+                        );
+                    }
+                }
             } else {
-                $cond = '';
+                $access = manager()->documentAccessCondition('sc');
             }
-            $context = ($modx->isFrontend() ? 'web' : 'mgr');
-            $where = sprintf(
-                "sc.parent = '%s' AND (sc.private%s=0 %s) GROUP BY sc.id",
-                $id,
-                $context,
-                $cond
-            );
+            $where = sprintf("sc.parent = '%s'", $id);
+            if ($access !== '') {
+                $where .= " AND ({$access})";
+            }
+            $where .= ' GROUP BY sc.id';
         }
         $orderby = "{$sort} {$dir}";
         $result = db()->select("DISTINCT {$fields}", $from, $where, $orderby);
@@ -2281,14 +2264,10 @@ trait DocumentParserSubParserTrait
             } else {
                 $where[] = 'AND sc.privateweb=0';
             }
-        } elseif (sessionv('mgrRole') != 1) {
-            if ($modx->getUserDocGroups()) {
-                $where[] = sprintf(
-                    "AND (sc.privatemgr=0 OR dg.document_group IN (%s))",
-                    implode(',', $modx->getUserDocGroups())
-                );
-            } else {
-                $where[] = 'AND sc.privatemgr=0';
+        } else {
+            $cond = manager()->documentAccessCondition('sc');
+            if ($cond !== '') {
+                $where[] = 'AND ' . $cond;
             }
         }
         $where[] = "GROUP BY sc.id";
@@ -2318,17 +2297,14 @@ trait DocumentParserSubParserTrait
 
         $from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
 
-        $access = '';
         if ($modx->isFrontend()) {
             $access = 'sc.privateweb=0';
-        } elseif (sessionv('mgrRole') != 1) {
-            $access = 'sc.privatemgr=0';
-        }
-        if ($docgrp = $modx->getUserDocGroups()) {
-            if ($access !== '') {
-                $access .= ' OR';
+            if ($docgrp = $modx->getUserDocGroups()) {
+                $access .= sprintf(' OR dg.document_group IN (%s)', implode(',', $docgrp));
             }
-            $access .= sprintf(' dg.document_group IN (%s)', implode(',', $docgrp));
+        } else {
+            // 管理画面側の判定は ManagerAPI に置く（#1338）
+            $access = manager()->documentAccessCondition('sc');
         }
 
         $_ = [];

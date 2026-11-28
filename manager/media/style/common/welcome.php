@@ -9,7 +9,7 @@ function iconElements()
     global $modx;
 
     if (!manager_is_dashboard_action()) return;
-    if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template') || evo()->hasPermission('new_snippet') || evo()->hasPermission('edit_snippet') || evo()->hasPermission('new_plugin') || evo()->hasPermission('edit_plugin')) {
+    if (manager()->canOpenElementManager()) {
         $ph['imgsrc'] = 'icons/32x/elements.png';
         $ph['action'] = 'index.php?a=76';
         $ph['title'] = lang('element_management');
@@ -22,7 +22,7 @@ function iconNewDoc()
     global $modx;
 
     if (!manager_is_dashboard_action()) return;
-    if (evo()->hasPermission('new_document') || evo()->hasPermission('save_document')) {
+    if (manager()->canCreateDocumentUnder(0)) {
         $ph['imgsrc'] = 'icons/32x/newdoc.png';
         $ph['action'] = 'index.php?a=4';
         $ph['title'] = lang('add_resource');
