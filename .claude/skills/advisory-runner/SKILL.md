@@ -28,7 +28,7 @@ description: 非公開のセキュリティアドバイザリ（下書き）で�
 
 - GHSA-ID: 対象のアドバイザリ（`GHSA-xxxx-xxxx-xxxx`）。
 - 計画のパス: 計画の絶対パス。対象の版、中立な短い名前、記録先が書かれている。計画が無い、または読めなければ止まる。
-- 対象の版: main、1.2 系、またはその両方。計画に書かれたものに従う。宛先ブランチは、main は `main`、1.2 系は `release/1.2.x`。
+- 対象の版: main、1.3 系、1.2 系のうち計画に書かれたもの。宛先ブランチは、main は `main`、1.3 系は `release/1.3.x`、1.2 系は `release/1.2.x`。
 
 アドバイザリの中身（何が、どこで、どう悪用できるか）は計画にだけ書かれている。公開リポジトリには、この先も書かない。
 
@@ -50,6 +50,7 @@ description: 非公開のセキュリティアドバイザリ（下書き）で�
 git fetch origin
 ROOT=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")
 git worktree add --no-track -b advisory/<短い名前>-main "$ROOT/.claude/worktrees/advisory-<短い名前>-main" origin/main
+git worktree add --no-track -b advisory/<短い名前>-1.3 "$ROOT/.claude/worktrees/advisory-<短い名前>-1.3" origin/release/1.3.x
 git worktree add --no-track -b advisory/<短い名前>-1.2 "$ROOT/.claude/worktrees/advisory-<短い名前>-1.2" origin/release/1.2.x
 ```
 
@@ -70,7 +71,7 @@ git worktree add --no-track -b advisory/<短い名前>-1.2 "$ROOT/.claude/worktr
    `gh api repos/modxcms-jp/evolution-jp/security-advisories/<GHSA-ID> --jq '.private_fork.full_name'`
    `gh api repos/<full_name> --jq '.full_name, .ssh_url, .private'`
    `full_name` が `modxcms-jp/` で始まり、2 つの結果で一致し、`private` が `true` であることを確かめる。
-4. フォークに宛先ブランチ（`main` と、1.2 系なら `release/1.2.x`）があることを `git ls-remote <ssh_url>` で確かめる。作った直後は複製が終わっていないことがあるので、見つからなければ少しおいて数回やり直す。それでも無ければ止まる（宛先ブランチを自分で push しない。不変条件 1）。
+4. フォークに宛先ブランチ（`main` と、1.3 系なら `release/1.3.x`、1.2 系なら `release/1.2.x`）があることを `git ls-remote <ssh_url>` で確かめる。作った直後は複製が終わっていないことがあるので、見つからなければ少しおいて数回やり直す。それでも無ければ止まる（宛先ブランチを自分で push しない。不変条件 1）。
 
 一時フォークでは CI とステータスチェックが動かない。フォーク内の PR は、アドバイザリ画面から開いているものを一度にマージする。main 宛ての PR は 1 本しかマージできない。
 
@@ -94,7 +95,7 @@ git worktree add --no-track -b advisory/<短い名前>-1.2 "$ROOT/.claude/worktr
 - **事前確認**（runner の手順 1 の代わり）: 計画が読めること、アドバイザリが下書きであること、修正ブランチがまだ無いこと（計画に記録されたものは除く）を確かめる。フォークが既にあれば、その開いている PR を一覧にし、計画に記録した PR 以外が無いことを確かめる（「一時フォーク」の「開いている PR の照合」の 1）。
 - **準備**: Issue の初期設定は行わない。開始時の HEAD を控えるのは同じ。
 - **実装**: worker には、計画のうち実装に要る部分（直すこと、場所、確認のしかた）と、不変条件 3・4 を渡す。テストを足すのは worker だけにする。
-- **1.2 系**: main の修正を先に終える。1.2 系は main のコミットを cherry-pick し、1.2 系が動く PHP の下限で動く書き方に直す。
+- **1.3 系・1.2 系**: main の修正を先に終える。保守ブランチは main のコミットを cherry-pick し、その版の作りと、動く PHP の下限で動く書き方に直す（1.3 系の持っていき方は `assets/docs/release-process.md` の「保守ブランチ」）。
 - **範囲の照合**: runner と同じ。加えて、不変条件 3 のファイルが差分に無いことを確かめる。
 - **検証**: CI の代わりになるので省かない。`php -l` と、adaptive-validation-runner での修正前後の比較を必ず行う（1.2 系はその「1.2 系」の手順）。tester には記録先を渡す。tester は検証記録を記録先にだけ置き、公開リポジトリの作業ツリー（`.agent/runs/` を含む）には置かない。検証環境のインストールなどで作業ツリーに生じたファイルは、コミットしない（範囲の照合で確かめる）。検証環境と、修正前と比べるための detached のワークツリーは、検証が終わるたびに片付ける。修正前に再現できなければ止まる。
 - **自己レビュー**: runner と同じ。reviewer には、計画（中身を含む）と、宛先ブランチとの差分全体を渡す。不変条件 4 の文面の点検も頼む。
@@ -108,7 +109,7 @@ git worktree add --no-track -b advisory/<短い名前>-1.2 "$ROOT/.claude/worktr
 1. push 先が、「一時フォーク」の手順 3 で計画に書いた `ssh_url` であることを照らし合わせる。
 2. `git -C <ワークツリー> push <ssh_url> advisory/<短い名前>-<版>`
 3. PR の本文を、記録先など公開リポジトリの外のファイルに書き、`gh pr create -R <フォークの full_name> --base <宛先ブランチ> --head advisory/<短い名前>-<版> --title "<タイトル>" --body-file <本文のファイル>` で作る。対話にしないため、`--title` と `--body-file` を必ず付ける。下書きにしない（アドバイザリ画面のマージ対象にするため）。
-   - タイトルは、マージ後は公開リポジトリの PR として残るので、`.github/codex-pr-rules.md` の「PRタイトル」に従い、日本語で中立に書く。1.2 系の PR は、先頭に `[1.2] ` を付けて main 宛ての PR と見分ける。本文は「概要」「確認手順」にし、確認手順には観点だけを書く（詳細な手順と結果は記録先に置く）。`Closes #` や Issue 番号は書かない。
+   - タイトルは、マージ後は公開リポジトリの PR として残るので、`.github/codex-pr-rules.md` の「PRタイトル」に従い、日本語で中立に書く。1.3 系・1.2 系の PR は、先頭に `[1.3] `・`[1.2] ` を付けて main 宛ての PR と見分ける。本文は「概要」「確認手順」にし、確認手順には観点だけを書く（詳細な手順と結果は記録先に置く）。`Closes #` や Issue 番号は書かない。
 4. 作った PR の URL と、push したコミット（自己レビューを通ったもの。`git -C <ワークツリー> rev-parse HEAD`）を計画に書く。
 5. PR を作った直後と、次の版へ進む前と、報告の直前（「開いている PR の照合」の 2）に、呼んでいないレビューやボットのコメントが付いていないかを、次の 3 つで確かめる（PR 全体へのコメント、レビュー、差分の行へのコメントは、それぞれ別の API でしか取れない）。どれかに 1 件でもあれば、それ以上進めずに止まる。
    `gh pr view <PR 番号> -R <フォークの full_name> --json comments --jq '.comments | length'`（PR 全体へのコメント。一時フォークでは Issue の機能が無効のことがあり、`issues/<PR 番号>/comments` の API は 404 になり得るので使わない）
@@ -138,7 +139,7 @@ runner の「止まる条件」を、次のように使う。
 - 「開いている PR の照合」に当たった（計画に無い PR、同じ宛先への複数の PR、記録と違うコミット、衝突、取り直しても判定できないマージ可否）
 - push 先の URL が、その GHSA-ID のフォークだと確かめられない
 - 修正が、公開の Issue・PR で進んでいる作業と重なる
-- 1.2 系で、修正を 1.2 系が動く PHP の下限で書けない。または直し方が main と大きく変わる
+- 1.3 系・1.2 系で、修正をその版の作りや動く PHP の下限で書けない。または直し方が main と大きく変わる
 - 修正前に再現できない
 - フォーク内の PR に、呼んでいないレビューやボットのコメントが付いた
 - origin（公開リポジトリ）に修正ブランチやそのコミットが出たと分かった。すぐ止まって本人に返す。消すのは本人が行う（deny は削除の push も止める）

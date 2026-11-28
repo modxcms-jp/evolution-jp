@@ -16,6 +16,7 @@
 - [x] (2026-11-11) M4: DocumentParser の取得の関数（管理画面側の分岐は同じ判定、公開側は「ロールの ID が 1」を `bypassesDocumentGroups()` に）（7cb9515e6。M3 との差は表の D3・D6〜D9・D11 の行だけで期待どおり、見えなくなる向き 0、ログインしていない訪問者の行は 1 行も変わらない。ツリーのノード名を日付にしたときの修正前からの 500 は、新しく見える文書の分は M4 で消え、`tree_show_protected=1` の開けない文書の分は 2d7bd224f（列の添字の数え間違いで日付がすべて `- - -` になったのを 8597eae0d で直した）で手当てした。PHP の警告・JS のエラー 0 件。自己レビューは問題なし）
 - [x] (2026-11-11) M5: ドキュメント・PHP 7.4 での確認・最終の突き合わせ（architecture.md は cb719e9ec・fea7eef01・7cb9515e6、core-issues.md は f00be5d7c・fea7eef01。全体の取り直しは M4 と差 0。PHP 7.4.33 と MySQL 5.7.44（ONLY_FULL_GROUP_BY）で差 0・エラー 0。ツリーの日付の表示は M4 と一致し、M4 で 500 だった組も日付が出る。PR-B の最終の自己レビューは問題なし）
 - [x] (2026-11-29) main の取り込み（1.3.0J の公開後。ブランチ `chore/merge-main-into-develop-1.4`）。main で検索（`search.static.php`）が `tree_show_protected` のとき開けない文書の題名を出し、本文の抜粋だけを外す形（`can_view`）になっていたが、本文の語で当たることで中身を明かすので、Decision Log のとおり設定を見ずに常に絞る形にそろえた。main で TV の取得を `DocAPI::templateTmplvars()` に寄せていたので、そこを `tmplvarAccessCondition()` にした。取り込み前（origin/develop/1.4 a92bda7e8）と取り込み後（0854dad71）で V1〜V3（1,890 行）・V4（217 行）・ツリーの日付（24 行）を取り直し、差 0。取り込み後のコードで PHP 7.4.33（244 行）と MySQL 5.7.44（ONLY_FULL_GROUP_BY、56 行）も PHP 8.4・MariaDB と差 0、PHP の警告 0。M5 の記録との差は、`use_udperms=0` で管理者でない利用者にツリーの「ルートに新規作成」が出る 6 行（V3 の acc・editor・editor0・web、V4 の editor・editor0）で、取り込み前の develop/1.4 にある `canCreateDocumentUnder(0)` の変更による。main から入った TinyMCE 7 のリンクの一覧も `documentAccessCondition()` にした（f5ddad9e4）
+- [x] (2026-11-29) 完了。#1925 で `develop/1.4` を main に入れた。ExecPlan をアーカイブへ移した
 
 ## Surprises & Discoveries
 
