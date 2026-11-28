@@ -965,6 +965,58 @@ class DocAPI
         return $result;
     }
 
+    /**
+     * @deprecated 1.4 で非推奨、1.5 で消す。manager()->can('document.move') を使う
+     */
+    public function canMoveDoc()
+    {
+        return $this->deprecatedCan('canMoveDoc', 'document.move');
+    }
+
+    /**
+     * @deprecated 1.4 で非推奨、1.5 で消す。manager()->can('document.duplicate') を使う
+     */
+    public function canCopyDoc()
+    {
+        return $this->deprecatedCan('canCopyDoc', 'document.duplicate');
+    }
+
+    /**
+     * @deprecated 1.4 で非推奨、1.5 で消す。manager()->can('document.delete') を使う
+     */
+    public function canDeleteDoc()
+    {
+        return $this->deprecatedCan('canDeleteDoc', 'document.delete');
+    }
+
+    /**
+     * @deprecated 1.4 で非推奨、1.5 で消す。manager()->can('document.create') を使う
+     */
+    public function canCreateDoc()
+    {
+        return $this->deprecatedCan('canCreateDoc', 'document.create');
+    }
+
+    /**
+     * @deprecated 1.4 で非推奨、1.5 で消す。manager()->can('document.edit') を使う
+     */
+    public function canEditDoc()
+    {
+        return $this->deprecatedCan('canEditDoc', 'document.edit');
+    }
+
+    /**
+     * 非推奨の can*Doc() の中身。警告を残し、判定は ManagerAPI の操作の表（can()）に任せる（assets/docs/deprecations.md）
+     */
+    private function deprecatedCan(string $method, string $operation): bool
+    {
+        logDeprecated(
+            "DocAPI::{$method}()",
+            "DocAPI::{$method}() is deprecated. Use manager()->can('{$operation}') instead."
+        );
+        return manager()->can($operation);
+    }
+
     public function existsDoc($id = 0)
     {
         $rs = db()->select('id', '[+prefix+]site_content', where('id', $id));
