@@ -16,6 +16,7 @@
 | 機能 | 非推奨にした版 | 消す版 | 代わり |
 | --- | --- | --- | --- |
 | `Document` クラス（`manager/includes/extenders/ex_documentapi.php`） | 1.3 | 1.4 | `evo()->doc`（`loadExtension('DocAPI')` の DocAPI） |
+| DocAPI の `canMoveDoc()`・`canCopyDoc()`・`canDeleteDoc()`・`canCreateDoc()`・`canEditDoc()`（`evo()->doc`） | 1.4 | 1.5 | `manager()->can('document.move')` など（`permissions.md` の操作の表） |
 | グローバル設定 `server_protocol`（画面の「サーバータイプ」。`[(server_protocol)]`・`config('server_protocol')`） | なし（警告なしで 1.3 で廃止） | 1.3 | `[(site_url)]`（常に https にするなら `fixed_site_url` を `https://` で書く。`site-url.md`） |
 
 ### Document クラス
@@ -26,6 +27,20 @@
 
 - `create()`・`update()` は最後にキャッシュを消す（`evo()->clearCache()`）が、`delete()` は消さない。`delete()` は文書を削除済み・非公開にして（ごみ箱に入れる）値を返さないので、呼んだあとでサイトの表示に反映するには `evo()->clearCache()` を呼ぶ。
 - `saveTV()` もキャッシュを消さない。複数の TV を続けて保存したあとに、まとめて `evo()->clearCache()` を呼ぶ。
+
+### DocAPI の can*Doc()
+
+文書の操作の権限の組み合わせを、ManagerAPI の表（`OPERATION_PERMISSIONS`）と `can()` の 1 か所にした（#1357）。DocAPI の 5 つは本体から使われていない。1.4 では、中身を `manager()->can()` に任せる薄い関数として残し、呼ぶと警告を残す。
+
+戻り値は表の組み合わせになるので、1.3 までと同じとは限らない（処理が求める組み合わせにそろえたため。`canMoveDoc()` は `save_document` だけでなく移動の画面と処理が求める 4 つ、`canCreateDoc()` は `new_document` に加えて `save_document` も見る）。
+
+| 呼んでいるもの | 置き換え |
+| --- | --- |
+| `evo()->doc->canMoveDoc()` | `manager()->can('document.move')` |
+| `evo()->doc->canCopyDoc()` | `manager()->can('document.duplicate')` |
+| `evo()->doc->canDeleteDoc()` | `manager()->can('document.delete')` |
+| `evo()->doc->canCreateDoc()` | `manager()->can('document.create')`（親を決めて開くなら `manager()->canCreateDocumentUnder($parentId)`） |
+| `evo()->doc->canEditDoc()` | `manager()->can('document.edit')` |
 
 ### server_protocol
 
