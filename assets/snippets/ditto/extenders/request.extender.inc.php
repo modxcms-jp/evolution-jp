@@ -2,70 +2,23 @@
 /*
  * Title: Request
  * Purpose:
- *  	Adds support for changing Ditto parameters via URL
- *
- * Note:
- * 		- All variables must be prefixed with ditto_ for the snippet to recognize them!
- * 		- If a Ditto id is set use the sntax
+ *  	Adds support for changing Ditto parameters via URL (ditto_NAME, or ditto_ID_NAME with &id)
 */
-$variables = [];
-$stripTags = isset($stripTags) ? $stripTags : 1;
-/*
-	Param: stripTags
-
-	Purpose:
-	Remove HTML tags from the parameters provided
-
-	Options:
-	0 - off
-	1 - on
-
-	Default:
-	1 - on
-*/
-$bad = isset($bad) ? explode(",", $bad) : ["seeThruUnpub", "showInMenuOnly", "showPublishedOnly", "debug", "start", "config", "extenders", "dittoID"];
-/*
-	Param: bad
-
-	Purpose:
-	Parameters that are not allowed to be set
-
-	Options:
-	Any valid Ditto options separated by commas
-
-	Default:
-	"seeThruUnpub,showInMenuOnly,showPublishedOnly,debug,start,config,extenders,dittoID"
-*/
+$stripTags = $stripTags ?? 1;
+$bad = isset($bad) ? explode(",", $bad) : ["seeThruUnpub", "showInMenuOnly", "showPublishedOnly", "start", "config", "extenders", "dittoID"];
 // Never set from the request: SQL conditions, access control, the documents to list,
 // and variables used inside the snippet.
-// startID and limit are aliases that snippet.ditto.php copies to parents and queryLimit
-// after the extenders run, so they are listed here as well.
 $never = [
     "where", "hidePrivate", "seeThruUnpub", "showInMenuOnly", "showPublishedOnly", "hideFolders",
-    "parents", "startID", "documents", "depth", "orderBy", "queryLimit", "limit", "debug", "config",
+    "parents", "documents", "depth", "orderBy", "queryLimit", "config",
     "extenders", "dittoID", "ditto", "modx", "placeholders", "filters", "_lang", "language", "format", "save",
 ];
 $good = isset($good)
     ? explode(",", $good)
-    : ["display", "total", "paginate", "paginateAlwaysShowLinks", "randomize", "summarize", "noResults",
+    : ["display", "total", "paginate", "paginateAlwaysShowLinks", "randomize", "noResults",
        "dateSource", "dateFormat", "filter"];
 
 $request = (array) anyv();
-/*
-        Param: good
-
-        Purpose:
-        Parameters that are allowed to be set
-
-	Options:
-	Any valid Ditto options separated by commas
-
-	Default:
-	"display,total,paginate,paginateAlwaysShowLinks,randomize,summarize,noResults,
-	dateSource,dateFormat,filter" (and filter_1, filter_2, ...)
-	Templates (tpl, tplAlt, ...) are set from the request only when listed in &good
-	Names in $never (including the aliases startID and limit) are never set, even when listed in &good
-*/
 $variables = [];
 foreach ($request as $name => $value) {
     if (!is_string($value) || strpos($name, "ditto_") !== 0) {
@@ -78,19 +31,19 @@ foreach ($request as $name => $value) {
     if ($dID && $allowed && !in_array($saneName, $bad, true) && !in_array($saneName, $never, true)
         && !preg_match("/[\^`~!\/@\\#\}\$%:;\)\(\{&\*=\|'\+]/", $value)) {
         if ($stripTags) {
-            $value = $modx->stripTags($value);
+            $value = evo()->stripTags($value);
         }
         $variables[$saneName] = trim($value);
     }
 }
 // Numeric settings: read as a non-negative integer (leading zeros allowed, "05" is 5, "0" stays 0).
 // An empty or malformed value is the same as not specified, so the default or the snippet call value is used.
-// display, total and summarize (an alias of display) also accept "all".
-foreach (['display', 'total', 'summarize', 'paginate', 'paginateAlwaysShowLinks'] as $numericName) {
+// display and total also accept "all".
+foreach (['display', 'total', 'paginate', 'paginateAlwaysShowLinks'] as $numericName) {
     if (!isset($variables[$numericName])) {
         continue;
     }
-    if (in_array($numericName, ['display', 'total', 'summarize'], true) && $variables[$numericName] === 'all') {
+    if (in_array($numericName, ['display', 'total'], true) && $variables[$numericName] === 'all') {
         continue;
     }
     $numericValue = to_uintvar($variables[$numericName]);
@@ -104,30 +57,10 @@ foreach (['display', 'total', 'summarize', 'paginate', 'paginateAlwaysShowLinks'
 if (isset($variables['randomize']) && $variables['randomize'] === '') {
     unset($variables['randomize']);
 }
-/*
-	Param: dbg
-
-	Purpose:
-	Output variables being set (only with &debug)
-
-        Options:
-        0 - off
-        1 - on
-
-        Default:
-        0 - off
-*/
-if (request_intvar($dittoID . "dbg") === 1 && !empty($debug)) {
-    echo hsc(print_r($variables, true));
-}
 extract($variables);
 
-// ------------------------------------------------------------------------------//
-// Kudo's MultiFilter Code 														 //
-// ------------------------------------------------------------------------------//
-// Accepts ditto_filter, ditto_filter_2, with continuous numbering				 //
-// Note: For complex filtering start with ditto_filter_1 (with one as number)!   //
-// ------------------------------------------------------------------------------//
+// ditto_filter, ditto_filter_2, ... (or ditto_filter_1, ditto_filter_2, ...) with continuous numbering
+// are joined into one &filter
 
 if (isset($filter) && isset($filter_2)) {
     $i = 2;

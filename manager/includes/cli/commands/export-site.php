@@ -11,7 +11,7 @@ $fail = function ($message) use ($plain) {
     cli_usage($plain($message), 1);
 };
 
-$usage = 'Usage: php evo export:site [--target=all|allow|ignore] [--ids=1,2,3] [--include-noncache]'
+$usage = 'Usage: php evo.php export:site [--target=all|allow|ignore] [--ids=1,2,3] [--include-noncache]'
     . ' [--replace-before=TEXT] [--replace-after=TEXT] [--site-url=URL] [--restart]'
     . "\n  If the site is behind HTTP Basic authentication, set EVO_EXPORT_BASIC_AUTH=USER:PASS,"
     . ' or run it in a terminal to be asked for them.';

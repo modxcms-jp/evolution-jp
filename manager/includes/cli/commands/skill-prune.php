@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../skill-lib.php';
 
 $usage = function () {
-    cli_usage('Usage: php evo skill:prune [--skill=SKILL] [--limit=N] [--json] [--min-seen=N] [--min-used-ratio=R] [--stale-runs=N]');
+    cli_usage('Usage: php evo.php skill:prune [--skill=SKILL] [--limit=N] [--json] [--min-seen=N] [--min-used-ratio=R] [--stale-runs=N]');
 };
 
 $skill = skill_get_arg($args, 'skill', '');

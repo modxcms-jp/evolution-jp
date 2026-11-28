@@ -48,6 +48,10 @@ $modx->error_reporting = $error_reporting ?? 1;
 
 evo()->loadExtension('ManagerAPI');
 
+// セーフモードは OnGetConfig（getSettings() の最後）より前に効かせる。
+// OnGetConfig のプラグインが壊れていても、エラーの画面のボタンでセーフモードに入れば、管理画面（アップデート待ちならアップデーター）へ進めるように
+manager_sync_safe_mode();
+
 $modx->getSettings();
 
 // include_once the language file
@@ -71,15 +75,8 @@ if (!$isActionSpecified && !sessionv('mgrForgetPassword')) {
 include_once(MODX_CORE_PATH . 'accesscontrol.inc.php');
 
 $managerSafeModeUpdated = manager_apply_safe_mode_request();
-
-if (sessionv('safeMode') == 1) {
-    if (manager_safe_mode_can_toggle()) {
-        $modx->safeMode = 1;
-    } else {
-        sessionv('*safeMode', 0);
-        $modx->safeMode = 0;
-    }
-}
+// accesscontrol.inc.php が読み直した権限で、もう一度そろえる
+manager_sync_safe_mode();
 
 if ($managerSafeModeUpdated && anyv('manager_safe_mode_redirect') === '1') {
     header('Location: ' . MODX_MANAGER_URL);
@@ -361,6 +358,11 @@ function manager_render_uncaught_error(Throwable $exception, bool $isRawSystemLo
         http_response_code(500);
     }
 
+    if (manager_error_guide_applies()) {
+        echo manager_error_guide_html();
+        return;
+    }
+
     $message = hsc(str_replace(MODX_BASE_PATH, '{BASE_PATH}/', $exception->getMessage()));
     $file = hsc(str_replace(MODX_BASE_PATH, '{BASE_PATH}/', $exception->getFile()));
     $line = (int)$exception->getLine();
@@ -450,6 +452,7 @@ if (in_array(manager()->action, [
     117,
     127,
     200,
+    201,
     31,
     40,
     91,
@@ -602,7 +605,7 @@ switch (manager()->action) {
         include_once($prc_path . 'template/delete_template.processor.php');
         break;
     case 96: // get the duplicate template processor
-        include_once($prc_path . 'template/duplicate_template.processor.php');
+        include_once($prc_path . 'element/duplicate_element.processor.php');
         break;
     case 117:
         // change the tv rank for selected template
@@ -616,10 +619,10 @@ switch (manager()->action) {
         include_once($prc_path . 'snippet/save_snippet.processor.php');
         break;
     case 25: // get the delete processor
-        include_once($prc_path . 'snippet/delete_snippet.processor.php');
+        include_once($prc_path . 'element/delete_element.processor.php');
         break;
     case 98: // get the duplicate processor
-        include_once($prc_path . 'snippet/duplicate_snippet.processor.php');
+        include_once($prc_path . 'element/duplicate_element.processor.php');
         break;
     case 78: // get the edit snippet action
     case 77: // get the new chunk action
@@ -629,10 +632,10 @@ switch (manager()->action) {
         include_once($prc_path . 'chunk/save_htmlsnippet.processor.php');
         break;
     case 80: // get the delete processor
-        include_once($prc_path . 'chunk/delete_htmlsnippet.processor.php');
+        include_once($prc_path . 'element/delete_element.processor.php');
         break;
     case 97: // get the duplicate processor
-        include_once($prc_path . 'chunk/duplicate_htmlsnippet.processor.php');
+        include_once($prc_path . 'element/duplicate_element.processor.php');
         break;
     case 26: // get the cache emptying processor
         include_once($action_path . 'main/refresh_site.dynamic.php');
@@ -648,10 +651,10 @@ switch (manager()->action) {
         include_once($prc_path . 'module/save_module.processor.php');
         break;
     case 110: // get the delete processor
-        include_once($prc_path . 'module/delete_module.processor.php');
+        include_once($prc_path . 'element/delete_element.processor.php');
         break;
     case 111: // get the duplicate processor
-        include_once($prc_path . 'module/duplicate_module.processor.php');
+        include_once($prc_path . 'element/duplicate_element.processor.php');
         break;
     case 112:
         // execute/run the module
@@ -671,10 +674,10 @@ switch (manager()->action) {
         include_once($prc_path . 'plugin/save_plugin.processor.php');
         break;
     case 104: // get the delete processor
-        include_once($prc_path . 'plugin/delete_plugin.processor.php');
+        include_once($prc_path . 'element/delete_element.processor.php');
         break;
     case 105: // get the duplicate processor
-        include_once($prc_path . 'plugin/duplicate_plugin.processor.php');
+        include_once($prc_path . 'element/duplicate_element.processor.php');
         break;
     case 127: // get review action
         include_once($action_path . 'document/revision.dynamic.php');
@@ -692,6 +695,12 @@ switch (manager()->action) {
     case 200: // show phpInfo
         include_once($action_path . 'report/phpinfo.static.php');
         break;
+    case 201: // スタイルガイド（部品の見本を並べる確認用の画面）
+        include_once($action_path . 'report/styleguide.static.php');
+        break;
+    case 202: // スタイルガイドの見本の本体（iframe の中。header を通さず完全な HTML を返す）
+        include_once($action_path . 'report/styleguide_sample.static.php');
+        exit;
         // file manager
     case 31: // get the page to manage files
         include_once($action_path . 'element/file_manager.static.php');
@@ -726,9 +735,6 @@ switch (manager()->action) {
         break;
     case 13: // view logging
         include_once($action_path . 'report/logging.static.php');
-        break;
-    case 55: // get the settings editor
-        include_once($prc_path . 'db/empty_table.processor.php');
         break;
     case 64: // get the Recycle bin emptier
         include_once($prc_path . 'document/remove_content.processor.php');
@@ -767,6 +773,9 @@ switch (manager()->action) {
     case 305: // Backup Manager
         include_once($prc_path . 'backup/restore.processor.php');
         break;
+    case 306: // Backup Manager: download
+        include_once($prc_path . 'backup/download.processor.php');
+        break;
     case 307: // Backup Manager
         include_once($prc_path . 'backup/snapshot.processor.php');
         break;
@@ -778,9 +787,6 @@ switch (manager()->action) {
         break;
     case 94: // get the duplicate processor
         include_once($prc_path . 'document/duplicate_content.processor.php');
-        break;
-    case 95: // Import Document from file
-        include_once($action_path . 'tool/import_site.static.php');
         break;
     case 9: // get the help page
         include_once($action_path . 'tool/help.static.php');
@@ -797,7 +803,7 @@ switch (manager()->action) {
         include_once($prc_path . 'tmplvars/delete_tmplvars.processor.php');
         break;
     case 304: // get the duplicate processor
-        include_once($prc_path . 'tmplvars/duplicate_tmplvars.processor.php');
+        include_once($prc_path . 'element/duplicate_element.processor.php');
         break;
     case 114: // System log viewer
         include_once($action_path . 'report/eventlog.dynamic.php');

@@ -19,32 +19,32 @@
                         </td>
                         <td valign="top">
                             [+OnManagerWelcomeHome+]
-                            <div style="overflow:hidden;zoom:1;margin-bottom:20px;">
+                            <div class="wm_buttons">
                                 [+iconNewDoc+]
                                 [+iconResources+]
                                 [+iconSearch+]
                                 [+iconHelp+]
                             </div>
-                            <div style="overflow:hidden;zoom:1;margin-bottom:20px;">
+                            <div class="wm_buttons">
                                 [+iconElements+]
                                 [+iconFileManager+]
                                 [+UserManagerIcon+]
                                 [+WebUserManagerIcon+]
                             </div>
-                            <div>
+                            <div class="wm_buttons">
                                 [+iconSettings+]
                                 [+BackupIcon+]
                                 [+iconEventLog+]
                                 [+iconSysInfo+]
                             </div>
-                            <br style="clear:both"/><!--+Modules+--><br style="clear:both"/>
+                            <!--+Modules+-->
                         </td>
                     </tr>
                 </table>
             </div>
         </div>
         <!-- system check -->
-        <div class="tab-page" id="tabcheck" style="display:[+config_display+]; padding-left:0; padding-right:0;">
+        <div class="tab-page" id="tabcheck" style="display:[+config_display+];">
             <h2 class="tab" style="display:[+config_display+]"><strong class="alert">[+settings_config+]</strong></h2>
             <script type="text/javascript">tpPane.addTabPage(document.getElementById("tabcheck"));</script>
             <div class="sectionHeader">[+configcheck_title+]</div>

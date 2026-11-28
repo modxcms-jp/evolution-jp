@@ -1,11 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>MODX Content Manager</title>
-    <meta http-equiv="content-type" content="text/html; charset=[+modx_charset+]"/>
+    <title>[+page_title+]</title>
+    <meta charset="[+modx_charset+]">
     <meta name="robots" content="noindex, nofollow"/>
-    <link rel="stylesheet" type="text/css" href="media/style/[+theme+]/style.css?[+theme_css_ver+]"/>
+    [+theme_stylesheets+]
     <script type="text/javascript">
         function doLogout() {
             // ログアウトは POST でしか受け付けない

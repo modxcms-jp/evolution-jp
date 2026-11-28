@@ -32,24 +32,20 @@ final class SystemSettingsRenderer
         if ($current !== 'p' && $current !== 'br') {
             $current = '';
         }
-        $menubarPreference = $preferences->detectMenubarPreference();
-        $menubarValue = '';
-        if ($menubarPreference === true) {
-            $menubarValue = '1';
-        } elseif ($menubarPreference === false) {
-            $menubarValue = '0';
-        }
+        $menubarValue = $this->visibilityValue($isSystemSettingsScreen
+            ? $preferences->detectMenubarPreference()
+            : $preferences->detectMenubarPreferenceSetting());
+        $toolbarVisibilityValue = $this->visibilityValue($isSystemSettingsScreen
+            ? $preferences->detectToolbarVisibility()
+            : $preferences->detectToolbarVisibilitySetting());
         $fieldId = 'tinymce7_entermode';
         $toolbarFieldId = 'tinymce7_toolbar_preset';
-        $menubarFieldId = 'tinymce7_menubar';
         $cssSelectorsFieldId = 'tinymce7_css_selectors';
 
-        $toolbarOptions = [
-            ['value' => 'simple', 'label' => $this->t('tinymce7_toolbar_simple', 'Simple')],
-            ['value' => 'basic', 'label' => $this->t('tinymce7_toolbar_basic', 'Basic')],
-            ['value' => 'legacy', 'label' => $this->t('tinymce7_toolbar_legacy', 'Legacy (Default)')],
-            ['value' => 'full', 'label' => $this->t('tinymce7_toolbar_full', 'Full')],
-        ];
+        $toolbarOptions = [];
+        foreach ($preferences->toolbarPresetNames() as $name) {
+            $toolbarOptions[] = ['value' => $name, 'label' => $this->t("tinymce7_toolbar_{$name}", $name)];
+        }
         if (!$isSystemSettingsScreen) {
             array_unshift($toolbarOptions, ['value' => '', 'label' => lang('user_use_config')]);
         }
@@ -57,11 +53,6 @@ final class SystemSettingsRenderer
             ['value' => '', 'label' => $isSystemSettingsScreen ? $this->t('tinymce7_entermode_default', 'TinyMCE default (paragraph)') : lang('user_use_config')],
             ['value' => 'p', 'label' => $this->t('tinymce7_entermode_p', 'Insert paragraph <p>')],
             ['value' => 'br', 'label' => $this->t('tinymce7_entermode_br', 'Insert line break <br>')],
-        ];
-        $menubarOptions = [
-            ['value' => '', 'label' => $isSystemSettingsScreen ? $this->t('tinymce7_menubar_default', 'TinyMCE default (show)') : lang('user_use_config')],
-            ['value' => '1', 'label' => $this->t('tinymce7_menubar_show', 'Show')],
-            ['value' => '0', 'label' => $this->t('tinymce7_menubar_hide', 'Hide')],
         ];
 
         $html = [];
@@ -88,22 +79,20 @@ final class SystemSettingsRenderer
         $html[] = '      <div>' . hsc($this->t('tinymce7_toolbar_description', 'Choose the TinyMCE 7 toolbar configuration.')) . '</div>';
         $html[] = '    </td>';
         $html[] = '  </tr>';
-        $html[] = '  <tr class="row1">';
-        $html[] = '    <th><label for="' . $menubarFieldId . '">' . hsc($this->t('tinymce7_menubar_label', 'Menubar visibility')) . '</label></th>';
-        $html[] = '    <td>';
-        $html[] = '      <select name="' . $menubarFieldId . '" id="' . $menubarFieldId . '" class="inputBox">';
-
-        foreach ($menubarOptions as $option) {
-            $value = hsc($option['value']);
-            $label = hsc($option['label']);
-            $selected = ($menubarValue === $option['value']) ? ' selected="selected"' : '';
-            $html[] = '            <option value="' . $value . '"' . $selected . '>' . $label . '</option>';
-        }
-
-        $html[] = '      </select>';
-        $html[] = '      <div>' . hsc($this->t('tinymce7_menubar_description', 'Choose whether TinyMCE 7 displays the menubar.')) . '</div>';
-        $html[] = '    </td>';
-        $html[] = '  </tr>';
+        $html = array_merge($html, $this->visibilityRow(
+            'tinymce7_toolbar',
+            $toolbarVisibilityValue,
+            $this->t('tinymce7_toolbar_visibility_label', 'Toolbar visibility'),
+            $this->t('tinymce7_toolbar_visibility_description', 'Choose whether TinyMCE 7 displays the toolbar.'),
+            $isSystemSettingsScreen
+        ));
+        $html = array_merge($html, $this->visibilityRow(
+            'tinymce7_menubar',
+            $menubarValue,
+            $this->t('tinymce7_menubar_label', 'Menubar visibility'),
+            $this->t('tinymce7_menubar_description', 'Choose whether TinyMCE 7 displays the menubar.'),
+            $isSystemSettingsScreen
+        ));
         $html[] = '  <tr class="row1">';
         $html[] = '    <th><label for="' . $fieldId . '">' . hsc($this->t('tinymce7_entermode_label', 'Enter key behavior')) . '</label></th>';
         $html[] = '    <td>';
@@ -121,7 +110,7 @@ final class SystemSettingsRenderer
         $html[] = '    </td>';
         $html[] = '  </tr>';
 
-        // 編集欄の body の id・クラス、CSSスタイルセレクタ、ひな形はサイト共通の設定なので、システム設定画面だけに出す
+        // 編集欄の body の id・クラス、CSSスタイルセレクタ、リンクの rel、iframe の sandbox、ひな形はサイト共通の設定なので、システム設定画面だけに出す
         if ($isSystemSettingsScreen) {
             $bodyFields = [
                 'tinymce7_body_id' => [
@@ -149,6 +138,39 @@ final class SystemSettingsRenderer
             $html[] = '    <td>';
             $html[] = '      <input type="text" name="' . $cssSelectorsFieldId . '" id="' . $cssSelectorsFieldId . '" class="inputBox" style="width:400px;" value="' . hsc($preferences->detectCssSelectors()) . '">';
             $html[] = '      <div>' . hsc($this->t('tinymce7_css_selectors_description', 'Classes offered in the Formats list, as "Display name=class;Display name 2=class2".')) . '</div>';
+            $html[] = '    </td>';
+            $html[] = '  </tr>';
+            $html[] = '  <tr class="row1">';
+            $html[] = '    <th><label for="tinymce7_link_rel">' . hsc($this->t('tinymce7_link_rel_label', 'Link rel')) . '</label></th>';
+            $html[] = '    <td>';
+            $html[] = '      <input type="text" name="tinymce7_link_rel" id="tinymce7_link_rel" class="inputBox" style="width:400px;" value="' . hsc($preferences->detectLinkRel()) . '">';
+            $html[] = '      <div>' . hsc($this->t('tinymce7_link_rel_description', 'Values offered in the Rel list of the link dialog, as "Display name=value;Display name 2=value2".')) . '</div>';
+            $html[] = '    </td>';
+            $html[] = '  </tr>';
+            $sandboxValue = $preferences->detectSandboxIframes() ? '1' : '0';
+            $html[] = '  <tr class="row1">';
+            $html[] = '    <th><label for="tinymce7_sandbox_iframes">' . hsc($this->t('tinymce7_sandbox_iframes_label', 'iframe sandbox')) . '</label></th>';
+            $html[] = '    <td>';
+            $html[] = '      <select name="tinymce7_sandbox_iframes" id="tinymce7_sandbox_iframes" class="inputBox">';
+            foreach (['1' => $this->t('tinymce7_sandbox_iframes_on', 'Add'), '0' => $this->t('tinymce7_sandbox_iframes_off', 'Do not add')] as $value => $label) {
+                $selected = ($sandboxValue === (string)$value) ? ' selected="selected"' : '';
+                $html[] = '            <option value="' . $value . '"' . $selected . '>' . hsc($label) . '</option>';
+            }
+            $html[] = '      </select>';
+            $html[] = '      <div>' . hsc($this->t('tinymce7_sandbox_iframes_description', 'Whether to add the sandbox attribute to iframes in the content.')) . '</div>';
+            $html[] = '    </td>';
+            $html[] = '  </tr>';
+            $keepScriptsValue = $preferences->detectKeepScripts() ? '1' : '0';
+            $html[] = '  <tr class="row1">';
+            $html[] = '    <th><label for="tinymce7_keep_scripts">' . hsc($this->t('tinymce7_keep_scripts_label', 'script and style')) . '</label></th>';
+            $html[] = '    <td>';
+            $html[] = '      <select name="tinymce7_keep_scripts" id="tinymce7_keep_scripts" class="inputBox">';
+            foreach (['0' => $this->t('tinymce7_keep_scripts_off', 'Remove'), '1' => $this->t('tinymce7_keep_scripts_on', 'Keep')] as $value => $label) {
+                $selected = ($keepScriptsValue === (string)$value) ? ' selected="selected"' : '';
+                $html[] = '            <option value="' . $value . '"' . $selected . '>' . hsc($label) . '</option>';
+            }
+            $html[] = '      </select>';
+            $html[] = '      <div>' . hsc($this->t('tinymce7_keep_scripts_description', 'Whether to keep script and style elements in the content.')) . '</div>';
             $html[] = '    </td>';
             $html[] = '  </tr>';
             $html[] = '  <tr class="row1">';
@@ -186,6 +208,47 @@ final class SystemSettingsRenderer
         global $usersettings;
 
         return is_array($usersettings) ? $usersettings : [];
+    }
+
+    private function visibilityValue(?bool $visible): string
+    {
+        if ($visible === null) {
+            return '';
+        }
+
+        return $visible ? '1' : '0';
+    }
+
+    /**
+     * 表示する・表示しないを選ぶ行。ユーザー設定画面では「グローバル設定を使用」を先頭に足す
+     */
+    private function visibilityRow(string $fieldId, string $current, string $label, string $description, bool $isSystemSettingsScreen): array
+    {
+        $options = [
+            ['value' => '1', 'label' => $this->t('tinymce7_visibility_show', 'Show')],
+            ['value' => '0', 'label' => $this->t('tinymce7_visibility_hide', 'Hide')],
+        ];
+        if (!$isSystemSettingsScreen) {
+            array_unshift($options, ['value' => '', 'label' => lang('user_use_config')]);
+        }
+
+        $html = [];
+        $html[] = '  <tr class="row1">';
+        $html[] = '    <th><label for="' . $fieldId . '">' . hsc($label) . '</label></th>';
+        $html[] = '    <td>';
+        $html[] = '      <select name="' . $fieldId . '" id="' . $fieldId . '" class="inputBox">';
+
+        foreach ($options as $option) {
+            $selected = ($current === $option['value']) ? ' selected="selected"' : '';
+            $html[] = '            <option value="' . hsc($option['value']) . '"' . $selected . '>' . hsc($option['label']) . '</option>';
+        }
+
+        $html[] = '      </select>';
+        $html[] = '      <div>' . hsc($description) . '</div>';
+        $html[] = '    </td>';
+        $html[] = '  </tr>';
+
+        return $html;
     }
 
     private function t(string $key, string $default): string

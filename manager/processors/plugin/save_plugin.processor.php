@@ -24,130 +24,73 @@ if (!is_string($plugincode) || !is_string($properties)) {
     alert()->dumpError();
 }
 
-$rawName = manager()->requireElementName(post_strvar('name'), lang('plugin'), 'plugin', $id);
+$rawName = manager()->requireElementName(post_strvar('name'), lang('plugin'), 'plugin', $mode === 'edit' ? $id : 0);
 $description = post_strvar('description');
 $locked = postv('locked') === 'on' ? '1' : '0';
 $disabled = postv('disabled') === 'on' ? '1' : '0';
 $moduleguid = post_strvar('moduleguid');
 // 不正な値は読み捨てる。選ばれていなければ OnWebPageInit（90）にする
 $sysevents = post_idsvar('sysevents') ?: [90];
-$pluginErrorReporting = post_choicevar('error_reporting', ['inherit', '0', '1', '2', '99'], 'inherit');
+$pluginErrorReporting = post_choicevar('error_reporting', EvoErrorReporting::elementValues(), EvoErrorReporting::INHERIT);
 
-switch ($mode) {
-    case 'new':
+$isNew = $mode === 'new';
+// 差し戻し先と、名前の重複から除く id（新規は 0）
+$formId = $isNew ? 0 : $id;
 
-        // invoke OnBeforePluginFormSave event
-        $tmp = [
-            'mode' => 'new',
-            'id' => ''
-        ];
-        evo()->invokeEvent('OnBeforePluginFormSave', $tmp);
+// invoke OnBeforePluginFormSave event
+$tmp = [
+    'mode' => $isNew ? 'new' : 'upd',
+    'id' => $isNew ? '' : $id
+];
+evo()->invokeEvent('OnBeforePluginFormSave', $tmp);
 
-        // disallow duplicate names for active plugins
-        if ($disabled == '0') {
-            $rs = db()->select('COUNT(id)', '[+prefix+]site_plugins', "name='" . db()->escape($rawName) . "' AND disabled='0'");
-            $count = db()->getValue($rs);
-            if ($count > 0) {
-                manager()->redirectToElementForm(
-                    sprintf(lang('duplicate_name_found_general'), lang('plugin'), $rawName),
-                    'plugin',
-                    0
-                );
-            }
-        }
-
-        $category = manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
-
-        //do stuff to save the new plugin
-        $f = [
-            'name' => $rawName,
-            'description' => $description,
-            'plugincode' => $plugincode,
-            'disabled' => $disabled,
-            'moduleguid' => $moduleguid,
-            'locked' => $locked,
-            'properties' => $properties,
-            'category' => $category
-        ];
-        $f['error_reporting'] = $pluginErrorReporting;
-        $newid = db()->insert(db()->escape($f), '[+prefix+]site_plugins');
-        if (!$newid) {
-            echo "Couldn't get last insert key!";
-            exit;
-        }
-
-        // save event listeners
-        saveEventListeners($newid, $sysevents, $mode);
-
-        // invoke OnPluginFormSave event
-        $tmp = [
-            'mode' => 'new',
-            'id' => $newid
-        ];
-        evo()->invokeEvent('OnPluginFormSave', $tmp);
-
-        // empty cache
-        $modx->clearCache(); // first empty the cache
-        // finished emptying cache - redirect
-        header('Location: ' . EvoFormFlow::afterSaveUrl('plugin', $newid, EvoFormFlow::postedAfterSave()));
-        break;
-    case 'edit':
-
-        // invoke OnBeforePluginFormSave event
-        $tmp = [
-            'mode' => 'upd',
-            'id' => $id
-        ];
-        evo()->invokeEvent("OnBeforePluginFormSave", $tmp);
-
-        // disallow duplicate names for active plugins
-        if ($disabled == '0') {
-            $rs = db()->select('COUNT(*)', '[+prefix+]site_plugins',
-                "name='" . db()->escape($rawName) . "' AND id!='{$id}' AND disabled='0'");
-            if (db()->getValue($rs) > 0) {
-                manager()->redirectToElementForm(
-                    sprintf(lang('duplicate_name_found_general'), lang('plugin'), $rawName),
-                    'plugin',
-                    $id
-                );
-            }
-        }
-
-        $category = manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
-
-        //do stuff to save the edited plugin
-        $f = [
-            'name' => $rawName,
-            'description' => $description,
-            'plugincode' => $plugincode,
-            'disabled' => $disabled,
-            'moduleguid' => $moduleguid,
-            'locked' => $locked,
-            'properties' => $properties,
-            'category' => $category
-        ];
-        $f['error_reporting'] = $pluginErrorReporting;
-        $rs = db()->update(db()->escape($f), '[+prefix+]site_plugins', "id='{$id}'");
-        if (!$rs) {
-            echo "\$rs not set! Edited plugin not saved!";
-        } else {
-            // save event listeners
-            saveEventListeners($id, $sysevents, $mode);
-
-            // invoke OnPluginFormSave event
-            $tmp = [
-                'mode' => 'upd',
-                'id' => $id
-            ];
-            evo()->invokeEvent('OnPluginFormSave', $tmp);
-
-            // empty cache
-            $modx->clearCache(); // first empty the cache
-            // finished emptying cache - redirect
-            header('Location: ' . EvoFormFlow::afterSaveUrl('plugin', $id, EvoFormFlow::postedAfterSave()));
-        }
-        break;
+// 名前の重複を禁じるのは、有効なプラグインどうしだけ（無効なプラグインは同じ名前で置いておける）
+if ($disabled == '0' && manager()->elementNameExists('plugin', $rawName, $formId, ['disabled' => '0'])) {
+    manager()->redirectToElementForm(
+        sprintf(lang('duplicate_name_found_general'), lang('plugin'), $rawName),
+        'plugin',
+        $formId
+    );
 }
+
+$f = [
+    'name' => $rawName,
+    'description' => $description,
+    'plugincode' => $plugincode,
+    'disabled' => $disabled,
+    'moduleguid' => $moduleguid,
+    'locked' => $locked,
+    'properties' => $properties,
+    'category' => manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory')),
+    'error_reporting' => $pluginErrorReporting
+];
+if ($isNew) {
+    $savedId = db()->insert(db()->escape($f), '[+prefix+]site_plugins');
+    if (!$savedId) {
+        echo "Couldn't get last insert key!";
+        exit;
+    }
+} else {
+    $rs = db()->update(db()->escape($f), '[+prefix+]site_plugins', "id='{$id}'");
+    if (!$rs) {
+        echo "\$rs not set! Edited plugin not saved!";
+        return;
+    }
+    $savedId = $id;
+}
+
+// save event listeners
+saveEventListeners($savedId, $sysevents, $mode);
+
+// invoke OnPluginFormSave event
+$tmp = [
+    'mode' => $isNew ? 'new' : 'upd',
+    'id' => $savedId
+];
+evo()->invokeEvent('OnPluginFormSave', $tmp);
+
+evo()->clearCache();
+EvoFormFlow::redirectAfterSave('plugin', $savedId, EvoFormFlow::postedAfterSave());
 
 
 # Save Plugin Event Listeners

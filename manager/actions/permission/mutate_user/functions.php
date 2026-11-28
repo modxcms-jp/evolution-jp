@@ -1,15 +1,6 @@
 <?php
 
-function checkbox($name, $value, $label, $cond)
-{
-    global $modx;
-    $tpl = '<label><input type="checkbox" name="[+name+]" value="[+value+]" [+checked+] />[+label+]</label>';
-    $ph['name'] = $name;
-    $ph['value'] = $value;
-    $ph['label'] = $label;
-    $ph['checked'] = checked($cond);
-    return $modx->parseText($tpl, $ph);
-}
+require_once __DIR__ . '/user_form_rows.php';
 
 function user($key, $default = null)
 {
@@ -87,19 +78,10 @@ function hasUserPermission($action)
 
 function activeUserCheck($userid)
 {
-    $rs = db()->select(
-        'internalKey, username',
-        '[+prefix+]active_users',
-        sprintf("action='12' AND id='%d'", (int)$userid)
-    );
-    if (db()->count($rs) > 1) {
-        while ($lock = db()->getRow($rs)) {
-            if ($lock['internalKey'] == evo()->getLoginUserID()) {
-                continue;
-            }
-            alert()->setError(5, sprintf(lang('lock_msg'), $lock['username'], 'user'));
-            return false;
-        }
+    $username = manager()->editLockedBy(EvoFormFlow::screen('user', 'edit'), (int) $userid);
+    if ($username !== '') {
+        alert()->setError(5, sprintf(lang('lock_msg'), $username, 'user'));
+        return false;
     }
     return true;
 }

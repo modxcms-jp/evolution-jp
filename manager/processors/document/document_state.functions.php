@@ -22,17 +22,15 @@ function docIsAccessible($id)
 function docDeleteCheck($id)
 {
     $id = (int)$id;
-    if ($id == config('site_start')) {
-        $warning = "Document is 'Site start' and cannot be deleted!";
-    } elseif ($id == config('error_page')) {
-        $warning = "Document is 'Error page' and cannot be deleted!";
-    } elseif ($id == config('site_unavailable_page')) {
-        $warning = "Document is used as the 'Site unavailable page' and cannot be deleted!";
+    evo()->loadExtension('DocAPI');
+    $guardKey = evo()->doc->deleteGuardKey($id);
+    if ($guardKey !== '') {
+        $warning = stripcslashes(lang($guardKey));
     } elseif (!docIsAccessible($id)) {
         $warning = lang('access_permission_denied');
     } else {
         $linked = docDeleteLinkedBy($id);
-        $warning = $linked ? 'Linked by ID:' . implode(', ID:', $linked) : '';
+        $warning = $linked ? sprintf(stripcslashes(lang('cannot_delete_linked_by')), implode(', ', $linked)) : '';
     }
     if ($warning !== '') {
         return ['warning' => $warning, 'children' => []];
@@ -48,26 +46,16 @@ function docDeleteCheck($id)
  */
 function docDeleteChildren($parent)
 {
-    $protected = [
-        'site_start' => 'Site start',
-        'error_page' => 'Error page',
-        'site_unavailable_page' => 'Site unavailable page',
-    ];
+    evo()->loadExtension('DocAPI');
     $children = [];
     $rs = db()->select('id', '[+prefix+]site_content', "parent='" . (int)$parent . "' AND deleted='0'");
     while ($row = db()->getRow($rs)) {
-        foreach ($protected as $key => $label) {
-            if ($row['id'] == config($key)) {
-                return [
-                    'warning' => sprintf(
-                        "The document you are trying to delete is a folder containing document %s. This document is registered as the '%s' document, and cannot be deleted. Please assign another document as your '%s' document and try again.",
-                        $row['id'],
-                        $label,
-                        $label
-                    ),
-                    'children' => [],
-                ];
-            }
+        $guardKey = evo()->doc->deleteGuardKey($row['id'], true);
+        if ($guardKey !== '') {
+            return [
+                'warning' => sprintf(stripcslashes(lang($guardKey)), $row['id']),
+                'children' => [],
+            ];
         }
         // 深さ優先（子の次にその子孫）の並びで返す
         $children[] = (int)$row['id'];
@@ -144,10 +132,13 @@ function docPublishCheck($id, $publish)
     if (!docIsAccessible($id)) {
         return 'access_permission_denied';
     }
-    if (!$publish && $id == config('site_start')) {
-        // サイト開始ページは非公開にできない（リソースの保存と同じ文言）
+    if (!$publish) {
+        // サイトの設定で使っているページは非公開にできない（画面の警告と同じ文言）
         evo()->loadExtension('DocAPI');
-        return evo()->doc->startDocPubError(0, 0, 0);
+        $guardKey = evo()->doc->unpublishGuardKey($id);
+        if ($guardKey !== '') {
+            return stripcslashes(lang($guardKey));
+        }
     }
     if ($publish && !evo()->hasPermission('view_unpublished')) {
         $doc = db()->getObject('site_content', "id='{$id}'");

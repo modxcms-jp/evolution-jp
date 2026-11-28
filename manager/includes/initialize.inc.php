@@ -44,13 +44,6 @@ if (defined('IN_MANAGER_MODE')) {
     include_once(__DIR__ . '/csrf_token.php');
 }
 
-if (!defined('E_DEPRECATED')) {
-    define('E_DEPRECATED', 8192);
-}
-if (!defined('E_USER_DEPRECATED')) {
-    define('E_USER_DEPRECATED', 16384);
-}
-
 error_reporting(E_ALL & ~E_NOTICE);
 
 if (!defined('MODX_API_MODE')) {

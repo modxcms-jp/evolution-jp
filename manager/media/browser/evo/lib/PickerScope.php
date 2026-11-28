@@ -20,7 +20,7 @@ class PickerScope implements BrowserScope
     }
 
     /**
-     * 管理画面のセッションは常に許可。ウェブユーザーのセッションは、設定 rb_webuser が有効なときだけ許可する（既定は無効）。
+     * 管理画面のセッションは、ユーザーが削除・ブロックされていなければ許可。ウェブユーザーのセッションは、設定 rb_webuser が有効なときだけ許可する（既定は無効）。
      * どちらも設定 use_browser が有効で、種類が images / media / files のどれかであること。
      * 戻り値は、よければインスタンス、だめなら ['code', 'lang', 'status']
      */
@@ -30,18 +30,29 @@ class PickerScope implements BrowserScope
             if (!sessionv('webValidated') || (int) $modx->config('rb_webuser') !== 1) {
                 return ['code' => 'unauthorized', 'lang' => 'fb_err_unauthorized', 'status' => 403];
             }
+        } elseif (!manager()->refreshMgrPermissions()) {
+            return ['code' => 'unauthorized', 'lang' => 'fb_err_unauthorized', 'status' => 403];
         }
         if (!$config->isBrowserEnabled()) {
             return ['code' => 'forbidden', 'lang' => 'fb_err_forbidden', 'status' => 403];
         }
 
-        $type = $type === null ? anyv('type', 'images') : $type;
+        return self::forType($modx, $config, $type === null ? anyv('type', 'images') : $type);
+    }
+
+    /**
+     * セッションも設定の有効・無効も見ずに、種類の範囲を作る(CLI など、ログインしたセッションの無い処理用)。
+     * 種類が images / media / files のどれかであることと、種類のフォルダの実体が rb_base_dir の実体の中にあることは、ここで確かめる
+     * (種類のフォルダは設定で決めたルートではないので、種類のフォルダ自体が外を指すリンクなら、リンク先を範囲のルートにしない。
+     * assets/docs/file-storage.md を参照)。権限の確かめ(セッション・use_browser)は呼ぶ側が済ませていること。
+     * 戻り値は、よければインスタンス、だめなら ['code', 'lang', 'status']
+     */
+    public static function forType(DocumentParser $modx, BrowserConfig $config, $type)
+    {
         if (!$config->isValidType($type)) {
             return ['code' => 'invalid_type', 'lang' => 'fb_err_invalid_type', 'status' => 400];
         }
 
-        // 種類のフォルダは設定で決めたルートではないので、その実体が rb_base_dir の実体の中にあることを確かめる
-        // （種類のフォルダ自体が外を指すリンクなら、リンク先をピッカーのルートにしない）。assets/docs/file-storage.md を参照
         $base = new PathGuard($config->baseDir());
         if (!$base->isWithinBase($config->baseDir() . $type)) {
             return ['code' => 'invalid_root', 'lang' => 'fb_err_invalid_root', 'status' => 403];
@@ -74,6 +85,28 @@ class PickerScope implements BrowserScope
         return $this->guard;
     }
 
+    /**
+     * ファイルの path(SetUrl へ渡す相対パス)と url(ブラウザ内表示用の絶対 URL)。一覧と、アップロードの応答で同じ作り方を使う
+     *
+     * @param string $relPath この種類のフォルダー(images など)の下の、ルートからの相対パス
+     * @return array{path:string,url:string}
+     */
+    public function fileUrls($relPath)
+    {
+        $urlPrefix = $this->config->urlPrefix();
+        // 種類のフォルダ(images など)を頭に付けたパスが、rb_base_url の下の URL になる
+        $relPath = $this->type . '/' . $relPath;
+
+        // path: 読める形のまま渡し、FTP などで置かれた名前の % # ? だけは URL が切れないようエンコードする(% を最初に置き換える)
+        $path = ($urlPrefix !== '' ? $urlPrefix . '/' : '')
+            . str_replace(['%', '#', '?'], ['%25', '%23', '%3F'], $relPath);
+
+        // url: パスの要素ごとにエンコードする
+        $url = $this->config->baseUrl() . implode('/', array_map('rawurlencode', explode('/', $relPath)));
+
+        return ['path' => $path, 'url' => $url];
+    }
+
     public function listsFile($name)
     {
         return strpos($name, '.') !== 0 && $this->config->isAllowedFilename($this->type, $name);
@@ -97,6 +130,22 @@ class PickerScope implements BrowserScope
     public function isAllowedCopy($sourceName, $newName)
     {
         return $this->config->isAllowedFilename($this->type, $newName);
+    }
+
+    /**
+     * 管理画面のセッションはロールの権限で決める（要求のたびにロールから読み直し、変更をログインし直さずに反映する）。
+     * ウェブユーザーのセッション（設定 rb_webuser）は、ロールを持たないので今までどおり許す
+     */
+    public function allows($permission)
+    {
+        if (!sessionv('mgrValidated')) {
+            return true;
+        }
+        if (!manager()->refreshMgrPermissions()) {
+            return false;
+        }
+
+        return $this->modx->hasPermission($permission);
     }
 
     public function maxUploadSize()
@@ -134,7 +183,8 @@ class PickerScope implements BrowserScope
         return [
             'list' => ['handler' => 'fbPickerList'],
             'thumb' => ['handler' => 'fbActionThumb'],
-            'upload' => ['handler' => 'fbPickerUpload', 'csrf' => true],
+            'upload' => ['handler' => 'fbPickerUpload', 'csrf' => true, 'perm' => 'file_upload'],
+            'uploadPasted' => ['handler' => 'fbPickerUploadPasted', 'csrf' => true, 'post' => true, 'perm' => 'file_upload'],
         ];
     }
 }

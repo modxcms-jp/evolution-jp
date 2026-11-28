@@ -1,6 +1,6 @@
 <?php
 
-$usage = 'Usage: php evo log:clear [--before=YYYY-MM-DD] [--force]';
+$usage = 'Usage: php evo.php log:clear [--before=YYYY-MM-DD] [--force]';
 $before = null;
 $force = false;
 

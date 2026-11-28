@@ -2,8 +2,9 @@
    出し方（sticky で貼り付ける・常に一覧の下に出す）は使う側の class が決める。
    シェルの外（ファイルピッカーの単独のページ）でも効くよう、shell.css とは別のファイルにして、
    テーマの style.css の後ろで読み込む。詳細度は .selection-dock を前に付けて、テーマの
-   ul.actionButtons・.actionButtons li・.actionButtons :is(a, button)・button の規則（どれも (0,1,1) 以下）に勝つ。
-   地色・枠・影・角はテーマの .selection-dock:not(.is-empty) の規則（#actions と共有）が決める */
+   ul.actionButtons・.actionButtons li の規則（どれも (0,1,1) 以下）に勝つ。forms.css のボタンの規則は層の中にあるので、
+   層の外のこのファイルの規則が必ず勝つ。
+   地色・枠・影・角は、下の #actions と共有の規則（テーマの --actions-* の変数）が決める */
 .selection-dock {
     display: flex;
     flex-wrap: wrap;
@@ -15,6 +16,16 @@
     background: color-mix(in srgb, var(--color-text-primary, #333) 6%, var(--color-surface, #fff));
     border: 1px solid var(--color-border-light, #ddd);
     box-shadow: 0 -2px 4px rgb(0 0 0 / 8%);
+}
+
+/* 右上の操作ボタンの帯（#actions）と、操作の帯は、同じ地・枠・影・角にする。値はテーマが :root の --actions-* で決める
+   （theme-variables.md の「操作ボタンの帯」）。上の .selection-dock の既定値に勝つよう、層の外のこのファイルに置く */
+#actions,
+.selection-dock:not(.is-empty) {
+    border: var(--actions-border, 0);
+    border-radius: var(--actions-radius, var(--radius-full, 999px));
+    background: var(--actions-bg, rgba(60, 60, 60, .2));
+    box-shadow: var(--actions-shadow, none);
 }
 
 /* テーマの地色が半透明（右上のボタン群と同じ値）でも、下のものが透けて文字が読めなくならないよう、
@@ -45,7 +56,7 @@
     cursor: pointer;
 }
 
-/* ボタンの見た目は各テーマの .actionButtons の規則（右上のボタン群と同じ）に任せ、ここでは並べ方だけを決める */
+/* ボタンの見た目は common/forms.css の .actionButtons の規則（右上のボタン群と同じ）に任せ、ここでは並べ方だけを決める */
 .selection-dock ul.actionButtons {
     display: flex;
     flex: 1 1 auto;
@@ -57,29 +68,17 @@
     padding: 0;
 }
 .selection-dock ul.actionButtons > li {
-    float: none;
     margin: 0;
 }
+/* 隠す項目(hidden)。.actionButtons li の display: flex(層の中)が、ブラウザー既定の [hidden] に勝ってしまうため */
+.selection-dock ul.actionButtons > li[hidden] {
+    display: none;
+}
 .selection-dock ul.actionButtons button {
-    float: none;
-    width: auto; /* テーマの button { width: 112px } を打ち消す */
     margin: 0;
     font-family: inherit;
     line-height: inherit;
     cursor: pointer;
-}
-/* テーマの .actionButtons:after（clear 用）が flex の並びの要素になり、右端から離れる・行が増えるのを防ぐ */
-.selection-dock ul.actionButtons::after {
-    content: none;
-}
-/* 押せないボタンは薄くして、押せないと分かるようにする（テーマの .actionButtons には無効の見た目が無い）。
-   hover・active でテーマの色が変わらないよう、ボタン自身はポインターを受けず、cursor は包む li に付ける */
-.selection-dock ul.actionButtons > li:has(> button:disabled) {
-    cursor: not-allowed;
-}
-.selection-dock ul.actionButtons button:disabled {
-    opacity: .5;
-    pointer-events: none;
 }
 /* 削除は区別のため警告色（文字と枠）にして右端へ寄せる */
 .selection-dock ul.actionButtons > li.is-danger {

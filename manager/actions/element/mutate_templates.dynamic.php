@@ -3,42 +3,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch (request_intvar('a')) {
-    case 16:
-        if (!hasPermission('edit_template')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    case 19:
-        if (!hasPermission('new_template')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    default:
-        alert()->setError(3);
-        alert()->dumpError();
-}
-
-abort_if_invalid_id('id', request_intvar('a') === 16);
-
-if (id()) {
-    $username = is_locked(id());
-    if ($username) {
-        alert()->setError(
-            5,
-            sprintf(
-                lang('lock_msg'),
-                $username,
-                lang('template')
-            )
-        );
-        alert()->dumpError();
-    }
-}
-
-// 出力を始める前に読み込む。存在しない id はここで権限エラーの画面になる
+// 出力を始める前に、権限・id・編集ロックを確かめて読み込む
 template('id');
 
 ?>
@@ -48,7 +13,7 @@ template('id');
         function duplicaterecord() {
             if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>)) {
                 documentDirty = false;
-                EvoCsrf.post("index.php?id=<?= get_intvar('id') ?>&a=96");
+                EvoCsrf.post("index.php?id=<?= (int) id() ?>&a=96");
             }
         }
 
@@ -69,7 +34,7 @@ template('id');
         }
         ?>
         <input type="hidden" name="a" value="20">
-        <input type="hidden" name="id" value="<?= get_intvar('id') ?>">
+        <input type="hidden" name="id" value="<?= (int) id() ?>">
         <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('template')) ?>">
 
         <h1><?= lang('template_title') ?></h1>
@@ -89,19 +54,19 @@ template('id');
                 <?php
                 if (request_intvar('a') === 16) {
                     if (manager()->can('template.duplicate')) {
-                        echo evo()->manager->ab([
+                        echo manager()->ab([
                             'onclick' => 'duplicaterecord();',
                             'label' => lang('duplicate')
                         ]);
                     }
                     if (evo()->hasPermission('delete_template')) {
-                        echo evo()->manager->ab([
+                        echo manager()->ab([
                             'onclick' => 'deletedocument();',
                             'label' => lang('delete')
                         ]);
                     }
                 }
-                echo evo()->manager->ab([
+                echo manager()->ab([
                     'onclick' => "EvoShell.go('index.php?a=76');",
                     'label' => lang('cancel')
                 ]);
@@ -116,7 +81,7 @@ template('id');
                     <div>
                         <b><?= lang('template_name') ?></b>
                         <input name="templatename" type="text" maxlength="100"
-                            value="<?= evo()->hsc(template('templatename')) ?>"
+                            value="<?= hsc(template('templatename')) ?>"
                             class="inputBox"
                             style="width:200px;">
                         <?php
@@ -132,7 +97,7 @@ template('id');
                             }
                             $parent[] = [
                                 'id' => $row['id'],
-                                'templatename' => evo()->hsc($row['templatename'])
+                                'templatename' => hsc($row['templatename'])
                             ];
                         }
                         $tpl = '<option value="[+id+]" [+selected+]>[+templatename+]([+id+])</option>';
@@ -144,7 +109,7 @@ template('id');
                         echo lang('template_parent');
                         ?>
                         <select name="parent">
-                            <option value="0">None</option>
+                            <option value="0"><?= lang('none') ?></option>
                             <?= implode("\n", $option) ?>
                         </select>
                     </div>
@@ -165,7 +130,7 @@ template('id');
                             echo $head;
                         } ?>
                         <textarea dir="ltr" name="content" class="phptextarea"
-                            style="width:100%; height: 370px;"><?= evo()->hsc(template('content')) ?></textarea>
+                            style="width:100%; height: 370px;"><?= hsc(template('content')) ?></textarea>
                         <?php if (isset($foot)) {
                             echo $foot;
                         } ?>
@@ -176,45 +141,60 @@ template('id');
                 <div class="tab-page" id="tabProp">
                     <h2 class="tab"><?= lang('settings_properties') ?></h2>
                     <table>
-                        <tr>
-                            <th><?= lang('existing_category') ?>:</th>
-                            <td><select id="categoryid" name="categoryid" style="width:300px;">
-                                    <?= manager()->elementCategoryOptions(template('category')) ?>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr id="newcategry" style="display:none;">
-                            <th valign="top" style="padding-top:5px;">
-                                <?= lang('new_category') ?>:
-                            </th>
-                            <td valign="top" style="padding-top:5px;">
-                                <input name="newcategory"
-                                    type="text"
-                                    maxlength="45"
-                                    value="<?= hsc(template('newcategory', '')) ?>"
-                                    class="inputBox" style="width:300px;">
-                            </td>
-                        </tr>
-                        <tr>
-                            <th><?= lang('template_desc') ?>:&nbsp;&nbsp;</th>
-                            <td><textarea name="description"
-                                    style="padding:0;height:4em;"><?= evo()->hsc(template('description')) ?></textarea>
-                            </td>
-                        </tr>
-                        <?php if (evo()->hasPermission('save_template') == 1) { ?>
-                            <tr>
-                                <td colspan="2">
-                                    <label>
-                                        <input
-                                            id="locked" name="locked"
-                                            type="checkbox" class="inputBox"
-                                            <?= checked(template('locked') == 1) ?>
-                                        > <?= lang('lock_template') ?>
-                                        <span class="comment"><?= lang('lock_template_msg') ?></span>
-                                    </label>
-                                </td>
-                            </tr>
-                        <?php } ?>
+                        <?php
+                        if (evo()->hasPermission('save_template') == 1) {
+                            ob_start();
+                            ?>
+                            <input
+                                id="locked" name="locked"
+                                type="checkbox" class="inputBox"
+                                <?= checked(template('locked') == 1) ?>
+                            >
+                            <?php
+                            echo EvoFieldRow::render([
+                                'label' => lang('lock_template'),
+                                'body' => ob_get_clean(),
+                                'help' => lang('lock_template_msg'),
+                            ]);
+                        }
+
+                        ob_start();
+                        ?>
+                        <select id="categoryid" name="categoryid" style="width:300px;">
+                            <?= manager()->elementCategoryOptions(template('category')) ?>
+                        </select>
+                        <?php
+                        echo EvoFieldRow::render([
+                            'label' => lang('existing_category'),
+                            'body' => ob_get_clean(),
+                        ]);
+
+                        // 新しいカテゴリの行は、element-category.js が表示を切り替える
+                        ob_start();
+                        ?>
+                        <input name="newcategory"
+                            type="text"
+                            maxlength="45"
+                            value="<?= hsc(template('newcategory', '')) ?>"
+                            class="inputBox" style="width:300px;">
+                        <?php
+                        echo EvoFieldRow::render([
+                            'field' => 'newcategory',
+                            'label' => lang('new_category'),
+                            'body' => ob_get_clean(),
+                            'attr' => ['id' => 'newcategry', 'style' => 'display:none;'],
+                        ]);
+
+                        ob_start();
+                        ?>
+                        <textarea name="description"
+                            style="height:4em;"><?= hsc(template('description')) ?></textarea>
+                        <?php
+                        echo EvoFieldRow::render([
+                            'label' => lang('template_desc'),
+                            'body' => ob_get_clean(),
+                        ]);
+                        ?>
                     </table>
                 </div>
 
@@ -268,7 +248,7 @@ template('id');
                             ?>
                             <ul class="actionButtons">
                                 <?php
-                                $query = get_intvar('id') ? '&amp;tpl=' . get_intvar('id') : '';
+                                $query = id() ? '&amp;tpl=' . id() : '';
                                 ?>
                                 <li>
                                     <a href="index.php?&amp;a=300<?= $query ?>">
@@ -277,7 +257,7 @@ template('id');
                                 </li>
                                 <?php
                                 if (evo()->hasPermission('save_template') && $total > 1) {
-                                    echo '<li><a href="index.php?a=117&amp;id=' . get_intvar('id') . '" data-modal>' . lang('template_tv_edit') . '</a></li>';
+                                    echo '<li><a href="index.php?a=117&amp;id=' . (int) id() . '" data-modal>' . lang('template_tv_edit') . '</a></li>';
                                 }
                                 ?>
                             </ul>
@@ -355,15 +335,15 @@ function getParentValues($parent)
         '<div style="%s border-bottom:none;"><pre style="%s">%s</pre></div>',
         $divstyle,
         $prestyle,
-        evo()->hsc(trim($content[0]))
+        hsc(trim($content[0]))
     );
     $foot = sprintf(
         '<div style="%s border-top:none;"><pre style="%s">%s</pre></div>',
         $divstyle,
         $prestyle,
-        evo()->hsc(trim($content[1]))
+        hsc(trim($content[1]))
     );
-    return compact('head', 'foot');
+    return ['head' => $head, 'foot' => $foot];
 }
 
 function template($key, $default = null)
@@ -374,53 +354,18 @@ function template($key, $default = null)
         return array_get($tplObject, $key, $default);
     }
     $loaded = true;
-    if (get_intvar('id')) {
-        $rs = db()->select('*', '[+prefix+]site_templates', "id='" . get_intvar('id') . "'");
-        $total = db()->count($rs);
-        if ($total > 1) {
-            echo "Oops, something went terribly wrong...<p>";
-            echo "More results returned than expected. Which sucks. <p>Aborting.";
-            exit;
-        }
-        if ($total < 1) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        $tplObject = db()->getRow($rs);
-        $_SESSION['itemname'] = $tplObject['templatename'];
-    } else {
-        $_SESSION['itemname'] = 'New template';
-    }
+    $tplObject = manager()->openElementForm('template', lang('template'));
+    sessionv('*itemname', $tplObject ? $tplObject['templatename'] : 'New template');
     // 名前の検証で差し戻されたときは、送信した入力を重ねる
     $tplObject = manager()->restoreElementFormValues($tplObject);
     return array_get($tplObject, $key, $default);
 }
 
-// 編集するテンプレートの id。新規作成のときは空文字
+// 編集するテンプレートの id（読み込んだ行の id）。新規作成のときは空文字
 function id()
 {
-    $id = get_intvar('id');
+    $id = (int) template('id');
     return $id ? (string) $id : '';
-}
-
-function is_locked($id)
-{
-    $rs = db()->select(
-        'internalKey, username',
-        '[+prefix+]active_users',
-        sprintf("action=16 AND id='%s'", $id)
-    );
-    if (!db()->count($rs)) {
-        return false;
-    }
-
-    while ($row = db()->getRow($rs)) {
-        if ($row['internalKey'] == evo()->getLoginUserID()) {
-            continue;
-        }
-        return $row['username'];
-    }
-    return false;
 }
 
 function checked($cond)

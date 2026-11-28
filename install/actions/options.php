@@ -12,15 +12,17 @@ if (post_textvar('adminname') !== null) {
 if (post_textvar('adminemail') !== null) {
     sessionv('*adminemail', post_textvar('adminemail'));
 }
-if (post_textvar('adminpass') !== null) {
-    sessionv('*adminpass', post_textvar('adminpass'));
-}
-if (post_textvar('adminpassconfirm') !== null) {
-    sessionv('*adminpassconfirm', post_textvar('adminpassconfirm'));
-}
+// 管理者のパスワードは、確かめて通ればハッシュだけを持つ（管理画面で設定するときと同じ決まり）
+$adminPasswordError = sessionv('is_upgradeable') ? '' : installerTakeAdminPassword(true);
 
 if (!sessionv('is_upgradeable') && trim(sessionv('adminemail', '')) === '') {
     $ph['connection_error'] = lang('alert_enter_adminemail');
+    include MODX_SETUP_PATH . 'actions/connection.php';
+    return;
+}
+
+if ($adminPasswordError !== '') {
+    $ph['adminpass_error'] = $adminPasswordError;
     include MODX_SETUP_PATH . 'actions/connection.php';
     return;
 }
@@ -35,8 +37,10 @@ include_once MODX_SETUP_PATH . 'setup.info.php';
 $ph['is_upgradeable'] = sessionv('is_upgradeable');
 if ($ph['is_upgradeable']) {
     $ph['optional_items'] = lang('optional_items_update');
+    $ph['optional_items_note'] = lang('optional_items_upd_note');
 } else {
     $ph['optional_items'] = lang('optional_items');
+    $ph['optional_items_note'] = lang('optional_items_new_note');
 }
 
 if (sessionv('is_upgradeable')) {
@@ -80,7 +84,7 @@ function show_object_list($ph)
     }
 
     $tpl = <<< TPL
-<p>[+optional_items_upd_note+]</p>
+<p>[+optional_items_note+]</p>
 <p class="actions">
     <button type="button" id="toggle_check_all" class="action-button" data-action="all">[+all+]</button>
     <button type="button" id="toggle_check_none" class="action-button" data-action="none">[+none+]</button>
@@ -103,7 +107,7 @@ function block_install_sample_site($ph)
 <input type="checkbox" name="installdata" id="installdata_field" value="1" [+checked+] />&nbsp;
 <label for="installdata_field">[+install_overwrite+] <span class="comname">[+sample_web_site+]</span></label>
 </p>
-<p><em>&nbsp;[+sample_web_site_note+]</em></p>
+<p>[+sample_web_site_note+]</p>
 TPL;
     $ph['checked'] = sessionv('installdata', false) == 1 ? 'checked' : '';
     return evo()->parseText($tpl, $ph);

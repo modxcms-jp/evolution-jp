@@ -4,8 +4,8 @@
     <meta charset="[+modx_charset+]">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>MODX CMF Manager Login</title>
-    <link rel="stylesheet" type="text/css" href="media/style/[+theme+]/style.css?[+theme_css_ver+]"/>
+    <title>[+login_title+]</title>
+    [+theme_stylesheets+]
     <style type="text/css">
         /* Reset and Base Styles */
         * {
@@ -479,6 +479,11 @@
             margin: 0 auto 16px !important;
         }
 
+        #mx_loginbox .loginNotice {
+            margin: 0 0 16px;
+            line-height: 1.6;
+        }
+
         #mx_loginbox .warning {
             color: #dc3545 !important;
             font-weight: 600 !important;
@@ -777,6 +782,7 @@
         </div>
         <div class="body">
             <img src="[+style_misc_path+]login-logo.png" alt="[+site_name+]" id="logo"/>
+            [+login_notice+]
             <label for="username">[+username+]</label>
             <input type="text" class="text" name="username" id="username" tabindex="1" value="[+uid+]" autocomplete="username"/>
             <label for="password">[+password+]</label>

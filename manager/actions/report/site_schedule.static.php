@@ -65,7 +65,7 @@ $accessAnd = $accessCond === '' ? '' : ' AND ' . $accessCond;
                         },
                     ],
                 ],
-                ['id' => 'schedule-publish', 'rowClasses' => ['gridItem', 'gridAltItem']]
+                ['id' => 'schedule-publish']
             );
             echo $table->render($rows);
         }
@@ -109,7 +109,7 @@ $accessAnd = $accessCond === '' ? '' : ' AND ' . $accessCond;
                         },
                     ],
                 ],
-                ['id' => 'schedule-unpublish', 'rowClasses' => ['gridItem', 'gridAltItem']]
+                ['id' => 'schedule-unpublish']
             );
             echo $table->render($rows);
         }
@@ -169,7 +169,7 @@ $accessAnd = $accessCond === '' ? '' : ' AND ' . $accessCond;
                         },
                     ],
                 ],
-                ['id' => 'schedule-draft', 'rowClasses' => ['gridItem', 'gridAltItem']]
+                ['id' => 'schedule-draft']
             );
             echo $table->render($rows);
             ?>

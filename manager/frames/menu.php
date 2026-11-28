@@ -94,27 +94,36 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                 var tok = tokInput ? tokInput.value : '';
                 var o = Math.random();
                 var params = new URLSearchParams({"tok": tok, "o": o});
-                // 失敗時（HTTP エラー・JSON でない応答）は何もしない
+                // 失敗時（HTTP エラー・JSON でない応答）は何もしない。
+                // ok でないときは、この画面を開いたときのセッションが無く、ログアウトを送っても CSRF トークンが古くて断られる。管理画面を開き直す
+                // （期限切れならログイン画面、別のタブでログインし直していれば新しいセッションの管理画面になる）
                 Evo.fetch('session_keepalive.php?' + params.toString())
                     .then(function (response) {
                         return response.ok ? response.json() : null;
                     })
                     .then(function (resp) {
-                        if (resp && resp.status != 'ok') EvoCsrf.post('index.php?a=8', { fullPage: true });
+                        if (resp && resp.status != 'ok') EvoShell.refresh('page');
                     })
                     .catch(function () {});
             }
 
-            function hideTreeFrame() {
-                var tocText = document.getElementById('tocText');
-                if (tocText) tocText.innerHTML = <?= js_literal("<a href='#' onclick='defaultTreeFrame();return false;'><img src='" . hsc(style('show_tree')) . "' alt='" . hsc(stripcslashes(lang('show_tree'))) . "' /></a>") ?>;
+            // ツリーを隠す・表示するときの短い動き。利用者の操作のとき（animate が true）だけ付け、ページを開いたときには付けない
+            function animateTreePane() {
+                document.body.classList.add('tree-animating');
+                clearTimeout(window.__treeAnimationTimer);
+                window.__treeAnimationTimer = setTimeout(function () {
+                    document.body.classList.remove('tree-animating');
+                }, 300);
+            }
+
+            function hideTreeFrame(animate) {
+                if (animate === true) animateTreePane();
                 document.body.classList.add('tree-hidden');
                 top.__hideTree = true;
             }
 
-            function defaultTreeFrame() {
-                var elm = document.getElementById('tocText');
-                if (elm) elm.innerHTML = "";
+            function defaultTreeFrame(animate) {
+                if (animate === true) animateTreePane();
                 document.body.classList.remove('tree-hidden');
                 top.__hideTree = false;
             }
@@ -199,7 +208,6 @@ if (!isset($modx) || !evo()->isLoggedin()) {
             }
         </script>
 
-    <div id="tocText"<?= $modx_textdir === 'rtl' ? ' class="tocTextRTL"' : '' ?>></div>
     <div id="topbar">
         <div id="topbar-container">
             <div id="statusbar">
@@ -311,8 +319,6 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                     // Tools Menu
                     $item['bk_manager'] = item(lang('bk_manager'), 93,
                         evo()->hasPermission('bk_manager'));// backup-mgr
-                    $item['import_site'] = item(lang('import_site'), 95,
-                        manager()->can('site.import'));// import-html
                     $item['export_site'] = item(lang('export_site'), 83,
                         evo()->hasPermission('export_static'));// export-static-site
                     $item['edit_settings'] = item(lang('edit_settings'), 17,

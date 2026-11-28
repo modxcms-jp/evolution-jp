@@ -1,0 +1,38 @@
+{
+    "version": 1,
+    "plan_id": "2026-11-22-manager-form-rows",
+    "run_id": "2026-11-22-manager-form-rows-001",
+    "skill": "exec-plan-runner",
+    "generated_at": "2026-11-22T21:45:00+09:00",
+    "status": "proposed",
+    "source_files": [
+        "learning.json",
+        "pruning.json"
+    ],
+    "changes": [
+        {
+            "id": "change-060",
+            "action": "add",
+            "target": "SKILL.md（1 件ごとの繰り返しの手順 5「検証」）",
+            "summary": "見た目をそろえる整理では、main との比較に加えて、同じ役割の部品（見出しの無い行、欄の下の説明、チェックボックスの行など）が画面ごとにどう違うかの一覧を tester に作らせ、そろえ方を本人に選択肢で聞いてから実装に入る",
+            "source_ref": "finding-001",
+            "confidence": "high"
+        },
+        {
+            "id": "change-061",
+            "action": "add",
+            "target": "SKILL.md（止まる条件「要相談」の互換性を損なう変更）",
+            "summary": "互換に関わるかは、外から使われうるもの（public の API・tpl・イベント・設定キー・DB の列）に限る。ファイルの中だけの定数や private の関数を消すのは内部の判断として自分で決め、breaking change のラベルも付けない",
+            "source_ref": "finding-002",
+            "confidence": "high"
+        },
+        {
+            "id": "change-062",
+            "action": "add",
+            "target": ".claude/skills/adaptive-validation-runner/SKILL.md（Playwright の書き方）",
+            "summary": "フォームの欄は form.elements.<名前> でなく querySelector('[name=…]') で取る（name=\"elements\" の欄があると隠される）。2 枚目以降のタブの中身は、タブを押してから測る",
+            "source_ref": "finding-003",
+            "confidence": "medium"
+        }
+    ]
+}

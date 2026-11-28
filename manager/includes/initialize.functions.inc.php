@@ -1,12 +1,15 @@
 <?php
+// セッション名。Web サーバーから見た設置パスで決まる（CLI から見たパスとは違うことがある）
+function cms_session_name()
+{
+    return 'evo' . substr(easy_hash(__FILE__), 0, 7);
+}
+
 // start cms session
 function startCMSSession()
 {
-    global $site_sessionname;
-
     if (session_status() == PHP_SESSION_NONE) {
-        $site_sessionname = 'evo' . substr(easy_hash(__FILE__), 0, 7);
-        session_name($site_sessionname);
+        session_name(cms_session_name());
         init::session_set_cookie_params();
         session_start();
     }
@@ -55,15 +58,22 @@ class init
         header('Pragma: no-cache');
     }
 
-    public static function session_set_cookie_params($options = [])
+    // secure 以外の cookie の属性。早い返しの経路は、これを basicConfig.php の $site_cookie_params に書き出して使う
+    public static function session_cookie_params()
     {
-        $options += [
+        return [
             'lifetime' => 3600 * 24 * 30,
             'path'     => MODX_BASE_URL,
             'domain'   => '',
-            'secure'   => init::is_ssl() ? true : false,
             'httponly' => true,
             'samesite' => 'Lax'
+        ];
+    }
+
+    public static function session_set_cookie_params($options = [])
+    {
+        $options += static::session_cookie_params() + [
+            'secure' => init::is_ssl() ? true : false,
         ];
         // Cookieの寿命に合わせてサーバー側のセッション寿命も延ばす。
         // 未指定だとPHP既定(約24分)でGCされ、意図せずログアウトされる

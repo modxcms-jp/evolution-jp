@@ -58,9 +58,10 @@ if (postedMode() === 'new') {
         evo()->manager->saveFormValues(postedScreen());
         evo()->webAlertAndQuit($msg, formReturnUrl());
     }
+    convertDataUriAfterInsert($param['doc_vars'], $newid);
 
     if (!empty($param['tv_vars'])) {
-        insert_tmplvars($newid, $param['tv_vars']);
+        evo()->doc->saveTmplvars($newid, $param['tv_vars']);
     }
 
     setDocPermissionsNew($newid);
@@ -80,17 +81,17 @@ if (postedMode() === 'new') {
     evo()->event->vars = ['mode' => 'new', 'id' => $newid];
     evo()->invokeEvent('OnDocFormSave', evo()->event->vars);
 
-    goNextAction($newid, validated('parent'), $afterSave, validated('type'));
+    goNextAction($newid, validated('parent'), $afterSave, validated('type'), true);
     return;
 }
 
 if (postedMode() === 'edit') {
-    if (validated('id') == evo()->config('site_start')) {
-        checkStartDoc(validated('id'), validated('published'), validated('pub_date'), validated('unpub_date'));
-    }
+    checkProtectedPage(validated('id'), validated('published'), validated('pub_date'), validated('unpub_date'));
     validated('*isfolder', checkFolderStatus(validated('id')));
 
     $db_v = getExistsValues(validated('id'));
+    include_once MODX_CORE_PATH . 'controls/resource_tree.class.php';
+    $treeBefore = ResourceTree::nodeState((int)validated('id'));
     // set publishedon and publishedby
     validated('*published', checkPublished($db_v));
     validated('*unpub_date', checkUnpub_date($db_v));
@@ -116,6 +117,7 @@ if (postedMode() === 'edit') {
         sprintf("id='%s'", validated('id'))
     );
     if (!$rs) {
+        finishDataUriFiles(false);
         evo()->manager->saveFormValues(postedScreen());
         evo()->webAlertAndQuit(
             sprintf(
@@ -125,9 +127,10 @@ if (postedMode() === 'edit') {
             formReturnUrl()
         );
     }
+    finishDataUriFiles(true);
 
     if ($param['tv_vars']) {
-        update_tmplvars(validated('id'), $param['tv_vars']);
+        evo()->doc->saveTmplvars(validated('id'), $param['tv_vars']);
     }
 
     setDocPermissionsEdit(validated('id'));
@@ -155,7 +158,9 @@ if (postedMode() === 'edit') {
     // invoke OnDocFormSave event
     evo()->event->vars = ['mode' => 'upd', 'id' => validated('id')];
     evo()->invokeEvent('OnDocFormSave', evo()->event->vars);
-    goNextAction(validated('id'), validated('parent'), $afterSave, validated('type'));
+    // OnDocFormSave のプラグインが変えた値も拾うよう、すべて終えてから DB の値で比べる
+    $refreshTree = ResourceTree::nodeState((int)validated('id')) !== $treeBefore;
+    goNextAction(validated('id'), validated('parent'), $afterSave, validated('type'), $refreshTree);
     return;
 }
 
@@ -219,104 +224,27 @@ function refreshNewDocId($doc_vars)
     if (!db()->count($rs)) {
         return $doc_vars;
     }
-    $oldId = (int)$doc_vars['id'];
     $doc_vars['id'] = evo()->doc->getNewDocID();
-    if ((int)$doc_vars['id'] !== $oldId && evo()->getConfig('convert_datauri_to_file', 1)) {
-        $doc_vars = moveDataUriFilesToNewId($doc_vars, $oldId, (int)$doc_vars['id']);
-    }
-    return $doc_vars;
-}
-
-// saveDataUriFile()（mutate_content/functions.php）の書き出し先の前の部分と同じ規則
-function dataUriRelativeDir($docid)
-{
-    return sprintf('content/images/datauri/%d/', $docid);
-}
-
-// ID を取り直したとき、introtext の Data URI 変換で古い ID の場所に書いたファイルを新しい ID の場所へ移し、本文のパスも直す
-// 古い ID の場所は、プラグインが作った別の文書のものが同居し得るので、フォルダごとではなく本文に出てくるファイルだけを移す
-function moveDataUriFilesToNewId($doc_vars, $oldId, $newId)
-{
-    if (empty($doc_vars['introtext']) || !is_string($doc_vars['introtext'])) {
-        return $doc_vars;
-    }
-    $oldDir = dataUriRelativeDir($oldId);
-    $newDir = dataUriRelativeDir($newId);
-    $pattern = '@' . preg_quote($oldDir, '@') . '[A-Za-z0-9_.\-]+@';
-    if (!preg_match_all($pattern, $doc_vars['introtext'], $matches)) {
-        return $doc_vars;
-    }
-    foreach (array_unique($matches[0]) as $oldPath) {
-        $newPath = $newDir . substr($oldPath, strlen($oldDir));
-        $absoluteNewDir = MODX_BASE_PATH . $newDir;
-        if (!is_file(MODX_BASE_PATH . $oldPath)) {
-            continue;
-        }
-        if (
-            (!is_dir($absoluteNewDir) && !mkdir($absoluteNewDir, 0755, true))
-            || !rename(MODX_BASE_PATH . $oldPath, MODX_BASE_PATH . $newPath)
-        ) {
-            evo()->logEvent(0, 3, sprintf('Failed to move Data URI file: %s -> %s', $oldPath, $newPath), 'refreshNewDocId');
-            continue;
-        }
-        $doc_vars['introtext'] = str_replace($oldPath, $newPath, $doc_vars['introtext']);
-    }
     return $doc_vars;
 }
 
 function get_tmplvars()
 {
-    $template = validated('template');
-
-    if (empty($template)) {
-        return [];
-    }
-
-    // 文書グループで絞る条件（#1338）。編集画面の getTmplvars() と同じ ManagerAPI の判定
-    $cond = manager()->tmplvarAccessCondition('tv');
-
-    $rs = db()->select(
-        'DISTINCT tv.*',
-        [
-            '[+prefix+]site_tmplvars AS tv',
-            'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid = tv.id'
-        ],
-        sprintf('tvtpl.templateid=%d', (int)$template) . ($cond === '' ? '' : " AND {$cond}"),
-        'tv.rank'
-    );
-
     $tmplvars = [];
-    while ($row = db()->getRow($rs)) {
+    foreach (evo()->doc->templateTmplvars(validated('template')) as $row) {
         $tvid = 'tv' . $row['id'];
 
-        if (validated($tvid) === null) {
-            $multi_type = ['checkbox', 'listbox-multiple', 'custom_tv'];
-            if (!in_array($row['type'], $multi_type)) {
-                continue;
-            }
+        if (validated($tvid) === null && !in_array($row['type'], DocAPI::MULTI_VALUE_TV_TYPES, true)) {
+            continue;
         }
 
         if ($row['type'] === 'url') {
             $value = normalize_url_tv_value(validated($tvid), validated($tvid . '_prefix', '--'));
-        } elseif ($row['type'] === 'file') {
-            $value = validated($tvid);
-        } elseif (is_array(validated($tvid))) {
-            $value = implode('||', validated($tvid));
-        } elseif (validated($tvid) !== null) {
-            $value = validated($tvid);
         } else {
-            $value = '';
+            $value = validated($tvid);
         }
-        // save value if it was modified
-        if (substr($row['default_text'], 0, 6) === '@@EVAL') {
-            $row['default_text'] = eval(trim(substr($row['default_text'], 7)));
-        }
-
-        if (strlen($value) > 0 && $value != $row['default_text']) {
-            $tmplvars[$row['id']] = $value;
-        } else {
-            $tmplvars[$row['id']] = false;
-        }
+        // 既定値と同じか空なら false（保存せず、あれば行を消す）
+        $tmplvars[$row['id']] = evo()->doc->tmplvarValueForSave($row, $value);
     }
     return $tmplvars;
 }
@@ -532,6 +460,32 @@ function checkAllowedParents($id)
     }
 }
 
+function shouldConvertDataUri($fields)
+{
+    return $fields['type'] !== 'reference'
+        && !empty($fields['content'])
+        && evo()->getConfig('convert_datauri_to_file', 1);
+}
+
+// 新規の文書は、INSERT で ID が決まってから本文の Data URI をファイルにして、本文を書き直す
+function convertDataUriAfterInsert($doc_vars, $newId)
+{
+    if (!shouldConvertDataUri($doc_vars)) {
+        return;
+    }
+    $converted = convertDataUriToFiles($doc_vars['content'], $newId);
+    if ($converted === $doc_vars['content']) {
+        finishDataUriFiles(false);
+        return;
+    }
+    $updated = db()->update(
+        db()->escape(['content' => $converted]),
+        '[+prefix+]site_content',
+        sprintf('id=%d', (int)$newId)
+    );
+    finishDataUriFiles((bool)$updated);
+}
+
 function getInputValues($id = 0, $mode = 'new')
 {
     $db_v_names = explode(
@@ -548,12 +502,9 @@ function getInputValues($id = 0, $mode = 'new')
         $fields[$key] = validated($key);
     }
 
-    // Data URI を自動的にファイル化
-    $convertEnabled = evo()->getConfig('convert_datauri_to_file', 1); // デフォルト有効
-
-    // introtext も処理対象にする場合
-    if (!empty($fields['introtext']) && $convertEnabled) {
-        $fields['introtext'] = convertDataUriToFiles($fields['introtext'], $id);
+    // 本文に貼り付けた画像（img の src の Data URI）をファイルに書き出す。新規の文書は ID が決まる INSERT のあとに行う
+    if ($mode === 'edit' && shouldConvertDataUri($fields)) {
+        $fields['content'] = convertDataUriToFiles($fields['content'], $id);
     }
 
     if ($fields['type'] === 'reference') {
@@ -579,9 +530,10 @@ function getInputValues($id = 0, $mode = 'new')
     return $fields;
 }
 
-function checkStartDoc($id, $published, $pub_date, $unpub_date)
+// サイトの設定で使っているページ（トップページなど）は、非公開にも公開日・公開終了日の設定にもできない
+function checkProtectedPage($id, $published, $pub_date, $unpub_date)
 {
-    $error = evo()->doc->startDocPubError($published, $pub_date, $unpub_date);
+    $error = evo()->doc->protectedPubError($id, $published, $pub_date, $unpub_date);
     if ($error === '') {
         return;
     }
@@ -692,98 +644,10 @@ function getExistsValues($id)
     if (!$row) {
         evo()->webAlertAndQuit(
             "An error occured while attempting to find the document's current parent.",
-            sprintf('index.php?a=27&id=%s', $id)
+            EvoFormFlow::url(['a' => EvoFormFlow::screen('document', 'edit'), 'id' => $id])
         );
     }
     return $row;
-}
-
-function insert_tmplvars($docid, $tmplvars)
-{
-    if (!$tmplvars) {
-        return;
-    }
-    $tvChanges = [];
-    $tv['contentid'] = $docid;
-    foreach ($tmplvars as $tmplvarid => $value) {
-        if ($value !== false) {
-            $tv['tmplvarid'] = $tmplvarid;
-            $tv['value'] = $value;
-            $tvChanges[] = $tv;
-        }
-    }
-    if (!$tvChanges) {
-        return;
-    }
-    foreach ($tvChanges as $tv) {
-        $tv = db()->escape($tv);
-        db()->insert($tv, '[+prefix+]site_tmplvar_contentvalues');
-    }
-}
-
-function update_tmplvars($docid, $tmplvars)
-{
-    if (!$tmplvars) {
-        return;
-    }
-    $tvChanges = [];
-    $tvAdded = [];
-    $tvDeletions = [];
-    $rs = db()->select(
-        'id, tmplvarid',
-        '[+prefix+]site_tmplvar_contentvalues',
-        sprintf("contentid='%s'", $docid)
-    );
-    $tvIds = [];
-    while ($row = db()->getRow($rs)) {
-        $tvIds[$row['tmplvarid']] = $row['id'];
-    }
-    $tv['contentid'] = $docid;
-    foreach ($tmplvars as $tmplvarid => $value) {
-        if ($value === false) {
-            if (isset($tvIds[$tmplvarid])) {
-                $tvDeletions[] = $tvIds[$tmplvarid];
-            }
-        } else {
-            $tv['tmplvarid'] = $tmplvarid;
-            $tv['value'] = $value;
-            if (isset($tvIds[$tmplvarid])) {
-                $tvChanges[] = $tv;
-            } else {
-                $tvAdded[] = $tv;
-            }
-        }
-    }
-
-    if ($tvDeletions) {
-        db()->delete(
-            '[+prefix+]site_tmplvar_contentvalues',
-            'id IN(' . implode(',', $tvDeletions) . ')'
-        );
-    }
-    if ($tvAdded) {
-        foreach ($tvAdded as $tv) {
-            db()->insert(
-                db()->escape($tv),
-                '[+prefix+]site_tmplvar_contentvalues'
-            );
-        }
-    }
-
-    if (!$tvChanges) {
-        return;
-    }
-    foreach ($tvChanges as $tv) {
-        db()->update(
-            db()->escape($tv),
-            '[+prefix+]site_tmplvar_contentvalues',
-            sprintf(
-                "tmplvarid='%s' AND contentid='%s'",
-                $tv['tmplvarid'],
-                $docid
-            )
-        );
-    }
 }
 
 // document access permissions
@@ -813,39 +677,39 @@ function updateParentStatus($parent)
     );
 }
 
-// 保存後の行き先（after_save: new・stay・close）に従って移動する
-function goNextAction($id, $parent, $afterSave, $type)
+// 保存後の行き先（after_save: new・stay・close）に従って移動し、保存できたことを知らせる（manager()->notice()）。
+// $refreshTree が true なら、行き先にリソースツリーを読み直す合図（refresh=tree）を付ける
+function goNextAction($id, $parent, $afterSave, $type, bool $refreshTree)
 {
+    EvoFormFlow::noticeSaved();
+    include_once MODX_CORE_PATH . 'controls/child_document_list_state.class.php';
+    $refresh = $refreshTree ? ['refresh' => 'tree'] : [];
     // ルートに新規作成できない利用者は、「続けて新規」を「続けて編集」に戻す
     if ($afterSave === 'new' && (int)$parent <= 0 && !manager()->canCreateDocumentUnder(0)) {
         $afterSave = 'stay';
     }
-    if ($afterSave === 'new') {
+    if ($afterSave === 'new' && ChildDocumentListState::canOpen((int) $parent)) {
         $kind = $type === 'document' ? 'document' : 'weblink';
         header('Location: ' . EvoFormFlow::url([
             'a' => EvoFormFlow::screen($kind, 'new'),
             'pid' => $parent,
-            'refresh' => 'tree',
             'after_save' => 'new',
-        ]));
+        ] + $refresh));
         return;
     }
     if ($afterSave === 'stay') {
         header('Location: ' . EvoFormFlow::url([
             'a' => EvoFormFlow::screen('document', 'edit'),
             'id' => $id,
-            'refresh' => 'tree',
             'after_save' => 'stay',
-        ]));
+        ] + $refresh));
         return;
     }
     if ($parent) {
-        header(
-            sprintf('Location: index.php?a=120&id=%s&refresh=tree', $parent)
-        );
+        header('Location: ' . ChildDocumentListState::returnUrl((int) $parent, $refreshTree));
         return;
     }
-    header("Location: index.php?a=3&id=" . $id . "&refresh=tree");
+    header('Location: ' . EvoFormFlow::url(['a' => 3, 'id' => $id] + $refresh));
 }
 
 function setDocPermissionsEdit($id)

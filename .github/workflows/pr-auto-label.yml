@@ -6,6 +6,8 @@ on:
 
 jobs:
   auto_label:
+    # フォークからの PR では GITHUB_TOKEN が読み取り専用になり、ラベルを付けられない
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
 
     steps:

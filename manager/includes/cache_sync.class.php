@@ -14,6 +14,7 @@ class synccache
     public $cacheRefreshTime;
 
     private $current_time;
+    private $session_name = '';
 
     public function __construct()
     {
@@ -96,6 +97,9 @@ class synccache
         // サイトキャッシュ（config.siteCache.idx.php）を作る前に更新時刻を進める。
         // 後にすると、キャッシュに 1 回前の時刻が残り、条件付き GET（ETag / Last-Modified）が古い内容に 304 を返す
         $this->recent_update();
+
+        // sitecache の削除で basicConfig.php も消えるので、書き直すときに引き継ぐ値を先に読んでおく
+        $this->session_name = $this->getSessionName();
 
         if (strpos($this->target, 'pagecache') !== false) {
             $result = $this->purgeCacheFiles();
@@ -203,8 +207,6 @@ class synccache
 
     public function publishBasicConfig()
     {
-        global $site_sessionname;
-
         $this->recent_update();
         $config = $this->_get_settings();
 
@@ -222,14 +224,40 @@ class synccache
             (int) $cacheRefreshTime,
             date('Y-m-d H:i:s', (int) $cacheRefreshTime)
         );
-        $content[] = sprintf(
-            '$cache_type = %s;',
-            (int) config('cache_type', 1)
-        );
-        if (isset($site_sessionname) && $site_sessionname) {
+
+        // index.php の早い返し（フルページキャッシュと条件付き GET）は、セッション名が無いとログイン中の人を見分けられない。
+        // 名前が分からないときは早い返しを使う設定を書かず、通常の処理に回す
+        $session_name = $this->session_name ?: $this->getSessionName();
+        if ($session_name !== '') {
+            $content[] = sprintf('$site_sessionname = %s;', var_export($session_name, true));
+            $content[] = sprintf('$cache_type = %s;', (int) config('cache_type', 1));
+            // 早い返しが session_start() の前に渡す、セッションの cookie の属性。secure は接続ごとに決まるので含めない。
+            // path は書き出さず、早い返しは今までどおり php.ini の既定（/）にする
+            $cookie_params = init::session_cookie_params();
+            unset($cookie_params['path']);
             $content[] = sprintf(
-                '$site_sessionname = %s;',
-                var_export((string) $site_sessionname, true)
+                '$site_cookie_params = [%s];',
+                implode(', ', array_map(
+                    static function ($key, $value) {
+                        return var_export($key, true) . ' => ' . var_export($value, true);
+                    },
+                    array_keys($cookie_params),
+                    $cookie_params
+                ))
+            );
+            if (config('conditional_get')) {
+                $content[] = sprintf(
+                    '$conditional_get = %s;',
+                    var_export((string) config('conditional_get'), true)
+                );
+            }
+        } elseif (config('cache_type', 1) == 2 || config('conditional_get')) {
+            evo()->logEvent(
+                0,
+                2,
+                'The session name is unknown, so the full page cache and the conditional GET are disabled'
+                . ' until the cache is rebuilt from the web (e.g. "Refresh site" in the manager).',
+                'Cache'
             );
         }
 
@@ -266,16 +294,30 @@ class synccache
             );
         }
 
-        if (config('conditional_get')) {
-            $content[] = sprintf(
-                '$conditional_get = %s;',
-                var_export((string) config('conditional_get'), true)
-            );
-        }
-
         if (!evo()->saveToFile($this->cachePath . 'basicConfig.php', implode("\n", $content))) {
             exit(sprintf('Cannot open file (%sbasicConfig.php)', $this->cachePath));
         }
+    }
+
+    /**
+     * セッション名。CLI では、今ある basicConfig.php の値を引き継ぐ。分からなければ空文字。
+     * 名前は Web サーバーから見たパスで決まるため、CLI では計算しない（コンテナの中と外などでパスが違うことがある）
+     */
+    private function getSessionName()
+    {
+        if (PHP_SAPI !== 'cli') {
+            return cms_session_name();
+        }
+
+        // include すると、あとの include_once が読み込まなくなるので、該当の行だけを読む
+        $path = $this->cachePath . 'basicConfig.php';
+        if (
+            is_file($path)
+            && preg_match('/^\$site_sessionname = \'([^\'\\\\]+)\';$/m', (string) file_get_contents($path), $m)
+        ) {
+            return $m[1];
+        }
+        return '';
     }
 
     public function setCacheRefreshTime($unixtime)
@@ -346,7 +388,6 @@ class synccache
 
         $content = "<?php\n";
         $content .= "if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;\n";
-        $content .= $this->_get_content_types(); // get content types
         $content .= $this->_get_events();   // WRITE system event triggers
         $content .= "\n";
         $content = str_replace(["\x0d\x0a", "\x0a", "\x0d"], "\x0a", $content);
@@ -404,13 +445,7 @@ class synccache
         }
 
         header('Content-Type: text/html; charset=' . evo()->config('modx_charset', 'utf-8'));
-        echo evo()->parseText(
-            '<link rel="stylesheet" type="text/css" href="[+manager_url+][+style_css+]" />',
-            [
-                'manager_url' => MODX_MANAGER_URL,
-                'style_css' => manager_asset('media/style/' . evo()->config('manager_theme', '') . '/style.css'),
-            ]
-        );
+        echo manager_theme_stylesheets();
         exit(sprintf(
             '<div class="section"><div class="sectionBody">%s - %s</div></div>',
             $cache_path,
@@ -475,24 +510,6 @@ class synccache
         return '';
     }
 
-    private function _get_content_types()
-    {
-        $rs = db()->select(
-            'id, contentType',
-            '[+prefix+]site_content',
-            "contentType != 'text/html'"
-        );
-        $_ = ['$c = &$this->contentTypes;'];
-        while ($row = db()->getRow($rs)) {
-            $_[] = sprintf(
-                '$c[%s] = \'%s\';',
-                $row['id'],
-                $row['contentType']
-            );
-        }
-        return implode("\n", $_) . "\n";
-    }
-
     private function _get_chunks()
     {
         global $modx;
@@ -522,7 +539,7 @@ class synccache
             $name = $row['name'];
             $modx->snippetCache[$name] = $row['snippet'];
             $modx->snippetCache[$name . 'Props'] = $row['properties'];
-            $modx->snippetCache[$name . 'ErrorReporting'] = $row['error_reporting'] ?? 'inherit';
+            $modx->snippetCache[$name . 'ErrorReporting'] = $row['error_reporting'] ?? EvoErrorReporting::INHERIT;
         }
         return $modx->snippetCache;
     }
@@ -542,7 +559,7 @@ class synccache
             $name = db()->escape($row['name']);
             $modx->pluginCache[$name] = $row['plugincode'];
             $modx->pluginCache[$name . 'Props'] = $row['properties'];
-            $modx->pluginCache[$name . 'ErrorReporting'] = $row['error_reporting'] ?? 'inherit';
+            $modx->pluginCache[$name . 'ErrorReporting'] = $row['error_reporting'] ?? EvoErrorReporting::INHERIT;
         }
         return $modx->pluginCache;
     }

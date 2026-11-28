@@ -69,9 +69,9 @@ function mm_default($field, $value = '', $roles = '', $templates = '', $eval = f
                 $new_value = evo()->mb_strftime($date_format . ' %H:%M:%S');
             }
             $output .= sprintf(
-                'MM.setValue("input[name=%s]", "%s"); ' . "\n",
+                'MM.setValue("input[name=%s]", %s); ' . "\n",
                 $field,
-                jsSafe($new_value)
+                js_literal($new_value)
             );
             break;
 
@@ -115,7 +115,7 @@ function mm_default($field, $value = '', $roles = '', $templates = '', $eval = f
                 // Make the RTE displayed match the default value that has been set here
                 if (originalRichtextValue&&originalRichtextValue != "none") {
                     MM.setValue("#which_editor", "none");
-                    changeRTE();
+                    MM.fire("#which_editor", "change");
                 }
                 ' . "\n";
             }

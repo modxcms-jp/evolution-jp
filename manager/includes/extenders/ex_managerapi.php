@@ -1,5 +1,9 @@
 <?php
 require_once MODX_CORE_PATH . 'form_flow.class.inc.php';
+require_once MODX_CORE_PATH . 'field_row.class.inc.php';
+require_once MODX_CORE_PATH . 'password_policy.class.inc.php';
+require_once MODX_CORE_PATH . 'error_reporting.class.inc.php';
+require_once MODX_CORE_PATH . 'element_types.class.inc.php';
 
 $this->manager = new ManagerAPI;
 
@@ -38,8 +42,6 @@ class ManagerAPI
         'document.publish' => ['all' => ['save_document', 'publish_document']],
         // 削除・元に戻す（a=6・63、一括の a=121 の delete）
         'document.delete' => ['all' => ['delete_document']],
-        // サイトのインポート（a=95。import_site.static.php）
-        'site.import' => ['all' => ['import_static']],
         // モジュール。実行（a=112。execute_module.processor.php）。グループの絞り込みは canExecuteModule() が合わせる
         'module.execute' => ['all' => ['exec_module']],
         // 管理ユーザー・Web ユーザー・ロール。一覧（a=75・99・86）の先頭の確かめは edit_*、
@@ -163,19 +165,27 @@ class ManagerAPI
     public function redirectToElementForm($message, string $kind, $id = 0): void
     {
         $mode = $id ? 'edit' : 'new';
-        $this->saveFormValues(EvoFormFlow::screen($kind, $mode));
+        // 戻った画面は、読み込んだ行の id（新規は 0）と入力の id が一致したときだけ入力を重ねる
+        $this->saveFormValues(EvoFormFlow::screen($kind, $mode), ['id' => (int)$id]);
         evo()->webAlertAndQuit($message, EvoFormFlow::formUrl($kind, $mode, (int)$id, EvoFormFlow::postedAfterSave()));
         exit;
     }
 
-    // saved form post from $_POST
-    public function saveFormValues($id = 0)
+    /**
+     * 差し戻す画面のために、送られた入力（POST）をセッションに残す
+     *
+     * @param int $id 残す先の画面の番号（0 なら今の画面）
+     * @param array $override POST の値の代わりに残す値（キー => 値）
+     */
+    public function saveFormValues($id = 0, array $override = [])
     {
         if (!$_POST) {
             return false;
         }
         $actionId = $id ?: $this->action;
-        $_SESSION['mgrFormValues'][$actionId] = $_POST;
+        // パスワードは差し戻さない（セッションに平文を残さない）
+        $values = array_diff_key(array_merge($_POST, $override), array_flip(EvoPasswordPolicy::FORM_FIELDS));
+        $_SESSION['mgrFormValues'][$actionId] = $values;
         return true;
     }
 
@@ -250,7 +260,7 @@ class ManagerAPI
         }
         $values = $this->loadFormValues();
         // 別の要素（新規か id が違う）向けの入力は混ぜない
-        if ((int)($values['id'] ?? 0) !== get_intvar('id')) {
+        if ((int)($values['id'] ?? 0) !== (int)($content['id'] ?? 0)) {
             return $content;
         }
         if (isset($values['categoryid'])) {
@@ -384,27 +394,51 @@ class ManagerAPI
     }
 
     /**
-     * 管理画面の利用者のパスワードを保存用のハッシュにする（作る処理の置き場所はここだけ）
+     * 編集中のほかの利用者を探す（active_users に、自分以外でそのアクションの行があるか）。
+     *
+     * @param int $action 編集の画面のアクション番号
+     * @param int|null $id 編集している対象の id。null なら id を問わない（グローバル設定のように対象が 1 つの画面）
+     * @return string 最初に見つかった利用者の username。いなければ空文字
      */
-    public function hashPassword($password)
+    public function editLockedBy(int $action, ?int $id = null): string
     {
-        return password_hash((string) $password, PASSWORD_DEFAULT);
+        $where = [
+            where('action', '=', (int) $action),
+            and_where('internalKey', '!=', (int) evo()->getLoginUserID()),
+        ];
+        if ($id !== null) {
+            $where[] = and_where('id', '=', (int) $id);
+        }
+        $row = db()->getRow(db()->select('username', '[+prefix+]active_users', $where, '', 1));
+        return $row ? (string) $row['username'] : '';
     }
 
     /**
-     * 管理画面の利用者のパスワードの長さを確かめる（6 文字以上、72 バイト以下）
-     * 上限は bcrypt が照合するバイト数。戻り値は '' (問題なし) / 'too_short' / 'too_long'
+     * 管理画面の利用者のパスワードを保存用のハッシュにする（作り方は EvoPasswordPolicy::hash()）
      */
-    public function checkPasswordLength($password)
+    public function hashPassword($password)
     {
-        $length = strlen((string) $password);
-        if ($length < 6) {
-            return 'too_short';
+        return EvoPasswordPolicy::hash((string) $password);
+    }
+
+    /**
+     * 新しいパスワードが決まりに合うかを確かめる（決まりは EvoPasswordPolicy::check()）。
+     * 戻り値は '' (問題なし) か、利用者に見せるエラー文（HTML。言語ファイルの文）
+     *
+     * @param string[] $context 推測されやすい値（ログイン名・メールアドレス・氏名など）。サイト名はここで足す
+     */
+    public function passwordError($password, array $context = [])
+    {
+        $context[] = (string) config('site_name');
+        $reason = EvoPasswordPolicy::check((string) $password, $context);
+        if ($reason === '') {
+            return '';
         }
-        if ($length > 72) {
-            return 'too_long';
-        }
-        return '';
+        return sprintf(
+            lang('password_error_' . $reason),
+            EvoPasswordPolicy::MIN_LENGTH,
+            EvoPasswordPolicy::MAX_BYTES
+        ) . ($reason === 'common' || $reason === 'context' ? ' ' . lang('password_advice') : '');
     }
 
     public function getHashType($db_value = '')
@@ -660,32 +694,195 @@ class ManagerAPI
     }
 
     /**
-     * プラグインを id で 1 件削除する（イベントの割り当ても消し、削除の前後のイベントを呼ぶ）。
+     * エレメントの新規・編集の画面を開く前の確かめをして、編集する行を読み込む。
+     * 権限が無い・新規でも編集でもない画面・行が無いときはエラー 3、id が正しくないときはエラー 2、
+     * ほかの利用者が編集中のときはエラー 5 の画面を出して止まる。
+     *
+     * @param string $type EvoElementTypes の種類
+     * @param string $lockLabel 編集中のメッセージ（lock_msg）に出す種類の名前
+     * @return array 読み込んだ行。新規の画面では、URL に id が付いていても読まずに空の配列
+     */
+    public function openElementForm(string $type, string $lockLabel): array
+    {
+        $def = EvoElementTypes::get($type);
+        if (!$def) {
+            throw new InvalidArgumentException("Unknown element type: {$type}");
+        }
+
+        $mode = EvoFormFlow::mode($type);
+        if ($mode === '' || !evo()->hasPermission($def['permissions'][$mode])) {
+            alert()->setError(3);
+            alert()->dumpError();
+        }
+
+        if ($mode === 'new') {
+            return [];
+        }
+
+        abort_if_invalid_id('id', true);
+        $id = request_intvar('id');
+
+        $username = $this->editLockedBy(EvoFormFlow::screen($type, 'edit'), $id);
+        if ($username !== '') {
+            alert()->setError(5, sprintf(lang('lock_msg'), $username, $lockLabel));
+            alert()->dumpError();
+        }
+
+        $row = db()->getRow(db()->select('*', "[+prefix+]{$def['table']}", where('id', '=', $id)));
+        if (!$row) {
+            alert()->setError(3);
+            alert()->dumpError();
+        }
+        return $row;
+    }
+
+    /**
+     * エレメントを id で 1 件削除する（関連テーブルの行も消し、削除の前後のイベントを呼ぶ）。
      * 権限の確かめとキャッシュの削除は呼び出し側で行う。
      *
-     * @param int $id プラグインの id
+     * @param string $type EvoElementTypes の種類
+     * @param int $id エレメントの id
      * @return bool 削除の SQL がすべて通ったら true
      */
-    public function deletePlugin($id)
+    public function deleteElement($type, $id)
     {
+        $def = EvoElementTypes::get($type);
         $id = (int) $id;
-        if ($id < 1) {
+        if (!$def || $id < 1) {
             return false;
         }
 
         $params = ['id' => $id];
-        evo()->invokeEvent('OnBeforePluginFormDelete', $params);
+        evo()->invokeEvent($def['events']['before_delete'], $params);
 
-        if (!db()->delete('[+prefix+]site_plugins', "id='{$id}'")) {
+        if (!db()->delete("[+prefix+]{$def['table']}", where('id', '=', $id))) {
             return false;
         }
-        if (!db()->delete('[+prefix+]site_plugin_events', "pluginid='{$id}'")) {
-            return false;
+        foreach ($def['relations'] as $relation) {
+            if (!db()->delete("[+prefix+]{$relation['table']}", where($relation['key'], '=', $id))) {
+                return false;
+            }
         }
 
         $params = ['id' => $id];
-        evo()->invokeEvent('OnPluginFormDelete', $params);
+        evo()->invokeEvent($def['events']['after_delete'], $params);
         return true;
+    }
+
+    /**
+     * エレメントを id で 1 件複製する（関連テーブルの行も写す）。
+     * 権限の確かめは呼び出し側で行う。
+     *
+     * @param string $type EvoElementTypes の種類
+     * @param int $id 複製元の id
+     * @return int|false 新しい id。複製元が無いときは 0、SQL が通らなかったときは false
+     */
+    public function duplicateElement($type, $id)
+    {
+        $def = EvoElementTypes::get($type);
+        $id = (int) $id;
+        if (!$def || $id < 1) {
+            return 0;
+        }
+
+        $table = "[+prefix+]{$def['table']}";
+        $source = db()->getRow(db()->select('*', $table, where('id', '=', $id)));
+        if (!$source) {
+            return 0;
+        }
+
+        $row = array_intersect_key($source, array_flip($def['copy_fields']));
+        $nameField = $def['name_field'];
+        $row[$nameField] = str_replace('[+title+]', $source[$nameField], lang('duplicate_title_string'));
+        if (isset($def['guid_field'])) {
+            $row[$def['guid_field']] = $this->createGuid();
+        }
+
+        $newId = (int) db()->insert(db()->escape($row), $table);
+        if (!$newId) {
+            return false;
+        }
+
+        foreach ($def['relations'] as $relation) {
+            if ($relation['copy'] === null) {
+                continue;
+            }
+            $relationTable = "[+prefix+]{$relation['table']}";
+            $rs = db()->select('*', $relationTable, where($relation['key'], '=', $id));
+            while ($related = db()->getRow($rs)) {
+                $copy = array_intersect_key($related, array_flip($relation['copy']));
+                $copy[$relation['key']] = $newId;
+                if (db()->insert(db()->escape($copy), $relationTable) === false) {
+                    return false;
+                }
+            }
+        }
+
+        return $newId;
+    }
+
+    /**
+     * 同じ名前のエレメントがすでにあるか。
+     *
+     * @param string $type EvoElementTypes の種類
+     * @param string $name 確かめる名前（生の値。エスケープしない）
+     * @param int $exceptId 数えない id（更新のときの自分。新規は 0）
+     * @param array $among 列 => 値。この値を持つ行の間でだけ確かめる（プラグインは有効なものどうしだけ）
+     */
+    public function elementNameExists($type, $name, $exceptId = 0, array $among = []): bool
+    {
+        $def = EvoElementTypes::get($type);
+        if (!$def) {
+            throw new InvalidArgumentException("Unknown element type: {$type}");
+        }
+
+        $where = [where($def['name_field'], '=', db()->escape($name))];
+        if ((int) $exceptId) {
+            $where[] = and_where('id', '!=', (int) $exceptId);
+        }
+        foreach ($among as $field => $value) {
+            $where[] = and_where($field, '=', db()->escape($value));
+        }
+        return db()->getValue(db()->select('COUNT(id)', "[+prefix+]{$def['table']}", $where)) > 0;
+    }
+
+    /**
+     * エレメントの名前を変えたとき、文書・テンプレート・チャンク・テンプレート変数の値の中のタグを新しい名前に書き換える。
+     *
+     * @param string[] $forms タグの形。名前の位置を %s にした sprintf() の書式（'{{%s}}'・'[*%s:' など）
+     * @param string $oldName 前の名前（生の値。エスケープしない）
+     * @param string $newName 新しい名前（生の値。エスケープしない）
+     */
+    public function renameElementTags(array $forms, $oldName, $newName): void
+    {
+        $columns = [
+            'site_content' => 'content',
+            'site_templates' => 'content',
+            'site_htmlsnippets' => 'snippet',
+            'site_tmplvar_contentvalues' => 'value',
+        ];
+        foreach ($forms as $form) {
+            foreach ($columns as $table => $column) {
+                db()->update(
+                    sprintf(
+                        "%s=REPLACE(%s,'%s','%s')",
+                        $column,
+                        $column,
+                        db()->escape(sprintf($form, $oldName)),
+                        db()->escape(sprintf($form, $newName))
+                    ),
+                    "[+prefix+]{$table}"
+                );
+            }
+        }
+    }
+
+    /**
+     * モジュールの GUID を作る
+     */
+    public function createGuid()
+    {
+        return md5(uniqid(getmypid() . mt_rand() . (float) microtime() * 1000000, true));
     }
 
     /**
@@ -727,6 +924,57 @@ class ManagerAPI
                 '[+title+]' => js_literal(lang('sys_alert'))
             ]
         );
+    }
+
+    /**
+     * 次に描く画面で出す知らせ（トースト、manager/media/script/evo-notice.js）を積む。
+     * 保存のあとの移動（リダイレクト）をまたいで残すため、セッションに置く。出すのは renderNotices()。
+     * 決まりは assets/docs/manager-notice.md
+     *
+     * @param string $message 文字として出す（HTML にしない）
+     */
+    public function notice(string $message): void
+    {
+        if ($message === '') {
+            return;
+        }
+        $queue = sessionv('ManagerNoticeQueue', []);
+        $queue[] = $message;
+        sessionv('*ManagerNoticeQueue', $queue);
+    }
+
+    /**
+     * 積んだ知らせを出す <script>（無ければ空文字）。出したものはセッションから消す。
+     * ページ全体の応答でもシェルの部分の応答でも通る evoRenderPaneFooterExtras()（helpers.php）から呼ぶ
+     */
+    public function renderNotices(): string
+    {
+        // 知らせを読まずに残す応答（出しても、読み直しや移動、別の部分の応答で消える）:
+        // - 管理画面ごと読み直す画面（refresh=page。グローバル設定の保存のあとの待ちの画面など）
+        // - シェルの部品（ツリーなど）の再取得（a=1）。本文ではないので、読むと知らせが消える
+        if (get_choicevar('refresh', ['page'], '') === 'page' || (int)$this->action === 1) {
+            return '';
+        }
+        // 移動の応答（保存の processor が Location を付けたあと、index.php の後処理がここへ来る）では出さない。
+        // ブラウザは移動の応答の本文を捨てるので、ここで読むと知らせが消える。移った先の画面で出す
+        foreach (headers_list() as $header) {
+            if (stripos($header, 'Location:') === 0) {
+                return '';
+            }
+        }
+        $queue = sessionv('ManagerNoticeQueue', []);
+        if (!$queue) {
+            return '';
+        }
+        sessionv('*ManagerNoticeQueue', []);
+
+        $calls = [];
+        foreach ($queue as $message) {
+            $calls[] = sprintf('EvoNotice.show(%s);', js_literal($message));
+        }
+        return "<script type=\"text/javascript\">\n    Evo.ready(function () {\n        "
+            . implode("\n        ", $calls)
+            . "\n    });\n</script>\n";
     }
 
     /**
@@ -967,40 +1215,40 @@ class ManagerAPI
         return $row;
     }
 
-    // ロール設定の変更をログインし直さずに反映するため、管理画面のリクエストごとに読み直す
+    /**
+     * ロール設定の変更をログインし直さずに反映するため、管理画面のリクエストごとにロールの権限を読み直す。
+     * ユーザーが削除された・管理者がブロックした（期限つきを含む）ときは、管理画面のセッションを破棄して false を返す。
+     * 失敗回数による一時ロック（blockeduntil が未来で、failedlogincount が failed_login_attempts 以上。isTemporaryLoginLock()）は、ログインを止めるだけで、開いているセッションは切らない（管理者が自分で解除できるように）
+     *
+     * @return bool 続けてよいとき true。セッションを破棄したとき false
+     */
     public function refreshMgrPermissions($uid = 0)
     {
         if (!$uid) {
-            $uid = evo()->getLoginUserID();
+            $uid = sessionv('mgrInternalKey', 0);
         }
-        $role = db()->getValue(
-            db()->select('role', '[+prefix+]user_attributes', sprintf("internalKey='%d'", $uid))
+        $row = db()->getRow(
+            db()->select(
+                'mu.id, ua.role, ua.blocked, ua.blockeduntil, ua.blockedafter, ua.failedlogincount',
+                [
+                    '[+prefix+]manager_users mu',
+                    'LEFT JOIN [+prefix+]user_attributes ua ON ua.internalKey=mu.id'
+                ],
+                sprintf("mu.id='%d'", (int)$uid)
+            )
         );
-        if ($role === false || $role === null) {
-            return;
+        if (!$row || isUserBlockedByAdmin($row)) {
+            session_unset();
+            @session_destroy();
+            return false;
         }
-        $role = $this->resolveMgrRole($role);
-        sessionv('*mgrRole', $role);
-        sessionv('*mgrPermissions', $this->getMgrPermissions($role));
-    }
-
-    /**
-     * いまのロールを決める。差し替えられるのは、DB のロールが 1 の利用者だけ。
-     * $forceRole が null のときは、ログインで残した差し替え（mgrForceRole）を使い、
-     * DB のロールが 1 でなくなっていれば（降格など）、それを捨てて DB のロールにする。
-     * ログイン時は、指定された候補を $forceRole に渡す（セッションには触れない）
-     */
-    public function resolveMgrRole($dbRole, $forceRole = null)
-    {
-        $fromSession = $forceRole === null;
-        $forceRole = (int) ($fromSession ? sessionv('mgrForceRole', 0) : $forceRole);
-        if ($forceRole && (int) $dbRole === 1) {
-            return $forceRole;
+        // 属性の行が無いユーザーはロールが無いので、権限は今のまま
+        if ($row['role'] === null) {
+            return true;
         }
-        if ($fromSession && $forceRole) {
-            sessionv('*mgrForceRole', null);
-        }
-        return $dbRole;
+        sessionv('*mgrRole', $row['role']);
+        sessionv('*mgrPermissions', $this->getMgrPermissions($row['role']));
+        return true;
     }
 
     public function getMemberGroups($uid = 0)
@@ -1194,103 +1442,6 @@ class ManagerAPI
         return MODX_MANAGER_PATH . 'media/style/';
     }
 
-    public function renderTabPane($ph)
-    {
-        $style_path = $this->getStylePath() . 'common/block_tabpane.tpl';
-
-        if (!is_file($style_path)) {
-            return '';
-        }
-
-        if (!isset($ph['id'])) {
-            $ph['id'] = 'tab' . substr(uniqid('id', true), 0, 13);
-        }
-        if (!isset($ph['tab-pages'])) {
-            $ph['tab-pages'] = 'content';
-        } elseif (is_array($ph['tab-pages'])) {
-            $ph['tab-pages'] = implode("\n", $ph['tab-pages']);
-        }
-
-        return evo()->parseText(
-            file_get_contents($style_path),
-            $ph
-        );
-    }
-
-    public function renderTabPage($ph)
-    {
-        $style_path = $this->getStylePath() . 'common/block_tabpage.tpl';
-
-        if (!is_file($style_path)) {
-            return '';
-        }
-
-        if (!isset($ph['id'])) {
-            $ph['id'] = 'id' . substr(uniqid('id', true), 0, 13);
-        }
-        if (!isset($ph['title'])) {
-            $ph['title'] = 'title';
-        }
-
-        if (!isset($ph['content'])) {
-            $ph['content'] = 'content';
-        }
-
-        return evo()->parseText(
-            file_get_contents($style_path),
-            $ph
-        );
-    }
-
-    public function renderSection($ph)
-    {
-        $style_path = $this->getStylePath() . 'common/block_section.tpl';
-
-        if (!is_file($style_path)) {
-            return '';
-        }
-
-        if (!isset($ph['id'])) {
-            $ph['id'] = 'id' . substr(uniqid('id', true), 0, 13);
-        }
-        if (!isset($ph['title'])) {
-            $ph['title'] = 'title';
-        }
-        if (!isset($ph['content'])) {
-            $ph['content'] = 'content';
-        }
-
-        return evo()->parseText(
-            file_get_contents($style_path),
-            $ph
-        );
-    }
-
-    public function renderTr($ph)
-    {
-        $style_path = $this->getStylePath() . 'common/block_tr.tpl';
-
-        if (!is_file($style_path)) {
-            return '';
-        }
-
-
-        if (!isset($ph['id'])) {
-            $ph['id'] = 'id' . substr(uniqid('id', true), 0, 13);
-        }
-        if (!isset($ph['title'])) {
-            $ph['title'] = 'title';
-        }
-        if (!isset($ph['content'])) {
-            $ph['content'] = 'content';
-        }
-
-        return evo()->parseText(
-            file_get_contents($style_path),
-            $ph
-        );
-    }
-
     /**
      * リソースの祖先 ID を近い順に返す。
      * getParentIds() と違い、深さの上限やエイリアスのキャッシュに頼らず DB の parent を直接たどる。
@@ -1376,31 +1527,6 @@ class ManagerAPI
             return lang('access_permission_parent_denied');
         }
         return '';
-    }
-
-    /**
-     * サイトのインポートの取り込み先に $parentId を使えないとき、その理由を表示用の文言で返す。使えるなら空文字。
-     * 新しい文書を親の下に置く判定なので、親が変わる文書は無いものとして parentChangeDeniedMessage() に委ねる
-     * （存在・文書グループ・許可するリソースの範囲。ルートは canUseRootAsParent()）
-     *
-     * @param int $parentId
-     * @return string
-     */
-    public function importParentDeniedMessage($parentId)
-    {
-        return $this->parentChangeDeniedMessage([], $parentId);
-    }
-
-    /**
-     * サイトのインポートの「初期化」（site_content の全件の削除）を許してよいか。
-     * 範囲の制限が無く（isInAllowedParents(0)。範囲に 0（サイト全体）を含む設定も制限なしとみなす）、文書グループでも絞られず（restrictsByDocumentGroups() が偽）、
-     * ルートを親にできる（canUseRootAsParent()）利用者だけ。全件の削除は、自分に見えない文書も消すため
-     *
-     * @return bool
-     */
-    public function canResetSiteContent()
-    {
-        return $this->canUseRootAsParent() && !$this->restrictsByDocumentGroups();
     }
 
     /**

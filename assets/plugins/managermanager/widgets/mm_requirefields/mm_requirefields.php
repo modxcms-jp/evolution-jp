@@ -30,40 +30,8 @@ function mm_requireFields($fields, $roles = '', $templates = '')
 
     if (count($fields) == 0) return;
 
-    $output = "//  -------------- mm_requireFields :: Begin ------------- \n";
-
-    $output .= '(function () {
-    MM.addStyle(".mmRequired { background-image: none !important; background-color: #ff9999 !important; } .requiredIcon { color: #ff0000; font-weight: bold; margin-left: 3px; cursor: help; }");
-    const requiredHTML = "<span class=\"requiredIcon\" title=\"Required\">*</span>";
-    // 欄の親の td の直前の td にある見出し（this will be easier in Evo 1.1 with more semantic code）
-    function titles(els) {
-        const found = [];
-        els.forEach(function (el) {
-            const td = el.parentElement;
-            const prev = td && td.matches("td") ? td.previousElementSibling : null;
-            if (!prev || !prev.matches("td")) { return; }
-            prev.querySelectorAll(":scope > span.mutate-field-title").forEach(function (span) {
-                if (found.indexOf(span) === -1) { found.push(span); }
-            });
-        });
-        return found;
-    }
-    // 最初の欄の値（複数選択は選んだ値をつないだもの。欄が無ければ空）
-    function fieldValue(el) {
-        if (!el) { return ""; }
-        if (el.matches("select[multiple]")) {
-            return Array.from(el.selectedOptions).map(function (o) { return o.value; }).join(",");
-        }
-        return el.value;
-    }
-    // Add an event so the hilight is removed upon focussing
-    function unmark() {
-        this.classList.remove("mmRequired");
-    }
-';
-
-    $submit_js = '';
-    $load_js = '';
+    $selectors = [];
+    $fixDateType = false;
 
     foreach ($fields as $field) {
         //ignore for now
@@ -83,15 +51,12 @@ function mm_requireFields($fields, $roles = '', $templates = '')
             case 'clear_cache':
             case 'content_type':
             case 'content_dispo':
-                $output .= '';
                 break;
 
             // Pub/unpub dates don't have a type attribute on their input tag in 1.0.2, so add this. Won't do any harm to other versions
             case 'pub_date':
             case 'unpub_date':
-                $load_js .= '
-    MM.all("#pub_date, #unpub_date").forEach(function (el) { el.type = "text"; });
-';
+                $fixDateType = true;
             // no break, because we want to do the things below too.
 
             // Ones that follow the regular pattern
@@ -130,52 +95,22 @@ function mm_requireFields($fields, $roles = '', $templates = '')
 
                 // If we've found something we want to use
                 if (!empty($selector)) {
-                    // 空なら、見出しを errors に足し、欄に印を付ける
-                    $submit_js .= '
-        {
-            const els = MM.all(' . js_literal($selector) . ');
-            if (String(fieldValue(els[0])).trim() === "") {
-                // Add the label to the errors array
-                errors.push(titles(els).map(function (span) { return span.textContent; }).join("").replace("*", ""));
-                els.forEach(function (el) {
-                    el.classList.add("mmRequired");
-                    el.addEventListener("focus", unmark);
-                });
-            }
-        }
-';
-
-                    // Add an indicator this is required
-                    $load_js .= '
-    titles(MM.all(' . js_literal($selector) . ')).forEach(function (span) { span.insertAdjacentHTML("beforeend", requiredHTML); });
-';
+                    $selectors[] = $selector;
                 }
                 break;
         }
     }
 
-    // 空の欄があれば保存を止める（以前の return false と同じく、既定の動作と伝播の両方を止める）
-    $output .= $load_js . '
-    const form = document.getElementById("mutate");
-    if (!form) { return; }
-    form.addEventListener("submit", function (e) {
-        const errors = [];
-' . $submit_js . '
-        if (errors.length > 0) {
-            let errMsg = errors.length + " required fields are missing:\n\n ";
-            for (let i = 0; i < errors.length; i++) {
-                errMsg += " - " + errors[i] + " \n";
-            }
-            errMsg += " \nPlease correct the indicated fields.";
-
-            alert(errMsg);
-            e.preventDefault();
-            e.stopPropagation();
-        }
-    });
-})();
-';
-
+    $output = "//  -------------- mm_requireFields :: Begin ------------- \n";
+    $output .= includeJs(MODX_BASE_URL . 'assets/plugins/managermanager/widgets/mm_requirefields/mm_requirefields.js');
+    $output .= 'mmRequire.run(' . js_value([
+        'fixDateType' => $fixDateType,
+        'selectors' => $selectors,
+        'messages' => [
+            'required' => lang('required_field'),
+            'missing' => lang('required_fields_missing'),
+        ],
+    ]) . ');' . "\n";
     $output .= "//  -------------- mm_requireFields :: End ------------- \n";
 
     $e->output($output . "\n");

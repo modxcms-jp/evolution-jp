@@ -55,7 +55,6 @@ class DocManagerFrontend
         $table = new DataTable($columns, [
             'id' => $tableId,
             'tableClass' => 'grid',
-            'rowClasses' => ['gridItem', 'gridAltItem'],
             'emptyMessage' => $emptyMessage,
         ]);
         return $table->render($rows);

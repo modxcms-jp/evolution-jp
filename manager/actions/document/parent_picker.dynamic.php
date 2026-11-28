@@ -237,9 +237,9 @@ function parent_picker_search($q, array $docIds)
     }
     $where = '(' . implode(' OR ', $match) . ')' . parent_picker_access_where();
     // 件数で打ち切る前に絞らないと、範囲内の候補が範囲外の候補に押し出されて出てこない
-    $allowedCond = manager()->allowedDocsCondition('sc');
-    if ($allowedCond !== '') {
-        $where .= ' AND ' . $allowedCond;
+    $cond = manager()->allowedDocsCondition('sc');
+    if ($cond !== '') {
+        $where .= ' AND ' . $cond;
     }
 
     $rs = db()->select(

@@ -1,11 +1,72 @@
 <?php
 
 /**
- * グローバル設定の画面の定義。EvoSettingsForm::definition() だけが読む。
+ * グローバル設定・管理ユーザーの編集・プロフィールの画面の設定の定義（行の scope で出す画面を分ける）。EvoSettingsForm::definition() だけが読む。
  * 形は assets/docs/global-settings.md の「設定画面への表示」を参照。
  * 文言は読んだときの言語の lang() で引く（言語ファイルの文言は信頼する HTML として出る）。
  */
+require_once __DIR__ . '/snapshot_store.class.inc.php';
+require_once __DIR__ . '/error_reporting.class.inc.php';
+
 return [
+    // 管理ユーザー（user）と Web ユーザー（web）の画面だけの「ユーザー」タブ（ログイン設定・プロフィールの次に出る）
+    [
+        'id' => 'settingsTabUser',
+        'title' => lang('settings_users'),
+        'sections' => [
+            [
+                'rows' => [
+                    [
+                        'key' => 'allow_manager_access',
+                        'scope' => ['user'],
+                        'type' => 'yesno',
+                        'default' => '1',
+                        'label' => lang('allow_mgr_access'),
+                        'desc' => lang('allow_mgr_access_message'),
+                    ],
+                    [
+                        'key' => 'allowed_parents',
+                        'scope' => ['user'],
+                        'type' => 'text',
+                        'maxlength' => 0,
+                        'label' => lang('user_allowed_parents'),
+                        'desc' => lang('user_allowed_parents_message'),
+                    ],
+                    [
+                        'key' => 'login_home',
+                        'scope' => ['web'],
+                        'type' => 'text',
+                        'size' => 50,
+                        'label' => lang('login_homepage'),
+                        'desc' => lang('login_homepage_message'),
+                    ],
+                    [
+                        'key' => 'allowed_ip',
+                        'scope' => ['user', 'web'],
+                        'type' => 'text',
+                        'label' => lang('login_allowed_ip'),
+                        'desc' => lang('login_allowed_ip_message'),
+                    ],
+                    [
+                        'key' => 'allowed_days',
+                        'scope' => ['user', 'web'],
+                        'type' => 'checkboxes',
+                        'options' => [
+                            '1' => lang('sunday'),
+                            '2' => lang('monday'),
+                            '3' => lang('tuesday'),
+                            '4' => lang('wednesday'),
+                            '5' => lang('thursday'),
+                            '6' => lang('friday'),
+                            '7' => lang('saturday'),
+                        ],
+                        'label' => lang('login_allowed_days'),
+                        'desc' => lang('login_allowed_days_message'),
+                    ],
+                ],
+            ],
+        ],
+    ],
     [
         'id' => 'settingsTabSite',
         'event' => 'OnSiteSettingsRender',
@@ -78,13 +139,6 @@ return [
                         },
                     ],
                     [
-                        'key' => 'server_protocol',
-                        'type' => 'radio',
-                        'label' => lang('server_protocol_title'),
-                        'options' => ['http' => lang('server_protocol_http'), 'https' => lang('server_protocol_https')],
-                        'desc' => lang('server_protocol_message'),
-                    ],
-                    [
                         'key' => 'xhtml_urls',
                         'type' => 'yesno',
                         'label' => lang('xhtml_urls_title'),
@@ -144,7 +198,6 @@ return [
                         'label' => lang('charset_title'),
                         'options' => ['UTF-8' => 'UTF-8'],
                         'attr' => ['style' => 'display:block;width:250px;'],
-                        'br' => false,
                         'desc' => lang('charset_message'),
                     ],
                     [
@@ -241,6 +294,16 @@ return [
                             '2' => lang('docid_incrmnt_method_2'),
                         ],
                         'desc' => lang('docid_incrmnt_method_message'),
+                    ],
+                    [
+                        'key' => 'tvs_below_content',
+                        'type' => 'radio',
+                        'label' => lang('setting_tvs_below_content'),
+                        'options' => [
+                            '0' => lang('setting_tvs_below_content_tab'),
+                            '1' => lang('setting_tvs_below_content_below'),
+                        ],
+                        'desc' => lang('setting_tvs_below_content_desc'),
                     ],
                     [
                         'key' => 'enable_draft',
@@ -404,8 +467,7 @@ return [
                         'options' => static function () {
                             return EvoSettingsForm::roles();
                         },
-                        'br' => false,
-                        'desc' => '<div>' . lang('default_role_message') . '</div>',
+                        'desc' => lang('default_role_message'),
                     ],
                     [
                         'key' => 'allow_mgr2web',
@@ -473,7 +535,6 @@ return [
                         'reload' => 'reload_captcha_words',
                         'id' => 'captcha_words_input',
                         'attr' => ['style' => 'width:400px'],
-                        'hiddenBr' => true,
                         'showIf' => ['use_captcha', '1'],
                     ],
                 ],
@@ -485,12 +546,7 @@ return [
                         'key' => 'error_reporting',
                         'type' => 'radio',
                         'label' => lang('a17_error_reporting_title'),
-                        'options' => [
-                            '0' => lang('a17_error_reporting_opt0'),
-                            '1' => lang('a17_error_reporting_opt1'),
-                            '2' => lang('a17_error_reporting_opt2'),
-                            '99' => lang('a17_error_reporting_opt99'),
-                        ],
+                        'options' => EvoErrorReporting::levelOptions(),
                         'desc' => lang('a17_error_reporting_msg'),
                     ],
                     [
@@ -557,7 +613,6 @@ return [
                         'options' => ['mail' => lang('email_method_mail'), 'smtp' => lang('email_method_smtp')],
                         'default' => 'mail',
                         'inline' => true,
-                        'desc' => '<br/>',
                     ],
                     [
                         'key' => 'smtp_auth',
@@ -565,7 +620,6 @@ return [
                         'label' => lang('smtp_auth_title'),
                         'default' => '0',
                         'inline' => true,
-                        'desc' => '<br/>',
                         'showIf' => ['email_method', 'smtp'],
                     ],
                     [
@@ -574,7 +628,6 @@ return [
                         'label' => lang('smtp_host_title'),
                         'default' => 'smtp.example.com',
                         'attr' => ['style' => 'width: 250px;'],
-                        'br' => false,
                         'showIf' => ['email_method', 'smtp'],
                     ],
                     [
@@ -583,7 +636,6 @@ return [
                         'label' => lang('smtp_port_title'),
                         'default' => '25',
                         'attr' => ['style' => 'width: 250px;'],
-                        'br' => false,
                         'showIf' => ['email_method', 'smtp'],
                     ],
                     [
@@ -595,7 +647,6 @@ return [
                             return (string)($values['emailsender'] ?? '');
                         },
                         'attr' => ['style' => 'width: 250px;'],
-                        'br' => false,
                         'showIf' => ['email_method', 'smtp'],
                     ],
                     [
@@ -633,18 +684,6 @@ return [
                         'langKey' => 'emailsubject_default',
                         'reload' => 'reload_emailsubject',
                         'id' => 'emailsubject_field',
-                        'hiddenBr' => true,
-                    ],
-                    [
-                        'key' => 'signupemail_message',
-                        'type' => 'lang_text',
-                        'label' => lang('signupemail_title'),
-                        'desc' => lang('signupemail_message'),
-                        'langKey' => EvoSettingsForm::MAIL_TEXT_LANG_KEYS['signupemail_message'],
-                        'reload' => 'reload_signupemail_message',
-                        'id' => 'signupemail_message_textarea',
-                        'attr' => ['style' => 'width:100%; height: 120px;'],
-                        'hiddenBr' => true,
                     ],
                     [
                         'key' => 'websignupemail_message',
@@ -655,7 +694,6 @@ return [
                         'reload' => 'reload_websignupemail_message',
                         'id' => 'websignupemail_message_textarea',
                         'attr' => ['style' => 'width:100%; height: 120px;'],
-                        'hiddenBr' => true,
                     ],
                     [
                         'key' => 'webpwdreminder_message',
@@ -667,7 +705,6 @@ return [
                         'reloadId' => 'reload_system_email_webreminder_select',
                         'id' => 'system_email_webreminder_textarea',
                         'attr' => ['style' => 'width:100%; height: 120px;'],
-                        'hiddenBr' => true,
                     ],
                 ],
             ],
@@ -702,19 +739,6 @@ return [
                             return EvoSettingsForm::languages();
                         },
                         'desc' => lang('language_message'),
-                    ],
-                    [
-                        'key' => 'manager_inline_style',
-                        'scope' => ['system', 'user', 'profile'],
-                        'userDefault' => true,
-                        'type' => 'textarea',
-                        'label' => lang('a17_manager_inline_style_title'),
-                        'attr' => ['id' => 'manager_inline_style', 'style' => 'width:95%; height: 9em;'],
-                        'desc' => '<br/>' . lang('a17_manager_inline_style_message'),
-                        // ユーザーの値が無いときは、「システム設定に従う」の先のシステム設定の値を出す
-                        'userValue' => static function (array $values, array $stored) {
-                            return (string)($values['manager_inline_style'] ?? $stored['manager_inline_style'] ?? '');
-                        },
                     ],
                     [
                         'key' => 'manager_login_startup',
@@ -754,6 +778,16 @@ return [
                         ],
                         'desc' => lang('remember_last_tab_message'),
                     ],
+                    [
+                        'key' => 'after_save_default',
+                        'type' => 'radio',
+                        'label' => lang('setting_after_save_default'),
+                        'options' => [
+                            'stay' => lang('stay'),
+                            'close' => lang('close'),
+                        ],
+                        'desc' => lang('setting_after_save_default_desc'),
+                    ],
                 ],
             ],
             [
@@ -765,6 +799,18 @@ return [
                         'label' => lang('tree_pane_open_default_title'),
                         'options' => ['1' => lang('open'), '0' => lang('close')],
                         'desc' => lang('tree_pane_open_default_message'),
+                    ],
+                    [
+                        'key' => 'manager_tree_narrow',
+                        'scope' => ['system', 'user', 'profile'],
+                        'type' => 'select',
+                        'label' => lang('setting_manager_tree_narrow'),
+                        'options' => [
+                            '0' => lang('setting_manager_tree_narrow_off'),
+                            '2' => lang('setting_manager_tree_narrow_half'),
+                            '3' => lang('setting_manager_tree_narrow_third'),
+                        ],
+                        'desc' => lang('setting_manager_tree_narrow_desc'),
                     ],
                     [
                         'key' => 'tree_page_click',
@@ -807,6 +853,12 @@ return [
                         'desc' => lang('setting_resource_tree_node_name_desc'),
                     ],
                     [
+                        'key' => 'resource_tree_show_deleted_default',
+                        'type' => 'yesno',
+                        'label' => lang('setting_resource_tree_show_deleted_default'),
+                        'desc' => lang('setting_resource_tree_show_deleted_default_desc'),
+                    ],
+                    [
                         'key' => 'manager_treepane_trim_title',
                         'type' => 'yesno',
                         'label' => lang('manager_treepane_trim_title'),
@@ -817,8 +869,7 @@ return [
                         'type' => 'text',
                         'label' => lang('manager_docs_orderby_title'),
                         'attr' => ['style' => 'width:500px;'],
-                        'br' => false,
-                        'desc' => '<p>' . lang('manager_docs_orderby_message') . '</p>',
+                        'desc' => lang('manager_docs_orderby_message'),
                     ],
                     [
                         'key' => 'limit_by_container',
@@ -1138,6 +1189,18 @@ return [
                         'label' => lang('export_dir_title'),
                         'desc' => lang('export_dir_message'),
                         'defaultPath' => EvoSettingsForm::BASE_PATH_TOKEN . 'temp/export/',
+                    ],
+                ],
+            ],
+            [
+                'title' => lang('settings_section_snapshot'),
+                'rows' => [
+                    [
+                        'key' => 'snapshot_path',
+                        'type' => 'path',
+                        'label' => lang('snapshot_path_title'),
+                        'desc' => lang('snapshot_path_message'),
+                        'defaultPath' => EvoSettingsForm::BASE_PATH_TOKEN . EvoSnapshotStore::DEFAULT_DIR,
                     ],
                 ],
             ],

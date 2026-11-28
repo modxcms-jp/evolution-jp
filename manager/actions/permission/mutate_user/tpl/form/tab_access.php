@@ -30,7 +30,7 @@
             $ph['id'] = (int) $row['id'];
             $ph['checked'] = in_array($row['id'], $groupsarray) ? 'checked="checked"' : '';
             $ph['name'] = hsc($row['name']);
-            echo $modx->parseText($src, $ph);
+            echo evo()->parseText($src, $ph);
         }
     }
     ?>

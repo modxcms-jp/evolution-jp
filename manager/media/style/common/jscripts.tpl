@@ -3,7 +3,6 @@
     var imanager_url = [+imanager_url+];
     var fmanager_url = [+fmanager_url+];
     var prevWin;
-    var docMode = '[+docMode+]';
 
     // ツリーの開閉状態を保存する。ツリーが無い画面（QuickManager の編集など）では何もしない
     if (window.tree && typeof window.tree.saveFolderState === 'function') {
@@ -48,12 +47,14 @@
             EvoShell.go('index.php?a=131&id=[+id+]');
         });
         onClick('delete', function () {
-            if (confirm([+lang_confirm_delete_resource+]))
+            EvoDocumentActions.run('delete', [Number('[+id+]')], function () {
                 EvoCsrf.post("index.php?id=[+id+]&a=6");
+            }, {hasChildren: [+docHasChildren+]});
         });
         onClick('undelete', function () {
-            if (confirm([+lang_confirm_undelete+]))
+            EvoDocumentActions.run('undelete', [Number('[+id+]')], function () {
                 EvoCsrf.post("index.php?id=[+id+]&a=63");
+            });
         });
         onClick('deletedraft', function () {
             if (confirm([+lang_confirm_delete_draft_resource+])) {
@@ -66,8 +67,9 @@
             EvoShell.go("index.php?id=[+id+]&a=51");
         });
         onClick('duplicate', function () {
-            if (confirm([+lang_confirm_resource_duplicate+]))
+            EvoDocumentActions.run('duplicate', [Number('[+id+]')], function () {
                 EvoCsrf.post("index.php?id=[+id+]&a=94");
+            });
         });
 
         // 前の画面（シェルの遷移では同じ window で JS が読み直される）の自動更新の後始末
@@ -403,12 +405,7 @@
             sendManual(win, hide);
         });
         onClick('cancel', function () {
-            var docIsFolder = '[+docIsFolder+]';
-            var docParent = '[+docParent+]';
-            if (docMode === 'draft') EvoShell.go('index.php?a=3&id=' + '[+id+]');
-            else if (docIsFolder == 1) EvoShell.go('index.php?a=120&id=' + '[+id+]');
-            else if (docParent != 0) EvoShell.go('index.php?a=120&id=' + '[+docParent+]');
-            else EvoShell.go('index.php?a=2');
+            EvoShell.go([+cancelUrl+]);
         });
         bindClearDate('pub_date');
         bindClearDate('unpub_date');
@@ -438,6 +435,38 @@
                 submitMutate();
             });
         }
+
+        // 欄のまとまり（details）の開閉を、このブラウザーで覚える。閉じていても中の欄は送られる。
+        // 覚えるのは見出し（summary）を押したときだけ。スクリプトで開いたとき（ManagerManager の必須の欄など）は覚えない
+        document.querySelectorAll('details[data-field-group]').forEach(function (group) {
+            var key = 'evo.mutate.group.' + group.getAttribute('data-field-group');
+            var byUser = false;
+            var summary = group.querySelector(':scope > summary');
+            if (summary) {
+                summary.addEventListener('click', function () {
+                    byUser = true;
+                });
+            }
+            try {
+                var saved = localStorage.getItem(key);
+                if (saved !== null) {
+                    group.open = saved === '1';
+                }
+            } catch (e) {
+                // 読めなくても、閉じた状態で使える
+            }
+            group.addEventListener('toggle', function () {
+                if (!byUser) {
+                    return;
+                }
+                byUser = false;
+                try {
+                    localStorage.setItem(key, group.open ? '1' : '0');
+                } catch (e) {
+                    // 覚えられなくても、今の開閉は変わっている
+                }
+            });
+        });
     });
 
     function changestate(element) {

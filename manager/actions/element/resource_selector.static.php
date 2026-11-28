@@ -99,14 +99,13 @@ switch ($type) {
 }
 
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html <?= (globalv('modx_textdir') === 'rtl' ? 'dir="rtl" lang="' : 'lang="') . hsc($mxla) . '" xml:lang="' . hsc($mxla) . '"' ?>>
+<!DOCTYPE html>
+<html <?= (globalv('modx_textdir') === 'rtl' ? 'dir="rtl" lang="' : 'lang="') . hsc($mxla) . '"' ?>>
 
 <head>
     <title><?= $title . ' ' . lang('element_selector_title') ?></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=<?= hsc(evo()->config('modx_charset')) ?>"/>
-    <link rel="stylesheet" type="text/css"
-          href="<?= hsc(manager_asset('media/style/' . evo()->config('manager_theme') . '/style.css')) ?>"/>
+    <meta charset="<?= hsc(evo()->config('modx_charset')) ?>">
+    <?= manager_theme_stylesheets() ?>
 </head>
 
 <body ondragstart="return false">
@@ -296,7 +295,6 @@ switch ($type) {
                         $table = new DataTable($columns, [
                             'id' => 'selector',
                             'tableClass' => 'grid',
-                            'rowClasses' => ['gridItem', 'gridAltItem'],
                             'emptyMessage' => lang('no_records_found'),
                         ]);
                         $nav = $pager->render($links, [

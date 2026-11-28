@@ -28,12 +28,35 @@
       .replace(/"/g, '&quot;');
   }
 
-  // プレビューは管理画面の DOM に直接入れるため、エディターのスキーマで無害化した HTML を使う。
+  // ひな形は信頼できる内容とは限らないので、エディターのスキーマで無害化してから使う。
   // 挿入時もエディターが同じ処理をするので、実際に入る内容に近い表示になる。
   function sanitize(editor, html) {
     const fragment = editor.parser.parse(html, { insert: true });
 
     return tinymce.html.Serializer({}, editor.schema).serialize(fragment);
+  }
+
+  // 編集欄と同じ CSS を当て、管理画面の CSS は混ざらないよう、iframe の中に描く。
+  // スクリプトは動かさず、同じオリジンにして CSS のフォントも読めるようにする。
+  // body の id・class・dir は、編集欄の実物から写す。
+  function previewDocument(editor, html) {
+    const links = editor.contentCSS.map(function (url) {
+      return '<link rel="stylesheet" href="' + escapeHtml(url) + '">';
+    }).join('');
+    const style = editor.options.get('content_style');
+    const body = editor.getBody();
+    let attrs = '';
+    ['id', 'className', 'dir'].forEach(function (prop) {
+      if (body[prop]) {
+        attrs += ' ' + (prop === 'className' ? 'class' : prop) + '="' + escapeHtml(body[prop]) + '"';
+      }
+    });
+
+    return '<!DOCTYPE html><html><head><meta charset="utf-8">'
+      + '<base href="' + escapeHtml(editor.documentBaseURI.getURI()) + '">'
+      + links
+      + (style ? '<style>' + style + '</style>' : '')
+      + '</head><body' + attrs + '>' + sanitize(editor, html) + '</body></html>';
   }
 
   function previewHtml(editor, labels, template) {
@@ -47,9 +70,8 @@
 
     return description
       + '<div class="modx-template__label" style="margin:12px 0 4px;">' + escapeHtml(labels.preview) + '</div>'
-      + '<div class="modx-template__preview" style="max-height:320px;overflow:auto;border:1px solid #ccc;padding:8px;">'
-      + sanitize(editor, template.content)
-      + '</div>';
+      + '<iframe class="modx-template__preview" sandbox="allow-same-origin" title="' + escapeHtml(labels.preview) + '" srcdoc="' + escapeHtml(previewDocument(editor, template.content)) + '"'
+      + ' style="display:block;width:100%;height:320px;border:1px solid #ccc;box-sizing:border-box;"></iframe>';
   }
 
   function openDialog(editor) {

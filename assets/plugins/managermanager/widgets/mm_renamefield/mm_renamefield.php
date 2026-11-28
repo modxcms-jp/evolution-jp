@@ -23,33 +23,32 @@ function mm_renameField($field, $newlabel, $roles = '', $templates = '', $newhel
 
     $output = "// ----------- mm_renameField :: Begin ------------- \n";
 
-    $label = '"' . jsSafe($newlabel) . '"';
-    // 自分以外の兄弟の見出し
-    $siblingsTitle = 'MM.all(%s).forEach(function (el) { MM.html(Array.from(el.parentNode.children).filter(function (c) { return c !== el && c.matches("span.mutate-field-title"); }), %s); });';
-    // 最も近い祖先の td の、直前の td の見出し
-    $prevTdTitle = 'MM.all(%s).forEach(function (el) { const td = el.parentElement && el.parentElement.closest("td"); const p = td && td.previousElementSibling; if (p && p.matches("td")) { MM.html(p.querySelectorAll(":scope > span.mutate-field-title"), %s); } });';
+    $label = mmHtmlLiteral($newlabel);
+    // 行の見出し（%s は行の名前か、欄の要素を返す式）
+    $rowTitle = 'MM.html(Evo.fieldPart(%s, "title"), %s);';
 
     switch ($field) {
         // Exceptions
         case 'hidemenu':
         case 'show_in_menu':
-            $output .= sprintf($siblingsTitle, '"input[name=hidemenucheck]"', $label);
+        case 'hide_menu':
+            $output .= sprintf($rowTitle, '"hidemenu"', $label);
             break;
 
         case 'which_editor':
-            $output .= '(function (el) { const p = el && el.previousElementSibling; if (p && p.matches("span.mutate-field-title")) { p.innerHTML = ' . $label . '; } })(document.getElementById("which_editor"));';
+            $output .= 'MM.html("#which_editor_title", ' . $label . ');';
             break;
 
         case 'content':
-            $output .= 'MM.html("#content_header", ' . $label . ');';
+            mm_renameSection('content', $newlabel, $roles, $templates);
             break;
 
         case 'menuindex':
-            $output .= 'MM.all("input[name=menuindex]").forEach(function (el) { const tr = el.closest("tr.mutate-field-row"); const td = tr && tr.querySelector(":scope > td"); if (td) { MM.html(td.querySelectorAll(":scope > span.mutate-field-title"), ' . $label . '); } });';
+            $output .= sprintf($rowTitle, '"menuindex"', $label);
             break;
 
         case 'weblink':
-            $output .= sprintf($prevTdTitle, '"input#field_weblink"', $label);
+            $output .= sprintf($rowTitle, '"weblink"', $label);
             break;
 
         default:
@@ -58,12 +57,8 @@ function mm_renameField($field, $newlabel, $roles = '', $templates = '', $newhel
             }
             // fieldname の \\[\\] は CSS のエスケープなので外し、属性値を引用して組み立てる
             $output .= sprintf(
-                $prevTdTitle,
-                js_literal(sprintf(
-                    '%s[name="%s"]',
-                    $mm_fields[$field]['fieldtype'],
-                    str_replace('\\', '', $mm_fields[$field]['fieldname'])
-                )),
+                $rowTitle,
+                'document.querySelector(' . js_literal(mmFieldSelector($field)) . ')',
                 $label
             );
             break;

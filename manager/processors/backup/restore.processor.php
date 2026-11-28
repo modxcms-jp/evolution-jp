@@ -12,21 +12,42 @@ require_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
 $backup = new EvoBackupManager();
 
 $source = '';
+$failure = '';
+// 戻すダンプのファイル（アップロードの一時ファイルか、スナップショット）
 $mode = post_choicevar('mode', ['restore1', 'restore2'], '');
-if ($mode === 'restore1') {
-    if (filev('sqlfile.tmp_name')) {
-        $source = (string) file_get_contents(filev('sqlfile.tmp_name'));
+// 保存先が使えなければ、復元の前の控えを取れないので戻さない（別の場所には切り替えない）
+if (!$backup->store()->ensureDir()) {
+    $failure = $backup->store()->problem() === EvoSnapshotStore::UNWRITABLE ? 'restore_no_snapshot' : 'restore_path_unusable';
+} elseif ($mode === 'restore1') {
+    $uploadError = (int) filev('sqlfile.error', UPLOAD_ERR_NO_FILE);
+    $tmpName = (string) filev('sqlfile.tmp_name', '');
+    if ($uploadError === UPLOAD_ERR_NO_FILE) {
+        $failure = 'restore_no_file';
+    } elseif ($uploadError === UPLOAD_ERR_INI_SIZE || $uploadError === UPLOAD_ERR_FORM_SIZE) {
+        $failure = 'restore_too_large';
+    } elseif ($uploadError !== UPLOAD_ERR_OK || !is_uploaded_file($tmpName)) {
+        $failure = 'restore_upload_failed';
+    } elseif (!is_readable($tmpName) || (int) filesize($tmpName) === 0) {
+        $failure = 'restore_no_file';
+    } else {
+        $source = $tmpName;
     }
 } elseif ($mode === 'restore2') {
-    $path = $backup->path(post_strvar('filename'));
-    if ($path === false) {
-        exit('Error');
+    $path = $backup->store()->path(post_strvar('filename'));
+    if ($path === false || !is_readable($path) || (int) filesize($path) === 0) {
+        $failure = 'restore_invalid_file';
+    } else {
+        $source = $path;
     }
-    $source = (string) file_get_contents($path);
 }
 
-if ($source !== '') {
-    $result = $backup->restore($source);
+if ($failure !== '') {
+    sessionv('*restore_result', ['mode' => $mode]);
+    sessionv('*result_msg', $failure);
+}
+
+if ($failure === '' && $source !== '') {
+    $result = $backup->restoreFile($source);
     sessionv('*restore_result', [
         'mode'               => $mode,
         'ok'                 => $result['ok'],
@@ -34,8 +55,19 @@ if ($source !== '') {
         'failed_at'          => $result['failed_at'],
         'pre_restore'        => $result['pre_restore'],
         'pre_restore_failed' => $result['pre_restore_failed'],
+        'dump_prefix'        => $result['dump_prefix'],
+        'foreign_tables'     => $result['foreign_tables'],
+        'foreign_databases'  => $result['foreign_databases'],
     ]);
-    if ($result['pre_restore_failed']) {
+    if ($result['read_failed']) {
+        sessionv('*result_msg', $mode === 'restore2' ? 'restore_invalid_file' : 'restore_upload_failed');
+    } elseif ($result['refused'] === 'delimiter') {
+        sessionv('*result_msg', 'restore_has_delimiter');
+    } elseif ($result['refused'] === 'database') {
+        sessionv('*result_msg', 'restore_database_mismatch');
+    } elseif ($result['refused'] === 'prefix') {
+        sessionv('*result_msg', 'restore_prefix_mismatch');
+    } elseif ($result['pre_restore_failed']) {
         sessionv('*result_msg', 'restore_no_snapshot');
     } elseif (!$result['ok']) {
         sessionv('*result_msg', 'restore_failed');

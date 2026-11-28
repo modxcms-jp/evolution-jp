@@ -12,7 +12,7 @@
  * 5. Forms (Inputs, Selects, Textareas, Buttons)
  * 6. Layout Components (Sections, Containers)
  * 7. Navigation (Top Menu, Supplemental Nav)
- * 8. Tree Components (Site Tree, Context Menu)
+ * 8. Tree Components (Site Tree)
  * 9. Tables & Grids (Data Tables)
  * 10. Tabs System (Dynamic Tab Pane)
  * 11. Action Buttons (Fixed Position Controls)
@@ -28,6 +28,12 @@
    ============================================================================ */
 
 :root {
+    /* 本文の文字の大きさ（body が読む） */
+    --font-size-base: 12px;
+
+    /* ページの左右の余白（common/shell.css が読む。theme-spacing.md の「横の余白」） */
+    --page-padding-x: 16px;
+
     /* Gray Scale - Core neutral colors */
     --gray-50: #f9fafb;
     --gray-100: #f5f5f5;
@@ -110,6 +116,39 @@
     --color-neutral-button-active-start: #dbe3e7;
     --color-neutral-button-border: #b9c4c9;
 
+    /* フォーム部品の寸法（common/forms.css が読む） */
+    --control-padding-x: var(--space-1);
+    --control-radius: var(--radius-sm);
+    --control-border: 1px solid var(--color-input-border);
+    --control-bg: var(--color-surface);
+    --control-focus-border-color: var(--color-primary-start);
+    --control-focus-shadow: 0 0 0 2px rgba(14, 47, 71, 0.18);
+    --button-padding-x: var(--space-3);
+    --button-radius: var(--radius-md);
+    --button-font-weight: 700;
+    --button-color: var(--color-secondary-hover-text);
+    --button-bg: var(--color-surface);
+    --button-border-width: 1px;
+    --button-border-color: var(--color-input-border);
+    --button-shadow: var(--shadow-sm);
+    --button-transition: background var(--transition-fast), color var(--transition-fast),
+        box-shadow var(--transition-fast), border-color var(--transition-fast);
+    --button-hover-color: var(--color-heading);
+    --button-hover-bg: #f3f6f8;
+    --button-hover-border-color: var(--color-neutral-button-border);
+    --button-active-bg: var(--color-neutral-button-active-start);
+    --button-active-shadow: none;
+    --button-focus-ring-color: var(--color-accent);
+    /* 主ボタンは、上部ナビのネイビーに合わせた濃い青 */
+    --button-primary-color: var(--color-text-inverse);
+    --button-primary-bg: var(--color-primary);
+    --button-primary-border-color: var(--color-primary);
+    --button-primary-shadow: none;
+    --button-primary-hover-bg: var(--color-primary-hover-start);
+    --button-primary-active-bg: var(--color-primary-active-start);
+    --button-primary-hover-border-color: var(--color-primary-hover-end);
+    --button-primary-active-border-color: var(--color-primary-active-end);
+
     /* Component Colors - Draft Mode */
     --color-draft-start: #faf1d4;
     --color-draft-end: #e9e0c3;
@@ -145,46 +184,110 @@
 
     /* 送信中の見た目(assets/docs/theme-variables.md) */
     --evo-submitting-style: spinner;
-}
 
-/* ============================================================================
-   2. Base Styles - Reset & Normalize
-   Used throughout: Global reset
-   ============================================================================ */
+    /* セクション（common/sections.css が読む） */
+    --section-header-border: 1px solid var(--color-card-border);
+    --section-header-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    --section-body-border: 1px solid var(--color-card-border);
+    --section-body-padding: var(--space-4);
+    --section-fieldset-padding: 15px;
+    --section-legend-padding: 5px 15px;
+    --section-legend-shadow: var(--shadow-md);
+    --section-legend-radius: var(--radius-sm);
 
-html, body, form, fieldset {
-    margin: 0;
-    padding: 0;
-}
+    /* タブ（common/tabs.css が読む） */
+    --tab-page-padding: 15px 15px 20px;
 
-body {
-    font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
-    font-size: 75%;
-    height: 100%;
-    line-height: 1.5;
-    color: var(--color-text-primary);
-    background: var(--color-background-page);
+    /* 表・一覧（common/tables.css） */
+    --pagination-bg: var(--color-neutral-button-start);
+    --color-pagination-text: var(--color-secondary-text);
+    --color-pagination-border: var(--color-neutral-button-border);
+    --color-pagination-disabled: var(--gray-400);
+    --pagination-active-bg: linear-gradient(180deg, var(--color-primary-start), var(--color-primary-end));
+    --color-pagination-active-border: var(--color-primary-end);
+
+    /* ページの見出し（h1。common/theme-base.css） */
+    --page-title-color: var(--color-heading);
+    --page-title-radius: var(--radius-md);
+    --page-title-padding: var(--space-2);
+    --page-title-draft-bg: var(--color-draft-light);
+
+    /* 右クリックメニュー（common/context-menu.css） */
+    --context-menu-shadow: var(--shadow-lg);
+    --context-menu-title-text-shadow: 0 -1px 0 var(--color-text-dark);
+    --context-menu-item-color: var(--color-text-dark);
+
+    /* ツリー（common/tree.css） */
+    --tree-bg: #f6f8fa;
+    --tree-node-hover-bg: var(--color-accent-soft);
+    --tree-node-hover-border-color: transparent;
+    --tree-node-radius: var(--radius-sm);
+    --tree-node-selected-bg: var(--color-accent-softer);
+    --tree-node-selected-border-color: rgba(29, 111, 165, 0.35);
+    --tree-node-selected-color: var(--color-heading);
+    --tree-published-color: var(--color-text-dark);
+    --tree-not-in-menu-color: var(--gray-700);
+    --tree-floater-border-color: var(--gray-400);
+    --tree-pane-border: 1px solid var(--color-card-border);
+
+    /* タブ（common/tabs.css） */
+    --tab-page-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    --tab-page-border-top: none;
+    --tab-page-border: 1px solid var(--color-card-border);
+    --tab-row-border: 1px solid var(--color-card-border);
+    --tab-top: 0;
+    --tab-margin: 0 4px -1px 0;
+    --tab-border-width: 0 0 2px;
+    --tab-border-color: transparent;
+    --tab-radius: var(--radius-md) var(--radius-md) 0 0;
+    --tab-bg: transparent;
+    --tab-color: var(--color-text-muted);
+    --tab-hover-border-color: #c5d3de;
+    --tab-hover-bg: var(--color-accent-soft);
+    --tab-selected-border-color: var(--color-accent);
+    --tab-selected-bg: transparent;
+    --tab-selected-color: var(--color-primary-start);
+    --tab-selected-font-weight: 600;
+    --tab-selected-hover-bg: var(--color-accent-soft);
+    --tab-alert-color: #c00;
+    --tab-page-top: 0;
+    --tab-page-shadow: var(--shadow-card);
+
+    /* 操作ボタンの帯（common/selection-dock.css・action-buttons.css） */
+    --actions-bg: rgba(255, 255, 255, 0.94);
+    --actions-border: 1px solid var(--color-card-border);
+    --actions-shadow: var(--shadow-card);
+    --actions-radius: var(--radius-lg);
+
+    /* 編集画面のフォーム（common/forms.css） */
+    --datepicker-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%23999" stroke-width="1"/><line x1="5" y1="1" x2="5" y2="5" stroke="%23999" stroke-width="1"/><line x1="11" y1="1" x2="11" y2="5" stroke="%23999" stroke-width="1"/></svg>');
+    --datepicker-icon-focus: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%230066cc" stroke-width="1.5"/><line x1="5" y1="1" x2="5" y2="5" stroke="%230066cc" stroke-width="1.5"/><line x1="11" y1="1" x2="11" y2="5" stroke="%230066cc" stroke-width="1.5"/></svg>');
+
+    /* セクション（common/sections.css） */
+    --section-header-shadow: none;
+    --section-body-radius: var(--radius-lg);
+    --section-box-bg: var(--color-surface);
+    --section-joined-body-border-top: none;
+    --section-joined-body-radius: 0 0 var(--radius-lg) var(--radius-lg);
+
+    /* 素の要素（common/theme-base.css） */
+    --list-marker-image: none;
+    --hr-color: var(--gray-700);
+    --thead-color: var(--gray-900);
+    --thead-bg: var(--gray-200);
+
+    /* 表・状態表示・メッセージなど（common/theme-base.css・tables.css） */
+    --statusbar-text-color: var(--color-surface);
+    --preloader-radius: var(--radius-xl);
+    --split-display: none;
+
+    /* ツリーの上のボタン（common/tree.css） */
+    --tree-button-radius: var(--radius-sm);
+    --tree-button-hover-border-color: var(--color-card-border);
 }
 
 body#mainpane {
     padding: var(--space-2);
-}
-
-img, a img {
-    border: 0 !important;
-    text-decoration: none;
-    padding: 0;
-    margin: 0;
-}
-
-h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address {
-    margin: 0 0 .5em;
-    padding: 0;
-    font-weight: normal;
-}
-
-li, dd, blockquote {
-    margin: 0 0 0 1em;
 }
 
 /* ============================================================================
@@ -193,390 +296,13 @@ li, dd, blockquote {
    ============================================================================ */
 
 /* -------------------------[ Miscellaneous conveniences ]--- */
-.clear {
-    clear: both;
-}
 
-.fail {
-    color: var(--color-error);
-    font-weight: bold;
-}
-
-.warning {
-    color: var(--color-warning);
-    font-weight: bold;
-}
-
-.mutate-field-row {
-    height: 24px;
-}
-
-.mutate-field-label {
-    width: 120px;
-    text-align: left;
-}
-
-.mutate-field-title {
-    color: var(--color-warning, #444);
-    font-weight: bold;
-}
-
-.clickable-label {
-    cursor: pointer;
-}
-
-.menuindex-table {
-    width: 333px;
-}
-
-.menuindex-label {
-    white-space: nowrap;
-}
-
-.menuindex-options {
-    text-align: right;
-}
-
-.mutate-tv-table {
-    position: relative;
-    width: 96%;
-}
-
-.mutate-tv-row {
-    height: 24px;
-}
-
-.mutate-tv-label {
-    width: 200px;
-    vertical-align: top;
-    white-space: nowrap;
-}
-
-.mutate-tv-value {
-    position: relative;
-    vertical-align: top;
-}
-
-.success {
-    color: var(--color-success);
-    font-weight: bold;
-}
-
-.hide, .skip, .printonly {
-    display: none;
-}
-
-.inline {
-    display: inline;
-}
-
-/* ============================================================================
-   4. Typography - Headings & Paragraphs
-   Used in: Page titles, section headers, content areas
-   ============================================================================ */
-
-h1, h2, h3, h4, h5, h6, .subTitle {
-    font-weight: normal;
-}
-
-/* ページタイトル。灰色の帯はやめ、本文より一段大きい濃紺の見出しにする */
-h1 {
-    font-size: 1.35em;
-    color: var(--color-heading);
-    font-weight: bold;
-    background-color: transparent;
-    letter-spacing: 0.02em;
-    line-height: 1.2;
-    padding: var(--space-2) var(--space-1);
-    border-radius: var(--radius-md);
-    margin: 0 var(--space-2) var(--space-3);
-}
-
-/* 下書きは帯の色で見分けるため、背景を残す */
-h1.draft {
-    background-color: var(--color-draft-light);
-    padding-inline: var(--space-3);
-}
-
-h2 {
-    font-size: 1.64em;
-}
-
-h4,
-h5 {
-    font-size: 1em;
-    font-weight: bold;
-}
-
-h6 {
-    font-size: 0.9em;
-    font-weight: bold;
-}
-
-p.caption, p.comment {
-    font-size: 0.9em;
-    color: var(--gray-600);
-}
-
-button {
-    width: 112px;
-    font: inherit;
-    margin: 0 5px 0 0;
-    cursor: pointer;
-}
-
-a, a:active, a:visited, a:link {
-    color: var(--color-link);
-    text-decoration: underline;
-}
-
-a:hover {
-    color: var(--color-link-hover);
-}
-
-hr {
-    color: var(--gray-700);
-    background-color: var(--gray-700);
-    height: 1px;
-    border: 0;
-}
-
-.split {
-  display:none;
-}
-
-.right {
-    font-weight: bold;
-    color: var(--color-text-primary);
-    float: left;
-    padding: 0 var(--space-5) var(--space-5);
-}
-
-/* ============================================================================
-   5. Top Bar & Status Bar
-   Used in: Main navigation, status indicators
-   ============================================================================ */
-
-/* -------------------------[ Topbar ]--- */
-#topbar {
-    margin: 0;
-    color: var(--color-text-primary);
-    padding: 0 5px;
-    position: relative;
-}
-
-#topbar * {
-    vertical-align: middle;
-}
-
-#topbar a,
-#topbar a:link,
-#topbar a:visited {
-    font-weight: bold;
-    color: #AAB1B9;
-    text-decoration: none;
-}
-
-#topbar a:hover {
-    color: var(--color-surface);
-}
-
-#tocText {
-    position: absolute;
-    top: 37px;
-    z-index: 1000;
-}
-
-.tocTextRTL {
-    right: 3px;
-}
-
-#tocText,
-#buildText,
-#workText {
-    font-weight: bold;
-    line-height: 16px;
-    margin: 0 15px;
-    color: var(--color-surface);
-}
-
-#tocText,
-#buildText img,
-#workText img {
-    margin: 0 5px;
-}
-
-#statusbar {
-    position: absolute;
-    right: 0;
-    top: 36px;
-    z-index: 1000;
-}
-
+/* 右上のユーザー情報は、すりガラスにする */
 #supplementalNav {
-    align-items: center;
-    background: linear-gradient(180deg, rgba(15, 23, 24, .7), rgba(16, 35, 37, .7));
-    border-radius: var(--radius-full);
-    box-sizing: border-box;
-    color: var(--topnav-link-color);
-    column-gap: var(--topnav-gap);
-    display: flex;
-    font-weight: 500;
-    height: var(--topnav-item-height);
-    line-height: var(--topnav-item-height);
-    margin: 3px 0 0 0;
-    padding: 0 18px;
-    position: absolute;
-    right: var(--subnav-horizontal-padding);
-    top: 6px;
-    z-index: 111;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
 }
 
-#supplementalNav a {
-    color: inherit;
-    font-weight: inherit;
-    margin: 0;
-    padding: 0;
-    text-decoration: none;
-    transition: color var(--transition-fast);
-}
-
-#supplementalNav a:hover,
-#supplementalNav a:focus-visible {
-    color: var(--topnav-link-hover-color);
-}
-
-#supplementalNav .supplementalNav__item {
-    align-items: center;
-    display: flex;
-    gap: 8px;
-    white-space: nowrap;
-}
-
-#supplementalNav .supplementalNav__item + .supplementalNav__item {
-    padding-left: var(--topnav-gap);
-}
-
-#supplementalNav .supplementalNav__version-label {
-    font-weight: 600;
-    letter-spacing: .02em;
-}
-
-/* ============================================================================
-   6. Forms - Inputs, Selects, Textareas, Buttons
-   Used in: All form elements throughout the application
-   ============================================================================ */
-
-tbody, thead, tr {
-    margin: 0;
-    padding: 0;
-    border: 0;
-}
-
-form label {
-    cursor: pointer;
-}
-
-fieldset {
-    border: none;
-}
-
-input, select, textarea, option, optgroup, td {
-    font: inherit;
-    color: inherit;
-}
-
-textarea[readonly],
-textarea[readonly]:focus,
-input[type='text'][readonly],
-input[type='text'][readonly]:focus,
-.readonly {
-    background-color: #eee !important;
-    text-shadow: 1px 1px var(--color-surface) !important;
-    cursor: not-allowed;
-}
-
-optgroup {
-    font-style: normal;
-    font-weight: bold;
-    background-color: var(--gray-300);
-}
-
-optgroup option {
-    font-weight: normal;
-    background-color: var(--color-surface);
-}
-
-#ta, .tmplvars textarea {
-    font-family: Consolas, 'Courier New', 'Courier', monospace;
-}
-
-form select {
-    background: var(--color-surface);
-    border-color: var(--color-input-border);
-    border-style: solid;
-    border-width: 1px;
-    padding: var(--space-1);
-    margin: 0;
-    min-height: 17px;
-    vertical-align: baseline;
-    border-radius: var(--radius-sm);
-}
-
-form input[type=text] {
-    line-height: 1;
-}
-
-form input[type=text],
-form input[type=password],
-form textarea {
-    background: var(--color-surface);
-    border-color: var(--color-input-border);
-    border-style: solid;
-    border-width: 1px;
-    padding: var(--space-1) 2px var(--space-1) var(--space-1);
-    margin: 0 2px 0 0;
-    min-height: 17px;
-    vertical-align: baseline;
-    border-radius: var(--radius-sm);
-    box-shadow: none;
-}
-
-.sectionBody input.inputBox[type=text],
-.sectionBody input.inputBox[type=password],
-.sectionBody select.inputBox {
-    width: 350px;
-}
-
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="search"]:focus,
-input[type="text"]:focus,
-input[type="url"]:focus,
-textarea:focus,
-form select:focus {
-    outline: none;
-    background: var(--color-surface);
-    border: 1px solid var(--color-primary-start);
-    box-shadow: 0 0 0 2px rgba(14, 47, 71, 0.18);
-}
-
-input:is([type="button"], [type="submit"]) {
-    border: 1px solid var(--color-neutral-button-border);
-    cursor: pointer;
-    line-height: normal;
-    margin: -1px 0 0 5px;
-    min-height: 27px;
-    padding: var(--space-1) 10px;
-    overflow: visible;
-    background-color: var(--color-neutral-button-start);
-    color: var(--color-text-primary);
-    border-radius: var(--radius-sm);
-    box-shadow: none;
-    text-shadow: none;
-}
-
-input.submit,
 input.button,
 input[type="submit"],
 input[type="button"] {
@@ -640,557 +366,24 @@ input[type="checkbox"]:disabled::after {
     box-shadow: none;
 }
 
-input:is([type="button"], [type="submit"]):hover {
-    border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-hover-end);
-}
-
-input:is([type="button"], [type="submit"]):active {
-    border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-active-start);
-}
-
-select {
-    border: 0;
-    background: #fcfcfc;
-    cursor: pointer;
-}
-
-.form {
-    padding: 15px;
-    border: solid 1px var(--gray-300);
-}
-
-form input.hidden {
-    display: none !important;
-    position: absolute;
-}
-
-.form label,
-.form input,
-.form textarea {
-    display: block;
-    float: left;
-    vertical-align: middle;
-}
-
-.form label {
-    padding-right: var(--space-5);
-    text-align: right;
-    width: 110px;
-}
-
-form textarea {
-    height: 78px;
-    width: 350px;
-    line-height: 1.5;
-    overflow: auto;
-}
-
-.form legend {
-    color: #04C;
-    font-weight: bold;
-    padding: 5px;
-}
-
-.form select {
-    display: inline;
-    float: left;
-}
-
-.form br {
-    clear: both;
-}
-
-input.submit {
-    display: block !important;
-    float: none !important;
-    margin: var(--space-5) 0 0 140px !important;
-}
-
-.form fieldset.list {
-    margin: 6px 6px 3px 0;
-}
-
-.form fieldset.list legend {
-    display: none;
-}
-
-.form fieldset.list label,
-.form fieldset.list input {
-    padding: 0;
-    margin: 0 0 3px;
-    float: left;
-    display: inline;
-    border: 0;
-    background: none;
-    width: auto;
-    height: auto;
-}
-
-.form fieldset.list label {
-    padding-left: 5px;
-    text-align: left;
-    width: auto;
-}
-
-form .imeoff {
-    ime-mode: disabled;
-}
-
 /* ============================================================================
    7. Layout Components - Sections, Headers, Bodies
    Used in: Content areas, settings pages, form sections
    ============================================================================ */
 
-.sectionBody fieldset {
-    padding: 15px;
-}
-
-.sectionBody legend {
-    font-weight: bold;
-    padding: 5px 15px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border-default);
-    box-shadow: var(--shadow-md);
-    border-radius: var(--radius-sm);
-}
-
-.sectionBody h3 {
-    font-size: 1.1em;
-    font-weight: bold;
-    padding-bottom: 0;
-    margin-bottom: var(--space-3);
-}
-
-/* セクション見出し。濃い灰色の帯をやめ、ごく薄い地色と下線だけで本文と区切る */
-.sectionHeader {
-    color: var(--color-section-header-text);
-    margin: 0 var(--space-2);
-    padding: var(--space-3) var(--space-4);
-    font-weight: bold;
-    border: 1px solid var(--color-card-border);
-    background-color: var(--color-section-header-end);
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-}
-
-.tab-page .sectionHeader {
-    margin: 0 3px;
-}
-
-.sectionBody {
-    position: relative;
-    margin: 0 var(--space-2) var(--space-3);
-    display: block;
-}
-
-/* 白いカード。枠はごく薄くし、角は控えめに丸める */
-.tab-page .sectionBody,
-.section .sectionBody {
-    background: var(--color-section-bg);
-    border: 1px solid var(--color-card-border);
-    border-radius: var(--radius-lg);
-    margin: 0 3px var(--space-3);
-    padding: var(--space-4);
-}
-
-/* 見出しの直後は見出しと一枚のカードにつなげる */
-.sectionHeader + .sectionBody {
-    border-top: none;
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-}
-
-/* .section どうしの間は .section 自身が持つ（本体の margin-bottom は 0） */
-.section {
-    margin-bottom: var(--space-3);
-}
-
-.section .sectionBody {
-    margin: 0 var(--space-2);
-    background-color: var(--color-surface);
-}
-
-.comment {
-    color: var(--gray-500);
-}
-
-thead {
-    color: var(--gray-900);
-    height: 18px !important;
-    background-color: var(--gray-200);
-}
-
-thead td {
-    color: var(--gray-900);
-    border-top: 1px solid var(--color-surface);
-}
-
-li {
-    padding: 0;
-    margin: 0;
-    list-style: disc;
-}
-
 li::marker {
     color: var(--gray-500);
 }
 
-ul {
-    margin: 0 var(--space-5) 0 var(--space-5);
-}
-
-.screen {
-    border: 1px solid var(--gray-300);
-    text-align: center;
-}
-
-a img {
-    border: 0;
-}
-
-.disabledImage {
-    width: 20px;
-    opacity: 0.3;
-}
-
-.disabledImage img {
-    border: 0;
-}
-
-.editorCell {
-    border-top: 1px solid #808080;
-    text-align: left;
-    vertical-align: baseline;
-}
-
-.row1, .row2, .row3 {
-    color: var(--color-text-primary);
-}
-
-.row1 {
-    background-color: var(--color-surface);
-}
-
-.row2 {
-    background-color: #C8DAA2;
-}
-
-.row3 {
-    background-color: var(--gray-100);
-}
-
 /* ============================================================================
-   8. Tree Components - Site Tree, Context Menu
+   8. Tree Components - Site Tree
    Used in: Site tree, document tree navigation
    ============================================================================ */
-
-/* ツリーは清潔感のある明るいグレー。内側の影はやめ、メインとの境目は 1px の線だけにする */
-div.treeframebody {
-    background: #f6f8fa !important;
-    background-image: none !important;
-    padding: var(--space-2);
-}
-
-/* shell.css の 3px の白い境目を、カードと同じ薄い線にする
-   (shell.css より後に効かせるため html を足して詳細度を上げる) */
-html body.evo-shell > #treePane {
-    border-inline-end: 1px solid var(--color-card-border);
-}
-
-#treeMenu * {
-    vertical-align: middle;
-}
-
-#treeHolder {
-    cursor: default;
-    height: 100%;
-    padding: 6px 8px 0;
-    line-height: 1.3em;
-    font-family: Arial, "Helvetica Neue", Helvetica, Meiryo, "Hiragino Kaku Gothic Pro", sans-serif;
-}
-
-#treeHolder {
-    padding-left: 12px;
-}
-
-#treeRoot {
-    margin-left: -10px;
-}
-
-#treeRoot div img {
-    margin: 0 0 0 -6px;
-    vertical-align: middle;
-}
-
-#floater {
-    display: none;
-    position: absolute;
-    width: 200px;
-    padding: 5px;
-    top: 25px;
-    left: 4px;
-    background: var(--color-surface);
-    border: 1px solid var(--gray-400);
-    z-index: 500;
-}
-
-.rootNode, .treeNode, .treeNodeHover, .treeNodeSelected, .emptyNode {
-    color: #000;
-    cursor: pointer;
-    width: auto;
-    margin-right: 0;
-}
-
-div.treeNode {
-    white-space: nowrap;
-}
-
-/* ホバーは淡い青の地色だけ、選択中は地色と枠で示す。行の寸法は変えない */
-.treeNodeSelected,
-.treeNodeHover {
-    background-color: var(--color-accent-soft);
-    border: 1px solid transparent;
-    border-radius: var(--radius-sm);
-    color: #000;
-    padding: 1px 2px;
-    margin-left: -3px;
-}
-
-.treeNodeSelected {
-    background-color: var(--color-accent-softer);
-    border-color: rgba(29, 111, 165, 0.35);
-    color: var(--color-heading);
-}
-
-.unpublished a, .unpublishedNode {
-    color: #B68282;
-}
-
-.deletedNode {
-    color: #A52A2A;
-    text-decoration: line-through;
-}
-
-.publishedNode {
-    color: var(--color-text-dark);
-}
-
-.emptyNode {
-    color: #aaa;
-    cursor: default;
-}
-
-.notInMenuNode {
-    color: var(--gray-700);
-    text-decoration: none;
-}
-
-.protectedNode {
-    color: #77d;
-}
-
-#treeSplitter {
-    width: 10px;
-    height: 100%;
-    position: absolute;
-    right: -10px;
-}
-
-.disabledPlugin a {
-    color: #aaa;
-    text-decoration: line-through;
-}
 
 /* ============================================================================
    9. Tables & Grids - Data Tables
    Used in: User lists, resource grids, data tables
    ============================================================================ */
-
-.grid {
-    width: 100%;
-    background-color: var(--color-surface);
-    border: 1px solid silver;
-    border-collapse: collapse;
-}
-
-.grid th, .grid td {
-    padding: var(--space-2);
-}
-
-.gridHeader, .grid th {
-    color: var(--gray-900);
-    font-weight: bold;
-    white-space: nowrap;
-    background-color: #d2d2d2;
-    text-align: left;
-}
-
-/* 並べ替えの印（今並べている列の見出しのリンクの後ろ。読み上げは aria-sort が受け持つ） */
-.grid th[aria-sort] a::after {
-    margin-left: var(--space-1);
-    font-size: 0.7em;
-    color: var(--color-primary);
-}
-
-.grid th[aria-sort="ascending"] a::after {
-    content: "\25B2";
-    content: "\25B2" / "";
-}
-
-.grid th[aria-sort="descending"] a::after {
-    content: "\25BC";
-    content: "\25BC" / "";
-}
-
-.gridItem {
-    background-color: var(--color-surface);
-    padding: 3px;
-}
-
-.gridAltItem {
-    background-color: #eeeeee;
-    padding: 3px;
-}
-
-.grid .is-shrink {
-    width: 1%;
-    white-space: nowrap;
-}
-
-.grid .is-center {
-    text-align: center;
-}
-
-.gridRowIcon:hover {
-    background-color: #f5f5dc;
-}
-
-.grid a {
-    text-decoration: none;
-}
-
-.grid img {
-    vertical-align: middle;
-    padding-right: 4px;
-}
-
-/* Resource description in grid */
-.resource-description {
-    color: #777;
-}
-
-/* Disabled label */
-.label-disabled {
-    color: #ccc;
-}
-
-/* Private access indicator */
-.access-private {
-    color: #821517;
-}
-
-/* Database table name */
-.table-name {
-    color: #009933;
-}
-
-/* Database overhead warning */
-.overhead-warning {
-    color: #990033;
-}
-
-/* -------------------------[ search bar ]--- */
-.searchbar {
-    width: 100%;
-    border: 1px solid silver;
-    background-color: #DBDBDB;
-}
-
-.searchtext {
-    height: 18px;
-    padding: 2px;
-}
-
-/* -------------------------[ home page main links ]--- */
-a.hometblink, a.hometblink:active, a.hometblink:visited, a.hometblink:link, .hometblink {
-    text-decoration: underline;
-    color: var(--gray-900);
-    font-weight: bold;
-}
-
-a.hometblink:hover {
-    text-decoration: underline;
-    color: Gray;
-}
-
-#preLoader {
-    position: absolute;
-    z-index: 50000;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    vertical-align: middle;
-    background-color: rgba(255, 255, 255, .3);
-}
-
-.preLoaderText {
-    background-color: var(--color-surface);
-    border-radius: var(--radius-xl);
-    opacity: .7;
-    width: 300px;
-    height: 150px;
-    margin: 70px auto;
-    padding: 50px;
-    border: 1px solid var(--gray-500);
-}
-
-/* -------------------------[ contextmenu in editing modules ]--- */
-.contextMenu {
-    background: var(--color-surface);
-    margin: 0;
-    padding: 0;
-    border: 1px solid #039;
-    border-color: #eaeaea #909090 #707070 #eaeaea;
-    position: absolute;
-    z-index: 10000;
-}
-
-.cntxMnuItem {
-    background-image: none;
-    cursor: pointer;
-    color: var(--color-text-primary);
-    padding: 3px 16px 3px 2px;
-}
-
-.cntxMnuItemDisabled {
-    cursor: default;
-    padding: 3px 16px 3px 2px;
-    color: var(--color-text-darker);
-}
-
-.cntxMnuItemOver {
-    cursor: pointer;
-    color: var(--color-text-primary);
-    background: #e3e3e3;
-    padding: 2px 15px 2px 1px;
-    border: 1px solid #c0c0c0;
-}
-
-.cntxMnuItem img, .cntxMnuItemOver img, .cntxMnuItemDisabled img {
-    margin: 0 var(--space-2) 0 0;
-}
-
-.cntxMnuItem img, .cntxMnuItemDisabled img {
-    opacity: .3;
-}
-
-.cntxMnuSeparator {
-    font-size: 0;
-    height: 1px;
-    background-color: silver;
-    overflow: hidden;
-    margin: 3px 1px 3px 28px;
-}
 
 /* ============================================================================
    10. Navigation - Top Menu, Supplemental Nav
@@ -1201,875 +394,12 @@ a.hometblink:hover {
 #topMenu {
     --topnav-item-height: 32px;
     --topnav-gap: 4px;
-    --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
-    --topnav-padding-top: 14px;
-    --topnav-background: #062a36;
-    --topnav-border: #10475a;
+    --topnav-border: rgba(59, 130, 246, 0.2);
     --topnav-link-color: #e1f1f4;
     --topnav-link-hover-color: #ffffff;
-    --topnav-link-hover-bg: #195a70;
-    --topnav-link-active-bg: #1b2e37;
-    background-color: var(--topnav-background);
     border-bottom: 1px solid var(--topnav-border);
-}
-#topMenu {
-    background-color: #23393C;
-    background-image: url("images/misc/headers.jpg");
-}
-#Navcontainer {
-    color: #e4f1f3;
-    padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
-    position: relative;
-    text-shadow: none;
-}
-
-#nav {
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-start;
-    column-gap: var(--topnav-gap);
-    row-gap: var(--space-2);
-    flex-wrap: wrap;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-#nav > li {
-    list-style: none;
-}
-
-#nav > li > a {
-    border: 1px solid transparent;
-    border-radius: 6px 6px 0 0;
-    color: var(--topnav-link-color);
-    display: block;
-    line-height: var(--topnav-item-height);
-    padding: 0 var(--space-5);
-    text-decoration: none;
-    white-space: nowrap;
-    background: transparent;
-    transition: color var(--transition-normal), background-color var(--transition-normal), border-color var(--transition-normal);
-}
-
-#nav > li > a:hover,
-#nav > li > a:active,
-#nav > li > a:focus-visible {
-    color: var(--topnav-link-hover-color);
-    background: var(--topnav-link-hover-bg);
-    border-color: var(--topnav-border);
-}
-
-#nav > li.active > a {
-    background: var(--topnav-link-active-bg);
-    border-color: var(--topnav-link-active-bg);
-    border-top: 1px solid var(--topnav-border);
-    border-bottom: none;
-    color: var(--topnav-link-hover-color);
-    position: relative;
-    text-shadow: none;
-    z-index: 2;
-}
-
-#nav > li > ul.subnav {
-    display: none;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: calc(var(--topnav-item-height) + 15px);
-    margin: 0;
-    list-style: none;
-    padding: 3px var(--subnav-horizontal-padding);
-    min-height: var(--subnav-height);
-    align-items: center;
-    flex-wrap: wrap;
-    column-gap: var(--topnav-gap);
-    row-gap: 6px;
-    border-top: 1px solid var(--topnav-border);
-    border-bottom: 1px solid var(--topnav-border);
-    background: var(--topnav-link-active-bg);
-    z-index: 1;
-    box-shadow: none;
-}
-
-#nav > li.active > ul.subnav {
-    display: flex;
-}
-
-#nav > li > ul.subnav > li {
-    margin: 0;
-    list-style: none;
-}
-
-#nav > li > ul.subnav a {
-    color: #f1fbfc;
-    cursor: pointer;
-    display: block;
-    font-weight: normal;
-    line-height: var(--subnav-height);
-    padding: 0 18px;
-    text-decoration: none;
-    border-radius: var(--radius-lg);
-    transition: background-color var(--transition-normal), color var(--transition-normal);
-}
-
-#nav > li > ul.subnav a:hover,
-#nav > li > ul.subnav a:focus-visible {
-    background: #184753;
-    color: #ffffff;
-    text-shadow: none;
-}
-
-#nav > li > ul.subnav a:active {
-    color: #d9edf1;
-}
-
-/* -------------------------[ Contextual Menu used in the Tree Menu ]--- */
-#mx_contextmenu {
-    position: absolute;
-    height: auto;
-    visibility: hidden;
-    z-index: 10000;
-    width: 165px;
-    background-color: var(--color-surface);
-    margin: 0;
-    padding-bottom: 10px;
-    border: 1px solid var(--color-border-light);
-    border-right-color: #dcdcdc;
-    border-bottom-color: #dcdcdc;
-    overflow: hidden;
-    line-height: 11px;
-    box-shadow: var(--shadow-lg);
-}
-
-#mx_contextmenu .menuLink {
-    cursor: pointer;
-    color: var(--color-text-dark);
-    padding: 3px 5px 3px 4px;
-}
-
-#mx_contextmenu .menuLink:hover {
-    background: #DDE4EB;
-    border: 1px solid #fdfdfd;
-    border-bottom-color: #dcdcdc;
-    color: var(--color-text-primary);
-}
-
-#mx_contextmenu .menuLink:hover,
-#mx_contextmenu .menuLinkDisabled {
-    cursor: pointer;
-    padding: 2px 4px 2px 3px;
-}
-
-#mx_contextmenu .menuLinkDisabled {
-    cursor: default;
-    color: #787878;
-}
-
-#mx_contextmenu .menuLink img,
-#mx_contextmenu .menuLink:hover img,
-#mx_contextmenu .menuLinkDisabled img {
-    margin-right: 5px;
-}
-
-#mx_contextmenu .menuLink img,
-#mx_contextmenu .menuLinkDisabled img {
-    opacity: .3;
-}
-
-#mx_contextmenu .menuLink:hover img {
-    opacity: 1;
-}
-
-#mx_contextmenu #nameHolder {
-    color: var(--color-surface);
-    text-align: left;
-    cursor: default;
-    font-weight: bold;
-    padding: 6px 4px;
-    margin-bottom: 3px;
-    text-shadow: 0px -1px 0px var(--color-text-dark);
-    background-image: linear-gradient(var(--color-primary-start), var(--color-primary-end));
-}
-
-#mx_contextmenu .seperator {
-    font-size: 0;
-    height: 1px;
-    background-color: silver;
-    overflow: hidden;
-    margin: 3px 1px 3px 28px;
-}
-
-
-/* -------------------------[ Settings Table ]--- */
-.settings {
-    width: 600px;
-}
-
-.settings tr {
-    width: 100% !important;
-}
-
-.settings th {
-    width: 200px !important;
-    text-align: left;
-    color: #555;
-    font-size: 1.2em;
-}
-
-.filelist td {
-    border-bottom: 1px solid #C2C3CF;
-}
-
-/* ============================================================================
-   11. Tabs System - Dynamic Tab Pane Control
-   Used in: Document editor, settings pages, multi-tab interfaces
-   ============================================================================ */
-
-.dynamic-tab-pane-control.tab-pane {
-    position: relative;
-    width: 100%;
-    margin-bottom: var(--space-3);
-}
-
-/* タブ。箱と枠をやめたフラットな見出しにし、選択中は青い下線で示す。
-   タブ列の下線(.tab-row の border-bottom)に、選択中の下線を 1px 重ねる */
-.dynamic-tab-pane-control .tab-row .tab {
-    color: var(--color-text-muted);
-    font-size: 1em;
-    cursor: pointer;
-    display: inline;
-    margin: 0 var(--space-1) -1px 0;
-    padding: 10px var(--space-3) 9px;
-    z-index: 1;
-    position: relative;
-    top: 0;
-    border: none;
-    border-bottom: 2px solid transparent;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    background-color: transparent;
-    transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
-}
-
-.dynamic-tab-pane-control .tab-row .tab:hover {
-    text-decoration: none;
-    color: var(--color-heading);
-    border-bottom-color: #c5d3de;
-    background-color: var(--color-accent-soft);
-    background-image: none;
-}
-
-.dynamic-tab-pane-control .tab-row .tab:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: -2px;
-}
-
-/* 選択中は青い下線に加え、文字を少し太い濃紺にする */
-.dynamic-tab-pane-control .tab-row .tab.selected {
-    color: var(--color-primary-start);
-    font-weight: 600;
-    z-index: 999;
-    top: 0;
-    border-bottom-color: var(--color-accent);
-    background-color: transparent;
-    background-image: none;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected span {
-    color: inherit;
-    background-color: transparent;
-    text-shadow: none;
-}
-
-.dynamic-tab-pane-control .tab-row .tab span {
-    color: inherit;
-    text-decoration: none;
-}
-
-.dynamic-tab-pane-control .tab-row .tab:hover span {
-    color: var(--color-secondary-hover-text);
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected:hover {
-    color: var(--color-primary-start);
-    border-bottom-color: var(--color-accent);
-    background-color: var(--color-accent-soft);
-    background-image: none;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected:hover span {
-    color: inherit;
-}
-
-.dynamic-tab-pane-control .tab-row .tab .alert {
-    color: #c00;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected .alert {
-    color: #c00;
-}
-
-/* タブの中身。タブ列の下線を上辺とする白いカードにし、ごく薄い影で背景から浮かせる */
-.dynamic-tab-pane-control .tab-page {
-    clear: both;
-    background: var(--color-surface);
-    z-index: 2;
-    position: relative;
-    top: 0;
-    border-top: none;
-    box-shadow: var(--shadow-card);
-    padding: var(--space-5) var(--space-5) var(--space-4) !important;
-}
-
-.dynamic-tab-pane-control .tab-row {
-    z-index: 1;
-    white-space: nowrap;
-    /* タブを折り返して並べ、下線をタブの下に引く */
-    display: flex;
-    flex-wrap: wrap;
-    border-bottom: 1px solid var(--color-card-border);
-}
-
-.dynamic-tab-pane-control ul {
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-bottom: 5px;
-}
-
-.dynamic-tab-pane-control li {
-    padding-left: 5px;
-    padding-right: 5px;
-}
-
-/* -------------------------[ Tree buttons ]--- */
-.treeButton {
-    display: block;
-    cursor: pointer;
-    color: var(--color-text-primary);
-    border: 1px;
-    border-bottom-color: #809c47;
-    padding: 3px 5px;
-    white-space: nowrap;
-    vertical-align: middle;
-}
-
-.treeButton:hover {
-    border: 1px solid var(--color-card-border);
-    border-radius: var(--radius-sm);
-    padding: 2px var(--space-1);
-    background: var(--color-surface);
-}
-
-.treeButtonDisabled {
-    cursor: default;
-    border: 1px solid #657587;
-    padding: 2px var(--space-1);
-    color: var(--gray-700);
-    border-width: 0;
-    opacity: .5;
-}
-
-/* -------------------------[ Welcome Page ]--- */
-a.hometblink, a.hometblink img {
-    border: 0 !important;
-    text-decoration: none !important;
-}
-
-.wm_button {
-    float: left;
-    margin: 0 var(--space-3) 2px 0;
-    text-align: center;
-}
-
-/* -------------------------[ Welcome Page ]--- */
-#mainActionPages {
-    background: var(--gray-100);
-    background-image: linear-gradient(180deg,
-        rgba(255, 255, 255, 0.8) 0%,
-        rgba(245, 245, 245, 0.95) 100%);
-}
-
-.tab-page {
-    border: 1px solid var(--color-card-border);
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-}
-
-.sectionBody .tab-page {
-    padding: 15px 15px 20px !important;
-}
-
-/* -------------------------[ Pagination table ]--- */
-#max-display-records {
-    margin: 10px 0;
-}
-
-.pagination {
-    margin-top: 0;
-    margin-bottom: var(--space-3);
-}
-
-.pagination ul {
-    margin: 0;
-    display: inline;
-}
-
-.pagination li {
-    list-style: none;
-    display: inline;
-    width: 15px;
-    margin: 0 0 0 1px;
-    padding: 0;
-}
-
-.pagination li a,
-.pagination li span {
-    padding: 3px var(--space-2);
-    border: 1px solid var(--color-neutral-button-border);
-    background: var(--color-neutral-button-start);
-    text-decoration: none;
-    color: var(--color-secondary-text);
-    border-radius: var(--radius-sm);
-}
-
-.pagination li span {
-    color: var(--gray-400);
-    cursor: default;
-}
-
-.pagination a[aria-current="page"], .pagination li a:hover {
-    color: var(--color-surface);
-    background: linear-gradient(180deg, var(--color-primary-start), var(--color-primary-end));
-    border: 1px solid var(--color-primary-end);
-}
-
-fieldset.tab-page {
-    border: 1px solid var(--gray-200) !important;
-}
-
-h2#edit_document_title {
-    font-size: 15px;
-    color: var(--gray-100);
-    width: 100%;
-    border-bottom: none;
-    padding: 5px 10px;
-}
-
-/* ============================================================================
-   12. Action Buttons - Fixed Position Controls
-   Used in: Document editor, form pages, action toolbars
-   From: https://github.com/manse/ScienceStyle
-   ============================================================================ */
-
-/* 操作ボタンの浮遊バー。灰色の帯をやめ、カードと同じ白地と薄い枠・影にする */
-#actions {
-    margin: 0;
-    padding: var(--space-2) var(--space-4) !important;
-    position: fixed;
-    right: var(--space-4);
-    text-align: right;
-    top: var(--space-2);
-    z-index: 100;
-}
-
-/* 操作の帯（data-table.js・ファイルブラウザの選択の帯。`.selection-dock`）も、右上のボタン群と同じ地色・枠・影・角にする（値は 1 か所） */
-#actions,
-.selection-dock:not(.is-empty) {
-    background: rgba(255, 255, 255, 0.94);
-    border: 1px solid var(--color-card-border);
-    box-shadow: var(--shadow-card);
-    border-radius: var(--radius-lg);
-}
-
-/* モーダルでは shell.js が #actions をフッターへ移す。shell.css は位置と背景だけを戻すため、枠と影もここで外す */
-body.evo-shell #evoShellModalFooter #actions {
-    border: none;
-    box-shadow: none;
-}
-
-select#stay {
-    padding: var(--space-2);
-}
-
-.actionButtons {
-    margin-bottom: var(--space-3);
-}
-
-.actionButtons:after {
-    content: "";
-    display: block;
-    clear: both;
-}
-
-ul.actionButtons {
-    margin: 0 0 var(--space-3);
-    padding: 0;
-    /* accommodate border on buttons - */
-    background: none;
-    width: auto;
-    white-space: nowrap;
-}
-
-/* 右上に浮く操作ボタン群は、縦に積むブロックの流れに入らない */
-#actions .actionButtons {
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-/* 縦の余白の決まり（assets/docs/theme-spacing.md）。
-   入れ物（#mainPane・.section・.sectionBody・.tab-page・fieldset・form）の最後の子の下に、外側の margin を足さない。
-   この規則の詳細度は (0,2,0) と #mainPane 側の (1,1,0)。ブロックの間を作る margin-bottom の規則のうち、
-   これより詳細度が高いもの（id セレクタを使う規則など）と、後ろにある同じ詳細度のものは 0 にならないので、それぞれ別に 0 にする。
-   後ろに display:none の兄弟が続くときは、非表示の要素が最後の子になるので、見えている最後の子の margin-bottom は残る */
-#mainPane > :last-child,
-:is(.section, .sectionBody, .tab-page, fieldset, form) > :last-child {
-    margin-bottom: 0;
-}
-
-/* タブの中で、表などの次に見出しの帯が続くときの間（見出しの帯の上は margin-top ではなく、前のブロックの margin-bottom で作る） */
-.tab-page > :has(+ .sectionHeader) {
-    margin-bottom: var(--space-3);
-}
-
-/* 本体の直下のブロックの間。上の margin は持たず、下の margin だけで作る。
-   form は含めない（末尾の <style> の前では :last-child に当たらず、下の margin が 0 にならないため） */
-.sectionBody > :is(div, table, fieldset) {
-    margin-bottom: var(--space-3);
-}
-
-/* サブリソース一覧（resources_list.static.php）のパンくずの下 */
-.resources-topic-path {
-    margin-bottom: var(--space-3);
-}
-
-/* システムログ（eventlog.dynamic.php）の検索フォームと概要の下 */
-.system-log-toolbar,
-.system-log-summary {
-    margin-bottom: var(--space-3);
-}
-
-/* サブリソース一覧の移動のボタンの上は、直前のブロック（表、またはページ送り）の margin-bottom で作る。
-   表 → 下のページ送りの間も、同じ規則（:is(.sectionBody, .tab-page, form) > :has(+ .pagination)）で作る。上のページ送りの前の段落なども同じ。:has 非対応のブラウザでは捨てられる */
-form > :has(+ .resources-batch-actions),
-:is(.sectionBody, .tab-page, form) > :has(+ .pagination) {
-    margin-bottom: var(--space-3);
-}
-
-/* 画面から直書きを消した分の間。画面は余白を書かず、前のブロックの margin-bottom と class で決まりを受ける。
-   :has を使う規則は別の規則に分け、:has 非対応のブラウザで一緒に捨てられないようにする */
-/* 操作ボタン列の前（バックアップ・エクスポート・テンプレートの TV の一覧など） */
-:is(.sectionBody, .tab-page, form) > :has(+ :is(ul, div).actionButtons) {
-    margin-bottom: var(--space-3);
-}
-
-/* コード欄（帯とテキスト欄の入れ物）の前（テンプレート・スニペット・チャンク・モジュール・プラグイン） */
-:is(.sectionBody, .tab-page, form) > :has(+ .code-editor) {
-    margin-bottom: var(--space-3);
-}
-
-/* タブの組の直後の操作ボタン列（ログ）。最後のタブのパネルが非表示のことがあり、前の兄弟の margin-bottom は使えない */
-.tab-pane > ul.actionButtons {
-    margin-top: var(--space-3);
-}
-
-.actionButtons li {
-    list-style: none;
-    margin-right: 6px;
-    padding: 0;
-    float: left;
-}
-
-.actionButtons img {
-    vertical-align: top;
-    margin-top: 1px;
-    opacity: .7;
-}
-
-.actionButtons a:hover img {
-    opacity: 1;
-}
-
-.actionButtons :is(a, button) {
-    display: block;
-    float: left;
-    border-radius: var(--radius-md);
-    color: var(--color-secondary-hover-text);
-    font-size: 1em;
-    font-weight: 700;
-    outline: medium none;
-    padding: var(--space-2) var(--space-3);
-    text-decoration: none;
-    white-space: nowrap;
-    border: 1px solid var(--color-input-border);
-    background-color: var(--color-surface);
-    box-shadow: var(--shadow-sm);
-    transition: background-color var(--transition-fast), color var(--transition-fast),
-        box-shadow var(--transition-fast), border-color var(--transition-fast);
-}
-
-.actionButtons :is(a, button):hover {
-    border-color: var(--color-neutral-button-border);
-    background-color: #f3f6f8;
-    color: var(--color-heading);
-    box-shadow: var(--shadow-sm);
-}
-
-.actionButtons :is(a, button):active {
-    border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-active-start);
-    box-shadow: none;
-}
-
-.actionButtons :is(a, button):focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-}
-
-.actionButtons a.disabled {
-    border: 1px solid var(--color-border-default);
-    padding: 2px var(--space-1);
-    color: var(--gray-700);
-    background-color: var(--color-surface);
-    cursor: default;
-    pointer-events: none;
-}
-
-.actionButtons .opendraft a {
-    background-color: var(--color-draft-start);
-    border-color: var(--color-draft-end);
-}
-
-.actionButtons select, .actionButtons span.and {
-    display: block;
-    float: left;
-}
-
-.actionButtons span.and {
-    padding: 4px 2px;
-}
-
-.actionButtons a.disabled img {
-    opacity: .3;
-}
-
-.actionButtons .and {
-    margin: 0 2px 0 5px;
-    color: #3b454f;
-    font-weight: 700;
-}
-
-/* 主ボタン(保存など)。上部ナビのネイビーに合わせた濃い青で、ほかのボタンと区別する */
-.actionButtons #Button1 a,
-.actionButtons li.primary a,
-.actionButtons a.primary,
-.actionButtons a.default {
-    color: var(--color-text-inverse);
-    box-shadow: none;
-    text-shadow: none;
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
-}
-
-.actionButtons #Button1 a:hover,
-.actionButtons a:hover.default {
-    color: var(--color-text-inverse);
-    background-color: var(--color-primary-hover-start);
-    border-color: var(--color-primary-hover-end);
-}
-
-.actionButtons #Button1 a:active,
-.actionButtons a:active.default {
-    background-color: var(--color-primary-active-start);
-    border-color: var(--color-primary-active-end);
-}
-
-/* 削除系。取り消せない操作なので赤い文字と枠で示す。
-   リソースは li#delete / li#deletedraft、エレメントやユーザーは onclick="delete…();" のボタン */
-.actionButtons #delete a,
-.actionButtons #deletedraft a,
-.actionButtons a[onclick^="delete"] {
-    color: var(--color-danger);
-    border-color: var(--color-danger-border);
-}
-
-.actionButtons #delete a:hover,
-.actionButtons #deletedraft a:hover,
-.actionButtons a[onclick^="delete"]:hover {
-    color: var(--color-danger);
-    border-color: var(--color-danger);
-    background-color: var(--color-danger-bg-hover);
-}
-
-
-#loadingmask {
-    display: none;
-}
-
-/* ============================================================================
-   13. Specialized Forms - Mutate Forms, Date Pickers
-   Used in: Document editor forms, settings forms with date pickers
-   ============================================================================ */
-
-form#mutate dt,
-form#mutate dd {
-    margin-bottom: 10px;
-}
-
-form#mutate dt label,
-form#mutate dt h3.label {
-    font-size: 1em;
-    display: inline;
-    float: left;
-    width: 200px;
-    color: #821517 !important;
-    font-weight: bold;
-}
-
-form#mutate dd {
-    margin-left: 210px;
-}
-
-form#mutate input.disabled {
-    background-color: var(--gray-100) !important;
-}
-
-form#mutate select.inputBox,
-form#mutate input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
-form#mutate textarea {
-    width: 300px;
-}
-
-form#mutate textarea.textarea {
-    width: 90%;
-    height: 200px;
-}
-
-#tv_body input[type=text],
-#tv_body textarea {
-    background: var(--color-surface);
-}
-
-form#mutate textarea.tv_textareamini {
-    height: 100px;
-    width: 300px;
-    overflow-y: scroll;
-}
-
-form#mutate textarea.tv_textarea {
-    height: 100px;
-    width: 100%;
-    overflow-y: scroll;
-}
-
-/*
-* Styling for datepicker elements in settings and templavars
-*/
-form#mutate input.date,
-form#mutate input.tvdate {
-    margin-right: 10px;
-}
-
-/*
-* Individual Styles for fieldset#settings_page_settings
-*/
-form#mutate fieldset#settings_page_settings input#pub_date,
-form#mutate fieldset#settings_page_settings input#unpub_date {
-    width: 150px;
-}
-
-form#mutate fieldset#settings_page_settings select {
-    width: 155px;
-}
-
-/*
-* Individual Styles for fieldset#document_content
-*/
-
-fieldset#document_content textarea#ta {
-    width: 100%;
-    height: 400px;
-    font-size: 1em;
-}
-
-/*
-* Individual Styles for fieldset#access_permissions
-*/
-fieldset#access_permissions dt label {
-    width: 200px;
-}
-
-fieldset#access_permissions dd {
-    margin-left: 210px;
-}
-
-fieldset#access_permissions dl dd ul li {
-    list-style-type: none;
-}
-
-/* -------------------------[ date picker ]--- */
-input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUserPane input.DatePicker, input#datefrom.DatePicker, input#dateto.DatePicker {
-    width: 150px;
-    padding: 3px 3px 3px 24px;
-    background-color: var(--color-surface);
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%23999" stroke-width="1"/><line x1="5" y1="1" x2="5" y2="5" stroke="%23999" stroke-width="1"/><line x1="11" y1="1" x2="11" y2="5" stroke="%23999" stroke-width="1"/></svg>');
-    background-repeat: no-repeat;
-    background-position: var(--space-1) center;
-}
-
-input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%230066cc" stroke-width="1.5"/><line x1="5" y1="1" x2="5" y2="5" stroke="%230066cc" stroke-width="1.5"/><line x1="11" y1="1" x2="11" y2="5" stroke="%230066cc" stroke-width="1.5"/></svg>');
-    cursor: text;
-}
-
-.phptextarea {
-    font-family: Consolas, 'Courier New', 'Courier', monospace;
-    box-sizing: border-box;
-}
-
-/* コード欄の上の帯。背景は本文の色を面の色に薄く混ぜ（theme-variables.md）、枠は通常の枠の色にする */
-.code-editor-header {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    padding: var(--space-1) var(--space-2);
-    background-color: color-mix(in srgb, var(--color-text-primary) 6%, var(--color-surface));
-    border: 1px solid var(--color-border-default);
-    border-bottom: none;
-}
-
-.code-editor-title {
-    font-weight: bold;
-}
-
-.code-editor-options {
-    color: var(--color-text-muted);
-}
-
-.tmplvars tr {
-    height: 24px;
-}
-
-.tvname {
-    width: 150px;
-    white-space: nowrap;
-}
-
-.okmsg {
-    background-color: var(--color-success-bg);
-    border: 2px solid var(--color-success-light);
-    padding: var(--space-2);
-    margin-bottom: var(--space-2);
-}
-
-/* ============================================================================
-   14. Custom Navigation Gradients - Aurora Theme
-   Used in: Top menu bar, navigation system
-   Note: Complex gradient system for visual polish
-   ============================================================================ */
-
-/* #topMenuの背景 - 左側抑えめ、右側グラデーション */
-#topMenu {
-    background-color: #0f1825 !important;
+    background-color: #0f1825;
     background-image:
         /* === 光源：左側は控えめ、右側は色の変化 === */
 
@@ -2118,81 +448,94 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
             rgba(30, 64, 175, 0.08) 0%,
             rgba(20, 24, 38, 0.95) 50%,
             rgba(15, 23, 24, 1) 100%
-        ) !important;
-    border-bottom: 1px solid rgba(59, 130, 246, 0.20) !important;
+        );
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
-}
-
-/* === メインナビゲーション項目 === */
-/* 未選択の文字は、選択中・ホバーの白(1.0)より一段控えめにしつつ、暗い地で読める明るさにする */
-#nav > li > a {
-    background: transparent !important;
-    color: rgba(226, 232, 240, 0.78) !important;
-    border-color: transparent !important;
-    transition: all var(--transition-normal) !important;
-}
-
-#nav > li > a:hover,
-#nav > li > a:active,
-#nav > li > a:focus-visible {
-    background: rgba(59, 130, 246, 0.2) !important;
-    border-color: rgba(59, 130, 246, 0.3) !important;
-    color: rgba(255, 255, 255, 1) !important;
-}
-
+    /* 上のメニュー（common/topmenu.css） */
+    --topnav-item-color: rgba(226, 232, 240, 0.78);
+    --topnav-link-hover-bg: rgba(59, 130, 246, 0.2);
+    --topnav-link-hover-border-color: rgba(59, 130, 246, 0.3);
+    --topnav-link-active-bg: rgba(15, 23, 42, 0.6);
+    --topnav-link-active-border-color: var(--topnav-border) var(--topnav-border) transparent;
+    --topnav-subnav-bg: rgba(15, 23, 42, 0.6);
+    --topnav-subnav-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    --topnav-sublink-color: rgba(226, 232, 240, 0.95);
+    --topnav-sublink-radius: var(--radius-lg);
+    --topnav-sublink-hover-bg: rgba(59, 130, 246, 0.25);
+    /* 右上のユーザー情報（common/topmenu.css） */
+    --supplemental-nav-border-color: rgba(59, 130, 246, 0.15);
+    --supplemental-nav-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --supplemental-nav-link-color: rgba(225, 241, 244, 0.9);
+}/* 選んでいる項目とサブメニューの帯は、すりガラスにする */
 #nav > li.active > a {
-    background: rgba(15, 23, 42, 0.6) !important;
-    backdrop-filter: blur(10px) !important;
-    -webkit-backdrop-filter: blur(10px) !important;
-    border-color: rgba(59, 130, 246, 0.2) !important;
-    color: rgba(255, 255, 255, 1) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* === サブナビゲーション === */
 #nav > li > ul.subnav {
-    background: rgba(15, 23, 42, 0.6) !important;
-    backdrop-filter: blur(20px) saturate(160%) !important;
-    -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
-    border-top-color: rgba(59, 130, 246, 0.2) !important;
-    border-bottom-color: rgba(59, 130, 246, 0.2) !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
 }
 
-#nav > li > ul.subnav a {
-    color: rgba(226, 232, 240, 0.95) !important;
-    background: transparent !important;
-    transition: all var(--transition-normal) !important;
+/* -------------------------[ Settings Table ]--- */
+
+/* ============================================================================
+   11. Tabs System - Dynamic Tab Pane Control
+   Used in: Document editor, settings pages, multi-tab interfaces
+   ============================================================================ */
+
+.dynamic-tab-pane-control .tab-row .tab:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
 }
 
-#nav > li > ul.subnav a:hover,
-#nav > li > ul.subnav a:focus-visible {
-    background: rgba(59, 130, 246, 0.25) !important;
-    color: rgba(255, 255, 255, 1) !important;
+/* -------------------------[ Welcome Page ]--- */
+
+.pagination li a,
+.pagination li span {
+    border-radius: var(--radius-sm);
 }
 
-/* 表示中の画面に対応する項目（menu.php が aria-current を付ける） */
-#nav > li > ul.subnav a[aria-current="page"] {
-    background: rgba(59, 130, 246, 0.25) !important;
-    color: rgba(255, 255, 255, 1) !important;
-    font-weight: bold;
+/* ============================================================================
+   12. Action Buttons - Fixed Position Controls
+   Used in: Document editor, form pages, action toolbars
+   From: https://github.com/manse/ScienceStyle
+   ============================================================================ */
+
+/* モーダルでは shell.js が #actions をフッターへ移す。shell.css は位置と背景だけを戻すため、枠と影もここで外す */
+body.evo-shell #evoShellModalFooter #actions {
+    border: none;
+    box-shadow: none;
 }
 
-/* === 右上のユーザー情報エリア === */
-#supplementalNav {
-    background: linear-gradient(180deg, rgba(15, 23, 24, 0.4), rgba(16, 35, 37, 0.4)) !important;
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(59, 130, 246, 0.15);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+/* 削除系。取り消せない操作なので赤い文字と枠で示す。
+   リソースは li#delete / li#deletedraft、エレメントやユーザーは onclick="delete…();"、一覧と詳細の文書は data-doc-action="delete" のボタン */
+.actionButtons #delete a,
+.actionButtons #deletedraft a,
+.actionButtons a[onclick^="delete"],
+.actionButtons a[data-doc-action="delete"] {
+    color: var(--color-danger);
+    border-color: var(--color-danger-border);
 }
 
-#supplementalNav a {
-    color: rgba(225, 241, 244, 0.9) !important;
+.actionButtons #delete a:hover,
+.actionButtons #deletedraft a:hover,
+.actionButtons a[onclick^="delete"]:hover,
+.actionButtons a[data-doc-action="delete"]:hover {
+    color: var(--color-danger);
+    border-color: var(--color-danger);
+    background-color: var(--color-danger-bg-hover);
 }
 
-#supplementalNav a:hover,
-#supplementalNav a:focus-visible {
-    color: rgba(255, 255, 255, 1) !important;
+/* ============================================================================
+   13. Specialized Forms - Mutate Forms, Date Pickers
+   Used in: Document editor forms, settings forms with date pickers
+   ============================================================================ */
+
+form#mutate select.inputBox,
+form#mutate input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+form#mutate textarea {
+    width: 300px;
 }
+

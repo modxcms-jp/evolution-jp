@@ -109,7 +109,7 @@ echo $cm->render();
         </ul>
     </div>
 
-    <div class="sectionBody">
+    <div class="section"><div class="sectionBody">
         <p><?= lang('user_management_msg') ?></p>
         <div class="actionButtons">
             <table border="0" style="width:100%">
@@ -141,6 +141,7 @@ echo $cm->render();
         </div>
         <?php
         include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
+        include_once(__DIR__ . '/user_list_columns.php');
         $tbl_manager_users = evo()->getFullTableName('manager_users');
         $tbl_user_attributes = evo()->getFullTableName('user_attributes');
         $tbl_user_roles = evo()->getFullTableName('user_roles');
@@ -163,14 +164,13 @@ echo $cm->render();
         }
 
         $where = count($whereParts) ? implode(' AND ', $whereParts) : '';
-        $orderby = "{$blocked} ASC, mua.thislogin DESC";
 
         // listmode=1 は全件を 1 ページに出す
         $total = (int) db()->getValue(db()->select('COUNT(mu.id)', $from, $where));
         $page = get_intvar('page') ?: 1;
         $perPage = $listmode == '1' ? 0 : ((int) evo()->config('number_of_results') ?: 20);
         $pager = new DataTablePager($total, $perPage, $page);
-        $params = ['a' => 75];
+        $params = ['a' => EvoFormFlow::screen('user', 'close')];
         if ($query !== '') {
             $params['search'] = $query;
         }
@@ -180,57 +180,17 @@ echo $cm->render();
             $field,
             $from,
             $where,
-            $orderby,
+            userListOrderBy('mua'),
             $pager->limit() ? sprintf('%d,%d', $pager->offset(), $pager->limit()) : ''
         );
         $rows = db()->getRows($ds) ?: [];
 
-        $columns = [
-            [
-                'key' => 'username',
-                'label' => lang('username'),
-                'html' => true,
-                'format' => function ($value, array $row) {
-                    $id = (int) $row['id'];
-                    return sprintf(
-                        '<a class="gridRowIcon" href="#" data-row-menu="%d" title="%s"><img src="%s" /></a>'
-                        . '<span class="%s"><a href="index.php?a=12&amp;id=%d" title="%s">%s</a></span>',
-                        $id,
-                        hsc(lang('click_to_context')),
-                        hsc(style('icons_user')),
-                        $row['blocked'] ? 'unpublished' : 'published',
-                        $id,
-                        hsc(lang('click_to_edit_title')),
-                        hsc($value)
-                    );
-                },
-            ],
-            ['key' => 'fullname', 'label' => lang('user_full_name')],
-            ['key' => 'email', 'label' => lang('email')],
+        $columns = userListColumns(12, [
             ['key' => 'rolename', 'label' => lang('role')],
-            [
-                'key' => 'thislogin',
-                'label' => lang('login_button'),
-                'format' => function ($value) {
-                    if (!$value) {
-                        return '-';
-                    }
-                    return evo()->mb_strftime(evo()->toDateFormat(null, 'formatOnly') . ' %H:%M', $value);
-                },
-            ],
-            ['key' => 'logincount', 'label' => lang('user_logincount')],
-            [
-                'key' => 'blocked',
-                'label' => lang('user_block'),
-                'format' => function ($value) {
-                    return $value ? lang('yes') : '-';
-                },
-            ],
-        ];
+        ]);
         $table = new DataTable($columns, [
             'id' => 'users',
             'tableClass' => 'grid',
-            'rowClasses' => ['gridItem', 'gridAltItem'],
             'emptyMessage' => lang('no_records_found'),
         ]);
         $nav = $pager->render($links, [
@@ -240,5 +200,5 @@ echo $cm->render();
         ]);
         echo $nav . $table->render($rows, $links) . $nav;
         ?>
-    </div>
+    </div></div>
 </form>

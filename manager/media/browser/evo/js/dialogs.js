@@ -26,6 +26,8 @@ export function createMoveDialog(ctx) {
     var moveFolder = '';
     var sourceFolder = '';
     var closeOverlay = null;
+    // 最後に頼んだ一覧の番号。遅れて届いた前の一覧の応答は捨てる
+    var loadSeq = 0;
 
     function folderRowHtml(name) {
         return '' +
@@ -49,8 +51,12 @@ export function createMoveDialog(ctx) {
             restoreFocus(crumbs[crumbs.length - 1]);
         }
 
+        var seq = ++loadSeq;
         fetchJson(apiUrl(ctx.config, { action: 'list', folder: moveFolder }))
             .then(function (data) {
+                if (seq !== loadSeq) {
+                    return;
+                }
                 if (data.folders.length === 0) {
                     ctx.gridEl.innerHTML = '<div class="evo-fb-empty">' + escapeHtml(t('fb_no_subfolders')) + '</div>';
                     return;
@@ -66,6 +72,9 @@ export function createMoveDialog(ctx) {
                 });
             })
             .catch(function (err) {
+                if (seq !== loadSeq) {
+                    return;
+                }
                 ctx.gridEl.innerHTML = '<div class="evo-fb-empty evo-fb-error">' + escapeHtml(loadFailureMessage(err)) + '</div>';
             });
     }
@@ -114,7 +123,9 @@ export function createMoveDialog(ctx) {
  * @param {HTMLElement} ctx.closeBtn
  * @param {HTMLElement} ctx.actionsEl
  * @param {HTMLElement} ctx.editBtn - 画像の編集を開くボタン(編集できるファイルのときだけ出す)
- * @param {(file: object) => Array<{label: string, primary?: boolean, onSelect: () => void}>} ctx.getActions - 足すボタン。押すとプレビューを閉じてから onSelect を呼ぶ
+ * @param {(file: object) => Array<{label: string, onSelect: (button: HTMLButtonElement) => void, primary?: boolean, danger?: boolean, disabled?: boolean, keepOpen?: boolean}>} ctx.getActions
+ *   足すボタン。押すとプレビューを閉じてから onSelect を呼ぶ。keepOpen のものは閉じずに呼び、閉じるかどうかは onSelect が決める
+ *   (押したボタンを渡すので、通信中は押せなくするなどができる)。danger は取り消せない操作の色、disabled は押せない
  * @param {(file: object) => boolean} ctx.canEdit
  * @param {(file: object) => void} ctx.onEdit - 編集のダイアログを開く。プレビューは開いたまま(編集をやめたら戻れる)
  */
@@ -150,16 +161,20 @@ export function createPreview(ctx) {
         el.hidden = true;
     }
 
+    // ボタンの決まりは createPreview() の ctx.getActions を参照
     function renderActions(file) {
         ctx.actionsEl.textContent = '';
         ctx.getActions(file).forEach(function (action) {
             var btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'evo-fb-btn' + (action.primary ? ' evo-fb-btn-primary' : '');
+            btn.className = 'evo-fb-btn' + (action.primary ? ' evo-fb-btn-primary' : '') + (action.danger ? ' evo-fb-btn-danger' : '');
             btn.textContent = action.label;
+            btn.disabled = !!action.disabled;
             btn.addEventListener('click', function () {
-                closeWith(false);
-                action.onSelect();
+                if (!action.keepOpen) {
+                    closeWith(false);
+                }
+                action.onSelect(btn);
             });
             ctx.actionsEl.appendChild(btn);
         });
@@ -217,6 +232,11 @@ export function createPreview(ctx) {
         closeWith(false);
     }
 
+    // そのファイルのプレビューを開いているか(通信のあとで閉じるときに、別のファイルに替わっていないかを確かめる)
+    function isShowing(file) {
+        return !!closeOverlay && currentFile === file;
+    }
+
     ctx.closeBtn.addEventListener('click', closeAndRestore);
 
     ctx.editBtn.addEventListener('click', function () {
@@ -225,5 +245,5 @@ export function createPreview(ctx) {
         }
     });
 
-    return { open: open, close: close };
+    return { open: open, close: close, isShowing: isShowing };
 }

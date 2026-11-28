@@ -96,13 +96,13 @@ $errors = 0;
 $ph = ph();
 $ph['install_language'] = lang_name();
 
-ob_start();
-if (!@include(sprintf('%sactions/%s.php', MODX_SETUP_PATH, $action))) {
-    exit (sprintf(
-        'Invalid install action attempted. [action=%s]',
-        $action
-    ));
+// 手順のファイルの有無で判定する（include の戻り値では見ない。手順が途中で return すると null になり、失敗と見分けられない）
+$actionFile = sprintf('%sactions/%s.php', MODX_SETUP_PATH, $action);
+if (!is_file($actionFile)) {
+    exit(sprintf('Invalid install action attempted. [action=%s]', $action));
 }
+ob_start();
+include $actionFile;
 $ph['content'] = ob_get_contents();
 ob_end_clean();
 

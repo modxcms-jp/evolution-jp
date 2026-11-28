@@ -235,20 +235,28 @@ $givenPassword = post_strvar('password');
 $captcha_code = post_strvar('captcha_code');
 $rememberme = post_strvar('rememberme');
 
-// キャプチャを使う設定で、セッションに単語が無いとき（画像を表示していない）は、
-// 失敗回数に数えずに案内だけを出す。ユーザー名やパスワードに関わらず同じ応答にするため、ユーザーを探す前に行う
-$sessionVeriword = sessionv('veriword');
-if ((int)config('use_captcha', 0) === 1 && (!is_string($sessionVeriword) || $sessionVeriword === '')) {
-    $output = webLoginAlert('Please enter the security code shown in the image.');
-    return;
-}
-
 // invoke OnBeforeWebLogin event
 $v = [];
 $v['username'] = $username;
 $v['userpassword'] = $givenPassword;
 $v['rememberme'] = $rememberme;
 evo()->invokeEvent('OnBeforeWebLogin', $v);
+
+// CAPTCHA は、ユーザーの検索・ブロックの判定・認証より前に確かめる。
+// ユーザー名やパスワードに関わらず同じ応答にするため。通らないうちは失敗回数に数えない。
+// 単語が無いとき（画像を表示していない）は案内だけを出し、単語は正誤にかかわらず使い切る
+if ((int)config('use_captcha', 0) === 1) {
+    $sessionVeriword = sessionv('veriword');
+    if (!is_string($sessionVeriword) || $sessionVeriword === '') {
+        $output = webLoginAlert('Please enter the security code shown in the image.');
+        return;
+    }
+    sessionv('*veriword', null);
+    if (!hash_equals($sessionVeriword, $captcha_code)) {
+        $output = webLoginAlert("The security code you entered didn't validate! Please try to login again!");
+        return;
+    }
+}
 
 // 2 つの表に同じ名前の列 id があるので、* でまとめて読まずに列を挙げる。ユーザーの ID は web_users.id
 $field = 'web_users.id AS internalKey, web_users.password'
@@ -282,7 +290,7 @@ $email = $row['email'];
 if ($internalKey) {
     $rs = db()->select('setting_name, setting_value', $tbl_web_user_settings, 'webuser=' . (int)$internalKey);
     while ($row = db()->getRow($rs, 'both')) {
-        $modx->config[$row[0]] = $row[1];
+        evo()->setConfig($row[0], $row[1]);
     }
 }
 
@@ -290,17 +298,8 @@ $failedLoginLimit = (int)config('failed_login_attempts', 5);
 $blockMinutes = (int)config('blocked_minutes', 10);
 $allowedIp = config('allowed_ip', '');
 $allowedDays = config('allowed_days', '');
-$useCaptcha = (int)config('use_captcha', 0);
 
-if ($failedlogins >= $failedLoginLimit && $blockeduntildate > time()) {
-    // blocked due to number of login errors.
-    session_destroy();
-    session_unset();
-    $output = webLoginAlert('Due to too many failed logins, you have been blocked.');
-    return;
-}
-
-if ($failedlogins >= $failedLoginLimit && $blockeduntildate < time()) {
+if ($failedlogins >= $failedLoginLimit && $blockeduntildate <= time()) {
     // blocked due to number of login errors, but get to try again
     $f = [];
     $f['failedlogincount'] = '0';
@@ -310,21 +309,24 @@ if ($failedlogins >= $failedLoginLimit && $blockeduntildate < time()) {
 }
 
 // ブロック中かは、管理画面の表示と同じ isUserBlocked() で決める
-if (isUserBlocked(['blocked' => $blocked, 'blockeduntil' => $blockeduntildate, 'blockedafter' => $blockedafterdate])) {
+$blockState = ['blocked' => $blocked, 'blockeduntil' => $blockeduntildate, 'blockedafter' => $blockedafterdate];
+if (isUserBlocked($blockState)) {
     session_destroy();
     session_unset();
-    // 管理者によるブロックと、日時によるブロックで知らせ方を分ける
+    // blockeduntil だけが理由のブロック（失敗回数による一時ロック・休止の期限前）は待てば入れるので知らせ、
+    // ほかはパスワード違いと同じ案内で伏せる
+    $isTemporary = !isUserBlocked(array_merge($blockState, ['blockeduntil' => 0]));
     $output = webLoginAlert(
-        (int)$blocked === 1
-            ? 'You are blocked and cannot log in!'
-            : 'You are blocked and cannot log in! Please try again later.'
+        $isTemporary
+            ? 'You cannot log in right now. Please try again later.'
+            : 'Incorrect username or password entered!'
     );
     return;
 }
 
 // allowed ip
 if ($allowedIp !== '') {
-    if (strpos($allowedIp, serverv('REMOTE_ADDR', '')) === false) {
+    if (!list_has_item($allowedIp, serverv('REMOTE_ADDR', ''))) {
         $output = webLoginAlert('You are not allowed to login from this location.');
         return;
     }
@@ -334,7 +336,7 @@ if ($allowedIp !== '') {
 if ($allowedDays !== '') {
     $date = getdate();
     $day = $date['wday'] + 1;
-    if (strpos($allowedDays, (string)$day) === false) {
+    if (!list_has_item($allowedDays, $day)) {
         $output = webLoginAlert('You are not allowed to login at this time. Please try again later.');
         return;
     }
@@ -354,13 +356,6 @@ if (!$rt || (is_array($rt) && !in_array(TRUE, $rt))) {
     // check user password - local authentication
     if (!hash_equals((string)$dbasePassword, md5($givenPassword))) {
         $output = webLoginAlert("Incorrect username or password entered!");
-        $newloginerror = 1;
-    }
-}
-
-if ($useCaptcha === 1) {
-    if (!is_string($sessionVeriword) || !hash_equals($sessionVeriword, $captcha_code)) {
-        $output = webLoginAlert("The security code you entered didn't validate! Please try to login again!");
         $newloginerror = 1;
     }
 }
@@ -385,6 +380,11 @@ if (isset($newloginerror) && $newloginerror == 1) {
     return;
 }
 
+// ログイン前のセッション ID を引き継がない（管理画面のログインと同じ）。
+// 管理画面にログイン中のセッションは、管理画面のログインで作り直し済み。ここで作り直すと、開いている管理画面の keepalive の値が合わなくなる
+if (sessionv('mgrValidated') === null) {
+    session_regenerate_id(true);
+}
 $currentsessionid = session_id();
 
 if (sessionv('webValidated') === null) {

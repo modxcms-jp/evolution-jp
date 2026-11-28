@@ -78,7 +78,7 @@ git push origin "release-${VERSION}"
 1. リポジトリをチェックアウト
 2. `git archive` でタグのコミットから zip ファイルを作成
 3. `.gitattributes` の `export-ignore` に従って、配布対象外のファイルを除外
-4. `evo-release-1.3.0J.zip` を作成
+4. `evo-release-1.3.0J.zip` を作成し、必須ファイル（`.github/scripts/release-required-files.txt`）が入っているかを確認（欠けていればここで止まる）
 5. GitHub Release を**ドラフト状態**で自動作成し、zip ファイルを添付（リリースノートは手順4で明示した比較範囲から生成して適用）
 
 リリースパッケージの生成方式は `git archive` です。配布対象外のパスは `.github/workflows/release.yml` ではなく、リポジトリルートの `.gitattributes` に `export-ignore` を追加して管理します。
@@ -156,7 +156,7 @@ fi
 ---
 
 ## アップグレード時の注意
-（必要な場合のみ記載。アップデートでは `manager/` だけでなくルートの `index.php` も差し替える旨（古い `index.php` が残ると公開側が 500 になる）は、DB を変えた版では必ず書く）
+（必要な場合のみ記載。アップデートでは `manager/` だけでなくルートの `index.php` も差し替える旨（古い `index.php` が残ると公開側が 500 になる）は、DB を変えた版では必ず書く。同梱の要素の雛形の `@version` を上げた版では、`/install/` を通すよう書く（通さないと DB の要素が古いまま残る））
 ```
 
 **注意事項:**
@@ -260,15 +260,8 @@ gh release view "${TAG}" --json isDraft,tagName,assets,url
 # GitHub Release のZIPを取得
 gh release download "${TAG}" --pattern "evo-${TAG}.zip" --dir "${CHECK_DIR}"
 
-# 必須ファイルを確認（未検出時は終了）
-if ! unzip -Z1 "${ZIP_PATH}" | rg -q '^index\.php$'; then
-    echo 'index.php が見つかりません'
-    exit 1
-fi
-if ! unzip -Z1 "${ZIP_PATH}" | rg -q '^manager/includes/version\.inc\.php$'; then
-    echo 'manager/includes/version.inc.php が見つかりません'
-    exit 1
-fi
+# 必須ファイルを確認（一覧は .github/scripts/release-required-files.txt。欠けがあれば終了コード 1）
+bash .github/scripts/release-archive-check.sh "${ZIP_PATH}" || exit 1
 
 # 配布対象外のパスが含まれていないことを確認（該当時は終了）
 if unzip -Z1 "${ZIP_PATH}" | rg '(^|/)(\.github|\.agent|\.agents|\.claude|\.codex|\.vscode|\.work|docs|custom-instructions|manager/docker)(/|$)|(^|/)(\.gitignore|\.gitkeep|\.editorconfig|\.coderabbit\.yaml|\.gitattributes|AGENTS\.md|CLAUDE\.md|compose\.yml|readme[^/]*|README[^/]*)$'; then
@@ -288,32 +281,7 @@ rm -rf "${CHECK_DIR}"
 
 ## 除外ファイル一覧
 
-`.git/` は `git archive` の仕様で常に含まれない。その他、リリースパッケージから除外される主なファイル・ディレクトリの正本は [.gitattributes](../../.gitattributes) である:
-
-```
-.github/
-.agent/
-.agents/
-.claude/
-.codex/
-.vscode/
-.work/
-.gitignore
-.gitkeep
-.gitattributes
-.coderabbit.yaml
-.editorconfig
-docs/
-**/docs/
-readme*
-README*
-AGENTS.md
-CLAUDE.md
-SECURITY.md
-compose.yml
-custom-instructions/
-manager/docker/
-```
+リリースパッケージから除外されるファイル・ディレクトリの正本は [.gitattributes](../../.gitattributes) の `export-ignore` の行である。`.git/` は `git archive` の仕様で常に含まれない。
 
 ### 除外設定の追加方法
 
@@ -406,6 +374,9 @@ git archive --format=zip HEAD -o evo-test.zip
 # zip の内容を確認
 unzip -l evo-test.zip
 
+# 必須ファイルが入っているか確認（一覧は .github/scripts/release-required-files.txt）
+bash .github/scripts/release-archive-check.sh evo-test.zip
+
 # 確認後に zip を削除
 rm evo-test.zip
 ```
@@ -459,9 +430,10 @@ GitHub の Releases ページから該当リリースを開き、「Edit release
 
 - [ ] `manager/includes/version.inc.php` のバージョン番号更新
 - [ ] ローカルでの動作確認（インストール・アップグレード）
-- [ ] DB を変えた版はマイグレーションを足し、`install/sql/create_tables.sql` にも同じ変更を入れた。DB にある同梱物を変えた版は入れ替えのマイグレーションを足した（書き方は [`migrations.md`](migrations.md)）
+- [ ] DB を変えた版はマイグレーションを足し、`install/sql/create_tables.sql` にも同じ変更を入れた。古い DB のコードが新しいファイルで動かなくなる版（入れ替えが必須の版）は、入れ替えのマイグレーションを足した。そうでない雛形の変更は `@version` を上げた（書き方は [`migrations.md`](migrations.md) の「同梱の要素の雛形」）
 - [ ] テストケースの実行
 - [ ] 新しいマイグレーションを、古い版の DB から確かめた（[`upgrade-fixtures.md`](../../.claude/skills/adaptive-validation-runner/references/upgrade-fixtures.md) の道具で）
+- [ ] 前の版の DB から `/install/` でアップデートし、同梱の要素の DB のコードが新しくなることを確かめた（新規インストールではなくアップデートで。決まりは [`migrations.md`](migrations.md) の「同梱の要素の雛形」）
 - [ ] ドキュメントの更新（`.agent/roadmap.md` など）
 - [ ] リリースノートの準備（GitHub Release の説明文）。「アップグレード時の注意」に、アップデートでは `manager/` だけでなくルートの `index.php` も差し替えることを書く
 

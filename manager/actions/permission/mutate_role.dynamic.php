@@ -29,29 +29,17 @@ if ($action === 38) {
 }
 
 // check to see the role editor isn't locked
-$rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=35 and id='{$role}'");
-$total = db()->count($rs);
-if ($total > 1) {
-    for ($i = 0; $i < $total; $i++) {
-        $lock = db()->getRow($rs);
-        if ($lock['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf(lang("lock_msg"), $lock['username'], lang('role'));
-            alert()->setError(5, $msg);
-            alert()->dumpError();
-        }
-    }
+$username = $role ? manager()->editLockedBy(EvoFormFlow::screen('role', 'edit'), $role) : '';
+if ($username !== '') {
+    alert()->setError(5, sprintf(lang('lock_msg'), $username, lang('role')));
+    alert()->dumpError();
 }
 // end check for lock
 
 
 if ($action === 35) {
     $rs = db()->select('*', '[+prefix+]user_roles', "id='{$role}'");
-    $total = db()->count($rs);
-    if ($total > 1) {
-        echo "More than one role returned!<p>";
-        exit;
-    }
-    if ($total < 1) {
+    if (db()->count($rs) < 1) {
         echo "No role returned!<p>";
         exit;
     }
@@ -115,7 +103,7 @@ function role($key, $default = null)
     <div id="actions">
         <ul class="actionButtons">
             <?php if (evo()->hasPermission('save_role')): ?>
-                <li class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><?= lang('update') ?></a></li>
+                <li id="Button1" class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><?= lang('update') ?></a></li>
             <?php endif; ?>
             <?php
             if ($action === 35) {
@@ -326,8 +314,8 @@ function role($key, $default = null)
                             echo render_form('logs', lang('role_view_logs'));
                             echo render_form('settings', lang('role_edit_settings'));
                             echo render_form('file_manager', lang('role_file_manager'));
+                            echo render_form('file_upload', lang('role_file_upload'), '', true, lang('role_file_upload_desc'));
                             echo render_form('bk_manager', lang('role_bk_manager'));
-                            echo render_form('import_static', lang('role_import_static'));
                             echo render_form('export_static', lang('role_export_static'));
                             echo render_form('remove_locks', lang('role_remove_locks'));
                             ?>
@@ -336,25 +324,28 @@ function role($key, $default = null)
                 </tr>
             </table>
 
-            <input type="submit" name="save" style="display:none">
+            <input type="submit" name="save" class="hidden">
 </form>
 </div>
 </div>
 
 
 <?php
-function render_form($name, $label, $status = '')
+function render_form($name, $label, $status = '', $defaultOn = false, $description = '')
 {
     $tpl = <<< EOT
 <label>
-	<input name="[+name+]check" class="click" type="checkbox" onchange="changestate(document.userform.[+name+])" [+checked+] [+status+]>
+	<input name="[+name+]check" class="click" type="checkbox" onchange="changestate(document.userform.[+name+])" [+checked+] [+status+][+describedby+]>
 	<input type="hidden" class="[+set+]" name="[+name+]" value="[+value+]">
 	[+label+]
 </label>
+[+description+]
 
 EOT;
-    $checked = (role($name) == 1) ? 'checked' : '';
-    $value = (role($name) == 1) ? 1 : 0;
+    // 新規のロール（値が無いとき）は、$defaultOn の権限だけ最初からオンにする
+    $on = role($name) === null && $defaultOn ? true : role($name) == 1;
+    $checked = $on ? 'checked' : '';
+    $value = $on ? 1 : 0;
     if ($status == 'disabled') {
         $checked = 'checked';
         $value = 1;
@@ -370,5 +361,9 @@ EOT;
     $output = str_replace('[+value+]', $value, $output);
     $output = str_replace('[+label+]', $label, $output);
     $output = str_replace('[+set+]', $set, $output);
+    // 説明は <label> の外に置き、チェックボックスから aria-describedby でつなぐ。空のときは何も出さない
+    $describedby = $description === '' ? '' : sprintf(' aria-describedby="%s_desc"', $name);
+    $descriptionHtml = $description === '' ? '' : sprintf('<span class="comment" id="%s_desc">%s</span>', $name, hsc($description));
+    $output = str_replace(['[+describedby+]', '[+description+]'], [$describedby, $descriptionHtml], $output);
     return $output;
 }

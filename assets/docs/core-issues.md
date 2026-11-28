@@ -23,17 +23,17 @@
 - **改善案**: `generateWarnings()` が既に構造化配列を返しているので、UI 依存を `run()` 側に閉じ込め、チェックロジックを公開メソッドとして CLI・管理画面・API から共有可能にする。`sessionv()` 依存の除去も必要。
 - **関連ロードマップ**: なし（新規候補）
 
-## Mysqldumper クラスの設計上の制約
+## PHP のダンプの書き出し（EvoSqlDump）の設計上の制約
 
 - **発見日**: 2026-02-11
 - **発見元**: CLI self-bootstrap プラン (`db:export` mysqldump 改修時)
-- **ファイル**: `manager/includes/mysql_dumper.class.inc.php`
+- **ファイル**: `manager/includes/sql_dump.class.inc.php`（#1561 で `Mysqldumper` から移した）
 - **課題**:
-  - `addslashes` ベースのエスケープ（MySQL ネイティブエスケープではない）
+  - ~~`addslashes` ベースのエスケープ（MySQL ネイティブエスケープではない）~~ → 解消（#1560、値は `db()->escape()` で書き出す）
   - トランザクション整合性なし（`LOCK TABLES` / `--single-transaction` 相当がない）
-  - ~~全体を `file_get_contents` でメモリに読み込む設計~~ → 管理画面のスナップショット・ダウンロードは解消（2026-10-24、`dumpToFile()` が一時ファイルへ書き、書き終えてから rename する）。`createDump()`（`db:export --driver=php` と `db:backup --driver=php` が使う）と復元（SQL 全体を文字列で読み込んでから文に分ける）は、大きな DB ではメモリが要るまま
-  - ファイル先頭の `$modx` グローバル変数チェックがクラス定義として不適切
-- **改善案**: CLI では `mysqldump` ラッパーをデフォルトにすることで回避済み。管理画面のバックアップ機能でも同様に `mysqldump` を優先候補にすることを検討。クラス自体の改修は PDO 移行と合わせて行うのが効率的。
+  - ~~全体を `file_get_contents` でメモリに読み込む設計~~ → 書き出しは解消（`EvoSqlDump::writeFile()` が一時ファイルへ書き、書き終えてから rename する。`db:export --driver=php` の標準出力へは流して書く。#1561）。復元も解消（`EvoBackupManager::restoreFile()` がダンプのファイルを 1 行ずつ読む。#1561）
+  - ~~ファイル先頭の `$modx` グローバル変数チェックがクラス定義として不適切~~ → 解消（#1561。クラスの定義だけのファイルにした）
+- **改善案**: CLI では `mysqldump` を既定にして回避済み。管理画面は `mysqldump` を使わず、いつも PHP の書き出しを使う（#1561 の本人の決定）。トランザクションの整合性は PDO 移行と合わせて扱う。
 - **関連ロードマップ**: Phase 2 PDO 移行
 
 ## logEvent の HTML 混入（解決済み）
@@ -69,10 +69,10 @@
 ## モジュール実行 (a=112) のシェル外表示（解決済み）
 
 - **発見日**: 2026-07-07
-- **解決日**: 2026-07-07（同一ExecPlan内で対応）
-- **ファイル**: `manager/processors/module/execute_module.processor.php`
-- **課題**: モジュールは独自の完全HTMLを出力するため、シェル（メニュー/ツリー保持）内にAJAXで埋め込めなかった。当初はフルウィンドウ表示（data-no-ajax）として先送りしていた。
-- **対応**: モジュール出力を `<html` タグの有無で判定し、完全HTMLならフルページ応答（shell.jsが自動でフルリロードへフォールバック）、断片ならシェル内（メニュー/ツリー保持）に表示するよう変更した。
+- **解決日**: 2026-07-07 に断片と完全 HTML を判定する形で対応し、#1824 で「戻る」と `target="main"` を直した
+- **ファイル**: `manager/processors/module/execute_module.processor.php`、`manager/media/script/shell.js`
+- **課題**: モジュールは独自の完全 HTML を出すことがある。シェルが応答を `document.write` で文書ごと差し替えるため、アドレスバーだけが変わって「戻る」が効かなかった。モジュールの `target="main"` のリンク・フォームも、frameset 時代の名前の `main` が無く、新しいタブを開いていた。
+- **対応**: `replaceDocument()` が、GET の移動では `pushState` で応答先の URL を積み、差し替えたあとの `popstate` で（ハッシュだけの移動を除いて）`location.reload()` する（戻るで管理画面に戻り、モジュールは 1 回だけ動く）。`target="main"` は `target` の無いものと同じに扱い、`window.name = 'main'` で、差し替えた画面からも同じタブへ届く。`top.mainMenu.reloadPane()`・`doRefresh()` は戻さない。詳細は `manager-shell.md`。
 - **関連ロードマップ**: frame要素廃止（完了）
 
 ## アップデーターの要素の入れ直しで、利用者の紐付けが戻る
@@ -126,7 +126,7 @@
 - **対応**: 管理ログ・検索・スケジュール・ManagerManager の表を `DataTable`・`DataTablePager` に移し（#1204）、`paginate.inc.php` と `tablesort.js` を消した。並べ替えは `DataTableLinks` のサーバー側に替えた。
 - **関連ロードマップ**: 自前で組み立てている表とページ送りを DataTable に移す（#1204）
 
-## ユーザー編集画面の「ユーザー」タブの設定が、設定の定義の外にある
+## ユーザー編集画面の「ユーザー」タブの設定が、設定の定義の外にある [解決済 2026-11-22]
 
 - **発見日**: 2026-11-09
 - **発見元**: 管理ユーザーの設定を保存してよい名前の一覧で受ける ExecPlan（`.agent/plans/archive/2026-11-09-user-settings-allowlist.md`、#1304）
@@ -134,6 +134,7 @@
 - **課題**: `allow_manager_access`・`allowed_parents`・`allowed_ip`・`allowed_days` の 4 つは、設定の定義（`settings_form.definition.inc.php`）に無く、画面が手書きで出す。保存してよい名前としては `EvoSettingsForm::USER_TAB_KEYS` に手で書いて合わせている（画面に欄を足したら一覧にも足す、というコメントだけが頼り）。同じ表に、設定ではない行（ログイン回数・ブロック。`user_attributes` の列）が挟まっている。`allowed_days` は複数のチェックボックス（`allowed_days[]`）で、`EvoSettingsForm` に対応する型が無い
 - **改善案**: 設定の行は定義に移し、設定でない行（ブロックなど）は別の表に分ける。`allowed_days` の複数のチェックボックスの型を `EvoSettingsForm` に足す。移したら `USER_TAB_KEYS` を消す
 - **確かめ方（移す前後と、欄を足すとき）**: ユーザー編集画面（`a=12`）を開き、`document.userform.elements` の `name` を集める（`allowed_days[]` の `[]` を除く）。そのうち設定として保存されるものを、保存が実際に受ける一覧（`EvoSettingsForm::names('user')` に、セッションの `pluginSettingNames.user` を足したもの。`save_user.functions.php` の `allowedSettingNames('user')` と同じ）と突き合わせ、過不足がないことを確かめる。集めた名前から除くのは、設定として保存されない名前（`user_attributes` の列・アカウントやプロフィールの項目・`csrf_token`・`mode`・`userid`・`changed_settings`・保存後の行き先 `after_save`・`theme_refresher`・「システム設定に従う」の `default_<キー>` など。`default_<キー>` は `EvoSettingsForm::userDefaultNames()` の行にだけ付く）。画面にあって一覧に無い名前は保存されず、一覧にあって画面に無い名前は無駄な許可になる
+- **対応**: 4 つの設定を設定の定義（`settingsTabUser` の scope `['user']` の行）に移し、`allowed_days` の複数のチェックボックスは `EvoSettingsForm` の型 `checkboxes` にした。`EvoSettingsForm::USER_TAB_KEYS` と手書きの `tab_settings.php` は消した。設定ではない行（ログイン回数・ブロックなど）は「ログイン設定」タブの末尾の別の表に、行の部品で出す（#1631 の段階 3B）。
 - **関連ロードマップ**: なし（新規候補。#1304 では定数とコメントで 1 か所にして、定義への移動は採らなかった）
 
 ## 公開側の文書の取得で、Web 側の非公開の扱いが関数ごとに違う

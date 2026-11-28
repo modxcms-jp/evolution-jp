@@ -82,6 +82,7 @@ class Document
      */
     public function __construct($id = '', $status = self::ST_RELEASED, $level = '')
     {
+        self::warnDeprecated();
         if (self::isInt($level, 1)) {
             $this->logLevel = $level;
         }
@@ -694,6 +695,7 @@ SQL_QUERY;
      */
     public static function documentExist($id)
     {
+        self::warnDeprecated();
         if (!self::isInt($id, 1)) {
             return false;
         }
@@ -719,6 +721,7 @@ SQL_QUERY;
      */
     public static function chPublish($id, $onPub = null, $recursive = false, $clearCache = true)
     {
+        self::warnDeprecated();
         if (!self::documentExist($id)) {
             return false;
         }
@@ -775,6 +778,7 @@ SQL_QUERY;
      */
     public static function chDelete($id, $onDel = null, $recursive = true, $clearCache = true)
     {
+        self::warnDeprecated();
         if (!self::documentExist($id)) {
             return false;
         }
@@ -837,6 +841,7 @@ SQL_QUERY;
      */
     public static function erase($id, $force = false, $recursive = true, $clearCache = true)
     {
+        self::warnDeprecated();
         if (self::documentExist($id)) {
             if (!$force) {
                 $rs = db()->select('id,deleted', '[+prefix+]site_content', "id = $id");
@@ -865,6 +870,14 @@ SQL_QUERY;
     }
 
     //--- 以下はプライベートメソッド
+    private static function warnDeprecated()
+    {
+        logDeprecated(
+            'Document',
+            "The Document class is deprecated and will be removed in 1.4. Use evo()->loadExtension('DocAPI') and evo()->doc instead."
+        );
+    }
+
     /*
      * logging / loginfo / logwarn / logerr
      *

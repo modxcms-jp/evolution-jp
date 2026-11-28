@@ -1,0 +1,365 @@
+/*
+ * 管理画面のフォーム部品（入力欄・セレクト・ボタン）の共通の決まり。値はテーマが :root の変数で決める。
+ * 層（@layer）に入れた規則は、層の外の規則（テーマ・shell.css・画面の <style>）に必ず負ける。
+ * 層の順番をここで宣言するので、テーマより先に読む（manager_theme_stylesheets()）。
+ * 決まりと変数の一覧は assets/docs/theme-variables.md の「フォーム部品」。
+ */
+@layer evo-base, evo-components;
+
+/* 本文の 1 行の高さ（文字の大きさ × 行の高さ）。body で長さに決めて受け継がせる。
+   長さの変数として登録しないと、使う側の要素（文字の大きさが違うボタンなど）で 1lh が計算され、欄とボタンの高さがそろわない */
+@property --line-box {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 18px;
+}
+
+@layer evo-base {
+    /* 入力欄・セレクト・ボタンの高さ ＝ 本文の 1 行の高さ ＋ 上下の余白 × 2 ＋ 枠 × 2 を、4px の目盛りに切り上げる。
+       テーマは高さを決めず、本文の文字の大きさ（--font-size-base）と行の高さから決まる */
+    body {
+        --line-box: 1lh;
+        --control-height: round(up, calc(var(--line-box) + var(--control-padding-y, 4px) * 2 + 2px), 4px);
+    }
+
+    /* 文字を入れる入力欄とセレクト。チェックボックス・ラジオ・ファイル・ボタンの類は除く */
+    :where(
+        input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"], [type="range"], [type="color"],
+            [type="submit"], [type="button"], [type="reset"], [type="image"]),
+        select,
+        textarea
+    ) {
+        box-sizing: border-box;
+        min-height: var(--control-height, 32px);
+        margin: 0;
+        padding: 0 var(--control-padding-x, 8px);
+        border: var(--control-border, 1px solid #999);
+        border-radius: var(--control-radius, 3px);
+        background: var(--control-bg, #fff);
+        box-shadow: var(--control-shadow, none);
+        color: var(--control-color, inherit);
+        font: inherit;
+        vertical-align: middle;
+        transition: var(--control-transition, none);
+    }
+
+    /* 複数行の欄は、上下にも余白を取る */
+    :where(textarea) {
+        padding-block: var(--space-1, 4px);
+    }
+
+    :where(select) {
+        cursor: pointer;
+    }
+
+    :where(
+        input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"], [type="range"], [type="color"],
+            [type="submit"], [type="button"], [type="reset"], [type="image"]),
+        select,
+        textarea
+    ):focus {
+        outline: none;
+        border-color: var(--control-focus-border-color, green);
+        background: var(--control-focus-bg, var(--control-bg, #fff));
+        box-shadow: var(--control-focus-shadow, none);
+    }
+}
+
+@layer evo-components {
+    /* ボタンは class="button"、主ボタンは .primary。.actionButtons の中の a・button と、input[type=submit|button|reset] も同じ。
+       .actionButtons の中では #Button1 a、li.primary a、a.primary、a.default も主ボタン */
+    :is(.button, .actionButtons :is(a, button), input:is([type="submit"], [type="button"], [type="reset"])) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        min-height: var(--control-height, 32px);
+        margin: 0;
+        padding: 0 var(--button-padding-x, 12px);
+        border: var(--button-border-width, 0) solid var(--button-border-color, transparent);
+        border-radius: var(--button-radius, 4px);
+        background: var(--button-bg, var(--color-neutral-button-start, #f1f4f6));
+        box-shadow: var(--button-shadow, none);
+        -webkit-backdrop-filter: var(--button-backdrop-filter, none);
+        backdrop-filter: var(--button-backdrop-filter, none);
+        color: var(--button-color, #444);
+        font-family: inherit;
+        font-size: var(--button-font-size, 1em);
+        font-weight: var(--button-font-weight, 700);
+        line-height: 1.2;
+        text-decoration: none;
+        text-shadow: none;
+        white-space: nowrap;
+        vertical-align: middle;
+        cursor: pointer;
+        transition: var(--button-transition, none);
+    }
+
+    :is(.button, .actionButtons :is(a, button), input:is([type="submit"], [type="button"], [type="reset"])):hover {
+        border-color: var(--button-hover-border-color, var(--button-border-color, transparent));
+        background: var(--button-hover-bg, var(--color-neutral-button-hover-end, #e6ecef));
+        box-shadow: var(--button-hover-shadow, var(--button-shadow, none));
+        color: var(--button-hover-color, var(--button-color, #444));
+        transform: var(--button-hover-transform, none);
+    }
+
+    :is(.button, .actionButtons :is(a, button), input:is([type="submit"], [type="button"], [type="reset"])):active {
+        background: var(--button-active-bg, var(--color-neutral-button-active-start, #dbe3e7));
+        box-shadow: var(--button-active-shadow, var(--button-shadow, none));
+        transform: var(--button-active-transform, none);
+    }
+
+    :is(.button, .actionButtons :is(a, button), input:is([type="submit"], [type="button"], [type="reset"])):focus-visible {
+        outline: 2px solid var(--button-focus-ring-color, var(--color-text-primary, #333));
+        outline-offset: 2px;
+    }
+
+    :is(.button.primary, .actionButtons :is(#Button1 a, li.primary a, a.primary, a.default)) {
+        border-color: var(--button-primary-border-color, transparent);
+        font-weight: var(--button-primary-font-weight, var(--button-font-weight, 700));
+        background: var(--button-primary-bg, var(--color-primary, #375665));
+        box-shadow: var(--button-primary-shadow, none);
+        color: var(--button-primary-color, var(--color-text-inverse, #fff));
+    }
+
+    :is(.button.primary, .actionButtons :is(#Button1 a, li.primary a, a.primary, a.default)):hover {
+        border-color: var(--button-primary-hover-border-color, var(--button-primary-border-color, transparent));
+        background: var(--button-primary-hover-bg, var(--color-primary-hover-start, var(--color-primary, #375665)));
+        box-shadow: var(--button-primary-hover-shadow, var(--button-primary-shadow, none));
+        color: var(--button-primary-color, var(--color-text-inverse, #fff));
+    }
+
+    :is(.button.primary, .actionButtons :is(#Button1 a, li.primary a, a.primary, a.default)):active {
+        border-color: var(--button-primary-active-border-color, var(--button-primary-border-color, transparent));
+        background: var(--button-primary-active-bg, var(--color-primary-active-start, var(--color-primary, #375665)));
+        box-shadow: var(--button-primary-active-shadow, var(--button-primary-shadow, none));
+    }
+
+    /* 欄と、その後ろのボタン・説明のアイコンを横に並べ、縦の真ん中でそろえる。複数行の欄の横では上の端にそろえる */
+    .field-inline {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-2, 8px);
+    }
+
+    .field-inline:has(> textarea) {
+        align-items: flex-start;
+    }
+
+    /* アイコンだけのボタン（日付を消すなど）。枠と地を持たない */
+    .icon-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: none;
+        cursor: pointer;
+    }
+
+    .icon-button:disabled {
+        opacity: .4;
+        cursor: not-allowed;
+    }
+
+    /* 欄の下の説明（書式など） */
+    .form-text {
+        margin-top: var(--space-1, 4px);
+        color: var(--color-text-muted, #666);
+    }
+
+    /* 説明のアイコン（mutate_content/functions.php の tooltip()） */
+    img.tooltip {
+        cursor: help;
+    }
+
+    /* 編集画面の欄の名前（行の部品の見出しのセルと名前。RTE の見出しなどの .mutate-field-title と、プラグインが設定の表に足す手書きの行の見出しも同じ） */
+    .field-label,
+    .field-title,
+    .mutate-field-title,
+    .settings tr:not(.field-row) > th {
+        color: var(--mutate-field-title-color, var(--color-warning, #444));
+        font-weight: bold;
+    }
+
+    /* 欄の下や横の説明 */
+    .comment {
+        color: var(--comment-color, var(--gray-500, #999));
+    }
+
+    p.comment {
+        color: var(--comment-p-color, var(--comment-color, var(--gray-600, #777)));
+        font-size: .9em;
+    }
+
+    form textarea {
+        width: 350px;
+        height: 78px;
+        overflow: auto;
+        line-height: 1.5;
+    }
+
+    /* パスワードの欄（user_form_rows.php の userFormPasswordRow()、動きは media/script/password-field.js） */
+    .password-setting {
+        max-width: 560px;
+        min-width: 0;
+    }
+
+    .password-setting-current,
+    .password-setting-field,
+    .password-setting-length {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2, 8px);
+    }
+
+    .password-setting-field {
+        flex-wrap: wrap;
+    }
+
+    /* 欄の右端の内側に目のアイコン（ログイン画面と同じアイコン・同じ aria-pressed の切り替え） */
+    /* 包みは欄の幅（theme-base.css の .sectionBody input.inputBox の 350px）に合わせ、アイコンを欄の右端に置く。狭い画面では欄を縮める */
+    .password-setting-input {
+        position: relative;
+        flex: 0 1 auto;
+        max-width: 100%;
+    }
+
+    .password-setting-input input[data-password-input] {
+        box-sizing: border-box;
+        max-width: 100%;
+        padding-right: 32px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .password-setting-input input[data-password-input]::placeholder {
+        font-family: inherit;
+    }
+
+    .password-setting .toggle-password {
+        position: absolute;
+        top: 50%;
+        right: 4px;
+        width: 24px;
+        height: 24px;
+        margin-top: -12px;
+        padding: 3px;
+        border: 0;
+        background: none;
+        color: var(--color-text-muted, #777);
+        cursor: pointer;
+    }
+
+    .password-setting .toggle-password:hover,
+    .password-setting .toggle-password:focus-visible {
+        color: var(--color-text-primary, #333);
+    }
+
+    .password-setting .toggle-password svg {
+        display: block;
+        width: 18px;
+        height: 18px;
+    }
+
+    .password-setting .toggle-password[aria-pressed="true"] .icon-hidden,
+    .password-setting .toggle-password[aria-pressed="false"] .icon-visible {
+        display: none;
+    }
+
+    .password-setting .button {
+        gap: var(--space-1, 4px);
+    }
+
+    .password-setting-note,
+    .password-setting-status {
+        margin-top: var(--space-1, 4px);
+    }
+
+    .password-setting-note.is-warning,
+    .password-setting-status.is-warning {
+        color: var(--color-warning, #8a5a00);
+    }
+
+    .password-setting-note.is-error,
+    .password-setting-status.is-error {
+        color: var(--color-error, #900);
+    }
+
+    .password-setting-status.is-success {
+        color: var(--color-success, #090);
+    }
+
+    .password-setting-status:empty {
+        display: none;
+    }
+
+    .password-setting-options {
+        --password-step-size: 28px;
+        margin: var(--space-3, 12px) 0 var(--space-2, 8px);
+        padding: var(--space-3, 12px);
+        border: 1px solid var(--color-border-light, #ddd);
+        border-radius: 4px;
+    }
+
+    .password-setting-options-head {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--space-4, 16px);
+        margin-bottom: var(--space-2, 8px);
+        font-weight: bold;
+    }
+
+    .password-setting-length .button {
+        flex: 0 0 auto;
+        justify-content: center;
+        width: var(--password-step-size);
+        height: var(--password-step-size);
+        padding: 0;
+    }
+
+    .password-setting-length input[type="range"] {
+        flex: 1 1 auto;
+        min-width: 0;
+        height: var(--password-step-size);
+        margin: 0;
+        accent-color: var(--color-primary, #375665);
+    }
+
+    /* 目盛りの端は、スライダーの端（±ボタンとその間の内側）に合わせる */
+    .password-setting-scale {
+        display: flex;
+        justify-content: space-between;
+        margin: var(--space-1, 4px) calc(var(--password-step-size) + var(--space-2, 8px)) var(--space-3, 12px);
+        color: var(--color-text-muted, #777);
+    }
+
+    .password-setting-classes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2, 8px) var(--space-4, 16px);
+    }
+
+    .password-setting-classes label {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1, 4px);
+        cursor: pointer;
+    }
+
+    .password-setting-classes input {
+        margin: 0;
+    }
+
+    .password-setting-generate,
+    .password-setting-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: var(--space-3, 12px);
+    }
+
+    .password-setting [hidden] {
+        display: none;
+    }
+}

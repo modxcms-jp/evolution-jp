@@ -54,7 +54,7 @@ switch (postv('action')) {
     case 'deleteplugin':
         $pluginId = post_intvar('id');
         if ($pluginId && evo()->hasPermission('delete_plugin')) {
-            $rs = manager()->deletePlugin($pluginId);
+            $rs = manager()->deleteElement('plugin', $pluginId);
         }
         break;
 }

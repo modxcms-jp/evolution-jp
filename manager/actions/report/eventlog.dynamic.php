@@ -37,15 +37,15 @@ if (!$isLatest && !$selectedFileInfo && $files) {
 $selectedPath = $isLatest ? '' : SystemLogViewer::resolveFile($logRoot, $selectedFile);
 $fileList = SystemLogViewer::fileList($visibleFiles);
 $years = SystemLogViewer::years($files);
-$level = strtolower(get_strvar('level'));
+$level = to_choicevar(strtolower(get_strvar('level')), SystemLogViewer::levelFilters(), '');
 $source = trim(get_strvar('source'));
 $query = trim(get_strvar('q'));
-$allowedLevels = ['', 'emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug'];
-if (!in_array($level, $allowedLevels, true)) {
-    $level = '';
-}
+$minLevelOptions = [
+    SystemLogViewer::minLevelFilter('error') => lang('system_log_level_min_error', 'エラー以上'),
+    SystemLogViewer::minLevelFilter('warning') => lang('system_log_level_min_warning', '警告以上'),
+];
 $sourceOptions = [
-    '' => lang('all', 'All'),
+    '' => lang('all'),
     'MODxMailer request log' => 'MODxMailer',
 ];
 if (!isset($sourceOptions[$source])) {
@@ -167,11 +167,6 @@ if (getv('download') === '1' && $selectedPath !== '') {
 
 <div id="actions">
     <ul class="actionButtons">
-        <li id="Button5" class="mutate">
-            <a href="#" onclick="EvoShell.go('index.php?a=2', {discard: true});">
-                <?= lang('cancel') ?>
-            </a>
-        </li>
         <?php if ($canDeleteLog) { ?>
         <li id="Button6" class="mutate">
             <a href="#" id="systemLogClearButton">
@@ -179,13 +174,17 @@ if (getv('download') === '1' && $selectedPath !== '') {
             </a>
         </li>
         <?php } ?>
+        <li id="Button5" class="mutate">
+            <a href="#" onclick="EvoShell.go('index.php?a=2', {discard: true});">
+                <?= lang('cancel') ?>
+            </a>
+        </li>
     </ul>
 </div>
 
 <style>
     .system-log-meta {
         color: #666;
-        font-size: 12px;
     }
     .system-log-summary {
         color: #666;
@@ -309,10 +308,9 @@ if (getv('download') === '1' && $selectedPath !== '') {
     }
 </style>
 
-<div class="sectionBody">
+<div class="section"><div class="sectionBody">
     <p><?= hsc(lang('system_log_msg', 'システムログはJSONLines形式で保存されたエラー・警告・情報メッセージを表示します。')) ?></p>
 
-    <div class="sectionBody">
         <?php if ($clearNotice !== '') { ?>
             <div class="system-log-summary"><?= hsc($clearNotice) ?></div>
         <?php } ?>
@@ -325,7 +323,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
             <form class="system-log-toolbar" method="get" action="index.php">
                 <input type="hidden" name="a" value="114" />
                 <label>
-                    <?= hsc(lang('period', '期間')) ?>
+                    <?= hsc(lang('period')) ?>
                     <select name="period" id="systemLogPeriod">
                         <option value="latest"<?= $period === 'latest' ? ' selected' : '' ?>><?= hsc(lang('latest_log', '最新ログ')) ?></option>
                         <option value="recent30"<?= $period === 'recent30' ? ' selected' : '' ?>><?= hsc(lang('recent_30_days', '直近30日')) ?></option>
@@ -338,7 +336,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                     </select>
                 </label>
                 <label id="systemLogMonthSelector" class="system-log-month-selector<?= $isYearPeriod ? '' : ' is-hidden' ?>">
-                    <?= hsc(lang('month', '月')) ?>
+                    <?= hsc(lang('month')) ?>
                     <select name="month" id="systemLogMonth"<?= $isYearPeriod ? '' : ' disabled' ?>>
                         <?php foreach ($months as $month) { ?>
                             <option value="<?= hsc($month) ?>"<?= $selectedMonth === $month ? ' selected' : '' ?>>
@@ -348,14 +346,19 @@ if (getv('download') === '1' && $selectedPath !== '') {
                     </select>
                 </label>
                 <label id="systemLogFileSelector" class="system-log-file-selector<?= $isLatest ? ' is-hidden' : '' ?>">
-                    <?= hsc(lang('log_files', 'ログファイル')) ?>
+                    <?= hsc(lang('log_files')) ?>
                     <select name="file" id="systemLogFile" data-selected="<?= hsc($selectedFile) ?>"></select>
                 </label>
                 <label>
                     <?= hsc(lang('type')) ?>
                     <select name="level" id="systemLogLevel">
-                        <option value=""><?= hsc(lang('all', 'All')) ?></option>
-                        <?php foreach (array_slice($allowedLevels, 1) as $option) { ?>
+                        <option value=""><?= hsc(lang('all')) ?></option>
+                        <?php foreach ($minLevelOptions as $option => $optionLabel) { ?>
+                            <option value="<?= hsc($option) ?>"<?= $level === $option ? ' selected' : '' ?>>
+                                <?= hsc($optionLabel) ?>
+                            </option>
+                        <?php } ?>
+                        <?php foreach (SystemLogViewer::levels() as $option) { ?>
                             <option value="<?= hsc($option) ?>"<?= $level === $option ? ' selected' : '' ?>>
                                 <?= hsc($option) ?>
                             </option>
@@ -381,7 +384,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                         placeholder="<?= hsc(lang('keyword', 'キーワード')) ?>"
                     />
                 </label>
-                <button type="submit" class="primary"><?= hsc(lang('search')) ?></button>
+                <button type="submit" class="button primary"><?= hsc(lang('search')) ?></button>
             </form>
             <?php if ($isLatest) { ?>
                 <p class="system-log-summary">
@@ -412,7 +415,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                         <input type="hidden" name="level" value="<?= hsc($level) ?>" />
                         <input type="hidden" name="source" value="<?= hsc($source) ?>" />
                         <input type="hidden" name="q" value="<?= hsc($query) ?>" />
-                        <button type="submit" class="system-log-delete"><?= hsc(lang('delete', '削除')) ?></button>
+                        <button type="submit" class="button system-log-delete"><?= hsc(lang('delete', '削除')) ?></button>
                     </form>
                     <?php } ?>
                     <?php } ?>
@@ -431,12 +434,11 @@ if (getv('download') === '1' && $selectedPath !== '') {
                     data-source="<?= hsc($source) ?>"
                     data-query="<?= hsc($query) ?>"
                 >
-                    <div class="system-log-loading"><?= hsc(lang('loading', 'Loading...')) ?></div>
+                    <div class="system-log-loading"><?= hsc(lang('loading')) ?></div>
                 </div>
             <?php } ?>
         <?php } ?>
-    </div>
-</div>
+</div></div>
 
 <?php if ($canDeleteLog) { ?>
 <form id="systemLogClearForm" method="post" action="index.php?a=114">

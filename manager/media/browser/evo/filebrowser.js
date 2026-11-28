@@ -7,10 +7,11 @@
 //
 // behaviors(host は { root, config, state, preview, reload, download(names) }):
 //   openFile(entry, host)          ダブルクリックと Enter で動く。ピッカーは選んで閉じる、管理モードは表示する
-//   itemActions                    ファイルの行のアイコンと右クリックの項目になる操作の種類の配列('open' | 'preview' | 'download')。
-//                                  種類ごとの定義は ITEM_ACTIONS。行のアイコンと右クリックの項目はここから作り、grid.js は入口を判定しない。
-//                                  右クリック(ファイル 1 件)のダウンロードは、itemActions に 'download' が無い入口でも共通の項目として出す
-//   previewActions(entry, host)    プレビューに足すボタンの配列 [{ label, primary, onSelect }]
+//   itemActions                    ファイルの行のアイコンになる操作の種類の配列('open' | 'preview' | 'download')。種類ごとの定義は ITEM_ACTIONS。
+//                                  行のアイコンはここから作り、grid.js は入口を判定しない。'open'・'preview' は右クリックと選択の帯にも出る
+//                                  (その並びと条件は SELECTION_ACTIONS)。ダウンロードは itemActions に無い入口でも、右クリックと帯に共通で出す
+//   previewActions(entry, host)    プレビューに足すボタンの配列 [{ label, primary, onSelect }]。複製・削除はどの入口でも共通に後ろへ足す
+//   pickFile(entry, host)          選んで返す入口(ピッカー)だけが持つ。選択の帯と右クリックメニューの先頭に「このファイルを選択」(1 件のとき)を出す。持たない入口には出ない
 //   contextMenuItems(entry, host)  右クリックメニューに足す項目。entry があれば(ファイル 1 件)先頭に、null なら(何も無い所)最後に足す
 //   confirmOverwrite(names, host)  サーバーが同じ名前があると返したとき、保存する名前(names)を並べて上書きしてよいか確かめる。
 //                                  true なら、そのファイルだけを上書きで送り直す
@@ -76,10 +77,15 @@ function init(root, entry, behaviors) {
     setMessages(config.lang || {});
     var initialFolder = typeof config.initialFolder === 'string' ? config.initialFolder : '';
     var initialSelect = typeof config.initialSelect === 'string' ? config.initialSelect : '';
+    // edit=1 で開いたとき、最初の一覧だけで画像編集を開く。editFromPicker は、その編集の終わりを入口へ返すかどうか
+    var initialEdit = config.initialEdit === true && initialSelect !== '';
+    var editFromPicker = false;
     var initialFallbackTried = false;
     var isInitialLoad = true;
     // 一覧を一度でも出したか。開いたとき（最初の一覧）は、選んだファイルへのスクロールをスムーズにしない
     var hasShownList = false;
+    // 最後に頼んだ一覧の番号。遅れて届いた前の一覧の応答は、番号が違うので捨てる
+    var loadSeq = 0;
 
     var prefs = createPrefs(config.entry, config.defaults);
 
@@ -158,14 +164,22 @@ function init(root, entry, behaviors) {
             });
     }
 
+    // 応答が届くまでに別のフォルダーへ移っていたら、後のフォルダーの同名のものを選ばない
+    function nameIfStillIn(folder, name) {
+        return state.folder === folder ? name : undefined;
+    }
+
     function performRename(name, newName) {
         if (!newName || newName === name) {
             return;
         }
+        var folder = state.folder;
         postForm(config, state, 'rename', { target: name, newName: newName })
-            .then(function () { load(); })
+            .then(function (result) { load(nameIfStillIn(folder, (result && result.name) || newName), { instant: true }); })
             .catch(function (err) {
                 window.alert(failureMessage(err, 'fb_rename_failed'));
+                // その場の入力欄が残らないよう、元の名前を選んだまま読み直す
+                load(nameIfStillIn(folder, name), { instant: true });
             });
     }
 
@@ -173,18 +187,47 @@ function init(root, entry, behaviors) {
         performRename(name, window.prompt(t('fb_rename_prompt'), name));
     }
 
+    // 選んでいる 1 件の名前を変えられるか(帯のボタン・F2 の共通の条件)
+    function canRenameSelection() {
+        return state.selection.size === 1 && state.writable;
+    }
+
+    // 一覧に描かれているファイルはその場の入力で、描かれていない(検索で絞られた等の)ときは確認の入力欄で名前を変える
+    function startRenameFor(name) {
+        if (!grid.startRename(name)) {
+            renameEntry(name);
+        }
+    }
+
+    // 消せたら true で終わる(確かめて取りやめたとき・失敗したときは false)
     function deleteEntry(name, isFolder) {
         if (!window.confirm(t(isFolder ? 'fb_confirm_delete_folder' : 'fb_confirm_delete_file', name))) {
-            return;
+            return Promise.resolve(false);
         }
         var fields = isFolder ? { 'folders[]': [name] } : { 'files[]': [name] };
-        postForm(config, state, 'delete', fields)
+        return postForm(config, state, 'delete', fields)
             .then(function (result) {
                 alertPartialErrors('fb_delete_partial_failed', result.errors);
                 load();
+                return (result.deleted || []).indexOf(name) !== -1;
             })
             .catch(function (err) {
                 window.alert(failureMessage(err, 'fb_delete_failed'));
+                return false;
+            });
+    }
+
+    // 同じフォルダへコピーする(サーバーが 名前(1).拡張子 のように空いている名前を付ける)。できたら一覧を読み直して、複製を選ぶ
+    function duplicateEntry(name) {
+        var folder = state.folder;
+        postForm(config, state, 'copy', { 'files[]': [name], dest: folder })
+            .then(function (result) {
+                alertPartialErrors('fb_copy_partial_failed', result.errors);
+                var copied = (result.copied || [])[0];
+                load(copied ? nameIfStillIn(folder, copied.name) : undefined, { instant: true });
+            })
+            .catch(function (err) {
+                window.alert(failureMessage(err, 'fb_copy_failed'));
             });
     }
 
@@ -192,7 +235,7 @@ function init(root, entry, behaviors) {
     var clipboard = null;
     var pasteBtn = root.querySelector('[data-action="paste"]');
     var selectionBarEl = root.querySelector('[data-role="selectionbar"]');
-    var downloadBtn = root.querySelector('[data-action="bulk-download"]');
+    var selectionActionsEl = root.querySelector('[data-role="selection-actions"]');
 
     function isCutName(name) {
         return !!clipboard && clipboard.mode === 'cut' && clipboard.folder === state.folder && clipboard.names.indexOf(name) !== -1;
@@ -205,7 +248,8 @@ function init(root, entry, behaviors) {
 
     function applyWritable() {
         mkdirBtn.disabled = !state.writable;
-        uploadBtn.disabled = !state.writable;
+        // フォルダーが書けないとき、またはアップロードの権限が無いとき(理由は別々の注意で出す)
+        uploadBtn.disabled = !state.writable || !config.canUpload;
         pasteBtn.disabled = !state.writable;
         noticeEl.hidden = state.writable;
     }
@@ -271,12 +315,6 @@ function init(root, entry, behaviors) {
         onSort: function (key) {
             setSort(key, state.sortKey === key && state.sortDir === 'asc' ? 'desc' : 'asc');
         },
-        openPreview: function (name) {
-            var file = findFile(name);
-            if (file) {
-                preview.open(file);
-            }
-        },
         openFile: function (name) {
             var file = findFile(name);
             if (file) {
@@ -297,10 +335,11 @@ function init(root, entry, behaviors) {
         deleteEntry: deleteEntry,
         onDropMove: moveFilesTo,
         onSelectionChange: function (count) {
-            // 選択が無いときは帯を visibility で隠す(場所は取ったままなので、出し入れで一覧の位置も高さも変わらない)。
-            // zip を作れない環境では、2 件以上のときはダウンロードのボタンを無効にする
+            // 選択が無いときは帯を visibility で隠す(場所は取ったままなので、出し入れで一覧の位置も高さも変わらない)
             selectionBarEl.classList.toggle('is-hidden', count === 0);
-            downloadBtn.disabled = !canDownload(count);
+            // 1 件のときは件数を見せない(読み上げ用の文字は残す。filebrowser.css)
+            selectionBarEl.classList.toggle('is-single', count === 1);
+            updateSelectionActions();
             notifySelection();
         },
         isCut: isCutName
@@ -335,11 +374,28 @@ function init(root, entry, behaviors) {
         state: state,
         config: config,
         onSaved: function (name) {
+            var fromPicker = editFromPicker;
+            editFromPicker = false;
             // 保存したファイルが変わったので、プレビューは閉じて一覧を読み直し、保存した名前を選ぶ
             preview.close();
             dropzoneEl.focus({ preventScroll: true });
             // フォルダは移っていないので、保存した画像の位置はすぐ出す
-            load(name, { instant: true });
+            load(name, {
+                instant: true,
+                onLoaded: fromPicker && behaviors.editDone ? function () {
+                    var saved = findFile(name);
+                    if (saved) {
+                        behaviors.editDone(saved);
+                    }
+                } : null
+            });
+        },
+        onCancel: function () {
+            var fromPicker = editFromPicker;
+            editFromPicker = false;
+            if (fromPicker && behaviors.editCancel) {
+                behaviors.editCancel();
+            }
         }
     });
 
@@ -353,7 +409,47 @@ function init(root, entry, behaviors) {
         closeBtn: root.querySelector('[data-role="preview-close"]'),
         actionsEl: root.querySelector('[data-role="preview-actions"]'),
         editBtn: root.querySelector('[data-role="preview-edit"]'),
-        getActions: function (file) { return behaviors.previewActions(file, host); },
+        // 入口ごとのボタンのあとに、複製と削除を足す(書き込めないフォルダでは押せない)。閉じたあとは一覧へフォーカスを戻す。
+        // 削除は確かめる間もプレビューを開いたままにし、通信中はボタンを押せなくする。消せたとき、まだそのファイルを開いていれば閉じる
+        getActions: function (file) {
+            return behaviors.previewActions(file, host).concat([
+                {
+                    label: t('fb_duplicate'),
+                    disabled: !state.writable,
+                    onSelect: function () {
+                        dropzoneEl.focus({ preventScroll: true });
+                        duplicateEntry(file.name);
+                    }
+                },
+                {
+                    label: t('fb_rename'),
+                    disabled: !state.writable,
+                    onSelect: function () {
+                        dropzoneEl.focus({ preventScroll: true });
+                        startRenameFor(file.name);
+                    }
+                },
+                {
+                    label: t('delete'),
+                    danger: true,
+                    keepOpen: true,
+                    disabled: !state.writable,
+                    onSelect: function (button) {
+                        button.disabled = true;
+                        deleteEntry(file.name, false).then(function (deleted) {
+                            if (!deleted) {
+                                button.disabled = false;
+                                return;
+                            }
+                            if (preview.isShowing(file)) {
+                                preview.close();
+                                dropzoneEl.focus({ preventScroll: true });
+                            }
+                        });
+                    }
+                }
+            ]);
+        },
         canEdit: imageEditor.canEdit,
         onEdit: imageEditor.open
     });
@@ -429,12 +525,29 @@ function init(root, entry, behaviors) {
         });
     }
 
+    // edit=1 のとき、select のファイルの画像編集を開く。開けないときは、一覧のまま理由を出す
+    function openInitialEdit(file) {
+        if (!file) {
+            window.alert(t('fb_edit_open_not_found'));
+        } else if (!imageEditor.canEdit(file)) {
+            window.alert(t('fb_edit_open_not_editable'));
+        } else {
+            editFromPicker = true;
+            imageEditor.open(file);
+        }
+    }
+
     function load(selectName, options) {
         var instant = !!(options && options.instant);
         var allowInitialFallback = isInitialLoad;
+        var openEditAfter = isInitialLoad && initialEdit && selectName === initialSelect;
         isInitialLoad = false;
         // 描き直すとフォーカスが body に落ちるので、ファイルブラウザの中にあったときだけ覚えておき、後で戻す
         var hadFocus = root.contains(document.activeElement);
+        var seq = ++loadSeq;
+        // 読み込み中は前のフォルダーの項目を残さない(名前で探す操作が、後のフォルダーの同名のものに効かないように)
+        state.rawFolders = [];
+        state.rawFiles = [];
         grid.renderLoading();
         renderPath();
         state.selection.clear();
@@ -444,6 +557,9 @@ function init(root, entry, behaviors) {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
             .then(function (data) {
+                if (seq !== loadSeq) {
+                    return;
+                }
                 state.rawFolders = data.folders;
                 state.rawFiles = data.files;
                 state.writable = data.writable !== false;
@@ -468,11 +584,24 @@ function init(root, entry, behaviors) {
                 }
                 tree.syncWithList(state.folder, data.folders);
                 tree.revealPath(state.folder);
+                if (openEditAfter) {
+                    openInitialEdit(selected ? findFile(selectName) : null);
+                }
+                if (options && options.onLoaded) {
+                    options.onLoaded();
+                }
             })
             .catch(function (err) {
+                if (seq !== loadSeq) {
+                    return;
+                }
                 if (allowInitialFallback && !initialFallbackTried && initialFolder !== '') {
                     initialFallbackTried = true;
-                    navigateTo('', initialSelect);
+                    // 初期フォルダーが無いとき。根に同じ名前のファイルがあっても、別のファイルを編集させないので編集は開かず、理由だけ出す
+                    state.folder = '';
+                    load(initialSelect, {
+                        onLoaded: initialEdit ? function () { window.alert(t('fb_edit_open_not_found')); } : null
+                    });
                     return;
                 }
                 grid.renderError(err);
@@ -577,13 +706,7 @@ function init(root, entry, behaviors) {
         moveDialog.open(state.folder);
     }
 
-    root.querySelector('[data-action="bulk-delete"]').addEventListener('click', bulkDelete);
-    root.querySelector('[data-action="bulk-move"]').addEventListener('click', bulkMove);
-    root.querySelector('[data-action="bulk-copy"]').addEventListener('click', function () { setClipboard('copy'); });
-    root.querySelector('[data-action="bulk-cut"]').addEventListener('click', function () { setClipboard('cut'); });
     pasteBtn.addEventListener('click', function () { pasteTo(state.folder); });
-
-    downloadBtn.addEventListener('click', bulkDownload);
 
     // 何も無い所をクリックしたときも、キーボード操作(Ctrl+C・X・V)を受けられるよう一覧へフォーカスする
     dropzoneEl.addEventListener('click', function (e) {
@@ -606,7 +729,7 @@ function init(root, entry, behaviors) {
         if (e.target.closest('input, textarea, select, [contenteditable]')) {
             return;
         }
-        if (root.querySelector('.evo-fb-overlay:not([hidden])') || contextMenu.isOpen()) {
+        if (root.querySelector('.evo-fb-overlay[open]') || contextMenu.isOpen()) {
             return;
         }
         var selection = window.getSelection();
@@ -628,9 +751,24 @@ function init(root, entry, behaviors) {
         setClipboard(key === 'c' ? 'copy' : 'cut');
     });
 
+    // F2: 選んでいる 1 件の名前の変更を始める(入力欄・ダイアログ・右クリックメニューが開いているときは受けない)
+    root.addEventListener('keydown', function (e) {
+        if (e.key !== 'F2' || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || e.defaultPrevented || e.isComposing) {
+            return;
+        }
+        if (!canRenameSelection() || e.target.closest('input, textarea, select, [contenteditable]')) {
+            return;
+        }
+        if (root.querySelector('.evo-fb-overlay[open]') || contextMenu.isOpen()) {
+            return;
+        }
+        e.preventDefault();
+        startRenameFor(Array.from(state.selection)[0]);
+    });
+
     // Enter: 一覧でファイルを 1 件選んでいるときに、ダブルクリックと同じく openFile を呼ぶ。
-    // フォーカスが一覧そのものか、選んでいるファイルの名前のボタンにあるときだけ受ける(サムネイルのボタンの Enter は、これまでどおりプレビューを開く)。
-    // 入力欄・ダイアログ・右クリックメニューが開いているとき、ほかのボタン(Enter でそのボタンを押す)では動かさない
+    // フォーカスが一覧そのものか、選んでいるファイルの名前・サムネイルのボタンにあるときだけ受ける。
+    // 入力欄・ダイアログ・右クリックメニューが開いているとき、ほかのボタンでは動かさない(Enter でそのボタンを押す)
     root.addEventListener('keydown', function (e) {
         if (e.key !== 'Enter' || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || e.defaultPrevented || e.isComposing) {
             return;
@@ -638,12 +776,12 @@ function init(root, entry, behaviors) {
         if (state.selection.size !== 1 || e.target.closest('input, textarea, select, [contenteditable]')) {
             return;
         }
-        if (root.querySelector('.evo-fb-overlay:not([hidden])') || contextMenu.isOpen()) {
+        if (root.querySelector('.evo-fb-overlay[open]') || contextMenu.isOpen()) {
             return;
         }
         var name = Array.from(state.selection)[0];
         if (e.target !== dropzoneEl) {
-            var itemBtn = e.target.closest('[data-role="name"]');
+            var itemBtn = e.target.closest('[data-role="name"], [data-role="thumb"]');
             var itemEl = itemBtn && itemBtn.closest('.evo-fb-item-file');
             if (!itemEl || itemEl.getAttribute('data-name') !== name) {
                 return;
@@ -658,6 +796,129 @@ function init(root, entry, behaviors) {
         behaviors.openFile(file, host);
     });
 
+    // --- 選択に対する操作の表 ---
+    // 右クリックメニューと下の選択の帯は、どちらもこの表から作る(並び・文言・出す条件・実行がここだけにある)。
+    // files は選んでいるファイル。single は 1 件だけのときの操作、when は出す条件、enabled は押せる条件(省くと常に押せる)。
+    // 帯もメニューも、出す条件と押せる条件を両方満たす操作だけを並べる(actionsFor)。並ぶボタンが選択で変わっても帯の高さが動かないよう、
+    // 帯はいちばん長くなる状態(全部のボタン)の高さを予約する(reserveSelectionBarHeight)。
+    // open・preview は入口の itemActions に入っているときだけ出す(入口ごとの内訳は behaviors が決める)。
+    // pick は選んで返す入口(behaviors.pickFile があるピッカー)だけ、先頭に置く(primary は帯で目立たせるボタン)
+    var pickActions = typeof behaviors.pickFile === 'function' ? [{
+        id: 'pick', label: 'fb_pick_this_file', single: true, primary: true,
+        run: function (files) { behaviors.pickFile(files[0], host); }
+    }] : [];
+    var SELECTION_ACTIONS = pickActions.concat([
+        {
+            id: 'open', label: ITEM_ACTIONS.open.label, single: true,
+            when: function () { return itemActionKinds.indexOf('open') !== -1; },
+            run: function (files) { ITEM_ACTIONS.open.run(files[0], behaviors, host); }
+        },
+        {
+            id: 'preview', label: ITEM_ACTIONS.preview.label, single: true,
+            when: function () { return itemActionKinds.indexOf('preview') !== -1; },
+            run: function (files) { ITEM_ACTIONS.preview.run(files[0], behaviors, host); }
+        },
+        {
+            id: 'edit', label: 'fb_edit', single: true,
+            when: function (files) { return files.every(imageEditor.canEdit); },
+            run: function (files) { imageEditor.open(files[0]); }
+        },
+        {
+            id: 'download', label: ITEM_ACTIONS.download.label,
+            enabled: function (files) { return canDownload(files.length); },
+            run: bulkDownload
+        },
+        { id: 'copy', label: 'fb_copy', run: function () { setClipboard('copy'); } },
+        { id: 'cut', label: 'fb_cut', enabled: isWritable, run: function () { setClipboard('cut'); } },
+        {
+            id: 'rename', label: 'fb_rename', single: true,
+            enabled: canRenameSelection,
+            run: function (files) { startRenameFor(files[0].name); }
+        },
+        { id: 'move', label: 'move', enabled: isWritable, run: bulkMove },
+        { id: 'delete', label: 'delete', danger: true, enabled: isWritable, run: bulkDelete }
+    ]);
+
+    // 書き込めないフォルダでは、コピー以外(切り取り・名前を変更・移動・削除)を押せなくする
+    function isWritable() {
+        return state.writable;
+    }
+
+    function selectedFiles() {
+        return Array.from(state.selection).map(findFile).filter(Boolean);
+    }
+
+    // 出す条件(when)と押せる条件(single・enabled)の両方を満たす操作。メニュー・帯・帯のボタンの実行がこの判定を使う
+    function isActionAvailable(action, files) {
+        return files.length > 0
+            && (!action.when || action.when(files))
+            && (!action.single || files.length === 1)
+            && (!action.enabled || action.enabled(files));
+    }
+
+    // メニューに出す操作
+    function actionsFor(files) {
+        return SELECTION_ACTIONS.filter(function (action) {
+            return isActionAvailable(action, files);
+        });
+    }
+
+    // 帯のボタンは入口の画面を作るときに 1 度だけ並べ、選択が変わるたびに出し入れだけを更新する
+    var selectionActionBtns = SELECTION_ACTIONS.map(function (action) {
+        var li = document.createElement('li');
+        var btn = document.createElement('button');
+        li.classList.toggle('is-danger', !!action.danger);
+        btn.type = 'button';
+        btn.setAttribute('data-action', 'selection-' + action.id);
+        btn.textContent = t(action.label);
+        if (action.primary) {
+            btn.classList.add('button', 'primary');
+        }
+        btn.addEventListener('click', function () {
+            var files = selectedFiles();
+            if (isActionAvailable(action, files)) {
+                action.run(files);
+            }
+        });
+        li.appendChild(btn);
+        selectionActionsEl.appendChild(li);
+        return btn;
+    });
+
+    function updateSelectionActions() {
+        // 帯のボタンを並べる前(grid の初期化中)に呼ばれることがある
+        if (!selectionActionBtns) {
+            return;
+        }
+        var files = selectedFiles();
+        SELECTION_ACTIONS.forEach(function (action, i) {
+            selectionActionBtns[i].parentNode.hidden = !isActionAvailable(action, files);
+        });
+    }
+
+    // 並ぶボタンが選択で変わると、狭い幅では横スクロールバーの有無が変わり、帯の高さが動く。
+    // そこで、帯がいちばん長くなる状態(全部のボタン・件数あり)の高さを測って min-height にする。
+    // 帯を包む欄・ボタンの欄の大きさが変わったら(幅・フォントの読み込み・テーマの切り替え・非表示のモーダルが見えたとき)測り直す。
+    // 帯自身は監視しない(測り直しで帯の高さを書き換えるので、同じ配信の中で大きさが変わって ResizeObserver の loop エラーになる)。
+    // 帯の高さは、包む欄(高さは親の flex で決まる)にもボタンの欄(横幅は中身で決まる)にも入らない。observe() は登録のときにも 1 回呼ぶ
+    // 非表示で 0 のときは予約しない(次に大きさが変わったとき測る)
+    function reserveSelectionBarHeight() {
+        var hidden = selectionActionBtns.map(function (btn) { return btn.parentNode.hidden; });
+        var single = selectionBarEl.classList.contains('is-single');
+        selectionActionBtns.forEach(function (btn) { btn.parentNode.hidden = false; });
+        selectionBarEl.classList.remove('is-single');
+        selectionBarEl.style.minHeight = '';
+        var height = selectionBarEl.offsetHeight;
+        selectionActionBtns.forEach(function (btn, i) { btn.parentNode.hidden = hidden[i]; });
+        selectionBarEl.classList.toggle('is-single', single);
+        if (height) {
+            selectionBarEl.style.minHeight = height + 'px';
+        }
+    }
+    var barObserver = new ResizeObserver(reserveSelectionBarHeight);
+    barObserver.observe(selectionBarEl.parentNode);
+    barObserver.observe(selectionActionsEl);
+
     // --- 右クリックメニュー ---
     // 項目は既存の処理(ボタンと同じ関数)を呼ぶだけ。対象は右クリックした所で決める。
 
@@ -667,10 +928,10 @@ function init(root, entry, behaviors) {
         if (!itemEl) {
             var folderItems = [];
             if (state.writable) {
-                folderItems.push(
-                    { label: t('fb_new_folder'), onSelect: createFolder },
-                    { label: t('fb_upload'), onSelect: function () { uploadBtn.click(); } }
-                );
+                folderItems.push({ label: t('fb_new_folder'), onSelect: createFolder });
+                if (config.canUpload) {
+                    folderItems.push({ label: t('fb_upload'), onSelect: function () { uploadBtn.click(); } });
+                }
                 if (canPasteTo(state.folder)) {
                     folderItems.push({ label: t('fb_paste'), onSelect: function () { pasteTo(state.folder); } });
                 }
@@ -696,39 +957,11 @@ function init(root, entry, behaviors) {
             state.selection.add(name);
             grid.updateSelectionDom();
         }
-        if (state.selection.size > 1) {
-            var multiItems = [];
-            if (canDownload(state.selection.size)) {
-                multiItems.push({ label: t('fb_download'), onSelect: bulkDownload });
-            }
-            return multiItems.concat([
-                { label: t('fb_copy'), onSelect: function () { setClipboard('copy'); } },
-                { label: t('fb_cut'), onSelect: function () { setClipboard('cut'); } },
-                { label: t('move'), onSelect: bulkMove },
-                { label: t('delete'), danger: true, onSelect: bulkDelete }
-            ]);
-        }
         var file = findFile(name);
-        var items = file ? behaviors.contextMenuItems(file, host).slice() : [];
-        if (file) {
-            itemActionKinds.forEach(function (kind) {
-                items.push({ label: t(ITEM_ACTIONS[kind].label), onSelect: function () { ITEM_ACTIONS[kind].run(file, behaviors, host); } });
-            });
-            if (imageEditor.canEdit(file)) {
-                items.push({ label: t('fb_edit'), onSelect: function () { imageEditor.open(file); } });
-            }
-        }
-        if (itemActionKinds.indexOf('download') === -1) {
-            items.push({ label: t('fb_download'), onSelect: bulkDownload });
-        }
-        items.push(
-            { label: t('fb_copy'), onSelect: function () { setClipboard('copy'); } },
-            { label: t('fb_cut'), onSelect: function () { setClipboard('cut'); } },
-            { label: t('fb_rename'), onSelect: function () { renameEntry(name); } },
-            { label: t('move'), onSelect: bulkMove },
-            { label: t('delete'), danger: true, onSelect: function () { deleteEntry(name, false); } }
-        );
-        return items;
+        var items = state.selection.size === 1 && file ? behaviors.contextMenuItems(file, host).slice() : [];
+        return items.concat(actionsFor(selectedFiles()).map(function (action) {
+            return { label: t(action.label), danger: action.danger, onSelect: function () { action.run(selectedFiles()); } };
+        }));
     }
 
     dropzoneEl.addEventListener('contextmenu', function (e) {

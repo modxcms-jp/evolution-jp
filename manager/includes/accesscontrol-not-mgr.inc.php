@@ -39,15 +39,13 @@ evo()->setPlaceholder('manager_theme_url',
     )
 );
 
-$theme = evo()->config('manager_theme');
-evo()->setPlaceholder('theme_css_ver', asset_version(MODX_MANAGER_PATH . "media/style/{$theme}/style.css"));
+evo()->setPlaceholder('theme_stylesheets', manager_theme_stylesheets());
 evo()->setPlaceholder('evo_dialog_js_ver', asset_version(MODX_MANAGER_PATH . 'media/script/evo-dialog.js'));
 evo()->setPlaceholder('login_js_ver', asset_version(MODX_MANAGER_PATH . 'media/script/login.js'));
 
 global $tpl;
 
-$touch_mtime = is_file($touch_path) ? @filemtime($touch_path) : false;
-if ($touch_mtime && request_time() < $touch_mtime + 300) {
+if (manager_login_guard_active()) {
     $modx->safeMode = 1;
     evo()->addLog(lang('logtitle_login_disp_warning'), lang('logmsg_login_disp_warning'), 2);
     $tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/login.tpl');
@@ -64,25 +62,18 @@ $html = is_array($evtOut) ? implode('', $evtOut) : '';
 evo()->setPlaceholder('OnManagerLoginFormPrerender', $html);
 
 evo()->setPlaceholder('site_name', hsc(evo()->config('site_name')));
+evo()->setPlaceholder('login_title', hsc(manager_title(lang('login_screen_title'))));
 evo()->setPlaceholder('logo_slogan', lang("logo_slogan"));
-evo()->setPlaceholder('login_message', lang("login_message"));
 evo()->setPlaceholder('year', date('Y'));
 
-// andrazk 20070416 - notify user of install/update
-if (installGoingOn()) {
-    $login_message = [
-        1 => lang('login_cancelled_install_in_progress'),
-        2 => lang('login_cancelled_site_was_updated')
-    ];
-    evo()->setPlaceholder(
-        'login_message',
-        sprintf(
-            '<p><span class="fail">%s</span></p><p>%s</p>',
-            $login_message[installGoingOn()],
-            lang('login_message')
-        )
-    );
-}
+// インストール・アップデートの作業中の案内。
+// login_message は案内に続けて操作の説明を出す。login_notice は案内だけを出す（操作の説明を出さないテーマ用）
+$installState = installGoingOn();
+$loginNotice = $installState
+    ? sprintf('<span class="fail">%s</span>', lang($installState === 1 ? 'login_cancelled_install_in_progress' : 'login_cancelled_site_was_updated'))
+    : '';
+evo()->setPlaceholder('login_message', ($loginNotice === '' ? '' : $loginNotice . '<br>') . lang('login_message'));
+evo()->setPlaceholder('login_notice', $loginNotice === '' ? '' : sprintf('<p class="loginNotice">%s</p>', $loginNotice));
 
 if (evo()->config('use_captcha') == 1) {
     evo()->setPlaceholder(
@@ -123,6 +114,8 @@ evo()->setPlaceholder(
 evo()->setPlaceholder('username', lang("username"));
 evo()->setPlaceholder('password', lang("password"));
 evo()->setPlaceholder('show_password', lang('show_password'));
+// 目のアイコン（伏せ字・表示）。ユーザーの編集画面のパスワードの欄と同じもの
+evo()->setPlaceholder('password_toggle_icons', file_get_contents(MODX_MANAGER_PATH . 'media/style/common/password_toggle_icons.tpl'));
 
 // remember me
 evo()->setPlaceholder(
@@ -133,11 +126,10 @@ evo()->setPlaceholder('remember_username', lang("remember_username"));
 evo()->setPlaceholder('login_button', lang("login_button"));
 // login.js が、ログインの処理が失敗したとき（500 など）に出す文。<script> の data- 属性に入れる
 evo()->setPlaceholder('login_request_failed', hsc(lang('login_request_failed')));
-// ログイン画面は下の parseDocumentSource() で解析し直すので、リクエストから来た値に [ ] { } が残ると
-// タグとして評価される。hsc() に加えて文字参照にする（ブラウザは元の文字に戻して送る）
+// ログイン画面は下の parseDocumentSource() で解析し直すため、hsc_for_tpl() で出す
 evo()->setPlaceholder(
     'login_return',
-    strtr(hsc($loginReturn), ['[' => '&#91;', ']' => '&#93;', '{' => '&#123;', '}' => '&#125;'])
+    hsc_for_tpl($loginReturn)
 );
 
 $loginTplOutput = loadLoginTpl($tpl);

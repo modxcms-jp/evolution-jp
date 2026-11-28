@@ -17,17 +17,10 @@ final class EvoSettingsForm
     const PASSWORD_MASK = '********************';
 
     /**
-     * ユーザー編集画面の「ユーザー」タブ（mutate_user/tpl/form/tab_settings.php）が手書きで出す設定。
-     * 欄を足したらここにも足す（ユーザー設定として保存してよい名前に含める）
-     */
-    const USER_TAB_KEYS = ['allow_manager_access', 'allowed_parents', 'allowed_ip', 'allowed_days'];
-
-    /**
      * メールの文面の設定名 => 言語キー（SSOT）。設定画面の定義と、インストーラー・アップデーターが
      * 行の無いときに言語ファイルの文面を入れる処理（install/instprocessor.php）の両方がこれを使う
      */
     const MAIL_TEXT_LANG_KEYS = [
-        'signupemail_message' => 'system_email_signup',
         'websignupemail_message' => 'system_email_websignup',
         'webpwdreminder_message' => 'system_email_webreminder',
     ];
@@ -47,8 +40,9 @@ final class EvoSettingsForm
      * @param array $values 欄に出す値（system は systemValues() の結果、user・profile はそのユーザーの値。差し戻しを含む）
      * @param array $stored 保存されているシステム設定（storedValues() の結果。差し戻しを含まない）。
      *                      「今の設定は何か」を判るのに使う（一括変更の基準、user・profile の条件の行と「システム設定に従う」の値）
-     * @param string $scope system（グローバル設定）・user（ユーザー編集画面）・profile（プロフィール）。
-     *                      user・profile は、その scope の行だけを同じタブ・小見出し・順で出す
+     * @param string $scope system（グローバル設定）・user（ユーザー編集画面）・profile（プロフィール）・
+     *                      web（Web ユーザー編集画面。値は web_user_settings の値）。
+     *                      system 以外は、その scope の行だけを同じタブ・小見出し・順で出す
      */
     public function __construct(array $tabs, array $values, array $stored, string $scope = 'system')
     {
@@ -90,7 +84,7 @@ final class EvoSettingsForm
     {
         $values = $stored;
 
-        foreach (['filemanager_path', 'rb_base_dir', 'export_dir'] as $key) {
+        foreach (['filemanager_path', 'rb_base_dir', 'export_dir', 'snapshot_path'] as $key) {
             $path = (string)($values[$key] ?? '');
             if (MODX_BASE_PATH !== '' && strpos($path, MODX_BASE_PATH) === 0) {
                 $values[$key] = self::BASE_PATH_TOKEN . substr($path, strlen(MODX_BASE_PATH));
@@ -167,7 +161,6 @@ final class EvoSettingsForm
     /**
      * その scope の画面に出す設定キー（topmenu の欄も含む）。
      * ユーザー設定として保存してよい本体の名前で、プラグインの欄は含まない。
-     * user には、ユーザー編集画面の「ユーザー」タブが手書きで出す USER_TAB_KEYS を含む
      */
     public static function names(string $scope): array
     {
@@ -179,7 +172,7 @@ final class EvoSettingsForm
                 $names[] = $row['key'];
             }
         }
-        return $scope === 'user' ? array_merge($names, self::USER_TAB_KEYS) : $names;
+        return $names;
     }
 
     /**
@@ -289,40 +282,6 @@ final class EvoSettingsForm
     public function pluginFieldNames(): array
     {
         return $this->pluginFieldNames;
-    }
-
-    /**
-     * table.settings の表の共通の見た目（設定画面・ユーザー編集画面・プロフィールで同じものを出す）
-     */
-    public static function style(): string
-    {
-        return <<<'HTML'
-<style type="text/css">
-    table.settings {
-        border-collapse: collapse;
-        width: 100%;
-    }
-
-    table.settings tr {
-        border-bottom: 1px dotted #ccc;
-    }
-
-    table.settings th {
-        font-size: inherit;
-        vertical-align: top;
-        text-align: left;
-    }
-
-    table.settings th, table.settings td {
-        padding: 5px;
-    }
-
-    table.settings.user-scope td input[type=text] {
-        width: 250px;
-    }
-</style>
-
-HTML;
     }
 
     /**
@@ -439,35 +398,38 @@ HTML;
             }
         }
         return $heading . "<table class=\"settings\">\n"
-            . '<tr class="row1" style="border-bottom:none;"><td colspan="2"' . (empty($tab['eventPadded']) ? ' style="padding:0;"' : '') . '>'
+            . '<tr style="border-bottom:none;"><td colspan="2"' . (empty($tab['eventPadded']) ? ' style="padding:0;"' : '') . '>'
             . $output . "</td></tr>\n</table>\n";
     }
 
     private function renderRow(array $row): string
     {
-        $attr = '';
+        $attr = [];
         if (isset($row['showIf']) && $this->isSystem()) {
             [$name, $expected] = $row['showIf'];
-            $attr = ' data-show-if="' . hsc("{$name}={$expected}") . '"';
+            $attr['data-show-if'] = "{$name}={$expected}";
         }
         if ($this->isConditionHidden($row)) {
-            $attr .= ' style="display:none"';
+            $attr['style'] = 'display:none';
         }
 
-        return "<tr{$attr}>\n"
-            . $this->renderHeading($row) . "\n"
-            . '<td>' . $this->renderCell($row) . "</td>\n"
-            . "</tr>\n";
+        return EvoFieldRow::render([
+            'field' => $row['key'] ?? '',
+            'label' => $this->resolve($row['label'] ?? ''),
+            'label_extra' => $this->renderLabelExtra($row),
+            'body' => $this->renderCell($row),
+            'help' => $this->desc($row),
+            'attr' => $attr,
+        ]) . "\n";
     }
 
     /**
-     * 行の見出しのセル。lang_text は「言語から読み込む」select を見出しのセルに持つ
+     * 見出しのセルで名前の後ろに置く HTML。lang_text は「言語から読み込む」select を持つ
      */
-    private function renderHeading(array $row): string
+    private function renderLabelExtra(array $row): string
     {
-        $label = $this->resolve($row['label'] ?? '');
         if ($row['type'] !== 'lang_text') {
-            return '<th>' . $label . '</th>';
+            return '';
         }
         $reload = (string)$row['reload'];
         $options = '<option value="">' . hsc(lang('language_title')) . "</option>\n";
@@ -486,7 +448,7 @@ HTML;
             hsc($onchange),
             $options
         );
-        return '<th>' . $label . "<br />\n<p>" . lang('update_settings_from_language') . "</p>\n" . $select . '</th>';
+        return "<br />\n<p>" . lang('update_settings_from_language') . "</p>\n" . $select;
     }
 
     private function renderCell(array $row): string
@@ -496,21 +458,13 @@ HTML;
                 return $this->resolve($row['before'] ?? '')
                     . $this->textInput($row)
                     . $this->resolve($row['after'] ?? '')
-                    . $this->userDefaultBox($row)
-                    . (($row['br'] ?? true) ? '<br/>' : '') . $this->desc($row);
+                    . $this->userDefaultBox($row);
             case 'textarea':
                 return $this->textarea($row)
-                    . ($this->userDefaultBox($row) !== '' ? '<br />' . $this->userDefaultBox($row) : '')
-                    . $this->desc($row);
+                    . ($this->userDefaultBox($row) !== '' ? '<br />' . $this->userDefaultBox($row) : '');
             case 'select':
-                $field = $this->select($row);
-                if ($field === '') {
-                    // 選択肢が無い（options が null）ときは、欄を出さず説明だけを出す
-                    return $this->desc($row);
-                }
-                return $field
-                    . (($row['br'] ?? true) ? '<br/>' : '')
-                    . $this->desc($row);
+                // 選択肢が無い（options が null）ときは、欄を出さず説明だけが出る（空の文字）
+                return $this->select($row);
             case 'password':
                 return $this->password($row);
             case 'topmenu':
@@ -518,7 +472,7 @@ HTML;
             case 'path':
                 if (!$this->isSystem()) {
                     // 既定値の表示とリセットは、グローバル設定だけ（空は「システム設定に従う」）
-                    return $this->textInput($row) . '<br/>' . $this->desc($row);
+                    return $this->textInput($row);
                 }
                 return $this->path($row);
             case 'lang_text':
@@ -535,6 +489,8 @@ HTML;
                 return $this->radio($row);
             case 'radio':
                 return $this->radio($row);
+            case 'checkboxes':
+                return $this->checkboxes($row);
         }
         return '';
     }
@@ -543,11 +499,13 @@ HTML;
     {
         $key = $row['key'];
         $size = (int)($row['size'] ?? 255) ?: 255;
+        // maxlength の既定は size。0 のときは属性を出さない（長さに上限を付けない）
+        $maxlength = (int)($row['maxlength'] ?? $size);
         return sprintf(
-            '<input type="text" name="%s" value="%s" maxlength="%d"%s%s%s />',
+            '<input type="text" name="%s" value="%s"%s%s%s%s />',
             hsc($key),
             hsc($this->value($key, $row)),
-            $size,
+            $maxlength > 0 ? sprintf(' maxlength="%d"', $maxlength) : '',
             $size <= 10 ? sprintf(' style="width:%dem;"', $size) : '',
             !empty($row['disabled']) ? ' disabled' : '',
             $this->rowAttributes($row)
@@ -623,22 +581,45 @@ HTML;
         if (!array_key_exists($current, $options) && isset($row['default'])) {
             $current = (string)$this->resolve($row['default']);
         }
-        $html = '';
+        $items = [];
         foreach ($options as $value => $label) {
-            $html .= sprintf(
-                '<label><input type="radio" name="%s" value="%s"%s%s /> %s</label>' . (!empty($row['inline']) ? '' : '<br/>'),
+            $items[] = sprintf(
+                '<label><input type="radio" name="%s" value="%s"%s%s /> %s</label>',
                 hsc($row['key']),
                 hsc((string)$value),
                 (string)$value === $current ? ' checked="checked"' : '',
                 !empty($row['disabled']) ? ' disabled' : '',
                 $label
-            ) . "\n";
+            );
         }
-        return $html . $this->desc($row);
+        return implode(!empty($row['inline']) ? "\n" : "<br/>\n", $items) . "\n";
     }
 
     /**
-     * 言語ファイルの文面を初期値に持つ複数行の欄。読み込みの select は見出しのセルに出す（renderHeading）
+     * 複数のチェックボックス。値は選んだ値を「,」でつないだ文字列（保存の処理が name[] の配列を「,」でつなぐ）
+     */
+    private function checkboxes(array $row): string
+    {
+        $options = $this->resolve($row['options'] ?? []);
+        if (!is_array($options)) {
+            return '';
+        }
+        $checked = explode(',', $this->value($row['key'], $row));
+        $items = [];
+        foreach ($options as $value => $label) {
+            $items[] = sprintf(
+                '<label><input type="checkbox" name="%s[]" value="%s"%s />%s</label>',
+                hsc($row['key']),
+                hsc((string)$value),
+                in_array((string)$value, $checked, true) ? ' checked="checked"' : '',
+                $label
+            );
+        }
+        return implode("\n", $items);
+    }
+
+    /**
+     * 言語ファイルの文面を初期値に持つ複数行の欄。読み込みの select は見出しのセルに出す（renderLabelExtra）
      */
     private function langText(array $row): string
     {
@@ -651,7 +632,7 @@ HTML;
         $attr = $this->attributes(['id' => $row['id']] + ($row['attr'] ?? []));
         if (($row['field'] ?? 'textarea') === 'text') {
             $field = sprintf(
-                '<input type="text" name="%s" value="%s" maxlength="255"%s /><br/>',
+                '<input type="text" name="%s" value="%s" maxlength="255"%s />',
                 hsc($key),
                 hsc($value),
                 $attr
@@ -665,9 +646,7 @@ HTML;
                 hsc($hiddenName),
                 hsc($langKey),
                 hsc(lang($langKey))
-            ) . "\n"
-            . (!empty($row['hiddenBr']) ? '<br/>' : '')
-            . $this->desc($row);
+            ) . "\n";
     }
 
     /**
@@ -680,7 +659,7 @@ HTML;
             hsc($row['key']),
             self::PASSWORD_MASK,
             $this->attributes($row['attr'] ?? ['style' => 'width: 250px;'])
-        ) . "\n" . $this->desc($row);
+        ) . "\n";
     }
 
     /**
@@ -694,7 +673,7 @@ HTML;
                 . $this->textInput(['key' => $key, 'attr' => ['style' => 'width:350px;']])
                 . "</td></tr>\n";
         }
-        return $html . '</table><div>' . $this->desc($row) . '</div>';
+        return $html . '</table>';
     }
 
     /**
@@ -717,8 +696,7 @@ HTML;
                 '&nbsp;<input name="removecontenttype" type="button" value="%s" onclick="removeContentType()" />',
                 hsc(lang('remove'))
             )
-            . "</td></tr></table>\n<br />\n"
-            . $this->desc($row);
+            . "</td></tr></table>\n";
     }
 
     /**
@@ -785,7 +763,7 @@ HTML;
             $changed && $reset === '2' ? ' checked' : '',
             sprintf(lang('template_reset_specific'), hsc($savedName)),
             (int)$savedId
-        ) . $this->desc($row);
+        );
     }
 
     /**
@@ -807,13 +785,12 @@ HTML;
         return lang('default') . sprintf(' <span id="default_%s">%s</span>%s<br/>', hsc($key), hsc($default), $hint) . "\n"
             . sprintf(
                 '<input type="text" name="%1$s" value="%2$s" maxlength="255" id="%1$s" />' . "\n"
-                . '<input type="button" onclick="%3$s" value="%4$s" name="reset_%1$s"><br/>',
+                . '<input type="button" onclick="%3$s" value="%4$s" name="reset_%1$s">',
                 hsc($key),
                 hsc($this->value($key, $row)),
                 hsc($reset),
                 hsc(lang('reset'))
-            ) . "\n"
-            . $this->desc($row);
+            ) . "\n";
     }
 
     /**

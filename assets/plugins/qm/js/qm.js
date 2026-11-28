@@ -10,7 +10,7 @@
 
     const STYLE = ''
         + '#qmModal{position:fixed;inset:0;margin:auto;padding:0;border:0;border-radius:8px;overflow:hidden;'
-        + 'max-width:100vw;max-height:100vh;background:#fff;box-shadow:0 12px 40px rgba(0,0,0,.35)}'
+        + 'max-width:calc(100vw - 32px);max-height:calc(100vh - 32px);background:#fff;box-shadow:0 12px 40px rgba(0,0,0,.35)}'
         + '#qmModal::backdrop{background:rgba(20,24,32,.5)}'
         + '#qmModal iframe{display:block;width:100%;height:100%;border:0}'
         + '#qmModalClose{position:absolute;bottom:10px;right:14px;z-index:1;width:32px;height:32px;border:0;border-radius:50%;'

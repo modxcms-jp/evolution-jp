@@ -16,9 +16,10 @@ if (!$id) {
 }
 
 // 複製元と、複製の置き場所（複製元の親）が、許可するリソースの範囲の中かも確かめる
-$parentOfSource = (int)db()->getValue(
+$source = db()->getRow(
     db()->select('parent', '[+prefix+]site_content', sprintf("id='%d'", $id))
 );
+$parentOfSource = (int)($source['parent'] ?? 0);
 
 // check permissions on the document
 if (
@@ -37,6 +38,12 @@ if (
     exit;
 }
 
+// 存在の有無は、権限の確かめのあとに返す（権限の無い利用者に、文書の有無を知らせない）
+if (!$source) {
+    alert()->setError(7);
+    alert()->dumpError();
+}
+
 // Run the duplicator
 evo()->loadExtension('DocAPI');
 $newid = duplicateDocument($id);
@@ -51,11 +58,13 @@ $pid = db()->getValue(
         sprintf("id='%s'", $newid)
     )
 );
+manager()->notice(lang('notice_duplicated'));
 if ($pid == 0) {
     header("Location: index.php?refresh=tree&a=3&id=" . $newid);
     return;
 }
-header("Location: index.php?refresh=tree&a=120&id=" . $pid);
+include_once MODX_CORE_PATH . 'controls/child_document_list_state.class.php';
+header('Location: ' . ChildDocumentListState::returnUrl((int) $pid));
 
 
 function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias = true)

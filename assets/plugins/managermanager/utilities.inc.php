@@ -34,6 +34,22 @@ function useThisRule($roles = '', $templates = '')
     return ($match_role_list || !makeArray($roles)) && ($match_template_list || !makeArray($templates));
 }
 
+/**
+ * 欄を探す CSS セレクタ（行を動かす・隠す・名前や説明を変える部品で使う）。
+ * TV は、入力欄の形（input・select・textarea）を決めつけずに name で探す。独自の TV（custom_tv）の形は
+ * 「入力時の選択肢」の文字から推し量っているので、選択肢をファイルやコードで作る TV では外れることがあるため
+ */
+function mmFieldSelector($field)
+{
+    global $mm_fields;
+
+    $fieldname = str_replace('\\', '', $mm_fields[$field]['fieldname']); // fieldname の \\[\\] は CSS のエスケープなので外す
+    if (!empty($mm_fields[$field]['tv'])) {
+        return sprintf('[name="%s"]', $fieldname);
+    }
+    return sprintf('%s[name="%s"]', $mm_fields[$field]['fieldtype'], $fieldname);
+}
+
 // Makes a commas separated list into an array
 function makeArray($csv)
 {
@@ -55,18 +71,17 @@ function makeArray($csv)
     return $return;
 }
 
-// Make an output JS safe
+// innerHTML（MM.html()）に入れる文字列の、JS の文字列リテラル（引用符付き）を返す
+// 値は先に HTML のエスケープをする（既にある文字参照は二重にしない）。JS への埋め込みは js_literal() が行う
+function mmHtmlLiteral($str)
+{
+    return js_literal(htmlentities((string)$str, ENT_QUOTES, config('modx_charset', 'utf-8'), false));
+}
+
+// HTML のエスケープをした、引用符の中に置ける JS の文字列（引用符なし）を返す。互換のため。新しいコードは mmHtmlLiteral() を使う
 function jsSafe($str)
 {
-    global $modx;
-
-    $str = htmlentities((string)$str, ENT_QUOTES, $modx->config('modx_charset', 'utf-8'), false);
-    // Also keep it inside a JS string literal: escape backslashes and line breaks
-    return str_replace(
-        ['\\', "\r", "\n", "\u{2028}", "\u{2029}"],
-        ['\\\\', '\\r', '\\n', '\\u2028', '\\u2029'],
-        $str
-    );
+    return substr(mmHtmlLiteral($str), 1, -1);
 }
 
 // Does the specified template use the specified TVs?

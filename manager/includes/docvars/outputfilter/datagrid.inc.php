@@ -20,8 +20,6 @@ return DataTableSettings::render($value, [
     'header' => $params['head'] ?? '',
     'footer' => $params['foot'] ?? '',
     'tableClass' => $params['tblc'] ?? '',
-    'itemClass' => $params['itmc'] ?? '',
-    'altItemClass' => $params['aitmc'] ?? '',
     'headerClass' => $params['chdrc'] ?? '',
     'pagerClass' => $params['pclass'] ?? '',
     'emptyMessage' => $params['egmsg'] ?? '',

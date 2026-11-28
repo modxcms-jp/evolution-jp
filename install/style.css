@@ -862,3 +862,25 @@ input#adminemail {
     margin-top: 1em;
     color: #5a5a5a;
 }
+
+/* 接続の画面で、テストの結果や次のセクションを出すときの動き（connection.tpl の showBlock()） */
+.install-reveal {
+    animation: install-reveal .3s ease-out;
+}
+
+@keyframes install-reveal {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .install-reveal {
+        animation: none;
+    }
+}

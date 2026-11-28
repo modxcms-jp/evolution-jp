@@ -3,7 +3,8 @@
 require_once MODX_CORE_PATH . 'backup_manager.class.inc.php';
 
 $backup = new EvoBackupManager();
-$maxGenerations = EvoBackupManager::KEEP;
+$store = $backup->store();
+$maxGenerations = EvoSnapshotStore::KEEP;
 $driver = 'mysqldump';
 foreach ($args as $arg) {
     if (strpos($arg, '--max=') === 0) {
@@ -16,41 +17,36 @@ foreach ($args as $arg) {
 }
 
 if ($driver !== 'mysqldump' && $driver !== 'php') {
-    cli_usage('Usage: php evo db:backup [--max=N] [--driver=mysqldump|php]');
+    cli_usage('Usage: php evo.php db:backup [--max=N] [--driver=mysqldump|php]');
 }
 
-if (!$backup->ensureDir()) {
-    cli_usage('Error: cannot create or write directory ' . $backup->dir());
+if (!$store->ensureDir()) {
+    if ($store->problem() !== EvoSnapshotStore::UNWRITABLE) {
+        cli_usage('Error: the snapshot directory ' . $store->dir() . ' cannot be used (outside the site folder, or a folder that holds other files). Fix snapshot_path in the global settings.');
+    }
+    cli_usage('Error: cannot create or write directory ' . $store->dir());
 }
 
-global $modx;
-require_once MODX_CORE_PATH . 'mysql_dumper.class.inc.php';
-$dumper = new Mysqldumper();
-$tables = $dumper->getTableNames();
-if (!$tables) {
-    cli_usage('Error: no tables found with the configured prefix.');
-}
-
-$filename = $backup->autoFilename();
-$outputPath = $backup->dir() . $filename;
-
-// 管理画面の復元で戻せるよう、プレフィックスのテーブルだけを、ルーチンとトリガーなしで書き出す
-if (!cli_export_database_file($driver, $outputPath, $tables, ['routines' => false])) {
+// 管理画面のスナップショットと同じ中身にする（プレフィックスのテーブルだけ、ルーチンとトリガーなし、ログの表は構造だけ）
+$writer = function ($path, array $tables, array $structureOnly) use ($driver) {
+    if (!$tables) {
+        cli_usage('Error: no tables found with the configured prefix.');
+    }
+    if ($driver === 'php') {
+        return EvoSqlDump::writeFile($path, $tables, ['drop' => true, 'structureOnly' => $structureOnly]);
+    }
+    return cli_export_snapshot_mysqldump($path, $tables, $structureOnly);
+};
+$filename = $store->autoFilename();
+$outputPath = $store->dir() . $filename;
+if ($backup->createSnapshot($filename, ['writer' => $writer, 'keep' => $maxGenerations]) === false) {
     cli_usage("Error: failed to write backup {$outputPath}");
 }
 cli_out("Backup written: {$outputPath}");
 
-foreach ($backup->prune($maxGenerations) as $removed) {
+foreach ($backup->pruned() as $removed) {
     cli_out('Removed old backup: ' . $removed);
 }
 
-$autoCount = 0;
-$otherCount = 0;
-foreach ($backup->files() as $file) {
-    if (preg_match(EvoBackupManager::AUTO_NAME_PATTERN, $file['name'])) {
-        $autoCount++;
-    } else {
-        $otherCount++;
-    }
-}
-cli_out('Backups in ' . $backup->dir() . ": auto-named {$autoCount}/{$maxGenerations}, other {$otherCount}");
+$counts = $store->counts();
+cli_out('Backups in ' . $store->dir() . ": auto-named {$counts['auto']}/{$maxGenerations}, other {$counts['other']}");

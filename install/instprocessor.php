@@ -220,9 +220,9 @@ include_once MODX_SETUP_PATH . 'sqlParser.class.php';
 $sqlParser = new SqlParser();
 
 $sqlParser->prefix = sessionv('table_prefix');
-$sqlParser->adminname = sessionv('adminname');
-$sqlParser->adminpass = sessionv('adminpass');
-$sqlParser->adminemail = sessionv('adminemail');
+$sqlParser->adminname = (string) sessionv('adminname', '');
+$sqlParser->adminpassHash = (string) sessionv('adminpass_hash');
+$sqlParser->adminemail = (string) sessionv('adminemail', '');
 $sqlParser->connection_charset = sessionv('database_charset');
 $sqlParser->connection_collation = sessionv('database_collation');
 $sqlParser->managerlanguage = sessionv('managerlanguage');
@@ -264,6 +264,10 @@ if (sessionv('is_upgradeable')) {
         printf('<p>%s</p>', lang('some_tables_not_updated'));
         return;
     }
+}
+
+if (!sessionv('is_upgradeable')) {
+    prepareDatabaseDefaultForInstall();
 }
 
 echo "<p>" . lang('setup_database_creating_tables');
@@ -510,14 +514,21 @@ if ($errors == 0) {
     log_install_event('Migrations were not recorded because the installation had errors', ['errors' => $errors]);
 }
 
-// フレンドリー URL は標準。.htaccess が無いときだけ sample.htaccess から置く（既にある .htaccess は書き換えない）。
-// 置けなかったときは、リンクが 404 になるので結果の画面で知らせる
-$htaccessNotice = false;
+// フレンドリー URL は標準。.htaccess が無ければ sample.htaccess から置き、既存の .htaccess に書き換えの規則が無ければ
+// 目印で囲んで末尾に足す（EvoHtaccess）。足したことは結果の画面で知らせ、置けない・足せないときはリンクが 404 になるので警告する
+$htaccessNotice = '';
+$htaccessWarning = '';
 if ($errors == 0) {
     require_once MODX_CORE_PATH . 'htaccess.class.inc.php';
     $htaccessResult = EvoHtaccess::ensure(MODX_BASE_PATH, MODX_BASE_URL, false, serverv('SERVER_SOFTWARE', ''));
     log_install_event('Checked .htaccess', ['result' => $htaccessResult]);
-    $htaccessNotice = !in_array($htaccessResult, [EvoHtaccess::PLACED, EvoHtaccess::EXISTS, EvoHtaccess::SKIPPED], true);
+    if ($htaccessResult === EvoHtaccess::ADDED) {
+        $htaccessNotice = 'htaccess_rules_added';
+    } elseif ($htaccessResult === EvoHtaccess::NO_REWRITE) {
+        $htaccessWarning = 'htaccess_no_rewrite';
+    } elseif (!in_array($htaccessResult, [EvoHtaccess::PLACED, EvoHtaccess::EXISTS, EvoHtaccess::SKIPPED], true)) {
+        $htaccessWarning = 'htaccess_not_placed';
+    }
 }
 
 // Setup the MODX API -- needed for the cache processor
@@ -566,8 +577,11 @@ if ($errors > 0) {
 
 // setup completed!
 echo "<p><b>" . lang('installation_successful') . "</b></p>";
-if ($htaccessNotice) {
-    printf('<p><span class="notok"><b>%s</b></span></p>', lang('htaccess_not_placed'));
+if ($htaccessWarning !== '') {
+    printf('<p><span class="notok"><b>%s</b></span></p>', lang($htaccessWarning));
+}
+if ($htaccessNotice !== '') {
+    printf('<p>%s</p>', lang($htaccessNotice));
 }
 // ログインを保つか（$keep_login）は install.php が処理の前に決め、セッションの後始末も install.php が行う
 echo "<p>" . lang($keep_login ? 'to_log_into_content_manager_keep_login' : 'to_log_into_content_manager') . "</p>";

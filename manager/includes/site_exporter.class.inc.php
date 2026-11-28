@@ -136,17 +136,6 @@ class EvoSiteExporter
     }
 
     /**
-     * 1 件を書き出す。exportMany([$id]) と同じ。
-     *
-     * @return array exportMany() の結果の 1 件分
-     */
-    public function exportOne($id)
-    {
-        $results = $this->exportMany([(int)$id]);
-        return $results[0];
-    }
-
-    /**
      * 複数件を書き出す。取得は CONCURRENCY 件ずつ同時に行う（まとまりごと。1 なら 1 件ずつ順に取る）。
      * ファイルの作成・書き出しは、取得を終えたあとに ID の順に行う（1 件ずつ書き出すときと同じ並びで、フォルダ側の整理も同じ順で行う）。
      *

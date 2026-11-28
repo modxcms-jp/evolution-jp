@@ -121,13 +121,22 @@ class EvoMigrator
         return !isset($this->applied()[self::BASELINE_ID]);
     }
 
+    /**
+     * 記録の表が無ければ作る。文字セットと照合順序は system_settings にそろえる
+     * （ほかの表はインストール時に選んだ照合順序で作られる。指定しないと DB の既定になり、MySQL 8 では utf8mb4_0900_ai_ci になる）
+     */
     public function ensureTable(): void
     {
+        $collation = (new EvoMigrationHelper())->tableCollation('system_settings');
+        if (!$collation) {
+            throw new RuntimeException('Failed to create migrations table: the system_settings table was not found.');
+        }
         $rs = db()->query(
             "CREATE TABLE IF NOT EXISTS {$this->table()} ("
             . 'id varchar(' . self::MAX_ID_LENGTH . ') NOT NULL, '
             . "applied_at int(20) NOT NULL DEFAULT '0', "
-            . 'PRIMARY KEY (id))',
+            . 'PRIMARY KEY (id)) '
+            . "DEFAULT CHARSET={$collation['charset']} COLLATE={$collation['collation']}",
             false
         );
         if ($rs === false) {

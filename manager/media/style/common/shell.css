@@ -6,9 +6,12 @@
  */
 
 body.evo-shell {
+    /* ツリーの欄の幅。覚えた幅（shell.js）が画面の幅の半分を超えるときは、半分に収める（小さい画面で開いたときや、ウィンドウを縮めたとき） */
+    --shell-tree-full: min(var(--shell-tree-width, 260px), 50vw);
+    --shell-tree-column: var(--shell-tree-full);
     display: grid;
     grid-template-rows: var(--shell-menu-height, 58px) 1fr;
-    grid-template-columns: var(--shell-tree-width, 260px) minmax(0, 1fr);
+    grid-template-columns: var(--shell-tree-column) minmax(0, 1fr);
     grid-template-areas:
         "menu menu"
         "tree main";
@@ -29,7 +32,8 @@ body.evo-shell > #topMenu {
 body.evo-shell > #treePane {
     grid-area: tree;
     overflow: auto;
-    border-inline-end: 3px solid #f7f7f7;
+    /* ツリーと本文の境目。テーマは --tree-pane-border で変える（theme-variables.md の「ツリー」） */
+    border-inline-end: var(--tree-pane-border, 3px solid #f7f7f7);
     /* 旧treeフレームのbody背景相当。テーマの.treeframebodyを縦いっぱいに広げる */
     display: flex;
     flex-direction: column;
@@ -45,16 +49,25 @@ body.evo-shell > #mainPane {
     min-width: 0;
     overflow: auto;
     position: relative;
-    /* 旧mainフレームのbody paddingに相当する内側余白 */
+    /* ページの左右の余白はここだけが持つ（theme-spacing.md の「横の余白」） */
     padding: var(--shell-main-padding, var(--space-2, 8px));
+    padding-inline: var(--page-padding-x, var(--shell-main-padding, var(--space-2, 8px)));
     box-sizing: border-box;
+}
+
+/* 差し替えた画面のスクリプトを実行し終わるまで隠す（shell.js の executeScripts()）。
+   visibility: hidden だと、その間に画面のスクリプトが呼ぶ focus() が効かないので opacity で隠す */
+.evo-pane-pending {
+    opacity: 0;
 }
 
 /* シェルの3ペイン以外のbody直下要素(ライブラリが追加するオーバーレイ等)が
    グリッドのセルを占有してレイアウトを崩さないよう、ゼロサイズのアンカーとして
    メイン領域に重ねる。TinyMCE等の補助コンテナが透明レイヤー化して入力を奪うのを防ぐ。
-   ダイアログ(evo-dialog.js の <dialog>)とツールチップ(evo-tooltip.js の #evoTooltip)は fixed で出すので、幅0にすると潰れる。対象から外す */
-body.evo-shell > :not(#topMenu):not(#treePane):not(#mainPane):not(#preLoader):not(#evoShellModalOverlay):not(.evo-dialog):not(#evoTooltip) {
+   ダイアログ(evo-dialog.js の <dialog>)とツールチップ(evo-tooltip.js の #evoTooltip)は fixed で出すので、幅0にすると潰れる。対象から外す。
+   エラーの案内(.evo-error-guide)は、#mainPane より前の失敗(OnManagerPreFrameLoader など)では body 直下に出る。読めるよう対象から外し、本文の領域に置く。
+   知らせ(evo-notice.js の #evoNotice)も fixed で出し、#mainPane を差し替えても残すため body 直下に置く。対象から外す */
+body.evo-shell > :not(#topMenu):not(#treePane):not(#mainPane):not(#preLoader):not(#evoShellModalOverlay):not(.evo-dialog):not(#evoTooltip):not(#evoTreeResizer):not(.evo-error-guide):not(#evoNotice) {
     grid-area: main;
     align-self: start;
     justify-self: start;
@@ -63,6 +76,13 @@ body.evo-shell > :not(#topMenu):not(#treePane):not(#mainPane):not(#preLoader):no
     min-width: 0;
     min-height: 0;
     overflow: visible;
+}
+
+body.evo-shell > .evo-error-guide {
+    grid-area: main;
+    align-self: start;
+    justify-self: start;
+    margin: var(--space-2, 8px);
 }
 
 body.evo-shell > #preLoader {
@@ -83,18 +103,244 @@ body.evo-shell > #preLoader .preLoaderText {
     margin: 0;
 }
 
-/* ツリー非表示 (旧hideTreeFrame相当) */
+/* ツリーの欄（サイドバー）と本文の境目のつまみ（header.inc.php が body の直下に出す。ツリーを読み込み直しても消えないため）。
+   開いているときはツリーの右の端に重ね、ドラッグで --shell-tree-width を変える。閉じているときは左端の帯になる（下の tree-hidden） */
+body.evo-shell > #evoTreeResizer {
+    position: fixed;
+    top: var(--shell-menu-height, 58px);
+    bottom: 0;
+    left: calc(var(--shell-tree-column) - 4px);
+    width: 8px;
+    cursor: col-resize;
+    touch-action: none;
+    z-index: 50;
+}
+
+body.evo-shell > #evoTreeResizer:hover,
+body.evo-shell.is-resizing-tree > #evoTreeResizer {
+    background: color-mix(in srgb, var(--color-text-primary, #333) 15%, transparent);
+}
+
+/* ドラッグ中は、文字を選ばず、カーソルを保つ */
+body.evo-shell.is-resizing-tree {
+    cursor: col-resize;
+    user-select: none;
+}
+
+/* 離すとツリーを隠すところまで動かしたとき。ツリーを薄くして知らせ、そのまま待つと少しずつ薄くなって、
+   薄くなりきったら畳む（shell.js が animationend で畳む。待つ時間はこのアニメーションの長さで決める） */
+body.evo-shell.is-collapsing-tree {
+    cursor: w-resize;
+}
+
+body.evo-shell.is-collapsing-tree > #treePane {
+    animation: tree-collapse-wait 1.1s linear forwards;
+}
+
+@keyframes tree-collapse-wait {
+    from {
+        opacity: 0.6;
+    }
+
+    to {
+        opacity: 0.2;
+    }
+}
+
+/* ツリー非表示 (旧hideTreeFrame相当)。左端に帯（#evoTreeResizer）の幅だけを残し、本文が帯の下に潜らないようにする。
+   列の形を表示のときと同じ minmax にそろえ、幅を途中の値で動かせるようにする */
 body.evo-shell.tree-hidden {
-    grid-template-columns: 0 1fr;
+    --shell-tree-rail-width: 14px;
+    grid-template-columns: var(--shell-tree-rail-width) minmax(0, 1fr);
+}
+
+/* 閉じているときの帯。押すと開き、右へドラッグするとその幅で開く（shell.js） */
+body.evo-shell.tree-hidden > #evoTreeResizer {
+    left: 0;
+    width: var(--shell-tree-rail-width);
+    display: flex;
+    justify-content: center;
+    padding-top: var(--space-3, 12px);
+    box-sizing: border-box;
+    cursor: pointer;
+    background: color-mix(in srgb, var(--color-text-primary, #333) 6%, transparent);
+}
+
+body.evo-shell.tree-hidden > #evoTreeResizer::before {
+    content: "\203A" / "";
+    font-size: 18px;
+    line-height: 1;
+    color: var(--color-text-muted, #606060);
+}
+
+body.evo-shell.tree-hidden > #evoTreeResizer:hover {
+    background: color-mix(in srgb, var(--color-text-primary, #333) 15%, transparent);
+}
+
+body.evo-shell.tree-hidden > #evoTreeResizer:focus-visible {
+    outline: 2px solid var(--color-primary, #375665);
+    outline-offset: -2px;
 }
 
 body.evo-shell.tree-hidden > #treePane {
+    visibility: hidden;
+    overflow: hidden;
+    border-inline-end-width: 0;
+}
+
+/* 利用者の操作でツリーを隠す・表示するとき（menu.php が tree-animating を付ける）、列の幅を短く動かす。
+   急に消えたり広がったりして不具合に見えないように。隠すときは、縮め終わってから見えなくする */
+body.evo-shell.tree-animating {
+    transition: grid-template-columns 0.2s ease;
+}
+
+body.evo-shell.tree-animating > #treePane {
+    overflow: hidden;
+}
+
+body.evo-shell.tree-animating.tree-hidden > #treePane {
+    transition: visibility 0s 0.2s;
+}
+
+body.evo-shell.tree-animating > #evoTreeResizer {
     display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.evo-shell.tree-animating {
+        transition: none;
+    }
+}
+
+/* 設定で、ツリーペインを細くして本文を広く使う（設定 manager_tree_narrow。header.inc.php が body に tree-narrow と、幅を割る数 --shell-tree-narrow を出す）。
+   ツリーを広く見せたい画面（#mainPane の中に data-shell-tree="full" がある。ダッシュボードとリソースの移動）は今までの幅にする。
+   ツリーに乗る・キーボードでフォーカスすると、元の幅に戻して本文を右へ押し出す（本文を隠さない）。境目のつまみに乗っただけでは広げず、
+   細い状態でつまみを動かすと細い幅を変え、元の幅まで広げると自動の拡縮を止める（shell.js が tree-narrow-off を付け、ダブルクリックで戻す）。広げている途中でつまみへ移ったときは、shell.js が tree-resizer-hold を付けて広げたままにする。
+   ノードを押して画面を移っても、マウスがツリーに乗っているあいだは元の幅のままで、離れると縮む。
+   乗れない端末（タッチ）では、細いツリーを広げられないまま押すことになるので細くしない */
+@media (hover: hover) {
+    body.evo-shell.tree-narrow:not(.tree-narrow-off):not(.tree-hidden):not(:has(> #mainPane [data-shell-tree="full"])) {
+        /* 細い幅。細い状態で境目を動かすと shell.js が --shell-tree-narrow-width に覚える。元の幅より広くしない */
+        --shell-tree-column: min(var(--shell-tree-narrow-width, calc(var(--shell-tree-full) / var(--shell-tree-narrow))), var(--shell-tree-full));
+    }
+
+    body.evo-shell.tree-narrow:not(.tree-narrow-off):not(.tree-hidden):not(:has(> #mainPane [data-shell-tree="full"])):is(:has(> #treePane:hover), :has(> #treePane :focus-visible), .tree-resizer-hold, .is-resizing-tree:not(.is-resizing-narrow)) {
+        --shell-tree-column: var(--shell-tree-full);
+    }
+
+    /* 細く見せているあいだは、境目のつまみの当たりをツリーの側（左）へ広げる（見える線は 8px のまま）。つまみの上ではツリーを
+       広げないので、ツリーの右端から境目へ近づいても広がらずにつかめる。本文の側は乗ってもツリーが広がらないので広げない。
+       広げているあいだは今までの 8px に戻し、ツリーの右端（縦のスクロールバー・「ツリーを隠す」ボタン）を覆わない */
+    body.evo-shell.tree-narrow:not(.tree-narrow-off):not(.tree-hidden):not(:has(> #mainPane [data-shell-tree="full"])):not(:is(:has(> #treePane:hover), :has(> #treePane :focus-visible), .tree-resizer-hold, .is-resizing-tree:not(.is-resizing-narrow))) > #evoTreeResizer {
+        --shell-tree-resizer-reach: 24px;
+        margin-left: calc(-1 * var(--shell-tree-resizer-reach));
+        box-sizing: content-box;
+        padding-left: var(--shell-tree-resizer-reach);
+        background-clip: content-box;
+    }
+
+    /* 細いあいだは、ボタンの並び（ドラッグの下限より狭くなる）で横のスクロールバーを出さない */
+    body.evo-shell.tree-narrow:not(.tree-narrow-off):not(.tree-hidden):not(:has(> #mainPane [data-shell-tree="full"])):not(:is(:has(> #treePane:hover), :has(> #treePane :focus-visible), .tree-resizer-hold, .is-resizing-tree:not(.is-resizing-narrow))) > #treePane {
+        overflow-x: hidden;
+    }
+
+    /* 幅を動きで見せる。広げるときは少し待ち、ツリーの上を通り過ぎただけでは本文を動かさない。
+       ドラッグ中は追従を遅らせず、帯を押して開くとき（tree-animating）は待たない */
+    body.evo-shell.tree-narrow:not(.tree-narrow-off):not(.tree-hidden):not(.is-resizing-tree):not(:has(> #mainPane [data-shell-tree="full"])) {
+        transition: grid-template-columns 0.2s ease;
+    }
+
+    body.evo-shell.tree-narrow:not(.tree-narrow-off):not(.tree-hidden):not(.is-resizing-tree):not(:has(> #mainPane [data-shell-tree="full"])) > #evoTreeResizer {
+        transition: left 0.2s ease;
+    }
+
+    body.evo-shell.tree-narrow:not(.tree-narrow-off):not(.tree-hidden):not(.is-resizing-tree):not(:has(> #mainPane [data-shell-tree="full"])):not(.tree-animating):is(:has(> #treePane:hover), :has(> #treePane :focus-visible)),
+    body.evo-shell.tree-narrow:not(.tree-narrow-off):not(.tree-hidden):not(.is-resizing-tree):not(:has(> #mainPane [data-shell-tree="full"])):not(.tree-animating):is(:has(> #treePane:hover), :has(> #treePane :focus-visible)) > #evoTreeResizer {
+        transition-delay: 0.3s;
+    }
+}
+
+/* ツリーの上のピン（自動の拡縮を止める・戻す。shell.js の toggleTreePin）。押した見た目は tree.css の .treeButton.is-active。
+   乗れない端末では細くしないので出さない */
+@media not (hover: hover) {
+    body.evo-shell .tree-pin-cell {
+        display: none;
+    }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: reduce) {
+    body.evo-shell.tree-narrow:not(.tree-narrow-off):not(.tree-hidden):not(.is-resizing-tree):not(:has(> #mainPane [data-shell-tree="full"])),
+    body.evo-shell.tree-narrow:not(.tree-narrow-off):not(.tree-hidden):not(.is-resizing-tree):not(:has(> #mainPane [data-shell-tree="full"])) > #evoTreeResizer {
+        transition: none;
+    }
 }
 
 /* サイト名の行と、その下のツリーの間を少し空ける（全テーマ共通） */
 body.evo-shell #treeRoot {
     margin-top: var(--space-1, 4px);
+}
+
+/* サイト名の行（アイコンとサイト名）は、ツリーの項目（nodes.php の行の white-space: nowrap）と同じく、ツリーの幅を狭めても折り返さない */
+#treeHolder .tree-root-row {
+    white-space: nowrap;
+}
+
+/* ツリーの字下げ。子の項目は親の .tree-children の中に入るので、入れ物の余白が深さの分だけ重なる。
+   ＋－の無い行（ページ・続きを読む・空のフォルダ）は、＋－の画像と後ろの空白の分だけ右に寄せ、フォルダのアイコンと揃える
+   （＋－の画像は幅 18px で、下の規則で 6px 詰めるので、寄せる幅は 12px と空白 1 つ） */
+#treeRoot .tree-row.is-leaf {
+    padding-inline-start: calc(12px + 0.278em);
+}
+
+#treeRoot .tree-children {
+    padding-inline-start: 1.39em;
+}
+
+/* ツリーの項目の文字の部分。乗ったとき・選んでいるときの枠と余白を、ふだんから（枠は透明で）確保し、
+   乗っても行の高さと文字の位置が変わらないようにする。枠の色・地・角はテーマの .treeNodeSelected, .treeNode:hover が決める */
+#treeRoot :is(.treeNode, .treeNodeSelected) {
+    padding: 0 4px;
+    border-width: 1px;
+    border-style: solid;
+}
+
+#treeRoot .treeNode:not(:hover) {
+    border-color: transparent;
+}
+
+/* ツリーの行の画像（＋－・アイコン）。＋－の画像は右側に余白を含むので、画像を 6px ずつ前に詰める */
+#treeRoot div img {
+    margin: 0;
+    margin-inline-start: -6px;
+    vertical-align: middle;
+}
+
+/* 設定「リソースツリーのタイトルを省略」がオンのとき（#treeHolder.is-trim-title）、名前をツリーの幅で「…」にする。
+   後ろの ID（[12] など）は残すため、行と、押せる部分（span.treeNode など）を横並びにして、名前だけを縮める */
+#treeHolder.is-trim-title .tree-row {
+    display: flex;
+    align-items: center;
+}
+
+#treeHolder.is-trim-title .tree-row > span {
+    display: inline-flex;
+    gap: 0.278em;
+    min-width: 0;
+}
+
+#treeHolder.is-trim-title .tree-node-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ツリーの行のアイコン（押すと右クリックメニュー）。乗ったときに地を付ける */
+.tree-node-icon {
+    cursor: pointer;
+}
+
+.tree-node-icon:hover {
+    background-color: beige;
 }
 
 /* ツリー内の高さ計算をJSからCSSへ移行 */
@@ -177,7 +423,7 @@ body.evo-shell #mainPane #actions {
     inset-inline-end: var(--space-4, 16px);
     z-index: 100;
     width: max-content;
-    max-width: calc(100% - var(--shell-tree-width, 260px) - 2 * var(--space-4, 16px));
+    max-width: calc(100% - var(--shell-tree-column) - 2 * var(--space-4, 16px));
 }
 
 body.evo-shell.tree-hidden #mainPane #actions {
@@ -185,8 +431,11 @@ body.evo-shell.tree-hidden #mainPane #actions {
 }
 
 /* 設定画面の小見出し(EvoSettingsForm の section の title)。タブの中の表を、細い線で区切った軽い見出しで分ける。
+   リソースの投稿画面の開閉するまとまりの見出し(.mutate-group > summary)も同じ見た目にする。
    色と余白はテーマの変数から読む。上の間は直前の表の margin-bottom で作る(theme-spacing.md の書き方) */
-.tab-page .settings-section {
+.tab-page .settings-section,
+.tab-page .mutate-group > summary,
+.tab-page .mutate-content-title {
     margin: 0 0 var(--space-3, 12px);
     padding-bottom: var(--space-1, 4px);
     border-bottom: 1px solid var(--color-border-light, #ededed);
@@ -195,8 +444,58 @@ body.evo-shell.tree-hidden #mainPane #actions {
     font-weight: bold;
 }
 
+/* 本文の欄（section_content.tpl）。エディタが自分の枠を持つので、セクションの箱に入れずタブの幅いっぱいに置く。
+   見出し（.mutate-content-title）は既定では出さない（hidden）。ManagerManager で名前を変えたときだけ出す */
+.mutate-content {
+    margin-bottom: var(--space-3, 12px);
+}
+
+/* エディタの下のエディタの選択（rteContent() の見出しと #which_editor） */
+.mutate-content > .mutate-field-title {
+    display: inline-block;
+    margin: var(--space-2, 8px) var(--space-2, 8px) 0 0;
+}
+
+/* 本文のすぐ上にある、閉じた最後のまとまりの見出しは、下の線を引かない（下はエディタの枠で区切られる） */
+.tab-page .mutate-group:not([open]):not(:has(~ .mutate-group)):has(~ .mutate-content) > summary {
+    border-bottom: 0;
+}
+
 .tab-page > :has(+ .settings-section) {
     margin-bottom: var(--space-5, 20px);
+}
+
+/* タブの行は、本文をスクロールしても #mainPane の上に貼り付ける。入れ子のタブは外側の行だけ。
+   #mainPane の上の余白の分だけ上に寄せ、その余白も行の背景で覆う。
+   背景はページの地（body の背景）を shell.js が写したもの。body はスクロールしないので fixed で同じ位置に重なる。
+   本体（.tab-page、z-index: 2）より前に出す */
+body.evo-shell #mainPane .dynamic-tab-pane-control:not(.dynamic-tab-pane-control .dynamic-tab-pane-control) > .tab-row {
+    position: sticky;
+    top: calc(-1 * var(--shell-main-padding, var(--space-2, 8px)));
+    z-index: 3;
+    background-color: var(--shell-page-bg-color, transparent);
+    background-image: var(--shell-page-bg-image, none);
+    background-position: var(--shell-page-bg-position, 0 0);
+    background-size: var(--shell-page-bg-size, auto);
+    background-repeat: var(--shell-page-bg-repeat, repeat);
+    background-attachment: fixed;
+}
+
+/* 貼り付いているあいだ（shell.js が is-stuck を付ける）は、右上に固定した #actions（shell.js が測った幅）の分だけ行の右を空け、タブを折り返す */
+body.evo-shell #mainPane .dynamic-tab-pane-control > .tab-row.is-stuck {
+    padding-inline-end: calc(var(--shell-actions-width, 0px) + var(--space-2, 8px));
+}
+
+/* 本体の上の枠（フォルダの見出しの型でタブの下に見える線）を、行の下端にも引いて一緒に貼り付ける。
+   選んでいないタブより前、選んでいるタブ（z-index: 999）より後ろに置き、選んでいるタブと本体をつなげる */
+body.evo-shell #mainPane .dynamic-tab-pane-control:not(.dynamic-tab-pane-control .dynamic-tab-pane-control) > .tab-row::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 2;
+    border-top: var(--tab-page-border-top, var(--tab-page-border, none));
+    pointer-events: none;
 }
 
 /* TinyMCE fullscreen時はエディタを最前面にし、管理画面シェルの操作部品を隠す */
@@ -247,33 +546,7 @@ body.evo-shell #evoShellModal {
     box-sizing: border-box;
 }
 
-/* タイトル(断片側のh1をここへ移す)と閉じるボタンの固定ヘッダー。
-   テーマの見出し配色(actionButtons a.defaultと同じ--color-primary系)を流用しつつ、
-   明るいテーマ色でも白文字とのコントラストを確保するため暗色オーバーレイを重ねる */
-body.evo-shell #evoShellModalHeader {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-2, 8px);
-    padding: 0 var(--space-2, 8px) 0 var(--space-4, 16px);
-    min-height: 44px;
-    background-image:
-        linear-gradient(rgba(0, 0, 0, .3), rgba(0, 0, 0, .3)),
-        linear-gradient(var(--color-primary-start, var(--color-primary, #375665)), var(--color-primary-end, var(--color-primary, #375665)));
-    color: var(--color-text-inverse, #fff);
-}
-
-body.evo-shell #evoShellModalHeader h1 {
-    margin: 0;
-    padding: var(--space-2, 8px) 0;
-    background: none;
-    border: none;
-    color: inherit;
-    font-size: 1.1em;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, .4);
-}
-
+/* 見出しの帯(断片側の h1 をここへ移す)と閉じるボタンの見た目は、evo-dialog.js の .evo-titlebar */
 body.evo-shell #evoShellModalBody {
     overflow: auto;
     padding: var(--space-4, 16px);
@@ -310,29 +583,6 @@ body.evo-shell #evoShellModalFooter #actions {
 body.evo-shell #evoShellModalFooter #actions .actionButtons {
     display: inline-flex;
     gap: var(--space-2, 8px);
-}
-
-body.evo-shell #evoShellModal .evo-modal-close {
-    flex: 0 0 auto;
-    width: 28px;
-    height: 28px;
-    border: 0;
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-    font-size: 20px;
-    line-height: 26px;
-    padding: 0;
-}
-
-body.evo-shell #evoShellModal .evo-modal-close:hover {
-    background: rgba(255, 255, 255, .2);
-}
-
-body.evo-shell #evoShellModal .evo-modal-close:focus-visible {
-    background: rgba(255, 255, 255, .2);
-    outline: 2px solid currentColor;
-    outline-offset: 2px;
 }
 
 /* 送信中(EvoShell.submit)は送信ボタンとactionButtonsを押せない見た目にする */
@@ -516,21 +766,19 @@ body.evo-shell input.evo-submitting-trigger {
     gap: var(--space-2, 8px);
     margin: 0;
 }
-/* 一覧の検索の送信ボタンも、テーマの button { width: 112px } を打ち消す */
+/* 一覧の検索の送信ボタン */
 .child-list-tools ul.actionButtons button {
-    float: none;
-    width: auto;
     margin: 0;
     font-family: inherit;
     line-height: inherit;
     cursor: pointer;
 }
 
-/* 子リソースの一覧の上の 2 行（resources_list.static.php）。
-   1 行目: パンくずと検索。2 行目: 作成のボタンとページ送り。狭いときは右のものが下に回り込む。
-   クラス名はこの画面専用。テーマの ul.actionButtons・.resources-topic-path・.pagination の余白は行の中で 0 にして揃える */
+/* 一覧の上の行。子リソースの一覧（resources_list.static.php）の上の 2 行と、検索（search.static.php）の結果の上の行。
+   .resources-list-head（子リソースの一覧だけ）: パンくずと検索。.list-toolbar: 作成のボタンか件数と、ページ送り。
+   狭いときは右のものが下に回り込む。.list-pager-bottom: 表の下のページ送り（右寄せ）。テーマの ul.actionButtons・.resources-topic-path・.pagination の余白は行の中で 0 にして揃える */
 .resources-list-head,
-.resources-list-toolbar {
+.list-toolbar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -538,20 +786,19 @@ body.evo-shell input.evo-submitting-trigger {
     margin-bottom: var(--space-3, 12px);
 }
 .resources-list-head .resources-topic-path,
-.resources-list-toolbar .pagination,
-.resources-list-toolbar ul.actionButtons,
-.resources-list-pager-bottom .pagination,
+.list-toolbar .pagination,
+.list-toolbar ul.actionButtons,
+.list-pager-bottom .pagination,
 .child-list-tools ul.actionButtons {
     margin: 0;
     padding: 0;
 }
 .resources-list-head .child-list-tools,
-.resources-list-toolbar .pagination,
-.resources-list-pager-bottom .pagination {
+.list-toolbar .pagination,
+.list-pager-bottom .pagination {
     margin-left: auto;
 }
-/* 入力欄と送信ボタンの高さをそろえる。テーマの .searchtext は height を固定する（18〜28px）。
-   ボタンの width:112px の打ち消しは、上の `.child-list-tools ul.actionButtons button` の規則で行う */
+/* 入力欄と送信ボタンの高さをそろえる（凍結の RevoStyle は .searchtext で height を固定している） */
 .child-list-tools {
     display: flex;
     flex-wrap: wrap;
@@ -567,21 +814,70 @@ body.evo-shell input.evo-submitting-trigger {
     width: 16em;
     max-width: 100%;
 }
-.child-list-tools ul.actionButtons,
-.child-list-tools ul.actionButtons li {
-    display: flex;
-    float: none;
-}
 .child-list-tools ul.actionButtons li {
     margin: 0;
 }
 .child-list-tools > a {
     align-self: center;
 }
-.resources-list-pager-bottom {
+.list-pager-bottom {
     display: flex;
 }
-/* 表と下のページ送りの間は、表（操作の帯は表の中に入る）の margin-bottom で作る（theme-spacing.md の決まり） */
-#mutate > :has(+ .resources-list-pager-bottom) {
+/* 表と下のページ送りの間は、表（操作の帯は表の中に入る）の margin-bottom で作る（theme-spacing.md の決まり）。
+   子リソースの一覧は #mutate の直下、検索結果は .sectionBody の直下に表を置く */
+:is(#mutate, .sectionBody) > :has(+ .list-pager-bottom) {
     margin-bottom: var(--space-3, 12px);
 }
+
+/* 検索（a=71, manager/actions/main/search.static.php）。テーマの色・余白の変数があれば使う。
+   結果の上の行は共通の .list-toolbar、下のページ送りは .list-pager-bottom（表との間は上の :has の規則）を使う */
+.search-simple { display: flex; flex-wrap: wrap; gap: var(--space-2, 8px); align-items: center; }
+.search-simple input[name="q"] { flex: 1 1 24em; max-width: 40em; box-sizing: border-box; }
+.search-also { white-space: nowrap; }
+/* 2 行目。閉じているあいだは 1 行に並び、開いた details だけ全幅にして中身を下に出す */
+.search-row2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px var(--space-4, 16px); margin-top: var(--space-2, 8px); }
+.search-help { font-size: 0.9em; color: var(--color-text-muted, #606060); }
+.search-row2 > details > summary { cursor: pointer; width: max-content; }
+.search-row2 > details[open] { flex-basis: 100%; order: 1; margin-top: var(--space-1, 4px); }
+.search-advanced > summary { font-weight: bold; }
+/* テーマが label に幅を付けていても列が広がらないよう、見出しの列は決め打ちにし、全体を左に寄せる */
+.search-advanced-grid { display: grid; grid-template-columns: 9em minmax(0, 26em); justify-content: start; gap: var(--space-2, 8px) var(--space-3, 12px); align-items: center; margin-top: var(--space-3, 12px); }
+.search-advanced-grid > label, .search-advanced-grid > span:not(.search-range) { width: auto; justify-self: start; margin: 0; }
+.search-advanced-grid input, .search-advanced-grid select { width: 100%; max-width: none; box-sizing: border-box; margin: 0; }
+.search-advanced-grid .search-sep { grid-column: 1 / -1; border-top: 1px dashed var(--color-border-light, #ddd); margin: var(--space-1, 4px) 0; }
+.search-range { display: flex; gap: var(--space-2, 8px); align-items: center; }
+.search-range input { flex: 1 1 10em; min-width: 9.5em; }
+@media (max-width: 600px) {
+    .search-advanced-grid { grid-template-columns: minmax(0, 1fr); }
+}
+.search-syntax .grid { margin-top: var(--space-2, 8px); }
+/* 検索条件の欄は、結果をスクロールしても上に貼り付ける（is-sticky のときだけ。高すぎるときは JS が外す） */
+/* スクロールする領域の上の余白（--search-sticky-pad。JS が測る）の分だけ上に寄せ、その余白を領域の背景色で塗る。
+   寄せないと、余白のぶん欄の上に隙間ができ、そこから結果が透けて見える */
+.search-sticky.is-sticky {
+    position: sticky; z-index: 10;
+    top: calc(-1 * var(--search-sticky-pad, 0px));
+    margin-top: calc(-1 * var(--search-sticky-pad, 0px));
+    padding-top: var(--search-sticky-pad, 0px);
+    background: var(--search-sticky-bg, transparent);
+}
+.search-sticky.is-stuck .sectionBody { box-shadow: 0 4px 10px rgb(0 0 0 / 12%); }
+#search-sticky-sentinel { height: 1px; margin-bottom: -1px; }
+/* 開閉のアニメーションで高さを動かすので、はみ出しを隠す */
+.search-details-body { overflow: hidden; }
+.search-syntax-example { white-space: nowrap; }
+.search-conds { list-style: none; margin: 0 0 var(--space-3, 12px); padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-1, 4px) var(--space-2, 8px); }
+/* テーマが一覧の行に付けている印（背景の画像・::before）と幅の指定を打ち消して、札の形にする */
+.search-conds li { display: inline-block; width: auto; float: none; margin: 0; padding: 1px var(--space-2, 8px); border-radius: 999px; background: var(--gray-100, #f5f5f5) none; list-style: none; font-size: 0.9em; white-space: nowrap; }
+.search-conds li::before, .search-conds li::after { content: none; display: none; }
+.search-astext { margin: 0 0 var(--space-2, 8px); }
+/* 当たらなかったとき・引けなかったときの文。札との間を空け、下は枠の余白に任せる */
+.search-empty, .search-target-error { margin: 0; padding: var(--space-1, 4px) 0; }
+/* 結果の 1 件（Google の検索結果の形）。タイトル・URL・抜粋 */
+.search-hit-title { font-size: 1.1em; font-weight: bold; }
+.search-hit-title img { vertical-align: -3px; }
+.search-hit-sub { margin-left: var(--space-2, 8px); font-size: 0.85em; font-weight: normal; }
+.search-hit-url { margin-top: var(--space-1, 4px); font-size: 0.85em; color: var(--color-success, #2f7d32); word-break: break-all; }
+.search-hit-url img { vertical-align: -3px; }
+.search-hit-snippet { margin-top: var(--space-1, 4px); color: var(--color-text-muted, #606060); line-height: 1.5; }
+.search-advanced-note { grid-column: 1 / -1; margin: 0; font-size: 0.9em; color: var(--color-text-muted, #606060); }

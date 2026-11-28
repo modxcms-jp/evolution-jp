@@ -1,7 +1,9 @@
 var mm_gmap = {
   map: {},
   marker: {},
-  addressField: {}
+  addressField: {},
+  // 住所が見つからなかったときの文言（googlemap.php が言語ファイルから渡す）
+  notFoundMessage: ''
 };
 
 mm_gmap.init = function (id, defaultGeoLoc) {
@@ -95,7 +97,8 @@ mm_gmap.geoSearch = function (mapContainerId) {
       let loc = results[0].geometry.location;
       mm_gmap.addMarker(loc, tvId);
     } else {
-      alert("Not found: " + status);
+      // status は Google の応答コード（ZERO_RESULTS など）。EvoDialog の message は HTML なのでエスケープする
+      EvoDialog.alert(mm_gmap.notFoundMessage + ' (' + Evo.escapeHtml(status) + ')', '', null, {icon: 'warning'});
     }
   });
 };

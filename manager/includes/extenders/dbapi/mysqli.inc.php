@@ -17,6 +17,10 @@ class DBAPI
     public $table_prefix;
     public $charset;
     public $connection_method;
+    /**
+     * connect() が接続のあとで止めた理由。設定を読む前は messageQuit() が何も出さないので、呼び出し側が出す
+     */
+    public $connectError = '';
     private $rs;
     private $rawQuery = false;
     private $dbconnectionmethod;
@@ -84,6 +88,7 @@ class DBAPI
         if ($this->isConnected()) {
             return true;
         }
+        $this->connectError = '';
 
         if ($host) {
             $this->hostname = $host;
@@ -175,8 +180,14 @@ class DBAPI
                 );
                 return false;
             }
-            // 文字セットを設定できなければ、違う文字セットのまま続けないよう止める
-            if (!$this->conn->query(sprintf('%s %s', $this->connection_method, $this->charset))) {
+            // 文字セットが空（config.inc.php で NULL など）なら設定せず、サーバの既定の文字セットのまま使う。
+            // 指定があって設定できなければ、違う文字セットのまま続けないよう止める
+            if (!$this->applyConnectionCharset()) {
+                $this->connectError = sprintf(
+                    'Failed to set the connection charset (%s %s). Check $database_connection_charset (DB_CHARSET) in manager/includes/config.inc.php',
+                    $this->connection_method,
+                    $this->charset
+                );
                 evo()->messageQuit(
                     sprintf(
                         "Failed to set the connection charset '%s %s' - %s",
@@ -199,6 +210,19 @@ class DBAPI
         }
         evo()->queryTime += $totaltime;
         return $this->conn;
+    }
+
+    /**
+     * 接続の文字セットを設定する。文字セットが空なら何もせず true を返す。
+     * SET CHARACTER SET は character_set_connection を DB の既定の文字セットにするので、
+     * DB の既定を変えたあとは、同じ接続でこれを呼び直す
+     */
+    public function applyConnectionCharset()
+    {
+        if (!$this->charset) {
+            return true;
+        }
+        return (bool) $this->conn->query(sprintf('%s %s', $this->connection_method, $this->charset));
     }
 
     public function select_db($dbase = '')
@@ -1042,8 +1066,6 @@ class DBAPI
      * @param: $params: Data grid parameters（DataTableSettings で描く。無いキーは既定値）
      *         columnHeaderClass
      *         cssClass            表の class（tableClass も可）
-     *         itemClass
-     *         altItemClass
      *         columns             列名（`||` があれば `||`、無ければ `,` 区切り）
      *         fields              出す列のキー（`,` 区切り。無ければ結果の列の順）
      *         colTypes            列の型（integer・float・currency・date・boolean・description・template）
@@ -1076,8 +1098,6 @@ class DBAPI
             'header' => $params['header'] ?? '',
             'footer' => $params['footer'] ?? '',
             'tableClass' => $params['cssClass'] ?? $params['tableClass'] ?? '',
-            'itemClass' => $params['itemClass'] ?? '',
-            'altItemClass' => $params['altItemClass'] ?? '',
             'headerClass' => $params['columnHeaderClass'] ?? '',
             'pagerClass' => $params['pagerClass'] ?? '',
             'emptyMessage' => $params['noRecordMsg'] ?? '',

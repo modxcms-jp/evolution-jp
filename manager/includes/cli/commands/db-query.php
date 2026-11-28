@@ -2,7 +2,7 @@
 
 $query = trim(implode(' ', $args));
 if ($query === '') {
-    cli_usage('Usage: php evo db:query \"SELECT ...\"');
+    cli_usage('Usage: php evo.php db:query \"SELECT ...\"');
 }
 
 $result = db()->query($query);

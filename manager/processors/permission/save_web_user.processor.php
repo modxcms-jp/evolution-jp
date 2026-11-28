@@ -6,14 +6,14 @@ if (!evo()->hasPermission('save_web_user')) {
     alert()->setError(3);
     alert()->dumpError();
 }
+require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
 $id = post_intvar('id');
 $oldusername = post_strvar('oldusername');
 $newusername = trim(post_strvar('newusername'));
 $fullname = post_strvar('fullname');
 $genpassword = post_intvar('newpassword');
-$passwordgenmethod = post_strvar('passwordgenmethod');
-$passwordnotifymethod = post_strvar('passwordnotifymethod');
-$specifiedpassword = post_strvar('specifiedpassword');
+// 新しいパスワード（加工しない）。新規は画面が常に送る。すでにあるユーザーは「パスワードを変更」を押したときだけ
+$newpassword = post_textvar('userpassword', '');
 $email = post_strvar('email');
 $oldemail = post_strvar('oldemail');
 $phone = post_strvar('phone');
@@ -38,15 +38,9 @@ $user_groups = post_idsvar('user_groups');
 $mode = EvoFormFlow::postedMode('web_user');
 $afterSave = EvoFormFlow::postedAfterSave();
 
-// verify password
-if ($passwordgenmethod === 'spec' && $specifiedpassword !== post_strvar('confirmpassword')) {
-    webAlert('Password typed is mismatched');
-    exit;
-}
-
 // verify email
 if (config('required_email_wuser') === null) {
-    $modx->config['required_email_wuser'] = 1;
+    evo()->setConfig('required_email_wuser', 1);
 }
 
 if (config('required_email_wuser')) {
@@ -96,20 +90,9 @@ switch ($mode) {
             }
         }
 
-        // generate a new password for this user
-        if ($specifiedpassword != '' && $passwordgenmethod === 'spec') {
-            if (strlen($specifiedpassword) < 6) {
-                webAlert('Password is too short!');
-                exit;
-            }
-            $newpassword = $specifiedpassword;
-        } elseif ($specifiedpassword == '' && $passwordgenmethod === 'spec') {
-            webAlert("You didn't specify a password for this user!");
-            exit;
-        } elseif ($passwordgenmethod === 'g') {
-            $newpassword = generate_password(8);
-        } else {
-            webAlert('No password generation method specified!');
+        $passwordError = webUserPasswordError($newpassword, $newusername, $email, $fullname);
+        if ($passwordError !== '') {
+            webAlert($passwordError);
             exit;
         }
 
@@ -123,6 +106,7 @@ switch ($mode) {
         // create the user account
         $fields = [];
         $fields['username'] = db()->escape($newusername);
+        // Web ユーザーは表側のログイン（weblogin）が MD5 で照合するので、保存の形を変えない（assets/docs/password-policy.md）
         $fields['password'] = md5($newpassword);
         $internalKey = db()->insert(
             $fields,
@@ -133,27 +117,27 @@ switch ($mode) {
             exit;
         }
 
-        $fields = compact(
-            'internalKey',
-            'fullname',
-            'role',
-            'email',
-            'phone',
-            'mobilephone',
-            'fax',
-            'zip',
-            'street',
-            'city',
-            'state',
-            'country',
-            'gender',
-            'dob',
-            'photo',
-            'comment',
-            'blocked',
-            'blockeduntil',
-            'blockedafter'
-        );
+        $fields = [
+            'internalKey' => $internalKey,
+            'fullname' => $fullname,
+            'role' => $role,
+            'email' => $email,
+            'phone' => $phone,
+            'mobilephone' => $mobilephone,
+            'fax' => $fax,
+            'zip' => $zip,
+            'street' => $street,
+            'city' => $city,
+            'state' => $state,
+            'country' => $country,
+            'gender' => $gender,
+            'dob' => $dob,
+            'photo' => $photo,
+            'comment' => $comment,
+            'blocked' => $blocked,
+            'blockeduntil' => $blockeduntil,
+            'blockedafter' => $blockedafter
+        ];
         $rs = db()->insert(
             db()->escape($fields),
             '[+prefix+]web_user_attributes'
@@ -204,35 +188,8 @@ switch ($mode) {
         }
         // end of user_groups stuff!
 
-        if (config('required_email_wuser') && $passwordnotifymethod === 'e') {
-            sendMailMessage($email, $newusername, $newpassword, $fullname);
-            header('Location: ' . EvoFormFlow::afterSaveUrl('web_user', $internalKey, $afterSave));
-        } else {
-            $stayUrl = EvoFormFlow::afterSaveUrl('web_user', $internalKey, $afterSave);
-
-            include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
-?>
-            <h1><?= lang('web_user_title') ?></h1>
-
-            <div id="actions">
-                <ul class="actionButtons">
-                    <li class="mutate"><a href="<?= hsc($stayUrl) ?>"><?= lang('close') ?></a></li>
-                </ul>
-            </div>
-
-            <div class="section">
-                <div class="sectionHeader"><?= lang('web_user_title') ?></div>
-                <div class="sectionBody">
-                    <div id="disp">
-                        <p>
-                            <?= sprintf(lang('password_msg'), hsc($newusername), hsc($newpassword)) ?>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        <?php
-            include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
-        }
+        // パスワードは画面にもメールにも出さず、ほかの保存と同じ行き先へ戻す
+        EvoFormFlow::redirectAfterSave('web_user', $internalKey, $afterSave);
         break;
     case 'edit': // edit user
         if (!$id) {
@@ -245,27 +202,14 @@ switch ($mode) {
         }
         // generate a new password for this user
         if ($genpassword === 1) {
-            if ($specifiedpassword != '' && $passwordgenmethod === 'spec') {
-                if (strlen($specifiedpassword) < 6) {
-                    webAlert("Password is too short!");
-                    exit;
-                }
-
-                $newpassword = $specifiedpassword;
-            } elseif ($specifiedpassword == '' && $passwordgenmethod === 'spec') {
-                webAlert("You didn't specify a password for this user!");
-                exit;
-            } elseif ($passwordgenmethod === 'g') {
-                $newpassword = generate_password(8);
-            } else {
-                webAlert("No password generation method specified!");
+            $passwordError = webUserPasswordError($newpassword, $newusername, $email, $fullname);
+            if ($passwordError !== '') {
+                webAlert($passwordError);
                 exit;
             }
-            $updatepasswordsql = ", password=MD5('" . db()->escape($newpassword) . "') ";
-        }
-        // パスワードを変えたときだけ、新しいパスワードを知らせる
-        if (!empty($updatepasswordsql) && config('required_email_wuser') && $passwordnotifymethod === 'e') {
-            sendMailMessage($email, $newusername, $newpassword, $fullname);
+            $updatepasswordsql = ", password='" . md5($newpassword) . "' ";
+        } else {
+            $newpassword = '';
         }
 
         // check if the username already exist
@@ -328,27 +272,27 @@ switch ($mode) {
             exit;
         }
 
-        $fields = compact(
-            'fullname',
-            'role',
-            'email',
-            'phone',
-            'mobilephone',
-            'fax',
-            'zip',
-            'street',
-            'city',
-            'state',
-            'country',
-            'gender',
-            'dob',
-            'photo',
-            'comment',
-            'failedlogincount',
-            'blocked',
-            'blockeduntil',
-            'blockedafter'
-        );
+        $fields = [
+            'fullname' => $fullname,
+            'role' => $role,
+            'email' => $email,
+            'phone' => $phone,
+            'mobilephone' => $mobilephone,
+            'fax' => $fax,
+            'zip' => $zip,
+            'street' => $street,
+            'city' => $city,
+            'state' => $state,
+            'country' => $country,
+            'gender' => $gender,
+            'dob' => $dob,
+            'photo' => $photo,
+            'comment' => $comment,
+            'failedlogincount' => $failedlogincount,
+            'blocked' => $blocked,
+            'blockeduntil' => $blockeduntil,
+            'blockedafter' => $blockedafter
+        ];
         $rs = db()->update(
             db()->escape($fields),
             evo()->getFullTableName('web_user_attributes'),
@@ -367,7 +311,7 @@ switch ($mode) {
             'mode' => 'upd',
             'userid' => $id,
             'username' => $newusername,
-            'userpassword' => $newpassword ?? '',
+            'userpassword' => $newpassword,
             'useremail' => $email,
             'userfullname' => $fullname,
             'oldusername' => ($oldusername !== $newusername) ? $oldusername : '',
@@ -380,7 +324,7 @@ switch ($mode) {
             $tmp = [
                 'userid' => $id,
                 'username' => $newusername,
-                'userpassword' => $newpassword ?? ''
+                'userpassword' => $newpassword
             ];
             evo()->invokeEvent('OnWebChangePassword', $tmp);
         }
@@ -423,78 +367,27 @@ switch ($mode) {
         // end of user_groups stuff!
         /*******************************************************************************/
 
-        if ($genpassword === 1 && $passwordnotifymethod === 's') {
-            $stayUrl = EvoFormFlow::afterSaveUrl('web_user', $id, $afterSave);
-
-            include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
-        ?>
-            <h1><?= lang('web_user_title') ?></h1>
-
-            <div id="actions">
-                <ul class="actionButtons">
-                    <li class="mutate"><a href="<?= hsc($stayUrl) ?>"><?= lang('close') ?></a></li>
-                </ul>
-            </div>
-
-            <div class="section">
-                <div class="sectionHeader"><?= lang('web_user_title') ?></div>
-                <div class="sectionBody">
-                    <div id="disp">
-                        <p><?= sprintf(lang("password_msg"), hsc($newusername), hsc($newpassword)) ?></p>
-                    </div>
-                </div>
-            </div>
-<?php
-
-            include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
-        } else {
-            header('Location: ' . EvoFormFlow::afterSaveUrl('web_user', $id, $afterSave));
-        }
+        EvoFormFlow::redirectAfterSave('web_user', $id, $afterSave);
         break;
     default:
         webAlert('Unauthorized access');
         exit;
 }
 
-// Send an email to the user
-function sendMailMessage($email, $uid, $pwd, $ufn)
+// 新しいパスワードが決まりに合わなければ、利用者に見せるエラー文。合えば ''
+function webUserPasswordError($password, $username, $email, $fullname)
 {
-    $emailsender = config('emailsender');
-    $message = sprintf(config('websignupemail_message'), $uid, $pwd); // use old method
-    // replace placeholders
-    $ph['username'] = $uid;
-    $ph['uid'] = $uid;
-    $ph['fullname'] = $ufn;
-    $ph['ufn'] = $ufn;
-    $ph['manager_email'] = $emailsender;
-    $ph['saddr'] = $emailsender;
-    $ph['pwd'] = $pwd;
-    $ph['password'] = $pwd;
-    $ph['sname'] = config('site_name');
-    $ph['semail'] = $emailsender;
-    $ph['surl'] = config('site_url');
-    $message = evo()->parseText($message, $ph);
-    $message = evo()->mergeSettingsContent($message);
-    $message = evo()->mergeChunkContent($message);
-    $message = evo()->rewriteUrls($message);
-
-    if (evo()->sendmail($email, $message) === false) //ignore mail errors in this cas
-    {
-        webAlert("Error while sending mail to " . $email);
-        exit;
+    if ($password === '') {
+        return lang('password_required');
     }
+    return manager()->passwordError($password, [$username, $email, $fullname]);
 }
 
 // Save User Settings
 function saveUserSettings($id)
 {
-    $settings = [
-        'login_home',
-        'allowed_ip',
-        'allowed_days'
-    ];
-
-    foreach ($settings as $name) {
+    // 保存してよい名前は、設定の定義の scope web の行
+    foreach (EvoSettingsForm::names('web') as $name) {
         db()->delete('[+prefix+]web_user_settings', "webuser='" . $id . "' and setting_name='" . $name . "'");
         $value = postv($name);
         if (is_array($value)) {
@@ -517,10 +410,4 @@ function webAlert($msg)
     // 新規か更新でないとき（不正な mode）は、入力を今の画面の番号で残して一覧へ戻す
     manager()->saveFormValues($mode ? EvoFormFlow::screen('web_user', $mode) : 0);
     evo()->webAlertAndQuit($msg, EvoFormFlow::formUrl('web_user', $mode, post_intvar('id'), EvoFormFlow::postedAfterSave()));
-}
-
-// Generate password
-function generate_password($length = 10)
-{
-    return substr(str_shuffle('abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, $length);
 }

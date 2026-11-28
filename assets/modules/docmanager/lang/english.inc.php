@@ -15,7 +15,6 @@
 $_lang['DM_module_title'] = 'Document Manager';
 $_lang['DM_action_title'] = 'Select an action';
 $_lang['DM_range_title'] = 'Specify a Range of Document IDs';
-$_lang['DM_tree_title'] = 'Select Documents from the tree';
 $_lang['DM_update_title'] = 'Update Completed';
 $_lang['DM_sort_title'] = 'Menu Index Editor';
 
@@ -24,7 +23,6 @@ $_lang['DM_doc_permissions'] = 'Document Permissions';
 $_lang['DM_template_variables'] = 'Template Variables';
 $_lang['DM_sort_menu'] = 'Sort Menu Items';
 $_lang['DM_change_template'] = 'Change Template';
-$_lang['DM_publish'] = 'Publish/Unpublish';
 $_lang['DM_other'] = 'Other Properties';
 
 //-- buttons
@@ -32,7 +30,6 @@ $_lang['DM_close'] = 'Close Doc Manager';
 $_lang['DM_cancel'] = 'Go Back';
 $_lang['DM_go'] = 'Go';
 $_lang['DM_save'] = 'Save';
-$_lang['DM_sort_another'] = 'Sort Another';
 
 //-- templates tab
 $_lang['DM_tpl_desc'] = 'Choose the required template from the table below and then specify the Document IDs which need to be changed. Either by specifying a range of IDs or by using the Tree option below.';
@@ -52,8 +49,6 @@ $_lang['DM_tv_no_tv'] = 'No Template Variables found for the template.';
 $_lang['DM_tv_no_docs'] = 'No documents selected for updating.';
 $_lang['DM_tv_no_template_selected'] = 'No template has been selected.';
 $_lang['DM_tv_loading'] = 'Template Variables are loading ...';
-$_lang['DM_tv_ignore_tv'] = 'Ignore these Template Variables (comma-separated values):';
-$_lang['DM_tv_ajax_insertbutton'] = 'Insert';
 
 //-- document permissions tab
 $_lang['DM_doc_desc'] = 'Choose the required document group from the table below and whether you wish to add or remove the group. Then specify the Document IDs which need to be changed. Either by specifying a range of IDs or by using the Tree option below.';
@@ -68,7 +63,6 @@ $_lang['DM_doc_skip_message2'] = 'is already part of the selected document group
 
 //-- sort menu tab
 $_lang['DM_sort_pick_item'] = 'Please click the site root or parent document from the MAIN DOCUMENT TREE that you\'d like to sort.';
-$_lang['DM_sort_updating'] = 'Updating ...';
 $_lang['DM_sort_updated'] = 'Updated';
 $_lang['DM_sort_nochildren'] = 'Parent does not have any children';
 $_lang['DM_sort_noid'] = 'No Document has been selected. Please go back and select a document.';
@@ -102,7 +96,6 @@ $_lang['DM_other_delete_radio2'] = 'Undelete';
 //-- adjust dates
 $_lang['DM_adjust_dates_header'] = 'Set Document Dates';
 $_lang['DM_adjust_dates_desc'] = 'Any of the following Document date settings can be changed. Use "View Calendar" option to set the dates.';
-$_lang['DM_view_calendar'] = 'View Calendar';
 $_lang['DM_clear_date'] = 'Clear Date';
 
 //-- adjust authors
@@ -117,11 +110,6 @@ $_lang['DM_date_pubdate'] = 'Publish Date:';
 $_lang['DM_date_unpubdate'] = 'Unpublish Date:';
 $_lang['DM_date_createdon'] = 'Created On Date:';
 $_lang['DM_date_editedon'] = 'Edited On Date:';
-//$_lang['DM_date_deletedon'] = 'Deleted On Date';
-
-$_lang['DM_date_notset'] = ' (not set)';
-//deprecated
-$_lang['DM_date_dateselect_label'] = 'Select a Date: ';
 
 //-- document select section
 $_lang['DM_select_submit'] = 'Submit';
@@ -134,7 +122,6 @@ $_lang['DM_select_range_text'] = '<p><strong>Key (where n is a document ID	numbe
 							  <p>Example: 1*,4**,2-20,25 - This will change the selected setting
 						      for documents 1 and its children, document 4 and all children, documents 2
 						      through 20 and document 25.</p>';
-$_lang['DM_select_tree'] = 'View and select documents using the Document Tree';
 
 //-- process tree/range messages
 $_lang['DM_process_noselection'] = 'No selection was made. ';
@@ -143,6 +130,7 @@ $_lang['DM_process_limits_error'] = 'Upper limit less than lower limit:';
 $_lang['DM_process_invalid_error'] = 'Invalid Value:';
 $_lang['DM_process_update_success'] = 'Update was completed successfully, with no errors.';
 $_lang['DM_process_update_error'] = 'Update has completed but encountered errors:';
+$_lang['DM_process_blocked'] = 'Nothing was changed. Update was stopped:';
 $_lang['DM_process_date_invalid'] = 'Invalid date. Nothing was changed. Please check the date format.';
 $_lang['DM_process_no_permission'] = 'You do not have permission to change document group access.';
 $_lang['DM_process_no_access'] = 'Skipped %d document(s) that you cannot open because of document group restrictions.';

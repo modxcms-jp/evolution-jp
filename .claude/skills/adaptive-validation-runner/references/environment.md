@@ -81,7 +81,7 @@ NODE_PATH=<work>/pw/node_modules node .claude/skills/adaptive-validation-runner/
 
 ## 設定を変えて確かめる
 
-システム設定は DB を直接書き換え、キャッシュを作り直す（`docker exec -w /var/www/html <名前>-app php evo cache:clear`、または管理画面の「サイトをリフレッシュ」。`lib.js` の `sql()` と `refreshCache()`）。
+システム設定は DB を直接書き換え、キャッシュを作り直す（`docker exec -w /var/www/html <名前>-app php evo.php cache:clear`、または管理画面の「サイトをリフレッシュ」。`lib.js` の `sql()` と `refreshCache()`）。
 
 ```bash
 docker exec <名前>-db mariadb -uuser -ppassword evodb -e \
@@ -103,7 +103,7 @@ DB の `time_zone` は `+14:00` を受け付けない（MariaDB の上限は `+1
 - **80 番以外のポートでは、サイトのURLにポートが要る**: サイトのURL（`fixed_site_url` / `.env` の `SITE_URL`）が無いと、アプリはポートを含まない `SERVER_NAME` で URL を組み立てる（`get_host_name()`）。
   新規インストールでは自動で入るが、80 番で入れたサイトをポートを変えて開き直すと、リダイレクト先が元のホストになる。システム設定か `.env` でポート込みの URL にする。
   ユーザーに目視してもらう環境を 80 番以外のポートで渡すときは、サイトのURLを空にしない（空にすると、ログイン後に 80 番の別の環境へ飛ぶ）。渡す前に、curl でログインして応答の `Location` がそのポートのままかを確かめる。
-  HTML エクスポートなど、コンテナの中からサイトの URL で自サイトを取りに行く処理は、ホストのポートが 80 以外だと失敗する（コンテナが待ち受けるのは 80 と 8080 だけ）。確かめるときは 80 番の環境か、CLI の `php evo export:site` を使う
+  HTML エクスポートなど、コンテナの中からサイトの URL で自サイトを取りに行く処理は、ホストのポートが 80 以外だと失敗する（コンテナが待ち受けるのは 80 と 8080 だけ）。確かめるときは 80 番の環境か、CLI の `php evo.php export:site` を使う
 - **入れ直しても `temp/cache/` は残る**: `down -v` は DB だけを消す。インストール中は `basicConfig.php` の `$fixed_site_url` を読まないので、入れ直しには支障はない
 - **MySQL 公式イメージが取得できない**: Docker Engine 29 系では `failed to register layer: openat dev/ptmx: no such file or directory` で失敗する。
   MySQL 公式イメージ（8.3 / 8.4 とも）は Oracle Linux が土台で、最初のレイヤーにキャラクタデバイス `dev/ptmx`（5,2）を含む。
@@ -119,12 +119,14 @@ DB の `time_zone` は `+14:00` を受け付けない（MariaDB の上限は `+1
 - **新規インストールには `install/install-config.php` が要る**: `setup-site.js` は一時的に置き、終わったら消す
 - **インストールすると作業ツリーに `manager/includes/config.inc.php` ができる**（git の無視対象）。`down -v` で DB だけ消すと、設定ファイルだけが残ってサイトが 500 になる。`setup-site.js` は DB のテーブルでインストール済みかを判定し、この状態なら止まる。開発者自身の設定ファイルを消さないよう、`--reinstall` を付けたときだけ退避（`config.inc.php.bak-<時刻>`）して入れ直す
 - **システム設定を保存すると `sample.htaccess` が `.htaccess` に名前を変える**（`manager/processors/save_settings.processor.php`。フレンドリーURLのため）。作業ツリーに削除差分が残るので戻す。`setup-site.js` は保存前の中身で自動的に書き戻す（`git checkout` で戻すと、作業中の未コミットの変更が失われるため使わない）。`.htaccess` は git の無視対象
-- **キャッシュは `php evo cache:clear` か「サイトをリフレッシュ」（`a=26`）で作り直す**: どちらもその場で作り直す。`temp/cache/*.php` を直接消しても、`siteCache.idx.php`（プラグインのイベント表）が無ければ次のアクセスで作り直す（#501 より前の版は作り直さず、FMP などのプラグインが動かなくなる。表側は 200 のままなので気づきにくい）
+- **キャッシュは `php evo.php cache:clear` か「サイトをリフレッシュ」（`a=26`）で作り直す**: どちらもその場で作り直す。`temp/cache/*.php` を直接消しても、`siteCache.idx.php`（プラグインのイベント表）が無ければ次のアクセスで作り直す（#501 より前の版は作り直さず、FMP などのプラグインが動かなくなる。表側は 200 のままなので気づきにくい）
 - **ブランチを切り替えた直後は古いコードが動くことがある**: OPcache は `revalidate_freq=2`。切り替えてから数秒待ってから確かめる
 - **管理画面は `Accept-Language` が無いと 404**: curl でも Playwright でも付ける（`lib.js` の `newPage()` は付けている）
 - **セーフモードのログイン画面の見分け方**: `manager/media/style/common/login.tpl` はテーマの `style.css` を読み込まない。`.loginLicense` は両方にあるので目印にならない（`lib.js` の `isSafeModeLogin()`）
 - **jAlert / jConfirm は `<dialog>`**: `dialog.evo-dialog[open]` の `.evo-dialog-ok` / `.evo-dialog-cancel` を押す（`lib.js` の `clickAlertOk()`）。本文は `.evo-dialog-message`
 - **シェルの断片かどうかは応答ヘッダーで見る**: shell.js は `X-Evo-Pane: 1` の有無だけで、断片として差し込むかを決める。fetch の応答を記録して確かめる（`lib.js` の `watchFetch()`）
+- **フォームの欄は `form.elements.<名前>` で取らない**: フォームに `name="elements"` の欄（テンプレート変数の編集画面の選択肢の欄）があると、`form.elements` がその欄を指し、ほかの欄を取れない。`form.querySelector('[name="locked"]')` のように名前で探す
+- **2 枚目以降のタブの中身は、タブを押してから測る**: 編集画面を開いた直後は、最初のタブ以外の中身は表示されていない。`isVisible()` は false になり、`getBoundingClientRect()` も 0 を返す。DOM の中身（文言・属性）は表示に関係なく取れる
 
 ## 後片付け
 

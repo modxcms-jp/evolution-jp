@@ -527,10 +527,10 @@ class DocManagerBackend
         }
 
         $new = false;
-        $results = $this->processRange($pids, 'id', 1);
-        $pids = $results[0];
+        $results = $this->processRange($pids, 'id', 0);
+        $ids = array_values(array_unique(array_map('intval', $results[0])));
         $error = $results[1];
-        $values = rtrim($pids, ' OR ');
+        $values = $ids ? 'id IN (' . implode(',', $ids) . ')' : '';
 
         // 解釈できない日付があるときは、DB に何も書かずにエラーとして知らせる
         if ($invalidInputs) {
@@ -539,8 +539,63 @@ class DocManagerBackend
             return $this->dm->parseTemplate('update.tpl', $this->dm->ph);
         }
 
+        // 設定で使っているページ（トップページ・エラーページなど）を削除・非公開にする、公開日・公開終了日を指定する範囲は、
+        // 1 件でもあれば何も変えずに止める（判定は本体の DocAPI）。公開・非公開の操作は、日付を本体の
+        // docPublishExecute()・docUnpublishExecute() と同じに扱う。日付だけの操作では published を変えない
+        $changesPublished = $fieldval === 'published' && $newvalue !== -1;
+        $changesDeleted = $fieldval === 'deleted' && $newvalue === 1;
+        $changesPubDates = isset($dateval['pub_date']) || isset($dateval['unpub_date']);
+        $resetDates = [];
+        $problems = [];
+        if ($ids && ($changesPublished || $changesDeleted || $changesPubDates)) {
+            evo()->loadExtension('DocAPI');
+            $now = request_time();
+            $rs = db()->select('id,pagetitle,published,pub_date,unpub_date', $tbl_site_content, $values);
+            while ($row = db()->getRow($rs)) {
+                $id = (int)$row['id'];
+                $guardKey = '';
+                if ($changesDeleted) {
+                    $guardKey = evo()->doc->deleteGuardKey($id);
+                } elseif ($changesPublished && $newvalue === 0) {
+                    $guardKey = evo()->doc->unpublishGuardKey($id);
+                }
+                $reason = $guardKey !== '' ? stripcslashes(lang($guardKey)) : '';
+                if ($reason === '' && $changesPubDates) {
+                    $reason = evo()->doc->protectedPubError(
+                        $id,
+                        $changesPublished ? $newvalue : (int)$row['published'],
+                        $dateval['pub_date'] ?? (int)$row['pub_date'],
+                        $dateval['unpub_date'] ?? (int)$row['unpub_date']
+                    );
+                }
+                if ($reason !== '') {
+                    $problems[] = sprintf('ID:%d (%s) %s', $id, hsc_for_tpl($row['pagetitle']), hsc_for_tpl($reason));
+                    continue;
+                }
+                if (!$changesPublished) {
+                    continue;
+                }
+                if ($newvalue === 0 && (int)$row['pub_date'] < $now && !isset($dateval['pub_date'])) {
+                    $resetDates['pub_date'][] = $id;
+                }
+                if ($newvalue === 1) {
+                    if ($now < (int)$row['pub_date'] && !isset($dateval['pub_date'])) {
+                        $resetDates['pub_date'][] = $id;
+                    }
+                    if ((int)$row['unpub_date'] < $now && !isset($dateval['unpub_date'])) {
+                        $resetDates['unpub_date'][] = $id;
+                    }
+                }
+            }
+        }
+        if ($problems) {
+            $this->dm->ph['update.message'] = '<br />' . $this->dm->lang['DM_process_blocked']
+                . '<br />' . implode('<br />', $problems);
+            return $this->dm->parseTemplate('update.tpl', $this->dm->ph);
+        }
+
         // setoption「-」のときは、公開状態などの項目は変えない
-        if ($pids !== '' && $fieldval !== '' && $newvalue !== -1) {
+        if ($ids && $fieldval !== '' && $newvalue !== -1) {
             $fields = [$fieldval => $newvalue];
             if (isset($secondaryFields) && is_array($secondaryFields)) {
                 $fields = array_merge($fields, $secondaryFields);
@@ -551,13 +606,17 @@ class DocManagerBackend
             $this->logDocumentChange($logAction);
         }
 
-        if ($pids !== '' && count($dateval) > 0) {
+        if ($ids && count($dateval) > 0) {
             db()->update(db()->escape($dateval), $tbl_site_content, $values);
             $new = true;
             $this->logDocumentChange('dates');
         }
 
-        if ($pids <> '' && count($authorval) > 0) {
+        foreach ($resetDates as $column => $resetIds) {
+            db()->update([$column => 0], $tbl_site_content, 'id IN (' . implode(',', array_map('intval', $resetIds)) . ')');
+        }
+
+        if ($ids && count($authorval) > 0) {
             db()->update(db()->escape($authorval), $tbl_site_content, $values);
             $new = true;
             $this->logDocumentChange('authors');

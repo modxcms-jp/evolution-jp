@@ -20,7 +20,7 @@ SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真�
 
 * **既存パターンの評価と改善**: 新機能追加時は既存パターンを必ず調査する。ただし不適切・冗長・設計的に弱い場合は改善を優先する。局所的な新方式導入は禁止し、改善は横断的に適用する前提で設計する。
 * **ヘルパー利用**: `manager/includes/helpers.php` の `evo()` / `db()` / `manager()` を経由してグローバルオブジェクトへアクセスする。
-* **スーパーグローバル変数の禁止**:
+* **スーパーグローバル変数の禁止**（ヘルパーを読み込む前に動く公開側の入口だけは例外。`assets/docs/request-input.md` の「ヘルパーを読み込む前の処理」）:
 
   * `$_GET` → `getv($key, $default)` / `$_POST` → `postv($key, $default)` / `$_REQUEST` → `anyv($key, $default)`（GET と POST だけ。cookie は含まない）
   * `$_SERVER` → `serverv($key, $default)` / `$_COOKIE` → `cookiev($key, $default)`
@@ -36,7 +36,7 @@ SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真�
   * ❌ 変数宣言時の個別エスケープ / ❌ `compact()` 関数
 * **出力のエスケープ**: 出力する文脈に合ったヘルパーを、出力の直前で使う。
 
-  * HTML → `hsc()` / `<script>` 内の JS の値 → `js_literal()`（引用符付きの文字列リテラルを返す）
+  * HTML → `hsc()` / あとで `parseText()` などのタグ解析を通す HTML（管理画面の tpl に差し込む値など）→ `hsc_for_tpl()`（`assets/docs/template-system.md`）/ `<script>` 内の JS の値 → `js_literal()`（引用符付きの文字列リテラルを返す）/ 配列やオブジェクト → `js_value()`
   * ❌ JS への埋め込みに `addslashes()` や `db()->escape()` を使う（`</script>` などを防げない）
 * **コーディングスタイル**:
 
@@ -99,7 +99,9 @@ fix(db): 実行直前でエスケープ処理を統一
 * 既存フック位置を無視して新イベントを追加する
 * キャッシュ無効化条件を考慮しない
 * 小規模修正で新アーキテクチャを導入する
+* 対象のファイル・関数・行が実在するかを確かめずに、推測で直す
 * 管理画面で自前のダイアログ・モーダルを作る（`EvoDialog` を使う。`assets/docs/manager-dialog.md`）
+* 管理画面の部品を、共通の部品の一覧（`assets/docs/manager-components.md`）を見ずに画面の中で作る
 * 管理画面の body 直下に要素を足す（シェルの CSS で幅が 0 になる。`assets/docs/manager-shell.md`）
 
 ---
@@ -120,7 +122,7 @@ fix(db): 実行直前でエスケープ処理を統一
 
 * 管理機能は CLI 実行可能
 * ログはコンテキスト配列形式
-* `php evo` はホストから `docker compose exec <app-service> php evo ...` で実行する（補助ルールの「検証環境」を参照）
+* `php evo.php` はホストから `docker compose exec <app-service> php evo.php ...` で実行する（補助ルールの「検証環境」を参照）
 
 ---
 
@@ -142,7 +144,7 @@ fix(db): 実行直前でエスケープ処理を統一
 | `events-and-plugins.md` | イベント   |
 | `cache-mechanism.md`    | キャッシュ  |
 | `ai-runtime-governance.md` | AIランタイム運用 |
-| `jquery-migration.md`   | jQuery 置き換え |
+| `jquery-migration.md`   | jQuery 置き換え・編集画面の行の data-field 属性 |
 | `.agent/roadmap.md`     | ロードマップ |
 | `global-settings.md`    | 設定追加   |
 | `site-url.md`           | サイトのURL |
@@ -152,10 +154,17 @@ fix(db): 実行直前でエスケープ処理を統一
 | `data-table.md`         | 表の部品   |
 | `migrations.md`         | マイグレーション・アップグレード |
 | `request-input.md`      | リクエスト値 |
+| `deprecations.md`       | 非推奨の機能・警告の残し方 |
 | `file-storage.md`       | ファイルの置き場所・シンボリックリンクの決まり |
 | `manager-shell.md`      | 管理画面のシェル・frameset 互換の名前 |
+| `manager-components.md` | 管理画面の共通の部品の一覧・新しい部品を足すときの決まり |
 | `manager-dialog.md`     | 管理画面のダイアログ（EvoDialog） |
 | `permissions.md`        | 権限・文書グループ |
+| `manager-notice.md`     | 管理画面の知らせ（トースト。EvoNotice・manager()->notice()） |
+| `manager-form-row.md`   | 管理画面のフォームの行（EvoFieldRow）・直書きの style の振り分け |
+| `ui-wording.md`         | 管理画面の文言（言語ファイルの書き方・表記） |
+| `backup.md`             | DB のバックアップ・スナップショット・復元 |
+| `password-policy.md`    | パスワードの決まり・設定の画面・保存と照合 |
 
 ---
 
@@ -249,7 +258,7 @@ fix(db): 実行直前でエスケープ処理を統一
 ## ログ確認
 
 - システムログ: `temp/logs/system/YYYY/MM/`（JSONLines形式）
-- CLI: `php evo log:tail --lines=20` / `php evo log:search "検索語" --level=error --limit=10`
+- CLI: `php evo.php log:tail --lines=20` / `php evo.php log:search "検索語" --level=error --limit=10`
 
 ---
 

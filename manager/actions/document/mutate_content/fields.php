@@ -1,13 +1,14 @@
 <?php
 function fieldPagetitle()
 {
-    return renderTr(
+    return renderFieldTr(
+        'pagetitle',
         lang('resource_title'),
         input_text_tag(
             [
                 'id' => 'field_pagetitle',
                 'name' => 'pagetitle',
-                'value' => hsc(doc('pagetitle'))
+                'value' => hsc_for_tpl(doc('pagetitle'))
             ]
         ) . tooltip(lang('resource_title_help'))
     );
@@ -15,13 +16,14 @@ function fieldPagetitle()
 
 function fieldLongtitle()
 {
-    return renderTr(
+    return renderFieldTr(
+        'longtitle',
         lang('long_title'),
         input_text_tag(
             [
                 'id' => 'field_longtitle',
                 'name' => 'longtitle',
-                'value' => hsc(doc('longtitle'))
+                'value' => hsc_for_tpl(doc('longtitle'))
             ]
         ) . tooltip(lang('resource_long_title_help'))
     );
@@ -29,7 +31,8 @@ function fieldLongtitle()
 
 function fieldDescription()
 {
-    return renderTr(
+    return renderFieldTr(
+        'description',
         lang('resource_description'),
         textarea_tag(
             [
@@ -38,7 +41,7 @@ function fieldDescription()
                 'class' => 'inputBox',
                 'rows' => '2'
             ],
-            hsc(doc('description', ''))
+            hsc_for_tpl(doc('description', ''))
         )
             . tooltip(lang('resource_description_help')),
         'vertical-align:top;'
@@ -48,27 +51,29 @@ function fieldDescription()
 function fieldAlias($id)
 {
     if (!config('friendly_urls') || doc('type') !== 'document') {
-        return renderTr(
+        return renderFieldTr(
+            'alias',
             lang('resource_alias'),
             input_text_tag(
                 [
                     'id' => 'field_alias',
                     'name' => 'alias',
-                    'value' => hsc(doc('alias')),
+                    'value' => hsc_for_tpl(doc('alias')),
                     'maxlength' => 100
                 ]
             )
                 . tooltip(lang('resource_alias_help'))
         );
     }
-    return renderTr(
+    return renderFieldTr(
+        'alias',
         lang('resource_alias'),
         get_alias_path($id)
             . input_text_tag(
                 [
                     'id' => 'field_alias',
                     'name' => 'alias',
-                    'value' => hsc(doc('alias')),
+                    'value' => hsc_for_tpl(doc('alias')),
                     'size' => 20,
                     'style' => 'width:120px;',
                     'maxlength' => 50,
@@ -99,7 +104,8 @@ function fieldAlias($id)
 // Web Link specific
 function fieldWeblink()
 {
-    return renderTr(
+    return renderFieldTr(
+        'weblink',
         [
             lang('weblink'),
             html_tag(
@@ -109,7 +115,7 @@ function fieldWeblink()
                     'src' => style('tree_folder'),
                     'alt' => 'tree_folder',
                     'onclick' => 'enableLinkSelection(!allowLinkSelection);',
-                    'style' => 'cursor:pointer;'
+                    'class' => 'clickable-label'
                 ]
             )
         ],
@@ -117,7 +123,7 @@ function fieldWeblink()
             [
                 'id' => 'field_weblink',
                 'name' => 'content',
-                'value' => hsc(doc('content'))
+                'value' => hsc_for_tpl(doc('content'))
             ]
         )
             . html_tag(
@@ -134,7 +140,8 @@ function fieldWeblink()
 
 function fieldIntrotext()
 {
-    return renderTr(
+    return renderFieldTr(
+        'introtext',
         lang('resource_summary'),
         textarea_tag(
             [
@@ -144,7 +151,7 @@ function fieldIntrotext()
                 'style' => 'height:60px;',
                 'rows' => '3'
             ],
-            hsc(doc('introtext', ''))
+            hsc_for_tpl(doc('introtext', ''))
         ) . tooltip(lang('resource_summary_help')),
         'vertical-align:top;'
     );
@@ -152,13 +159,13 @@ function fieldIntrotext()
 
 function fieldTemplate()
 {
-    return renderTr(
+    return renderFieldTr(
+        'template',
         lang('page_data_template'),
         select_tag(
             [
                 'id' => 'field_template',
-                'name' => 'template',
-                'style' => 'width:308px'
+                'name' => 'template'
             ],
             get_template_options()
         )
@@ -231,13 +238,14 @@ function option_tags($templates)
 
 function fieldMenutitle()
 {
-    return renderTr(
+    return renderFieldTr(
+        'menutitle',
         lang('resource_opt_menu_title'),
         input_text_tag(
             [
                 'id' => 'field_menutitle',
                 'name' => 'menutitle',
-                'value' => hsc(doc('menutitle'))
+                'value' => hsc_for_tpl(doc('menutitle'))
             ]
         )
             . tooltip(lang('resource_opt_menu_title_help'))
@@ -246,7 +254,8 @@ function fieldMenutitle()
 
 function fieldMenuindex()
 {
-    return renderTr(
+    return renderFieldTr(
+        'menuindex',
         lang('resource_opt_menu_index'),
         menuindex()
     );
@@ -299,11 +308,12 @@ function fieldParent()
         sprintf('id=%d', (int) doc('parent', 0))
     );
     $ph['pid'] = array_get($parent, 'id', 0);
-    $ph['pname'] = hsc($parent ? $parent['pagetitle'] : config('site_name'));
+    $ph['pname'] = hsc_for_tpl($parent ? $parent['pagetitle'] : config('site_name'));
     $ph['tooltip'] = tooltip(lang('resource_parent_help'));
     $ph['icon_tree_folder'] = style('tree_folder');
     $ph['lang_parent_picker_open'] = hsc(lang('parent_picker_open'));
-    return renderTr(
+    return renderFieldTr(
+        'parent',
         lang('resource_parent'),
         parseText(file_get_tpl('field_parent_form.tpl'), $ph)
     );
@@ -322,11 +332,8 @@ function fieldsTV()
     // GET で差し戻されたときは、送信されないと空になる種類の TV は、差し戻しに無ければ空として出す
     // （保存の処理の扱いと同じ。POST の開き直しはテンプレートの切り替えを含むので従来どおり）
     $isRestoredGet = $form_v && !postv();
-    $i = 0;
-    $output = [];
+    $rows = [];
     $hidden = [];
-    $output[] = '<table class="mutate-tv-table" border="0" cellspacing="0" cellpadding="3">';
-    $splitLine = renderSplit();
     foreach ($tmplVars as $tv) {
         $tvid = 'tv' . $tv['id'];
         // Go through and display all Template Variables
@@ -361,11 +368,7 @@ function fieldsTV()
             );
             $hidden[] = $formElement;
         } else {
-            $ph = [];
-            $ph['caption'] = evo()->hsc($tv['caption']);
-            $ph['description'] = tv_input_description_html($tv['description']);
-            $ph['zindex'] = ($tv['type'] === 'date') ? 'z-index:100;' : '';
-            $ph['FormElement'] = evo()->renderFormElement(
+            $formElement = evo()->renderFormElement(
                 $tv['type'],
                 $tv['id'],
                 $tv['default_text'],
@@ -374,23 +377,22 @@ function fieldsTV()
                 '',
                 $tv
             );
-            if ($ph['FormElement'] !== '') {
-                $output[] = parseText(file_get_tpl('tv_row.tpl'), $ph);
-                if ($i < $total) {
-                    $output[] = $splitLine;
-                }
+            if ($formElement !== '') {
+                $rows[] = EvoFieldRow::render([
+                    'field' => $tvid,
+                    'label' => evo()->hsc($tv['caption']),
+                    'body' => $formElement,
+                    'help' => tv_input_description_html($tv['description']),
+                    'class' => 'mutate-tv-row',
+                ]);
             }
         }
-        $i++;
     }
 
-    if ($output && $output[$total + 1] === $splitLine) {
-        array_pop($output);
-    }
-
-    $output[] = '</table>';
-
-    return implode("\n", $output) . implode("\n", $hidden);
+    // 区切り線は行と行の間にだけ入れる
+    return '<table class="mutate-tv-table">'
+        . "\n" . implode("\n" . renderSplit() . "\n", $rows) . "\n</table>"
+        . "\n" . implode("\n", $hidden);
 }
 
 function fieldPublished()
@@ -409,7 +411,8 @@ function fieldPublished()
             'name' => 'publishedcheck',
             'checked' => $published() ? null : '',
             'onclick' => 'changestate(document.mutate.published);resetpubdate();',
-            'disabled' => (!evo()->hasPermission('publish_document') || request_intvar('id') === (int)config('site_start')) ? null : ''
+            // 設定で使っているページは、今公開中のときだけ公開を外せない（すでに非公開のものは、チェックを入れて公開に戻せる）
+            'disabled' => (!evo()->hasPermission('publish_document') || (doc('published') && evo()->doc->protectedPageSetting(request_intvar('id')) !== '')) ? null : ''
         ]
     );
     $body .= html_tag(
@@ -421,39 +424,24 @@ function fieldPublished()
         ]
     );
     $body .= tooltip(lang('resource_opt_published_help'));
-    return renderTr(lang('resource_opt_published'), $body);
+    return renderFieldTr('published', lang('resource_opt_published'), $body);
 }
 
 function fieldPub_date($id = 0)
 {
+    $disabled = !evo()->hasPermission('publish_document') || evo()->doc->protectedPageSetting($id) !== '';
     $body = input_text_tag(
         [
             'name' => 'pub_date',
             'id' => 'pub_date',
             'value' => manager()->dateInputValue(doc('pub_date')),
             'class' => 'DatePicker imeoff',
-            'disabled' => (!evo()->hasPermission('publish_document') || $id == config('site_start')) ? null : ''
+            'disabled' => $disabled ? null : ''
         ]
     )
-        . html_tag(
-            '<a>',
-            ['style' => "cursor:pointer; cursor:hand;"],
-            img_tag(
-                style('icons_cal_nodate'),
-                [
-                    'alt' => lang('remove_date')
-                ]
-            )
-        )
-        . tooltip(lang('page_data_publishdate_help'))
-        . html_tag(
-            '<div>',
-            [
-                'style' => 'line-height:1;margin:0;color: #555;font-size:10px'
-            ],
-            config('datetime_format') . ' HH:MM:SS'
-        );
-    return renderTr(lang('page_data_publishdate'), $body);
+        . clearDateButton('pub_date', $disabled)
+        . tooltip(lang('page_data_publishdate_help'));
+    return renderFieldTr('pub_date', lang('page_data_publishdate'), $body, '', hsc(config('datetime_format')) . ' HH:MM:SS');
 }
 
 function fieldUnpub_date($id)
@@ -461,6 +449,7 @@ function fieldUnpub_date($id)
     if (!evo()->hasPermission('publish_document')) {
         return '';
     }
+    $disabled = !evo()->hasPermission('publish_document') || evo()->doc->protectedPageSetting($id) !== '';
     $body = input_text_tag(
         [
             'id' => 'unpub_date',
@@ -468,23 +457,12 @@ function fieldUnpub_date($id)
             'class' => 'DatePicker imeoff',
             'value' => manager()->dateInputValue(doc('unpub_date')),
             'onblur' => 'documentDirty=true;',
-            'disabled' => (!evo()->hasPermission('publish_document') || $id == config('site_start')) ? null : ''
+            'disabled' => $disabled ? null : ''
         ]
     )
-        . html_tag(
-            '<a>',
-            ['style' => 'cursor:pointer; cursor:hand'],
-            img_tag(style('icons_cal_nodate'), ['alt' => lang('remove_date')])
-        )
-        . tooltip(lang('page_data_unpublishdate_help'))
-        . html_tag(
-            '<div>',
-            [
-                'style' => 'line-height:1;margin:0;color: #555;font-size:10px'
-            ],
-            config('datetime_format') . ' HH:MM:SS'
-        );
-    return renderTr(lang('page_data_unpublishdate'), $body);
+        . clearDateButton('unpub_date', $disabled)
+        . tooltip(lang('page_data_unpublishdate_help'));
+    return renderFieldTr('unpub_date', lang('page_data_unpublishdate'), $body, '', hsc(config('datetime_format')) . ' HH:MM:SS');
 }
 
 function fieldLink_attributes()
@@ -492,11 +470,11 @@ function fieldLink_attributes()
     $body = input_text_tag(
         [
             'name' => 'link_attributes',
-            'value' => hsc(doc('link_attributes'))
+            'value' => hsc_for_tpl(doc('link_attributes'))
         ]
     )
         . tooltip(lang('link_attributes_help'));
-    return renderTr(lang('link_attributes'), $body);
+    return renderFieldTr('link_attributes', lang('link_attributes'), $body);
 }
 
 function fieldIsfolder()
@@ -521,7 +499,7 @@ function fieldIsfolder()
             ]
         )
         . tooltip(lang('resource_opt_folder_help'));
-    return renderTr(lang('resource_opt_folder'), $body);
+    return renderFieldTr('isfolder', lang('resource_opt_folder'), $body);
 }
 
 function fieldRichtext()
@@ -546,7 +524,7 @@ function fieldRichtext()
             ]
         )
         . tooltip(lang('resource_opt_richtext_help'));
-    return renderTr(lang('resource_opt_richtext'), $body);
+    return renderFieldTr('richtext', lang('resource_opt_richtext'), $body);
 }
 
 function fieldDonthit()
@@ -571,7 +549,7 @@ function fieldDonthit()
             ]
         )
         . tooltip(lang('resource_opt_trackvisit_help'));
-    return renderTr(lang('track_visitors_title'), $body);
+    return renderFieldTr('donthit', lang('track_visitors_title'), $body);
 }
 
 
@@ -596,7 +574,7 @@ function fieldSearchable()
             ]
         )
         . tooltip(lang('resource_opt_trackvisit_help'));
-    return renderTr(lang('page_data_searchable'), $body);
+    return renderFieldTr('searchable', lang('page_data_searchable'), $body);
 }
 
 function fieldCacheable()
@@ -621,7 +599,7 @@ function fieldCacheable()
             ]
         )
         . tooltip(lang('page_data_cacheable_help'));
-    return renderTr(lang('page_data_cacheable'), $body);
+    return renderFieldTr('cacheable', lang('page_data_cacheable'), $body);
 }
 
 function fieldSyncsite()
@@ -652,17 +630,17 @@ function fieldSyncsite()
             ]
         )
         . tooltip(lang('resource_opt_emptycache_help'));
-    return renderTr(lang('resource_opt_emptycache'), $body);
+    return renderFieldTr('syncsite', lang('resource_opt_emptycache'), $body);
 }
 
 function fieldType()
 {
-    return renderTr(
+    return renderFieldTr(
+        'type',
         lang('resource_type'),
         select_tag(
             [
-                'name' => 'type',
-                'style' => 'width:200px'
+                'name' => 'type'
             ],
             [
                 html_tag(
@@ -715,7 +693,7 @@ function fieldContentType()
         ]
     )
         . tooltip(lang('page_data_contentType_help'));
-    return renderTr(lang('page_data_contentType'), $body);
+    return renderFieldTr('contentType', lang('page_data_contentType'), $body);
 }
 
 function fieldContent_dispo()
@@ -723,12 +701,12 @@ function fieldContent_dispo()
     if (doc('type') === 'reference') {
         return '';
     }
-    return renderTr(
+    return renderFieldTr(
+        'content_dispo',
         lang('resource_opt_contentdispo'),
         select_tag(
             [
                 'name' => 'content_dispo',
-                'style' => 'width:200px',
                 'size' => 1
             ],
             [

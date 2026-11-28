@@ -9,6 +9,7 @@ if ($action !== 74 || !evo()->hasPermission('change_password')) {
 }
 
 include_once __DIR__ . '/mutate_user/form_values.php';
+require_once __DIR__ . '/mutate_user/user_form_rows.php';
 require_once MODX_CORE_PATH . 'settings_form.class.inc.php';
 
 $userid = (int) evo()->getLoginUserID();
@@ -31,8 +32,6 @@ while ($row = db()->getRow($rs)) {
     $usersettings[$row['setting_name']] = $row['setting_value'];
 }
 
-$icons_path = manager_style_image_path('icons');
-
 // get user name
 $rs = db()->select('*', '[+prefix+]manager_users', "id='{$userid}'");
 $total = db()->count($rs);
@@ -44,12 +43,15 @@ if ($total > 1) {
 
 $usernamedata = db()->getRow($rs);
 
-$_SESSION['itemname'] = $usernamedata['username'];
+sessionv('*itemname', $usernamedata['username']);
 
 // restore saved form
 $formRestored = false;
+// パスワードは差し戻さない（saveFormValues() が残さない）。変えようとしていたかだけを、欄を開き直すために見る
+$passwordRestored = false;
 if (manager()->hasFormValues()) {
     $form_v = manager()->loadFormValues();
+    $passwordRestored = ($form_v['newpassword'] ?? '') === '1';
     // 差し戻す値は文字列だけにする（配列は、配列で受ける項目だけ）
     $form_v = restorableFormValues($form_v, ['user_groups', 'allowed_days']);
     // restore post values
@@ -83,45 +85,7 @@ if (config('manager_language') != "english" && is_file($lang_path)) {
     include_once($lang_path);
 }
 ?>
-<script type="text/javascript">
-    function changestate(element) {
-        documentDirty = true;
-        currval = eval(element).value;
-        if (currval == 1) {
-            eval(element).value = 0;
-        } else {
-            eval(element).value = 1;
-        }
-    }
-
-    function changePasswordState(element) {
-        currval = eval(element).value;
-        if (currval == 1) {
-            document.getElementById("passwordBlock").style.display = "block";
-        } else {
-            document.getElementById("passwordBlock").style.display = "none";
-        }
-    }
-
-    // change name
-    function changeName() {
-        if (confirm(<?= js_literal(stripcslashes(lang('confirm_name_change'))) ?>) == true) {
-            var e1 = document.getElementById("showname");
-            var e2 = document.getElementById("editname");
-            e1.style.display = "none";
-            e2.style.display = "table-row";
-        }
-    }
-
-    function BrowseServer() {
-        window.evoOpenFilePicker(<?= js_literal(evo()->config('base_url') . 'manager/media/browser/evo/browser.php?type=images') ?>);
-    }
-
-    function SetUrl(url, width, height, alt) {
-        document.userform.photo.value = url;
-        document.images['iphoto'].src = <?= js_literal(evo()->config('base_url')) ?> + url;
-    }
-</script>
+<?= userFormScript() ?>
 
 <form action="index.php?a=32" method="post" name="userform" enctype="multipart/form-data">
     <?php
@@ -156,161 +120,24 @@ if (config('manager_language') != "english" && is_file($lang_path)) {
     </div>
     <!-- Tab Start -->
     <div class="sectionBody">
-        <?= EvoSettingsForm::style() ?>
         <div class="tab-pane" id="userPane">
             <!-- Profile -->
             <div class="tab-page" id="tabProfile">
                 <h2 class="tab"><?= lang("profile") ?></h2>
                 <table class="settings">
-                    <tr>
-                        <th valign="top"><?= lang('change_password_new') . ":" ?></th>
-                        <td><label><input name="newpasswordcheck" type="checkbox"
-                                    onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"><input
-                                    type="hidden" name="newpassword"
-                                    value="0" /></label><br />
-                            <span style="display:none"
-                                id="passwordBlock">
-                                <fieldset style="width:300px">
-                                    <legend><b><?= lang('password_gen_method') ?></b></legend>
-                                    <label><input type=radio name="passwordgenmethod"
-                                            value="g" <?= post_strvar('passwordgenmethod') === "spec" ? "" : 'checked="checked"' ?> /><?= lang('password_gen_gen') ?></label><br />
-                                    <label><input type=radio name="passwordgenmethod"
-                                            value="spec" <?= post_strvar('passwordgenmethod') === "spec" ? 'checked="checked"' : "" ?>><?= lang('password_gen_specify') ?></label><br />
-                                    <div style="padding-left:20px">
-                                        <label for="specifiedpassword" style="width:120px"><?= lang('change_password_new') ?>:</label>
-                                        <input type="password" id="specifiedpassword" name="specifiedpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
-                                            size="20" autocomplete="new-password" /><br />
-                                        <label for="confirmpassword" style="width:120px"><?= lang('change_password_confirm') ?>:</label>
-                                        <input type="password" id="confirmpassword" name="confirmpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
-                                            size="20" autocomplete="new-password" /><br />
-                                        <small><span class="warning" style="font-weight:normal"><?= lang('password_gen_length') ?></span></small>
-                                    </div>
-                                </fieldset>
-                                <input type="hidden" name="passwordnotifymethod" value="s" />
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_email') ?>:</th>
-                        <td>
-                            <input type="text" name="email" class="inputBox" autocomplete="email"
-                                value="<?= hsc(userData('email')) ?>" />
-                            <input type="hidden" name="oldemail"
-                                value="<?= hsc(userData('oldemail') ?: userData('email')) ?>" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_full_name') ?>:</th>
-                        <td><input type="text" name="fullname" class="inputBox" autocomplete="name"
-                                value="<?= hsc(userData('fullname')) ?>" /></td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_phone') ?>:</th>
-                        <td><input type="text" name="phone" class="inputBox" autocomplete="tel"
-                                value="<?= hsc(userData('phone')) ?>" /></td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_mobile') ?>:</th>
-                        <td><input type="text" name="mobilephone" class="inputBox" autocomplete="tel"
-                                value="<?= hsc(userData('mobilephone')) ?>" /></td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_fax') ?>:</th>
-                        <td><input type="text" name="fax" class="inputBox" autocomplete="tel"
-                                value="<?= hsc(userData('fax')) ?>" /></td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_street') ?>:</th>
-                        <td><input type="text" name="street" class="inputBox" autocomplete="street-address"
-                                value="<?= hsc(userData('street')) ?>"
-                                onchange="documentDirty=true;" /></td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_city') ?>:</th>
-                        <td><input type="text" name="city" class="inputBox" autocomplete="address-level2"
-                                value="<?= hsc(userData('city')) ?>"
-                                onchange="documentDirty=true;" /></td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_state') ?>:</th>
-                        <td><input type="text" name="state" class="inputBox" autocomplete="address-level1"
-                                value="<?= hsc(userData('state')) ?>" /></td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_zip') ?>:</th>
-                        <td><input type="text" name="zip" class="inputBox" autocomplete="postal-code"
-                                value="<?= hsc(userData('zip')) ?>" /></td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_country') ?>:</th>
-                        <td>
-                            <select size="1" name="country" class="inputBox" autocomplete="country-name">
-                                <?php $chosenCountry = post_strvar('country', $userdata['country']); ?>
-                                <option value="" <?= selected(empty($chosenCountry)) ?>>&nbsp;</option>
-                                <?php
-                                foreach ($_country_lang as $key => $country) {
-                                    echo '<option value="' . $key . '"' . selected(isset($chosenCountry) && $chosenCountry == $key) . ">{$country}</option>\n";
-                                }
-                                ?>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_dob') ?>:</th>
-                        <td>
-                            <input type="text" id="dob" name="dob" class="DatePicker"
-                                value="<?= manager()->dateInputValue(userData('dob'), 'dateOnly') ?>" onblur="documentDirty=true;">
-                            <a onclick="document.userform.dob.value=''; return true;"
-                                style="cursor:pointer; cursor:hand"><img align="absmiddle"
-                                    src="<?= $icons_path ?>cal_nodate.gif"
-                                    border="0"
-                                    alt="<?= lang('remove_date') ?>"></a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?= lang('user_gender') ?>:</th>
-                        <td><select name="gender" class="inputBox">
-                                <option value=""></option>
-                                <option
-                                    value="1" <?= selected(userData('gender') == 1) ?>><?= lang('user_male') ?></option>
-                                <option
-                                    value="2" <?= selected(userData('gender') == 2) ?>><?= lang('user_female') ?></option>
-                                <option
-                                    value="3" <?= selected(userData('gender') == 3) ?>><?= lang('user_other') ?></option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th valign="top"><?= lang('comment') ?>:</th>
-                        <td>
-                            <textarea type="text" name="comment" class="inputBox"
-                                rows="5"><?= hsc(userData('comment')) ?></textarea>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th><?= lang("user_photo") ?></th>
-                        <td><input type="text" maxlength="255" style="width: 150px;" name="photo"
-                                value="<?= hsc(userData('photo')) ?>" />
-                            <input type="button" value="<?= lang('insert') ?>" onclick="BrowseServer();" />
-                            <div><?= lang("user_photo_message") ?></div>
-                            <div>
-                                <?php
-                                if (post_strvar('photo')) {
-                                    $photo = post_strvar('photo');
-                                } elseif (!empty($userdata['photo'])) {
-                                    $photo = $userdata['photo'];
-                                } else {
-                                    $photo = config('base_url') . 'manager/' . style('tx');
-                                }
-
-                                if (substr($photo, 0, 1) !== '/' && !preg_match('@^https?://@', $photo)) {
-                                    $photo = config('base_url') . $photo;
-                                }
-                                ?>
-                                <img name="iphoto" src="<?= hsc($photo) ?>" />
-                            </div>
-                        </td>
-                    </tr>
+                    <?php
+                    // パスワードを変えるには save_password 権限も要る（保存側の canSaveUser() と同じ）
+                    echo userFormPasswordRow(
+                        evo()->hasPermission('save_password') ? 'set' : 'readonly',
+                        [
+                            'restored' => $passwordRestored,
+                            'self' => true,
+                            'username' => (string) $usernamedata['username'],
+                        ]
+                    );
+                    echo userFormEmailRow($userdata);
+                    echo userFormProfileRows($userdata, $_country_lang);
+                    ?>
                 </table>
             </div>
 
@@ -322,7 +149,7 @@ if (config('manager_language') != "english" && is_file($lang_path)) {
             ?>
         </div>
     </div>
-    <input type="submit" name="save" style="display:none">
+    <input type="submit" name="save" class="hidden">
     <?php
 
     // invoke OnUserFormRender event
@@ -341,31 +168,3 @@ if (config('manager_language') != "english" && is_file($lang_path)) {
     var remember = <?= EvoFormFlow::rememberTab() ? 'true' : 'false' ?>;
     tpUser = new WebFXTabPane(document.getElementById("userPane"), remember);
 </script>
-<?php
-
-function checkbox($name, $value, $label, $cond)
-{
-    global $modx;
-    $tpl = '<label><input type="checkbox" name="[+name+]" value="[+value+]" [+checked+] />[+label+]</label>';
-    $ph['name'] = $name;
-    $ph['value'] = $value;
-    $ph['label'] = $label;
-    $ph['checked'] = checked($cond);
-    return $modx->parseText($tpl, $ph);
-}
-
-function checked($cond)
-{
-    if ($cond) {
-        return 'checked';
-    }
-    return '';
-}
-
-function selected($cond)
-{
-    if ($cond) {
-        return 'selected';
-    }
-    return '';
-}

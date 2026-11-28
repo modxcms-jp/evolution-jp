@@ -7,7 +7,6 @@ $settingsForm = new EvoSettingsForm(
     EvoSettingsForm::storedValues(),
     'user'
 );
-echo EvoSettingsForm::style();
 ?>
 <form action="index.php?a=32" method="post" name="userform" enctype="multipart/form-data">
     <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('user')) ?>">
@@ -32,10 +31,7 @@ echo EvoSettingsForm::style();
             <div class="tab-page" id="tabProfile">
                 <?php include __DIR__ . '/form/tab_profile.php'; ?>
             </div>
-            <div class="tab-page" id="tabSettings">
-                <?php include __DIR__ . '/form/tab_settings.php'; ?>
-            </div>
-            <!-- 管理画面・エディター・ファイルの設定 -->
+            <!-- ユーザー・管理画面・エディター・ファイルの設定 -->
             <?= $settingsForm->render() ?>
             <?php
             if (config('use_udperms') == 1) {
@@ -59,5 +55,5 @@ echo EvoSettingsForm::style();
             ?>
         </div>
     </div>
-    <input type="submit" name="save" style="display:none">
+    <input type="submit" name="save" class="hidden">
 </form>

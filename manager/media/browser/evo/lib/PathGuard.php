@@ -32,9 +32,12 @@ class PathGuard
         $protected = [
             base_path() . 'temp/thumbs',
             base_path() . 'manager',
-            base_path() . 'temp/backup',
-            base_path() . 'assets/backup'
         ];
+        // スナップショットの今の保存先・既定の保存先・以前の置き場所
+        require_once MODX_CORE_PATH . 'snapshot_store.class.inc.php';
+        foreach ((new EvoSnapshotStore())->guardedDirs() as $dir) {
+            $protected[] = rtrim($dir, '/');
+        }
 
         if (!$modx->hasPermission('save_plugin')) {
             $protected[] = base_path() . 'assets/plugins';
@@ -50,10 +53,6 @@ class PathGuard
         }
         if (!$modx->hasPermission('empty_cache')) {
             $protected[] = rtrim(MODX_CACHE_PATH, '/');
-        }
-        if (!$modx->hasPermission('import_static')) {
-            $protected[] = base_path() . 'temp/import';
-            $protected[] = base_path() . 'assets/import';
         }
         if (!$modx->hasPermission('export_static')) {
             $protected[] = base_path() . 'temp/export';

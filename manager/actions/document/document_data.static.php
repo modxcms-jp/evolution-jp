@@ -17,6 +17,7 @@ if (!$id) {
     alert()->dumpError();
 }
 
+evo()->loadExtension('DocAPI');
 $icons_path = manager_style_image_path('icons');
 
 if (!manager()->isInAllowedParents($id)) {
@@ -112,63 +113,43 @@ function entity($key, $default = null)
     return $content[$key] ?? $default;
 }
 
+include_once MODX_CORE_PATH . 'controls/child_document_list_state.class.php';
 if (isset($content['parent']) && $content['parent'] != 0) {
-    $cancelUrl = 'index.php?a=120&id=' . (int) $content['parent'];
+    $cancelUrl = ChildDocumentListState::listUrl((int) $content['parent']);
 } elseif (get_intvar('pid')) {
-    $cancelUrl = 'index.php?a=120&id=' . get_intvar('pid');
+    $cancelUrl = ChildDocumentListState::listUrl(get_intvar('pid'));
 } else {
     $cancelUrl = 'index.php?a=2';
 }
 ?>
-<script type="text/javascript">
-    function duplicatedocument() {
-        if (confirm(<?= js_literal(stripcslashes(lang('confirm_resource_duplicate'))) ?>)) {
-            EvoCsrf.post("index.php?id=<?= $id ?>&a=94");
-        }
-    }
-
-    function deletedocument() {
-        if (confirm(<?= js_literal(stripcslashes(lang('confirm_delete_resource'))) ?>)) {
-            EvoCsrf.post("index.php?id=<?= $id ?>&a=6");
-        }
-    }
-
-    function editdocument() {
-        EvoShell.go("index.php?id=<?= $id ?>&a=27");
-    }
-
-    function movedocument() {
-        EvoShell.go("index.php?id=<?= $id ?>&a=51");
-    }
-</script>
 <h1><?= lang('doc_data_title') ?></h1>
 
 <div id="actions">
     <ul class="actionButtons">
         <?php if (manager()->can('document.edit')) : ?>
             <li id="Button1" class="mutate">
-                <a href="javascript:void(0)" onclick="editdocument();">
+                <a href="#" data-doc-action="edit" data-doc-id="<?= (int) $id ?>">
                     <?= lang('edit') ?>
                 </a>
             </li>
         <?php endif; ?>
         <?php if (manager()->can('document.move')) : ?>
             <li id="Button2" class="mutate">
-                <a href="#" onclick="movedocument();">
+                <a href="#" data-doc-action="move" data-doc-id="<?= (int) $id ?>">
                     <?= lang('move') ?>
                 </a>
             </li>
         <?php endif; ?>
         <?php if (manager()->can('document.duplicate')) : ?>
             <li id="Button4">
-                <a href="#" onclick="duplicatedocument();">
+                <a href="#" data-doc-action="duplicate" data-doc-id="<?= (int) $id ?>">
                     <?= lang('duplicate') ?>
                 </a>
             </li>
         <?php endif; ?>
         <?php if (manager()->can('document.delete')) : ?>
             <li id="Button3">
-                <a href="#" onclick="deletedocument();">
+                <a href="#" data-doc-action="delete" data-doc-id="<?= (int) $id ?>" data-has-children="<?= evo()->doc->hasLiveChildren($id) ? '1' : '0' ?>">
                     <?= lang('delete') ?>
                 </a>
             </li>

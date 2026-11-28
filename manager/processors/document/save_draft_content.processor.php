@@ -27,7 +27,7 @@ if (!manager()->isInAllowedParents($id)) {
 }
 
 $afterSave = EvoFormFlow::postedAfterSave(['save_draft', 'save_standby']);
-// 日付の誤りなどで差し戻されても選択が残るよう、先頭で覚える。次に文書の画面を開いたときの既定として覚える（下書きの採用は覚えても文書の画面では「閉じる」になる）
+// 日付の誤りなどで差し戻されても選択が残るよう、先頭で覚える。次に文書の画面を開いたときの既定として覚える（下書きの採用は覚えても、文書の画面ではグローバル設定の既定になる）
 EvoFormFlow::rememberDocumentAfterSave($afterSave);
 
 evo()->loadExtension('REVISION');
@@ -56,6 +56,16 @@ $fields = evo()->doc->setPubStatus(
     evo()->doc->fixTvNest($post)
 );
 
+// 公開の権限が無いときは、通常の保存と同じく、文書の今の公開の状態と日付を保つ（採用で 0 にしない）
+if (!hasPermission('publish_document')) {
+    $fields = array_merge($fields, db()->getRow(
+        db()->select('published,pub_date,unpub_date', '[+prefix+]site_content', where('id', '=', (int)$id))
+    ) ?: []);
+}
+
+// 採用で保存する TV の範囲は、通常の保存と同じにそろえる
+$fields = evo()->doc->limitDraftTmplvars($fields, $modx->revision->getDraft($id));
+
 // 通常の保存（DocAPI::initValue()）と同じ規則で親を整える（数字だけなら整数、そうでなければ 0）
 $parent = trim((string)array_get($fields, 'parent', 0));
 $parent = preg_match('@^[0-9]+$@', $parent) ? (int)$parent : 0;
@@ -76,6 +86,9 @@ if ($afterSave === 'save_standby') {
     $rs = $modx->revision->save($id, $fields, 'standby');
 } else {
     $rs = $modx->revision->save($id, $fields, 'draft');
+}
+if ($rs) {
+    EvoFormFlow::noticeSaved();
 }
 
 if ($afterSave === 'new') {

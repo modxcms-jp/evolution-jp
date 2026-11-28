@@ -12,6 +12,7 @@ if (is_file(MODX_BASE_PATH . 'assets/helpers.php')) {
 }
 require_once(__DIR__ . '/system.event.class.inc.php');
 require_once(__DIR__ . '/logger.class.php');
+require_once MODX_CORE_PATH . 'error_reporting.class.inc.php';
 require_once(__DIR__ . '/traits/document.parser.subparser.trait.php');
 
 class DocumentParser
@@ -54,7 +55,7 @@ class DocumentParser
     public $dumpSnippetsCode = [];
     public $chunkCache;
     public $snippetCache;
-    public $contentTypes;
+    public $contentTypes; // 以前のキャッシュ（siteCache.idx.php）が代入するため宣言を残す
     public $dumpSQLCode = [];
     public $ph;
     public $placeholders = [];
@@ -618,6 +619,13 @@ class DocumentParser
                 $this->documentObject = array_merge((array)$_, $this->documentObject);
             }
 
+            // キャッシュ有効を外したページは、304 で手元の内容を使われないよう、早い返しが付けたヘッダーを外す
+            // （スニペットと OnLoadWebDocument 以降のプラグインが付けるヘッダーを消さないよう、それらが動く前に外す）
+            if ($this->config('conditional_get') && $this->doc('cacheable') != 1) {
+                header_remove('ETag');
+                header_remove('Last-Modified');
+            }
+
             // validation routines
             if ($this->checkSiteStatus() === false) {
                 if (!$this->config('site_unavailable_page')) {
@@ -916,6 +924,7 @@ class DocumentParser
                 && $this->doc('cacheable') == 1
                 && $this->doc('type') === 'document'
                 && $this->doc('published') == 1
+                && in_array((string)$this->config('cache_type'), ['1', '2'], true)
                 && !($this->config('cache_type') == 2 && ($this->doc('privateweb') || $this->isLoggedIn('web')))
                 && !($this->config('cache_type') == 2 && serverv('REQUEST_METHOD', 'GET') !== 'GET')
             ) {
@@ -928,6 +937,9 @@ class DocumentParser
                 $this->invokeEvent('OnBeforeSaveWebPageCache', $param);
 
                 if ($param['makeCache'] != true) {
+                    return;
+                }
+                if (!in_array((string)$this->config('cache_type'), ['1', '2'], true)) {
                     return;
                 }
 
@@ -1239,7 +1251,6 @@ class DocumentParser
         $_SESSION['mgrFailedlogins'] = $user['failedlogincount'];
         $_SESSION['mgrLogincount'] = $user['logincount']; // login count
         $_SESSION['mgrRole'] = $user['role'];
-        sessionv('*mgrForceRole', null); // 前のログインで差し替えたロールを引き継がない
         if (!$this->manager) {
             $this->loadExtension('ManagerAPI');
         }
@@ -2074,30 +2085,6 @@ class DocumentParser
         return true;
     }
 
-    private function getAliasFromID($docid)
-    {
-
-        if (isset($this->aliaslist[$docid])) {
-            return $this->aliaslist[$docid];
-        }
-
-        $rs = db()->select(
-            "id, IF(alias='', id, alias) AS alias",
-            '[+prefix+]site_content',
-            where('parent', '=', $this->getParentID($docid))
-        );
-
-        if (!$rs) {
-            return false;
-        }
-
-        while ($row = db()->getRow($rs)) {
-            $this->aliaslist[$row['id']] = $row['alias'];
-        }
-
-        return $this->aliaslist[$docid];
-    }
-
     public function getParentID($docid)
     {
 
@@ -2206,9 +2193,7 @@ class DocumentParser
             return $content;
         }
 
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         if (!$ph) {
             $ph = $this->documentObject;
@@ -2227,6 +2212,8 @@ class DocumentParser
                 $key = substr($key, 1);
             }
 
+            [$key, $modifiers] = $this->splitKeyAndFilter($key);
+
             if (strpos($key, '|') !== false) {
                 $keys = explode('|', $key);
                 foreach ($keys as $k) {
@@ -2237,7 +2224,6 @@ class DocumentParser
                 }
             }
 
-            [$key, $modifiers] = $this->splitKeyAndFilter($key);
             if (strpos($key, '@') !== false) {
                 [$key, $context] = explode('@', $key, 2);
             } else {
@@ -2385,7 +2371,8 @@ class DocumentParser
                     if (isset($prev[$key])) {
                         return $prev[$key];
                     }
-                    $docid = $prev['id'];
+                    // 先頭の文書には前が無い
+                    $docid = $prev ? $prev['id'] : '';
                 } else {
                     $docid = '';
                 }
@@ -2413,7 +2400,8 @@ class DocumentParser
                     if (isset($next[$key])) {
                         return $next[$key];
                     }
-                    $docid = $next['id'];
+                    // 末尾の文書には次が無い
+                    $docid = $next ? $next['id'] : '';
                 } else {
                     $docid = '';
                 }
@@ -2423,7 +2411,8 @@ class DocumentParser
         }
 
         if (preg_match('@^[1-9][0-9]*$@', $docid)) {
-            return $this->getField($key, $docid);
+            // 文書に無いフィールドは、文書が見つからないときと同じく空にする
+            return $this->getField($key, $docid) ?? '';
         }
         return '';
     }
@@ -2465,9 +2454,7 @@ class DocumentParser
             return $content;
         }
 
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         if (!$ph) {
             $ph = $this->config;
@@ -2516,9 +2503,7 @@ class DocumentParser
             return $content;
         }
 
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         if (!$ph) {
             $ph = $this->chunkCache;
@@ -2580,9 +2565,7 @@ class DocumentParser
             return $content;
         }
 
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         if (!$ph) {
             $ph = $this->placeholders;
@@ -2630,9 +2613,7 @@ class DocumentParser
             return $content;
         }
 
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         $matches = $this->getTagsFromContent($content, $left, $right);
         if (empty($matches)) {
@@ -2694,9 +2675,7 @@ class DocumentParser
         $elsetag = '<@ELSE>',
         $endiftag = '<@ENDIF>'
     ) {
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         $content = $this->_prepareCTag($content, $iftag, $elseiftag, $elsetag, $endiftag);
         if (strpos($content, $iftag) === false) {
@@ -2878,7 +2857,7 @@ class DocumentParser
         return $content;
     }
 
-    public function evalPlugin($pluginCode, $params, $errorReporting = 'inherit')
+    public function evalPlugin($pluginCode, $params, $errorReporting = EvoErrorReporting::INHERIT)
     {
         $modx = &$this;
         $modx->event->params = $params; // store params inside event object
@@ -2891,9 +2870,7 @@ class DocumentParser
         $resolvedLevel = $this->resolveErrorReportingLevel($errorReporting);
         $contextState = $this->enterErrorContext('Plugin', $this->event->activePlugin ?? '', $resolvedLevel);
 
-        if (function_exists('error_clear_last')) {
-            error_clear_last();
-        }
+        error_clear_last();
 
         ob_start();
         try {
@@ -2914,14 +2891,12 @@ class DocumentParser
         $this->leaveErrorContext($contextState);
         unset($modx->event->params);
 
-        if (function_exists('error_clear_last')) {
-            error_clear_last();
-        }
+        error_clear_last();
 
         return (($echo === false) ? '' : $echo) . ($return ?? '');
     }
 
-    public function evalSnippet($phpcode, $params, $errorReporting = 'inherit')
+    public function evalSnippet($phpcode, $params, $errorReporting = EvoErrorReporting::INHERIT)
     {
         $this->currentSnippetCode = $phpcode;
         $phpcode = trim($phpcode);
@@ -2931,9 +2906,7 @@ class DocumentParser
         }
 
         $modx = &$this;
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
 
         if (isset($params) && is_array($params)) {
             foreach ($params as $k => $v) {
@@ -2956,9 +2929,7 @@ class DocumentParser
         $resolvedLevel = $this->resolveErrorReportingLevel($errorReporting);
         $contextState = $this->enterErrorContext('Snippet', $this->currentSnippet ?? '', $resolvedLevel);
 
-        if (function_exists('error_clear_last')) {
-            error_clear_last();
-        }
+        error_clear_last();
 
         ob_start();
         try {
@@ -2990,9 +2961,7 @@ class DocumentParser
         $this->currentSnippetCall = '';
         $this->currentSnippet = '';
 
-        if (function_exists('error_clear_last')) {
-            error_clear_last();
-        }
+        error_clear_last();
 
         if (is_array($return) || is_object($return)) {
             return $return;
@@ -3003,46 +2972,10 @@ class DocumentParser
 
     private function resolveErrorReportingLevel($requested)
     {
-        $valid = ['0', '1', '2', '99'];
-        $globalSetting = (string)$this->config('error_reporting', '1');
-        if (!in_array($globalSetting, $valid, true)) {
-            $globalSetting = '1';
-        }
-
-        if ($requested === null || $requested === '') {
-            $requested = 'inherit';
-        }
-
-        $requestedValue = (string)$requested;
-        if ($requestedValue !== 'inherit' && !in_array($requestedValue, $valid, true)) {
-            $requestedValue = 'inherit';
-        }
-
-        $effective = $requestedValue === 'inherit' ? $globalSetting : $requestedValue;
-        $level = (int)($effective === '99' ? 99 : $effective);
-
-        return [
-            'requested' => $requestedValue,
-            'effective' => $effective,
-            'level' => $level,
-            'mask' => $this->mapErrorReportingLevelToMask($level),
-            'global' => $globalSetting,
-            'compatibility' => $level !== 99,
-        ];
-    }
-
-    private function mapErrorReportingLevelToMask($level)
-    {
-        switch ($level) {
-            case 0:
-                return 0;
-            case 1:
-                return E_ALL & ~E_NOTICE & ~E_DEPRECATED;
-            case 2:
-                return E_ALL & ~E_NOTICE;
-            default:
-                return E_ALL;
-        }
+        return EvoErrorReporting::resolve(
+            $requested,
+            (string)$this->config('error_reporting', EvoErrorReporting::DEFAULT_LEVEL)
+        );
     }
 
     private function enterErrorContext($type, $name, array $resolved)
@@ -3183,10 +3116,6 @@ class DocumentParser
                 continue;
             }
             $value = $this->_get_snip_result($call);
-            // 配列は str_replace の置換値に使用不可（PHP 8.1+ TypeError）。整数・ブール等のスカラーは文字列化して通す
-            if (is_array($value)) {
-                continue;
-            }
             $content = str_replace($matches[0][$i], (string) $value, $content);
         }
 
@@ -3214,7 +3143,7 @@ class DocumentParser
                 $params
             );
             // run snippet
-            $errorReporting = $this->snippetCache[$snippetName . 'ErrorReporting'] ?? 'inherit';
+            $errorReporting = $this->snippetCache[$snippetName . 'ErrorReporting'] ?? EvoErrorReporting::INHERIT;
             $result = $this->evalSnippet(
                 $this->snippetCache[$snippetName],
                 $parameters,
@@ -3234,18 +3163,18 @@ class DocumentParser
             $row = db()->getRow($result);
             $phpCode = $this->snippetCache[$snippetName] = $row['snippet'];
             $properties = $this->snippetCache["{$snippetName}Props"] = $row['properties'];
-            $this->snippetCache["{$snippetName}ErrorReporting"] = $row['error_reporting'] ?? 'inherit';
+            $this->snippetCache["{$snippetName}ErrorReporting"] = $row['error_reporting'] ?? EvoErrorReporting::INHERIT;
         } else {
             $phpCode = $this->snippetCache[$snippetName] = "return false;";
             $properties = '';
             $this->snippetCache["{$snippetName}Props"] = '';
-            $this->snippetCache["{$snippetName}ErrorReporting"] = 'inherit';
+            $this->snippetCache["{$snippetName}ErrorReporting"] = EvoErrorReporting::INHERIT;
         }
         // load default params/properties
         $parameters = $this->parseProperties($properties);
         $parameters = array_merge($parameters, $params);
         // run snippet
-        $errorReporting = $this->snippetCache["{$snippetName}ErrorReporting"] ?? 'inherit';
+        $errorReporting = $this->snippetCache["{$snippetName}ErrorReporting"] ?? EvoErrorReporting::INHERIT;
         $result = $this->evalSnippet($phpCode, $parameters, $errorReporting);
 
         $this->currentSnippet = $previousSnippet;
@@ -3446,11 +3375,16 @@ class DocumentParser
             }
             $params = array_merge($default_params, $params);
         }
-        $errorReporting = $snippetObject['error_reporting'] ?? 'inherit';
+        $errorReporting = $snippetObject['error_reporting'] ?? EvoErrorReporting::INHERIT;
         $value = $this->evalSnippet($snippetObject['content'], $params, $errorReporting);
 
         if ($modifiers !== false) {
             $value = $this->applyFilter($value, $modifiers, $key);
+        }
+
+        // 配列は str_replace の置換値や出力に使用不可（PHP 8.1+ TypeError）。タグの出力としては空にする
+        if (is_array($value)) {
+            $value = '';
         }
 
         if ($this->dumpSnippets) {
@@ -3705,7 +3639,7 @@ class DocumentParser
             $name = $row['name'];
             $this->snippetCache[$name] = $row['snippet'];
             $this->snippetCache["{$name}Props"] = $row['properties'];
-            $this->snippetCache["{$name}ErrorReporting"] = $row['error_reporting'] ?? 'inherit';
+            $this->snippetCache["{$name}ErrorReporting"] = $row['error_reporting'] ?? EvoErrorReporting::INHERIT;
         }
     }
 
@@ -4460,7 +4394,8 @@ class DocumentParser
         if ($id == 0) {
             $id = $this->config('site_start');
         } elseif ($id == '') {
-            $id = $this->documentIdentifier;
+            // 今の文書。API モードなどで文書が無いときはトップページ
+            $id = $this->documentIdentifier ?: $this->config('site_start');
         }
 
         // 引数の型と並びをそのまま残すキーにする（ハッシュにすると別の引数が同じキーになりうる）
@@ -4854,20 +4789,6 @@ class DocumentParser
 
     public function toDateFormat($timestamp = 0, $mode = '')
     {
-        if ($timestamp === null || $timestamp === '') {
-            return '';
-        }
-
-        if (!is_numeric($timestamp)) {
-            $timestamp = trim((string)$timestamp);
-        }
-
-        if ($timestamp === '' || ($timestamp == 0 && $mode === '')) {
-            return '';
-        }
-
-        $timestamp = (int)$timestamp + $this->config('server_offset_time');
-
         switch ($this->config('datetime_format', 'YYYY/mm/dd')) {
             case 'YYYY/mm/dd':
                 $dateFormat = '%Y/%m/%d';
@@ -4882,16 +4803,32 @@ class DocumentParser
                 $dateFormat = '%Y/%m/%d';
         }
 
-        if (empty($mode)) {
-            $strTime = $this->mb_strftime($dateFormat . " %H:%M:%S", $timestamp);
-        } elseif ($mode == 'dateOnly') {
-            $strTime = $this->mb_strftime($dateFormat, $timestamp);
-        } elseif ($mode == 'formatOnly') {
-            $strTime = $dateFormat;
-        } else {
-            $strTime = '';
+        // 書式だけを返すときは $timestamp を見ない
+        if ($mode == 'formatOnly') {
+            return $dateFormat;
         }
-        return $strTime;
+
+        if ($timestamp === null || $timestamp === '') {
+            return '';
+        }
+
+        if (!is_numeric($timestamp)) {
+            $timestamp = trim((string)$timestamp);
+        }
+
+        if ($timestamp === '' || ($timestamp == 0 && $mode === '')) {
+            return '';
+        }
+
+        $timestamp = (int)$timestamp + $this->config('server_offset_time');
+
+        if (empty($mode)) {
+            return $this->mb_strftime($dateFormat . " %H:%M:%S", $timestamp);
+        }
+        if ($mode == 'dateOnly') {
+            return $this->mb_strftime($dateFormat, $timestamp);
+        }
+        return '';
     }
 
     public function toTimeStamp($str, $default = '')
@@ -5401,9 +5338,7 @@ class DocumentParser
     # invoke an event. $extParams - hash array: name=>value
     public function invokeEvent($evtName, &$extParams = [])
     {
-        if ($this->debug) {
-            $fstart = $this->getMicroTime();
-        }
+        $fstart = $this->getMicroTime();
         $return = true;
         if ($this->safeMode) {
             $return = false;
@@ -5436,9 +5371,7 @@ class DocumentParser
         $this->event->name = $evtName;
         $results = [];
         foreach ($this->pluginEvent[$evtName] as $pluginName) {
-            if ($this->debug) {
-                $fstart = $this->getMicroTime();
-            }
+            $fstart = $this->getMicroTime();
             $pluginName = stripslashes($pluginName);
 
             // reset event object
@@ -5449,7 +5382,7 @@ class DocumentParser
             // get plugin code and properties
             $pluginCode = $this->getPluginCode($pluginName);
             $pluginProperties = $this->getPluginProperties($pluginName);
-            $pluginErrorReporting = $this->pluginCache[$pluginName . 'ErrorReporting'] ?? 'inherit';
+            $pluginErrorReporting = $this->pluginCache[$pluginName . 'ErrorReporting'] ?? EvoErrorReporting::INHERIT;
 
             // load default params/properties
             $parameter = $this->parseProperties($pluginProperties);
@@ -5515,7 +5448,7 @@ class DocumentParser
         if (isset($this->pluginCache[$pluginName])) {
             $this->pluginCache["{$pluginName}Props"] = '';
             if (!isset($this->pluginCache["{$pluginName}ErrorReporting"])) {
-                $this->pluginCache["{$pluginName}ErrorReporting"] = 'inherit';
+                $this->pluginCache["{$pluginName}ErrorReporting"] = EvoErrorReporting::INHERIT;
             }
             return;
         }
@@ -5532,11 +5465,11 @@ class DocumentParser
             $row = db()->getRow($result);
             $code = $row['plugincode'];
             $properties = $row['properties'];
-            $errorReporting = $row['error_reporting'] ?? 'inherit';
+            $errorReporting = $row['error_reporting'] ?? EvoErrorReporting::INHERIT;
         } else {
             $code = 'return false;';
             $properties = '';
-            $errorReporting = 'inherit';
+            $errorReporting = EvoErrorReporting::INHERIT;
         }
         $this->pluginCache[$pluginName] = $code;
         $this->pluginCache["{$pluginName}Props"] = $properties;
@@ -6068,6 +6001,10 @@ class DocumentParser
         }
 
         if (@file_put_contents($tmp, $data, LOCK_EX) && @rename($tmp, $filename)) {
+            // OPcache の確認間隔（revalidate_freq）の間は古い版が使われ、basicConfig.php の recent_update が古いままになる
+            if (function_exists('opcache_invalidate')) {
+                @opcache_invalidate($filename, true);
+            }
             return true;
         }
         if (is_file($tmp)) {
@@ -6277,11 +6214,6 @@ class DocumentParser
 
         $new_file_permissions = $this->newFilePermissions();
 
-        if (strpos($target_path, $this->config('filemanager_path')) !== 0) {
-            $msg = "Can't upload to '{$target_path}'.";
-            $this->logEvent(1, 3, $msg, 'move_uploaded_file');
-        }
-
         $img = $resize ? getimagesize($tmp_path) : false;
 
         if ($img) {
@@ -6375,10 +6307,15 @@ class DocumentParser
         $limitWidth = $this->config('image_limit_width');
         // 縮められるのは GD で読み書きする JPEG・PNG・GIF だけ。ほかの形式（TIFF・PSD・ICO・BMP など）は縮めずにそのまま保存する
         $resizable = [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF];
-        $cannotResize = !$limitWidth || $img[0] <= $limitWidth || empty($img[2]) || !in_array($img[2], $resizable, true);
-        $limitHeight = $cannotResize ? 0 : max(1, (int)(($img[1] / $img[0]) * $limitWidth));
+        // 上限は表示上の幅で判定する(Orientation 5〜8 の JPEG は、ファイル上の幅と高さが入れ替わる)
+        $orientation = (($img[2] ?? null) === IMAGETYPE_JPEG) ? jpeg_exif_orientation($tmp_path) : 1;
+        [$displayWidth, $displayHeight] = image_display_size_by_orientation($img[0], $img[1], $orientation);
+        $cannotResize = !$limitWidth || $displayWidth <= $limitWidth || empty($img[2]) || !in_array($img[2], $resizable, true);
+        $limitHeight = $cannotResize ? 0 : max(1, (int)(($displayHeight / $displayWidth) * $limitWidth));
+        // 読み込む元の画像の向きのままで縮める大きさ
+        [$newWidth, $newHeight] = image_display_size_by_orientation($limitWidth, $limitHeight, $orientation);
         // 読み込むメモリが足りない巨大な画像は、致命的エラーで止まらないよう縮めずにそのまま保存する
-        if (!$cannotResize && !gd_can_load_image($img[0], $img[1], $img[2], $limitWidth, $limitHeight)) {
+        if (!$cannotResize && !gd_can_load_image($img[0], $img[1], $img[2], $newWidth, $newHeight)) {
             $cannotResize = true;
             $this->logEvent(
                 0, 2, 'Image not resized: not enough memory', 'move_uploaded_file',
@@ -6411,11 +6348,15 @@ class DocumentParser
                 return false;
         }
 
-        $new_image = imagecreatetruecolor($limitWidth, $limitHeight);
+        $new_image = imagecreatetruecolor($newWidth, $newHeight);
 
         imagecopyresampled(
-            $new_image, $source, 0, 0, 0, 0, $limitWidth, $limitHeight, $img[0], $img[1]
+            $new_image, $source, 0, 0, 0, 0, $newWidth, $newHeight, $img[0], $img[1]
         );
+        // 向きを反映する前に元の画像を手放す(回転で縮小した大きさの画像がもう 1 枚できるため。imagedestroy() は PHP 8.5 で非推奨)
+        unset($source);
+        // 縮めてから向きを画素に反映する(書き出すと EXIF は残らないため)
+        $new_image = gd_apply_orientation($new_image, $orientation);
         switch ($img[2]) {
             case IMAGETYPE_JPEG:
                 $rs = imagejpeg($new_image, $target_path);

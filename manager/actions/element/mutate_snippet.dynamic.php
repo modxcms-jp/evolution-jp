@@ -3,60 +3,10 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch (request_intvar('a')) {
-    case 22:
-        if (!evo()->hasPermission('edit_snippet')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    case 23:
-        if (!evo()->hasPermission('new_snippet')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    default:
-        alert()->setError(3);
-        alert()->dumpError();
-}
+$content = manager()->openElementForm('snippet', lang('snippet'));
+$id = (int) ($content['id'] ?? 0);
+sessionv('*itemname', $content ? $content['name'] : 'New snippet');
 
-abort_if_invalid_id('id', request_intvar('a') === 22);
-
-$id = request_intvar('id');
-
-// check to see the snippet editor isn't locked
-$rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=22 AND id='{$id}'");
-$limit = db()->count($rs);
-if ($limit > 1) {
-    for ($i = 0; $i < $limit; $i++) {
-        $lock = db()->getRow($rs);
-        if ($lock['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf(lang('lock_msg'), $lock['username'], lang('snippet'));
-            alert()->setError(5, $msg);
-            alert()->dumpError();
-        }
-    }
-}
-// end check for lock
-
-$content = [];
-if (get_intvar('id')) {
-    $rs = db()->select('*', '[+prefix+]site_snippets', "id='{$id}'");
-    $limit = db()->count($rs);
-    if ($limit > 1) {
-        echo "Oops, Multiple snippets sharing same unique id. Not good.<p>";
-        exit;
-    }
-    if ($limit < 1) {
-        alert()->setError(3);
-        alert()->dumpError();
-    }
-    $content = db()->getRow($rs);
-    $_SESSION['itemname'] = $content['name'];
-} else {
-    $_SESSION['itemname'] = "New snippet";
-}
 // restore saved form
 $content = manager()->restoreElementFormValues($content, 'snippet');
 
@@ -74,7 +24,7 @@ function entity($key, $default = null)
     function duplicaterecord() {
         if (confirm(<?= js_literal(stripcslashes(lang('confirm_duplicate_record'))) ?>)) {
             documentDirty = false;
-            EvoCsrf.post("index.php?id=<?= request_intvar('id') ?>&a=98");
+            EvoCsrf.post("index.php?id=<?= $id ?>&a=98");
         }
     }
 
@@ -111,6 +61,8 @@ function entity($key, $default = null)
     ?>
     <input type="hidden" name="id" value="<?= (int) entity('id') ?>">
     <input type="hidden" name="mode" value="<?= hsc(EvoFormFlow::mode('snippet')) ?>">
+
+    <h1><?= lang('snippet_title') ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
@@ -149,21 +101,16 @@ function entity($key, $default = null)
         </ul>
     </div>
 
-    <h1><?= lang('snippet_title') ?></h1>
-
     <div class="sectionBody">
         <div class="tab-pane" id="snipetPane">
             <!-- General -->
             <div class="tab-page" id="tabSnippet">
                 <h2 class="tab"><?= lang('settings_general') ?></h2>
                 <table>
-                    <tr>
-                        <th align="left"><?= lang('snippet_name') ?></th>
-                        <td align="left">[[<input name="name" type="text" maxlength="100"
-                                value="<?= hsc(entity('name')) ?>"
-                                class="inputBox" style="width:300px;">]]
-                        </td>
-                    </tr>
+                    <?= EvoFieldRow::render([
+                        'label' => lang('snippet_name'),
+                        'body' => '[[<input name="name" type="text" maxlength="100" value="' . hsc(entity('name')) . '" class="inputBox" style="width:300px;">]]',
+                    ]) ?>
                 </table>
                 <!-- PHP text editor start -->
                 <div class="code-editor">
@@ -192,77 +139,64 @@ function entity($key, $default = null)
             <div class="tab-page" id="tabProps">
                 <h2 class="tab"><?= lang('settings_properties') ?></h2>
                 <table>
-                    <tr>
-                        <th align="left"><?= lang('existing_category') ?>:</th>
-                        <td align="left">
-                            <select name="categoryid" style="width:300px;">
-                                <?= manager()->elementCategoryOptions(entity('category')) ?>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr id="newcategry" style="display:none;">
-                        <th align="left" valign="top" style="padding-top:10px;">
-                            <?= lang('new_category') ?>:
-                        </th>
-                        <td align="left" valign="top" style="padding-top:10px;">
-                            <input name="newcategory" type="text"
-                                maxlength="45" value="<?= hsc(entity('newcategory', '')) ?>"
-                                class="inputBox"
-                                style="width:300px;">
-                        </td>
-                    </tr>
-                    <tr>
-                        <th align="left" style="padding-top:10px">
-                            <?= lang('snippet_desc') ?>:
-                        </th>
-                        <td align="left" style="padding-top:10px">
-                            <textarea name="description"
-                                style="padding:0;height:4em;"><?= hsc(entity('description')) ?></textarea>
-                        </td>
-                    </tr>
-                    <?php $snippetErrorReporting = entity('error_reporting', 'inherit'); ?>
-                    <tr>
-                        <th align="left" style="padding-top:10px;">
-                            <?= lang('a17_error_reporting_title') ?>:
-                        </th>
-                        <td align="left" style="padding-top:10px;">
-                            <label>
-                                <input type="radio" name="error_reporting" value="inherit"<?= $snippetErrorReporting === 'inherit' ? ' checked="checked"' : '' ?>>
-                                <?= lang('element_error_reporting_inherit') ?>
-                            </label><br/>
-                            <label>
-                                <input type="radio" name="error_reporting" value="0"<?= $snippetErrorReporting === '0' ? ' checked="checked"' : '' ?>>
-                                <?= lang('a17_error_reporting_opt0') ?>
-                            </label><br/>
-                            <label>
-                                <input type="radio" name="error_reporting" value="1"<?= $snippetErrorReporting === '1' ? ' checked="checked"' : '' ?>>
-                                <?= lang('a17_error_reporting_opt1') ?>
-                            </label><br/>
-                            <label>
-                                <input type="radio" name="error_reporting" value="2"<?= $snippetErrorReporting === '2' ? ' checked="checked"' : '' ?>>
-                                <?= lang('a17_error_reporting_opt2') ?>
-                            </label><br/>
-                            <label>
-                                <input type="radio" name="error_reporting" value="99"<?= $snippetErrorReporting === '99' ? ' checked="checked"' : '' ?>>
-                                <?= lang('a17_error_reporting_opt99') ?>
-                            </label><br/>
-                            <?= lang('a17_error_reporting_msg') ?>
-                        </td>
-                    </tr>
-                    <?php if (evo()->hasPermission('save_snippet') == 1) { ?>
-                        <tr>
-                            <td style="padding-top:10px" align="left" valign="top" colspan="2">
-                                <label>
-                                    <input style="padding:0;margin:0;" name="locked"
-                                        type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : '' ?>
-                                        class="inputBox">
-                                    <b><?= lang('lock_snippet') ?></b>
-                                    <span class="comment"><?= lang('lock_snippet_msg') ?></span>
-                                </label>
-                            </td>
-                        </tr>
-                    <?php } ?>
                     <?php
+                    if (evo()->hasPermission('save_snippet') == 1) {
+                        ob_start();
+                        ?>
+                        <input name="locked"
+                                type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : '' ?>
+                                class="inputBox">
+                        <?php
+                        echo EvoFieldRow::render([
+                            'label' => lang('lock_snippet'),
+                            'body' => ob_get_clean(),
+                            'help' => lang('lock_snippet_msg'),
+                        ]);
+                    }
+
+                    ob_start();
+                    ?>
+                    <select name="categoryid" style="width:300px;">
+                        <?= manager()->elementCategoryOptions(entity('category')) ?>
+                    </select>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('existing_category'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    // 新しいカテゴリの行は、element-category.js が表示を切り替える
+                    ob_start();
+                    ?>
+                    <input name="newcategory" type="text"
+                        maxlength="45" value="<?= hsc(entity('newcategory', '')) ?>"
+                        class="inputBox"
+                        style="width:300px;">
+                    <?php
+                    echo EvoFieldRow::render([
+                        'field' => 'newcategory',
+                        'label' => lang('new_category'),
+                        'body' => ob_get_clean(),
+                        'attr' => ['id' => 'newcategry', 'style' => 'display:none;'],
+                    ]);
+
+                    ob_start();
+                    ?>
+                    <textarea name="description"
+                        style="height:4em;"><?= hsc(entity('description')) ?></textarea>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('snippet_desc'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    $snippetErrorReporting = entity('error_reporting', EvoErrorReporting::INHERIT);
+                    echo EvoFieldRow::render([
+                        'label' => lang('a17_error_reporting_title'),
+                        'body' => EvoErrorReporting::radios((string)$snippetErrorReporting),
+                        'help' => lang('a17_error_reporting_msg'),
+                    ]);
+
                     $from = "[+prefix+]site_modules AS sm " .
                         "INNER JOIN [+prefix+]site_module_depobj AS smd ON smd.module=sm.id AND smd.type=40 " .
                         "INNER JOIN [+prefix+]site_snippets AS ss ON ss.id=smd.resource ";
@@ -272,42 +206,36 @@ function entity($key, $default = null)
                         "smd.resource='{$id}' AND sm.enable_sharedparams='1'",
                         'sm.name'
                     );
-                    $guid_total = db()->count($ds);
-                    if ($guid_total > 0) {
+                    if (db()->count($ds) > 0) {
                         $options = '';
                         while ($row = db()->getRow($ds)) {
                             $options .= '<option value="' . hsc($row['guid']) . '"' . (entity('moduleguid') == $row['guid'] ? " selected='selected'" : "") . ">" . hsc($row['name']) . "</option>";
                         }
+                        echo EvoFieldRow::render([
+                            'label' => lang('import_params'),
+                            'body' => '<select name="moduleguid" style="width:300px;">' . $options . '</select>',
+                            'help' => lang('import_params_msg'),
+                        ]);
                     }
+
+                    ob_start();
                     ?>
-                    <?php if ($guid_total > 0) {
+                    <textarea name="properties" maxlength="65535"
+                        class="inputBox phptextarea"
+                        onChange="showParameters(this);"><?= hsc(entity('properties')) ?></textarea>
+                    <?php
+                    echo EvoFieldRow::render([
+                        'label' => lang('snippet_properties'),
+                        'body' => ob_get_clean(),
+                    ]);
+
+                    // パラメーターの表は element-properties.js が #displayparams の中身を置き換え、行ごと表示を切り替える
+                    echo EvoFieldRow::render([
+                        'label' => '',
+                        'body' => '<div id="displayparams">&nbsp;</div>',
+                        'attr' => ['id' => 'displayparamrow'],
+                    ]);
                     ?>
-                        <tr>
-                            <th align="left" style="padding-top:10px;"><?= lang('import_params') ?>:</th>
-                            <td align="left" valign="top" style="padding-top:10px;">
-                                <select name="moduleguid" style="width:300px;">
-                                    <?= $options ?>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>&nbsp;</td>
-                            <td align="left" valign="top"><span
-                                    class="comment"><?= lang('import_params_msg') ?></td>
-                        </tr>
-                    <?php } ?>
-                    <tr>
-                        <th align="left" valign="top"><?= lang('snippet_properties') ?>:</th>
-                        <td align="left" valign="top">
-                            <textarea name="properties" maxlength="65535"
-                                class="inputBox phptextarea"
-                                onChange="showParameters(this);"><?= hsc(entity('properties')) ?></textarea>
-                        </td>
-                    </tr>
-                    <tr id="displayparamrow">
-                        <td valign="top" align="left">&nbsp;</td>
-                        <td align="left" id="displayparams">&nbsp;</td>
-                    </tr>
                 </table>
             </div>
             <div class="tab-page" id="tabHelp">

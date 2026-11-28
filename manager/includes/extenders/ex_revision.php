@@ -196,12 +196,8 @@ class REVISION
                 $input[$k] = is_array($v) ? implode('||', $v) : $v;
                 continue;
             }
-            if ($doc[$k . '_prefix'] === 'DocID') {
-                //tvがリンクの時の例外処理
-                $input[$k] = '[~' . $v . '~]';
-                continue;
-            }
-            $input[$k] = $doc[$k . '_prefix'] . $v;
+            // URL 型は通常の保存と同じ値にする
+            $input[$k] = normalize_url_tv_value($v, $doc[$k . '_prefix']);
         }
 
         return $input;

@@ -22,16 +22,10 @@ $tbl_site_plugins = evo()->getFullTableName('site_plugins');
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
 
 // check to see the  editor isn't locked
-$rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=108 AND id='{$id}'");
-$limit = db()->count($rs);
-if ($limit > 1) {
-    while ($lock = db()->getRow($rs)) {
-        if ($lock['internalKey'] != evo()->getLoginUserID()) {
-            $msg = sprintf(lang('lock_msg'), $lock['username'], lang('modules'));
-            alert()->setError(5, $msg);
-            alert()->dumpError();
-        }
-    }
+$username = manager()->editLockedBy(EvoFormFlow::screen('module', 'edit'), $id);
+if ($username !== '') {
+    alert()->setError(5, sprintf(lang('lock_msg'), $username, lang('modules')));
+    alert()->dumpError();
 }
 // end check for lock
 
@@ -54,10 +48,9 @@ switch (request_choicevar('op', ['add', 'del'], '')) {
         db()->delete($tbl_site_module_depobj, "module='{$id}' AND resource IN ({$del_opids}) AND type='{$type}'");
         $ds = db()->query("INSERT INTO {$tbl_site_module_depobj} (module, resource, type) VALUES {$values}");
         if (!$ds) {
-            echo '<script type="text/javascript">' .
-                'function jsalert(){ alert(\'An error occured while trying to update the database. \'' . db()->getLastError() . ');' .
-                'setTimeout(\'jsalert()\',100)' .
-                '</script>';
+            echo '<script type="text/javascript">alert(' .
+                js_literal('An error occurred while trying to update the database. ' . db()->getLastError()) .
+                ');</script>';
         }
         break;
     case 'del':
@@ -104,13 +97,7 @@ switch (request_choicevar('op', ['add', 'del'], '')) {
 
 // load record
 $rs = db()->select('*', '[+prefix+]site_modules', "id='{$id}'");
-$limit = db()->count($rs);
-if ($limit > 1) {
-    echo "<p>Multiple modules sharing same unique id. Please contact the Site Administrator.<p>";
-    exit;
-}
-
-if ($limit < 1) {
+if (db()->count($rs) < 1) {
     echo "<p>Module not found for id '$id'.</p>";
     exit;
 }
@@ -220,7 +207,7 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
                 "WHERE smd.module=$id ORDER BY smd.type,name ";
             $ds = db()->query($sql);
             if (!$ds) {
-                echo "An error occured while loading module dependencies.";
+                echo "An error occurred while loading module dependencies.";
             } else {
                 include_once(MODX_CORE_PATH . 'controls/data_table.class.php');
                 $table = new DataTable(
@@ -242,7 +229,6 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
                     [
                         'id' => 'module-resources',
                         'tableClass' => 'grid',
-                        'rowClasses' => ['gridItem', 'gridAltItem'],
                         'emptyMessage' => lang('no_records_found'),
                     ]
                 );
@@ -255,5 +241,5 @@ if ($content['locked'] == 1 && !manager()->isAdmin()) {
             </ul>
         </div>
     </div>
-    <input type="submit" name="save" style="display:none">
+    <input type="submit" name="save" class="hidden">
 </form>

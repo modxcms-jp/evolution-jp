@@ -3,6 +3,9 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
     exit();
 }
 
+require_once MODX_CORE_PATH . 'special_pages.class.inc.php';
+require_once MODX_CORE_PATH . 'retired_files.class.inc.php';
+
 class ConfigCheck {
     private $warnings = '';
     private $_lang;
@@ -43,55 +46,35 @@ class ConfigCheck {
         return $this->warnings;
     }
 
-    /**
-     * 警告の「無効にする」「削除」の操作。確認の文言は対象ごとに PHP で組み立てて渡す
-     *
-     * @param array $confirms プラグインの id => ['disable' => 文言, 'delete' => 文言]
-     */
-    private function get_src_TemplateSwitcher_js(array $confirms) {
-        $entries = [];
-        foreach ($confirms as $id => $messages) {
-            $pairs = [];
-            foreach ($messages as $op => $message) {
-                $pairs[] = js_literal($op) . ':' . js_literal($message);
+    private function pageSettingWarnings() {
+        $warnings = [];
+        foreach (EvoSpecialPages::all() as $key => [$name, $titleKey]) {
+            $id = (int) config($key);
+            if (!$id) {
+                continue;
             }
-            $entries[] = (int) $id . ':{' . implode(',', $pairs) . '}';
+            $problem = EvoSpecialPages::problem($id, $doc);
+            if ($problem === 'missing' || $problem === 'deleted') {
+                $warnings[] = [
+                    'title' => "configcheck_{$name}_{$problem}",
+                    'message' => sprintf($this->_lang["configcheck_page_{$problem}_msg"], $this->_lang[$titleKey], $id)
+                ];
+                continue;
+            }
+            if ($problem === 'unpublished') {
+                $warnings[] = [
+                    'title' => "configcheck_{$name}_unpublished",
+                    'message' => $this->_lang["configcheck_{$name}_unpublished_msg"]
+                ];
+            }
+            if ($key !== 'site_unavailable_page' && $doc['privateweb']) {
+                $warnings[] = [
+                    'title' => "configcheck_{$name}_unavailable",
+                    'message' => $this->_lang["configcheck_{$name}_unavailable_msg"]
+                ];
+            }
         }
-        return "<script>
-var templateSwitcherConfirms = {" . implode(',', $entries) . "};
-function templateSwitcherAction(id, op){
-    var message = (templateSwitcherConfirms[id] || {})[op];
-    if (!message || !window.confirm(message)) return;
-    var action = op === 'delete' ? 'deleteplugin' : 'disableplugin';
-    Evo.post('index.php', {'a':'118','action':action,'id':String(id)}).then(function(response){
-        // 処理できたときだけ本文が true になる（mutate_settings.ajax.php）
-        return response.ok ? response.text() : '';
-    }).then(function(body){
-        if (body.trim() !== 'true') return;
-        var line = document.getElementById('templateswitcher_plugin_' + id);
-        var wrapper = line ? line.closest('#templateswitcher_present_warning_wrapper') : null;
-        if (line) line.remove();
-        // 対象が残っていなければ、警告の入った fieldset を隠す
-        if (wrapper && !wrapper.querySelector('.templateswitcher-plugin')) {
-            var fieldset = wrapper.closest('fieldset');
-            if (fieldset) fieldset.style.display = 'none';
-        }
-    }).catch(function(){});
-}
-</script>";
-    }
-
-    private function get_sc_value($field, $id) {
-        if (empty($id)) {
-            return true;
-        }
-        return db()->getValue(
-            db()->select(
-                $field,
-                '[+prefix+]site_content',
-                sprintf("id='%s'", $id)
-            )
-        );
+        return $warnings;
     }
 
     private function checkAjaxSearch() {
@@ -157,25 +140,26 @@ function templateSwitcherAction(id, op){
         $canDisable = evo()->hasPermission('save_plugin');
         $canDelete = evo()->hasPermission('delete_plugin');
         $msg = $this->_lang['configcheck_templateswitcher_present_msg'];
-        $confirms = [];
         foreach ($plugins as $plugin) {
             $id = (int) $plugin['id'];
+            // 確認ダイアログは文言を HTML として出すので、名前はここでエスケープする（属性へは更に hsc する）
+            $pluginName = hsc($plugin['name']);
             $links = [];
             if ($canDisable) {
                 $links[] = sprintf(
-                    '<a href="javascript:templateSwitcherAction(%d,\'disable\');">%s</a>',
+                    '<a href="#" data-config-check-plugin="disable" data-plugin-id="%d" data-confirm="%s">%s</a>',
                     $id,
+                    hsc(sprintf($this->_lang['configcheck_templateswitcher_confirm_disable'], $pluginName, $id)),
                     $this->_lang['configcheck_templateswitcher_disable_label']
                 );
-                $confirms[$id]['disable'] = sprintf($this->_lang['configcheck_templateswitcher_confirm_disable'], $plugin['name'], $id);
             }
             if ($canDelete) {
                 $links[] = sprintf(
-                    '<a href="javascript:templateSwitcherAction(%d,\'delete\');">%s</a>',
+                    '<a href="#" data-config-check-plugin="delete" data-plugin-id="%d" data-confirm="%s">%s</a>',
                     $id,
+                    hsc(sprintf($this->_lang['configcheck_templateswitcher_confirm_delete'], $pluginName, $id)),
                     $this->_lang['configcheck_templateswitcher_delete_label']
                 );
-                $confirms[$id]['delete'] = sprintf($this->_lang['configcheck_templateswitcher_confirm_delete'], $plugin['name'], $id);
             }
             $msg .= sprintf(
                 '<span class="templateswitcher-plugin" id="templateswitcher_plugin_%d" style="display:block">%s (ID: %d)%s</span>',
@@ -185,11 +169,8 @@ function templateSwitcherAction(id, op){
                 $links ? ' - ' . implode(' | ', $links) : ''
             );
         }
-        if ($confirms) {
-            evo()->regClientScript($this->get_src_TemplateSwitcher_js($confirms));
-        }
         if (evo()->hasPermission('settings')) {
-            $msg .= sprintf($this->_lang['configcheck_hide_warning'], 'templateswitcher_present');
+            $msg .= sprintf($this->_lang['configcheck_hide_warning'], hsc('templateswitcher_present'));
         }
         return '<span id="templateswitcher_present_warning_wrapper">' . $msg . "</span>\n";
     }
@@ -225,6 +206,21 @@ function templateSwitcherAction(id, op){
             db()->select('setting_value', db()->getFullTableName('system_settings'), "setting_name = '" . db()->escape($key) . "'")
         );
         return $result !== false ? $result : null;
+    }
+
+    /**
+     * config.inc.php で Unicode の接続を指定しているのに、接続の文字コードが Unicode でないときの、DB の名前。それ以外は null。
+     * SET CHARACTER SET は接続の文字コードを DB の既定にするので、原因は DB の既定の文字セット
+     */
+    private function nonUnicodeConnectionDatabase() {
+        if (strpos((string) db()->charset, 'utf8') !== 0) {
+            return null;
+        }
+        $charset = (string) db()->getValue(db()->query('SELECT @@character_set_connection'));
+        if ($charset === '' || strpos($charset, 'utf8') === 0) {
+            return null;
+        }
+        return db()->dbase;
     }
 
     private function generateWarnings() {
@@ -297,6 +293,18 @@ function templateSwitcherAction(id, op){
             ];
         }
 
+        // 配布から外したファイルが残っている
+        $retiredDirs = EvoRetiredFiles::remainingDirs();
+        if ($retiredDirs) {
+            $warnings[] = [
+                'title' => 'configcheck_retired_files',
+                'message' => evo()->parseText(
+                    $this->_lang['configcheck_retired_files_msg'],
+                    ['folders' => hsc_for_tpl(implode(', ', $retiredDirs))]
+                )
+            ];
+        }
+
         $tplSwitchPlugins = $this->findTplSwitchPlugins();
         if ($tplSwitchPlugins) {
             $warnings[] = [
@@ -305,32 +313,19 @@ function templateSwitcherAction(id, op){
             ];
         }
 
-        if ($this->get_sc_value('published', config('unauthorized_page')) == 0) {
+        $nonUnicodeDb = $this->nonUnicodeConnectionDatabase();
+        if ($nonUnicodeDb !== null) {
             $warnings[] = [
-                'title' => 'configcheck_unauthorizedpage_unpublished',
-                'message' => $this->_lang['configcheck_unauthorizedpage_unpublished_msg']
+                'title' => 'configcheck_connection_charset',
+                'message' => evo()->parseText(
+                    $this->_lang['configcheck_connection_charset_msg'],
+                    ['dbase' => hsc_for_tpl($nonUnicodeDb)]
+                )
             ];
         }
 
-        if ($this->get_sc_value('published', config('error_page')) == 0) {
-            $warnings[] = [
-                'title' => 'configcheck_errorpage_unpublished',
-                'message' => $this->_lang['configcheck_errorpage_unpublished_msg']
-            ];
-        }
-
-        if ($this->get_sc_value('privateweb', config('unauthorized_page')) == 1) {
-            $warnings[] = [
-                'title' => 'configcheck_unauthorizedpage_unavailable',
-                'message' => $this->_lang['configcheck_unauthorizedpage_unavailable_msg']
-            ];
-        }
-
-        if ($this->get_sc_value('privateweb', config('error_page')) == 1) {
-            $warnings[] = [
-                'title' => 'configcheck_errorpage_unavailable',
-                'message' => $this->_lang['configcheck_errorpage_unavailable_msg']
-            ];
+        foreach ($this->pageSettingWarnings() as $warning) {
+            $warnings[] = $warning;
         }
 
         if (!is_writable(MODX_CACHE_PATH)) {

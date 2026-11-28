@@ -19,7 +19,7 @@ $database_password = post_textvar('pwd', '');
 
 // POSTデータが送信されていない場合はエラー
 if (!$database_server && !post_textvar('dbase')) {
-    exit(lang('status_checking_database') . span_fail('#ffe6eb', 'データベース接続情報を入力してください'));
+    exit(databaseTestResult(false, 'データベース接続情報を入力してください'));
 }
 
 // 接続情報をセッションに保存
@@ -45,12 +45,12 @@ $connected = db()->connect(
     2
 );
 if (!$connected) {
-    exit(lang('status_checking_database') . span_fail('#ffe6eb', lang('status_failed')));
+    exit(databaseTestResult(false, lang('status_failed')));
 }
 
 $db_name              = trim(post_textvar('dbase', ''), '`');
 if ($db_name === '') {
-    exit(lang('status_checking_database') . span_fail('#ffe6eb', lang('status_failed_could_not_create_database')));
+    exit(databaseTestResult(false, lang('status_failed_could_not_create_database')));
 }
 
 $table_prefix         = trim(post_textvar('table_prefix', ''));
@@ -64,32 +64,21 @@ $db_charset           = $underscorePos !== false ? substr($db_collation, 0, $und
 
 if (!isValidDbIdentifier($db_name) || !isValidCharsetName($db_charset) || !isValidCollationName($db_collation)) {
     exit(
-        lang('status_checking_database')
-        . span_fail(
-            '#ffe6eb',
-            lang('status_failed_could_not_create_database')
-        )
+        databaseTestResult(false, lang('status_failed_could_not_create_database'))
     );
 }
 
 if (@db()->select_db($db_name)) {
     if (isAlreadyInUse($db_name, $table_prefix)) {
         exit(
-            lang('status_checking_database') . span_fail(
-                '#ffe6eb',
-                lang('status_failed_table_prefix_already_in_use')
-            )
+            databaseTestResult(false, lang('status_failed_table_prefix_already_in_use'))
         );
     }
     $msg = lang('status_passed');
 } else {
     if (!createDB($db_name, $db_charset, $db_collation)) {
         exit(
-            lang('status_checking_database')
-            . span_fail(
-                '#ffe6eb',
-                lang('status_failed_could_not_create_database')
-            )
+            databaseTestResult(false, lang('status_failed_could_not_create_database'))
         );
     }
     $msg = lang('status_passed_database_created');
@@ -101,7 +90,7 @@ sessionv('*database_collation', $db_collation);
 sessionv('*database_connection_method', $db_connection_method);
 sessionv('*database_charset', $db_charset);
 
-echo lang('status_checking_database') . span_pass('#e6ffeb', $msg);
+echo databaseTestResult(true, $msg);
 
 
 function createDB($db_name, $db_charset, $db_collation)
@@ -146,12 +135,18 @@ function isAlreadyInUse($db_name, $table_prefix)
     return prefixedTablesHaveRows($table_prefix);
 }
 
-function span_pass($bgcolor, $str)
+/**
+ * DB のテストの結果。接続のテスト（connection.servertest.php）と同じく、見出しと結果を 1 つの枠に入れる。
+ * 画面の JS は、id の database_pass で成否を見る
+ */
+function databaseTestResult($passed, $message)
 {
-    return sprintf('<span id="database_pass" style="background: %s;padding:8px;border-radius:5px;color:#388000;">%s</span>', $bgcolor, $str);
-}
-
-function span_fail($bgcolor, $str)
-{
-    return sprintf('<span id="database_fail" style="background: %s;padding:8px;border-radius:5px;color:#FF0000;">%s</span>', $bgcolor, $str);
+    return sprintf(
+        '<div style="background: %s;padding:8px;border-radius:5px;">%s<span id="%s" style="color:%s;">%s</span></div>',
+        $passed ? '#e6ffeb' : '#ffe6eb',
+        lang('status_checking_database'),
+        $passed ? 'database_pass' : 'database_fail',
+        $passed ? '#388000' : '#FF0000',
+        $message
+    );
 }

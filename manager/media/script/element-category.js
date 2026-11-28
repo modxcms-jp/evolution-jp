@@ -3,7 +3,7 @@
  * カテゴリの選択（select[name=categoryid]）と、新しいカテゴリの欄（input[name=newcategory]）の表示を連動させる。
  *
  * 選択が「>> カテゴリー作成」(-1) のときだけ欄の行を出し、ほかを選ぶと隠して名前を空にする。
- * 欄の行は input[name=newcategory] の closest('tr')。出すかどうかは、この JS だけが決める
+ * 欄の行は data-field="newcategory" の行（Evo.fieldRow）。出すかどうかは、この JS だけが決める
  * （PHP は欄の行に display:none を付けたまま出す。差し戻しで -1 が選ばれていれば、init() で出る）。
  *
  * 使い方: EvoElementCategory.init(document.forms['mutate']);
@@ -23,7 +23,7 @@ var EvoElementCategory = (function () {
         const select = form.querySelector('[name="categoryid"]');
         const input = form.querySelector('[name="newcategory"]');
         if (!select || !input) return null;
-        return {select: select, input: input, row: input.closest('tr')};
+        return {select: select, input: input, row: Evo.fieldRow('newcategory', form)};
     }
 
     function sync(form) {

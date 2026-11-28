@@ -23,7 +23,7 @@ if (!is_string($elements) || !is_string($default_text)) {
     alert()->dumpError();
 }
 
-$rawName = manager()->requireElementName(post_strvar('name'), lang('tv'), 'tmplvar', $id);
+$rawName = manager()->requireElementName(post_strvar('name'), lang('tv'), 'tmplvar', $mode === 'edit' ? $id : 0);
 $description = post_strvar('description');
 $caption = post_strvar('caption', $rawName);
 $type = post_strvar('type');
@@ -32,157 +32,81 @@ $display = post_strvar('display');
 $display_params = post_strvar('params');
 $locked = postv('locked') === 'on' ? 1 : 0;
 
-switch ($mode) {
-    case 'new':
-        // invoke OnBeforeTVFormSave event
-        $tmp = [
-            'mode' => 'new',
-            'id' => ''
-        ];
-        evo()->invokeEvent('OnBeforeTVFormSave', $tmp);
-        if (check_exist_name($rawName, 0) !== false) {
-            manager()->redirectToElementForm(
-                sprintf(lang('duplicate_name_found_general'), lang('tv'), $rawName),
-                'tmplvar',
-                0
-            );
-        }
-        if (check_reserved_names($rawName) !== false) {
-            manager()->redirectToElementForm(
-                sprintf(lang('reserved_name_warning'), $rawName),
-                'tmplvar',
-                0
-            );
-        }
+$isNew = $mode === 'new';
+// 差し戻し先と、名前の重複から除く id（新規は 0）
+$formId = $isNew ? 0 : $id;
 
-        $category = manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
+// invoke OnBeforeTVFormSave event
+$tmp = [
+    'mode' => $isNew ? 'new' : 'upd',
+    'id' => $isNew ? '' : $id
+];
+evo()->invokeEvent('OnBeforeTVFormSave', $tmp);
 
-        // Add new TV
-        $field = [
-            'name' => $rawName,
-            'description' => $description,
-            'caption' => $caption,
-            'type' => $type,
-            'elements' => $elements,
-            'default_text' => $default_text,
-            'display' => $display,
-            'display_params' => $display_params,
-            'rank' => $rank,
-            'locked' => $locked,
-            'category' => $category
-        ];
-        $newid = db()->insert(db()->escape($field), '[+prefix+]site_tmplvars');
-        if (!$newid) {
-            echo "Couldn't get last insert key!";
-            exit;
-        }
-
-        // save access permissions
-        saveTemplateAccess($newid);
-        saveDocumentAccessPermissons($newid);
-
-        // invoke OnTVFormSave event
-        $tmp = [
-            'mode' => 'new',
-            'id' => $newid
-        ];
-        evo()->invokeEvent('OnTVFormSave', $tmp);
-
-        // empty cache
-        $modx->clearCache(); // first empty the cache
-        // finished emptying cache - redirect
-        header('Location: ' . EvoFormFlow::afterSaveUrl('tmplvar', $newid, EvoFormFlow::postedAfterSave()));
-        break;
-    case 'edit':
-        // invoke OnBeforeTVFormSave event
-        $tmp = [
-            'mode' => 'upd',
-            'id' => $id
-        ];
-        evo()->invokeEvent('OnBeforeTVFormSave', $tmp);
-        if (check_exist_name($rawName, $id) !== false) {
-            manager()->redirectToElementForm(
-                sprintf(lang('duplicate_name_found_general'), lang('tv'), $rawName),
-                'tmplvar',
-                $id
-            );
-        }
-        if (check_reserved_names($rawName) !== false) {
-            manager()->redirectToElementForm(
-                sprintf(lang('reserved_name_warning'), $rawName),
-                'tmplvar',
-                $id
-            );
-        }
-
-        $category = manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
-
-        // update TV
-        $was_name = db()->getValue(db()->select('name', '[+prefix+]site_tmplvars', "id='{$id}'"));
-        $field = [
-            'name' => $rawName,
-            'description' => $description,
-            'caption' => $caption,
-            'type' => $type,
-            'elements' => $elements,
-            'default_text' => $default_text,
-            'display' => $display,
-            'display_params' => $display_params,
-            'rank' => $rank,
-            'locked' => $locked,
-            'category' => $category
-        ];
-        $rs = db()->update(db()->escape($field), '[+prefix+]site_tmplvars', "id='{$id}'");
-
-        if (!$rs) {
-            echo "\$rs not set! Edited variable not saved!";
-            exit;
-        }
-
-        // update all references to this TV
-        if ($rawName !== $was_name) {
-            // 生の名前を SQL に入れる直前に 1 回だけエスケープする
-            $name = db()->escape($rawName);
-            $was_name = db()->escape($was_name);
-            db()->update("content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')", '[+prefix+]site_content');
-            db()->update(
-                "content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')",
-                '[+prefix+]site_templates'
-            );
-            db()->update(
-                "snippet=REPLACE(snippet,'[*{$was_name}*]','[*{$name}*]')",
-                '[+prefix+]site_htmlsnippets'
-            );
-            db()->update(
-                "value=REPLACE(value,    '[*{$was_name}*]','[*{$name}*]')",
-                '[+prefix+]site_tmplvar_contentvalues'
-            );
-            db()->update("content=REPLACE(content,'[*{$was_name}:','[*{$name}:')", '[+prefix+]site_content');
-            db()->update("content=REPLACE(content,'[*{$was_name}:','[*{$name}:')", '[+prefix+]site_templates');
-            db()->update(
-                "snippet=REPLACE(snippet,'[*{$was_name}:','[*{$name}:')",
-                '[+prefix+]site_htmlsnippets'
-            );
-            db()->update(
-                "value=REPLACE(value,    '[*{$was_name}:','[*{$name}:')",
-                '[+prefix+]site_tmplvar_contentvalues'
-            );
-        }
-        // save access permissions
-        saveTemplateAccess($id);
-        saveDocumentAccessPermissons($id);
-        // invoke OnTVFormSave event
-        $tmp = [
-            'mode' => 'upd',
-            'id' => $id
-        ];
-        evo()->invokeEvent('OnTVFormSave', $tmp);
-        // empty cache
-        $modx->clearCache(); // first empty the cache
-        // finished emptying cache - redirect
-        header('Location: ' . EvoFormFlow::afterSaveUrl('tmplvar', $id, EvoFormFlow::postedAfterSave()));
-        break;
+if (manager()->elementNameExists('tmplvar', $rawName, $formId)) {
+    manager()->redirectToElementForm(
+        sprintf(lang('duplicate_name_found_general'), lang('tv'), $rawName),
+        'tmplvar',
+        $formId
+    );
 }
+if (check_reserved_names($rawName) !== false) {
+    manager()->redirectToElementForm(
+        sprintf(lang('reserved_name_warning'), $rawName),
+        'tmplvar',
+        $formId
+    );
+}
+
+$category = manager()->resolveElementCategory(post_intvar('categoryid'), post_strvar('newcategory'));
+
+// 更新では、名前が変わったかを見るために、保存の前の名前を読んでおく
+$was_name = $isNew ? null : db()->getValue(db()->select('name', '[+prefix+]site_tmplvars', "id='{$id}'"));
+$field = [
+    'name' => $rawName,
+    'description' => $description,
+    'caption' => $caption,
+    'type' => $type,
+    'elements' => $elements,
+    'default_text' => $default_text,
+    'display' => $display,
+    'display_params' => $display_params,
+    'rank' => $rank,
+    'locked' => $locked,
+    'category' => $category
+];
+if ($isNew) {
+    $savedId = db()->insert(db()->escape($field), '[+prefix+]site_tmplvars');
+    if (!$savedId) {
+        echo "Couldn't get last insert key!";
+        exit;
+    }
+} else {
+    $rs = db()->update(db()->escape($field), '[+prefix+]site_tmplvars', "id='{$id}'");
+    if (!$rs) {
+        echo "\$rs not set! Edited variable not saved!";
+        exit;
+    }
+    // update all references to this TV
+    if (is_string($was_name) && $rawName !== $was_name) {
+        manager()->renameElementTags(['[*%s*]', '[*%s:'], $was_name, $rawName);
+    }
+    $savedId = $id;
+}
+
+// save access permissions
+saveTemplateAccess($savedId);
+saveDocumentAccessPermissons($savedId);
+
+// invoke OnTVFormSave event
+$tmp = [
+    'mode' => $isNew ? 'new' : 'upd',
+    'id' => $savedId
+];
+evo()->invokeEvent('OnTVFormSave', $tmp);
+
+evo()->clearCache();
+EvoFormFlow::redirectAfterSave('tmplvar', $savedId, EvoFormFlow::postedAfterSave());
 
 function saveTemplateAccess($id)
 {
@@ -243,23 +167,6 @@ function saveDocumentAccessPermissons($id)
                 }
             }
         }
-    }
-}
-
-// 同じ名前の TV があるか。$id は更新のときの自分の id（新規は 0）で、あれば自分は除く
-function check_exist_name($name, $id)
-{
-    // disallow duplicate names for new tvs
-    $where = "name='" . db()->escape($name) . "'";
-    if ($id) {
-        $where = $where . " AND id!=" . (int)$id;
-    }
-    $rs = db()->select('COUNT(id)', '[+prefix+]site_tmplvars', $where);
-    $count = db()->getValue($rs);
-    if ($count > 0) {
-        return true;
-    } else {
-        return false;
     }
 }
 
