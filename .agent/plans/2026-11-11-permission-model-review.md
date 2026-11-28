@@ -331,7 +331,7 @@ M0 の記録のスクリプトとデータ（DB のダンプ）は作業用デ�
 ## Artifacts and Notes
 
 - Issue: #1357（この計画）、#1404（M5）、#1397 の自己レビューの残り（M1）、#1394（#1405 でマージ済み。ルートの入口は済んだ）
-- 正本: `assets/docs/permissions.md`。前の計画: `.agent/plans/2026-11-10-docgroup-admin-bypass.md`（文書グループの判定を ManagerAPI に寄せた #1338。記録と比べる確かめ方の見本）
+- 正本: `assets/docs/permissions.md`。前の計画: `.agent/plans/archive/2026-11-10-docgroup-admin-bypass.md`（文書グループの判定を ManagerAPI に寄せた #1338。記録と比べる確かめ方の見本）
 - 計画時に `assets/docs/core-issues.md` に足す候補（この下書きでは書いていない）: 利用者の保存が、付けるロールを保存する人の権限の範囲で確かめないこと（M7 で扱う）、モジュールのグループの絞り込みが `use_udperms` の無効でも見えないまま効くこと（M4 で扱う）
 - ブランチ名は着手時に作り、ここに書く。段階ごとのブランチは Issue に紐づけず `origin/develop/1.4` から作る
 - M1: ブランチ `fix/1357-m1-private-flags`、PR #1407
